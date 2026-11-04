@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.7.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.8.0. Chapter 2 only. No paid purchases.
 
 local Core = (function()
 -- Luau · potato_core.luau · configuration and task coordination · Roblox / CLI · Luau 0.745
@@ -18,6 +18,7 @@ Core.defaults = {
     infiniteBag=false,collectGems=true,gemPriority=true,
     upgradeDrone=true,upgradeMachines=true,upgradeGeneral=true,saveForNextTool=true,
     dynamiteInterval=1,dynamiteAggressive=false,
+    clearPileFirst=true,autoBuyDrone=false,worthEarlyLimit=3,forceThirdPerson=false,cameraDistance=20,aimCooling=true,keyPriority=true,
     uiWidth = 760, uiHeight = 580, uiScale = 100, uiX = 0.5, uiY = 0.5,
     buttonX = 0.03, buttonY = 0.22, buttonSize = 56,
     deliveryFill = 90, deliveryBatch = 1000, heatStart = 60, heatStop = 25, coolingRetry = 12,
@@ -39,6 +40,7 @@ local ranges = {
     teleportSettle={0.05,1}, uiWidth={300,1100}, uiHeight={340,900}, uiScale={65,150},
     uiX={0,1},uiY={0,1},buttonX={0,1},buttonY={0,1},buttonSize={44,88},
     pickBatch={1,16},cutBurst={1,6},
+    worthEarlyLimit={1,10},cameraDistance={8,100},
     cutTargetRate={1,40},cutToolMultiplier={1,4},
     sellThreshold={1,1000000},dynamiteInterval={0.1,15},
 }
@@ -74,7 +76,7 @@ function Core.validate(values, resetActive)
                     end
                 elseif choices[key] then
                     if choices[key][value] then config[key] = value end
-                elseif string.sub(key,1,3) == "key" then
+                elseif type(value)=="string" and string.sub(key,1,3) == "key" then
                     if #value > 0 and #value < 24 and string.match(value,"^[%w]+$") then config[key] = value end
                 else
                     config[key] = value
@@ -199,6 +201,7 @@ end
 function Core.choose(config, state, now)
     local function ready(action) return now>=((state.retryAt or {})[action] or 0) end
     if Core.effective(config,"autoCool") and state.needCooling and now >= (state.coolingRetryAt or 0) and ready("cool") then return "cool" end
+    if state.droneReady and ready("drone") then return "drone" end
     if state.deliveryPending and (Core.effective(config,"autoDeliver") or Core.effective(config,"autoCut")) and ready("deliver") then return "deliver" end
     if Core.effective(config,"autoSell") and state.sellReady and now>=(state.sellRetryAt or 0) and ready("sell") then return "sell" end
     if state.returnToTable and state.postSaleWeaponBought and ready("returnTable") then return "returnTable" end
@@ -209,14 +212,14 @@ function Core.choose(config, state, now)
     if state.returnToTable and ready("returnTable") then return "returnTable" end
     if Core.effective(config,"autoDynamite") and state.dynamiteReady and not state.cutting and ready("dynamite") then return "dynamite" end
     if Core.effective(config,"autoCrank") and state.crankReady and ready("crank") then return "crank" end
-    if Core.effective(config,"autoCut") and state.cutting and ready("cut") then return "cut" end
+    if Core.effective(config,"autoCut") and state.cutting and not state.focusClear and ready("cut") then return "cut" end
     if Core.effective(config,"autoCut") and not Core.effective(config,"autoFarm") and state.carried and state.carried>0 and state.canStageCut and not state.tableReady and ready("stageCut") then return "stageCut" end
     if Core.effective(config,"autoDeliver") and state.carried and state.carried > 0 then
         local goal=Core.deliveryGoal(config,state.capacity)
         local full=goal and state.carried>=goal
         if (full or state.noCandidate or not Core.effective(config,"autoFarm")) and ready("deliver") then return "deliver" end
     end
-    if Core.effective(config,"autoCut") and state.tableReady and ready("enterCut") then return "enterCut" end
+    if Core.effective(config,"autoCut") and state.tableReady and not state.focusClear and ready("enterCut") then return "enterCut" end
     if Core.effective(config,"autoFarm") and state.hasCandidate
         and type(state.capacity)=="number" and type(state.carried)=="number"
         and state.capacity>0 and (state.carried < state.capacity or state.candidatePumpkin) and ready("collect") then return "collect" end
@@ -418,7 +421,8 @@ function Chapter.canUpgrade(data,tool,id,config)
     if tool=="Drone" and not config.upgradeDrone then return false end
     if (tool=="AutoPeeler" or tool=="HandPeeler") and not config.upgradeMachines then return false end
     if (tool=="Body" or tool=="General") and not config.upgradeGeneral then return false end
-    if id=="WalkSpeed" and config.movement=="Teleport" then return false end
+    if id=="WalkSpeed" then return false end
+    if tool=="Hand" and Chapter.owns(data,"Shovel") then return false end
     for _,name in ipairs(list) do if name==id then return true end end
     return false
 end
@@ -441,6 +445,25 @@ function Chapter.rank(tool,id)
     local order={Shovel=1,Dynamite=2,PotatoSucker=3,Hand=4,AutoPeeler=5,HandPeeler=6,Drone=7,Body=8,General=8}
     local rank=order[tool] or 100
     return rank*10+(id=="PickAmount" and 0 or id=="PickSpeed" and 1 or 2)
+end
+function Chapter.limit(tool,id,cutRank,lastRank,earlyLimit)
+    if id=="WalkSpeed" then return 0 end
+    if (tool=="Body" or tool=="General") and id=="PotatoWorth" then
+        if cutRank<=1 then return 0 end
+        return cutRank>=lastRank and math.huge or earlyLimit or 3
+    end
+    return math.huge
+end
+function Chapter.maxed(shared,data,tool)
+    if not Chapter.owns(data,tool) or type(shared.GetUpgrade)~="function" or type(shared.GetMaxLevel)~="function" then return false end
+    for _,id in ipairs(Chapter.allowed[tool] or {}) do
+        local ok,definition=pcall(shared.GetUpgrade,tool,id)
+        if not ok then return false end
+        local good,maximum=pcall(shared.GetMaxLevel,definition)
+        local current=Chapter.level(shared,data,tool,id)
+        if not good or type(maximum)~="number" or maximum<=0 or current==nil or current<maximum then return false end
+    end
+    return true
 end
 function Chapter.sellReady(config,stock,state)
     if type(stock)~="number" or stock<=0 then return false end
@@ -1097,7 +1120,10 @@ function UI.create(services, config, callbacks, Layout)
     toggle(p,"autoBuyUpgrades","Melhorias")
     toggle(p,"autoBuyStorage","Bolsas e capacidade")
     toggle(p,"saveForNextTool","Guardar para a proxima arma")
+    toggle(p,"autoBuyDrone","Oferecer compra do drone a cada partida","Solicita confirmacao de 80 gemas; a oferta real tambem precisa confirmar esse valor.")
     toggle(p,"upgradeDrone","Melhorar drone comprado")
+    toggle(p,"clearPileFirst","Limpar antes de cortar","Quando pa e dinamite estiverem no maximo confirmado, coleta e entrega primeiro; corta o restante no fim.")
+    number(p,"worthEarlyLimit","Nivel inicial do valor de venda",1,10,1,"")
     toggle(p,"upgradeMachines","Melhorar maquinas compradas")
     toggle(p,"upgradeGeneral","Melhorias gerais do capitulo 2")
     number(p,"reserveCash","Reserva de dinheiro",0,100000,0.01," $")
@@ -1112,6 +1138,10 @@ function UI.create(services, config, callbacks, Layout)
     table.insert(connections,resetLayout.Activated:Connect(function()
         layoutChange({uiX=0.5,uiY=0.5,uiWidth=760,uiHeight=580,uiScale=100,buttonX=0.03,buttonY=0.22,buttonSize=56})
     end))
+    local cameraCard=card(settings,"Camera")
+    toggle(cameraCard,"forceThirdPerson","Forcar terceira pessoa")
+    number(cameraCard,"cameraDistance","Distancia maxima da camera",8,100,1," studs")
+    toggle(cameraCard,"aimCooling","Apontar automaticamente para a valvula","Alinha a camera durante a interacao e restaura a visao ao terminar.")
     local s=card(settings,"Execucao")
     choice(s,"movement","Deslocamento",{{"Teleport","Teleporte"},{"Walk","Caminhar"}})
     choice(s,"speedMode","Ritmo",{{"Turbo","Turbo"},{"Standard","Normal"}})
@@ -1205,6 +1235,20 @@ function UI.create(services, config, callbacks, Layout)
     end
     gui.Destroying:Connect(destroy)
     return {
+        confirmDrone=function(answer)
+            local shade=make("Frame",{Name="DroneConfirmation",Size=UDim2.fromScale(1,1),BackgroundColor3=palette.background,BackgroundTransparency=0.1,ZIndex=100},canvas)
+            local box=make("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),Size=UDim2.new(0.85,0,0,180),BackgroundColor3=palette.card,ZIndex=101},shade)
+            corner(box,12)
+            local title=text(box,"Deseja mesmo comprar o drone?\nPreco: 80 gemas",17,palette.text,true)
+            title.Position,title.Size=UDim2.fromOffset(15,15),UDim2.new(1,-30,0,80) title.TextWrapped=true title.ZIndex=102
+            local yes,no=button(box,"COMPRAR: 80 GEMAS"),button(box,"AGORA NAO")
+            yes.Position,yes.Size=UDim2.new(0.04,0,1,-65),UDim2.new(0.45,0,0,48)
+            no.Position,no.Size=UDim2.new(0.51,0,1,-65),UDim2.new(0.45,0,0,48)
+            yes.ZIndex=102 no.ZIndex=102
+            local answered=false
+            local function finish(value) if answered then return end answered=true shade:Destroy() answer(value) end
+            yes.Activated:Connect(function() finish(true) end) no.Activated:Connect(function() finish(false) end)
+        end,
         refresh=function(field)
             if closed then return end
             for key,list in pairs(bindings) do
@@ -1241,6 +1285,8 @@ function Navigation.create(services, config, log,runtime)
     local controls, controlDepth, previousEnabled = nil,0,true
     local activeHumanoid = nil
     local heldPrompt=nil
+    local aimCleanup=nil
+    local cameraBefore=nil
     local promptStats={attempts=0,held=0,native=0,lastMethod="none",lastPath="none"}
     local function actor()
         local character = player.Character
@@ -1272,6 +1318,7 @@ function Navigation.create(services, config, log,runtime)
         end
     end
     local function stop()
+        if aimCleanup then aimCleanup() end
         if heldPrompt then pcall(heldPrompt.InputHoldEnd,heldPrompt) heldPrompt=nil end
         local root,humanoid = actor()
         if humanoid and root then humanoid:MoveTo(root.Position) end
@@ -1430,7 +1477,52 @@ function Navigation.create(services, config, log,runtime)
         if not ok then return false,tostring(success) end
         return success,message
     end
-    return {actor=actor,goTo=goTo,approach=approach,trigger=trigger,promptPosition=promptPosition,stop=stop,waitFor=waitFor,stats=promptStats}
+    local function updateCamera()
+        if config.forceThirdPerson then
+            if not cameraBefore then cameraBefore={mode=player.CameraMode,min=player.CameraMinZoomDistance,max=player.CameraMaxZoomDistance} end
+            player.CameraMode=Enum.CameraMode.Classic
+            player.CameraMaxZoomDistance=math.max(8,config.cameraDistance)
+            player.CameraMinZoomDistance=6
+        elseif cameraBefore then
+            player.CameraMinZoomDistance=0.5
+            player.CameraMaxZoomDistance=cameraBefore.max
+            player.CameraMinZoomDistance=cameraBefore.min player.CameraMode=cameraBefore.mode cameraBefore=nil
+        end
+    end
+    local function clearAim() if aimCleanup then aimCleanup() end end
+    local function aim(prompt,enabled)
+        clearAim()
+        if not enabled then return end
+        local camera=services.Workspace.CurrentCamera
+        if not camera then return end
+        local before={mode=player.CameraMode,min=player.CameraMinZoomDistance,max=player.CameraMaxZoomDistance,frame=camera.CFrame,focus=camera.Focus}
+        local name="AnonymousPotatoWaterAim"
+        local done=false
+        aimCleanup=function()
+            if done then return end done=true
+            services.RunService:UnbindFromRenderStep(name)
+            pcall(function()
+                player.CameraMinZoomDistance=0.5 player.CameraMaxZoomDistance=before.max
+                player.CameraMinZoomDistance=before.min player.CameraMode=before.mode
+                if camera.Parent then camera.CFrame=before.frame camera.Focus=before.focus end
+            end)
+            aimCleanup=nil updateCamera()
+        end
+        services.RunService:BindToRenderStep(name,Enum.RenderPriority.Camera.Value+1,function()
+            local position=promptPosition(prompt)
+            local root=actor()
+            if not position or not root then return end
+            player.CameraMode=Enum.CameraMode.Classic
+            player.CameraMaxZoomDistance=math.max(12,config.cameraDistance)
+            player.CameraMinZoomDistance=6
+            local away=root.Position-position
+            away=Vector3.new(away.X,0,away.Z)
+            if away.Magnitude<0.1 then away=Vector3.new(0,0,1) end
+            local eye=position+away.Unit*math.min(12,config.cameraDistance)+Vector3.new(0,4,0)
+            camera.CFrame=CFrame.lookAt(eye,position) camera.Focus=CFrame.new(position)
+        end)
+    end
+    return {actor=actor,goTo=goTo,approach=approach,trigger=trigger,promptPosition=promptPosition,stop=stop,waitFor=waitFor,stats=promptStats,aim=aim,clearAim=clearAim,updateCamera=updateCamera,close=function() stop() config.forceThirdPerson=false updateCamera() end}
 end
 
 return Navigation
@@ -1891,6 +1983,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local retryAt={}
     local deliveryPending=nil
     local cutGuiSnapshot=nil
+    local droneConsent,droneAsked,droneRound=false,false,nil
+    local masteryAt,mastered=0,false
     local cutDriving,closed=false,false
     local equippedTool=nil
     local specialCache,specialAt={},0
@@ -2104,12 +2198,12 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                     if not buttonOk or typeof(button)~="Instance" or not button:IsA("GuiButton") then button=nil end
                     local price=upgradePrice(data,tool,id,level,button)
                     local maxed=button and button:FindFirstChild("Maxed")
-                    if level~=nil and not (maxLevel and level>=maxLevel) and not (maxed and maxed.Enabled)
+                    if level~=nil and level<Chapter.limit(tool,id,bestCutRank(data),#(cutShared.Tools or {}),config.worthEarlyLimit) and not (maxLevel and level>=maxLevel) and not (maxed and maxed.Enabled)
                         and (button or protocol.matches("ToolUpgradePurchase",{"String","String"})) then
                         local key=tool.."/"..id
                         if os.clock()>=(offerRetry[key] or 0) and type(price)=="number" and (includeUnaffordable or Core.purchaseReady(config,balance,price,level,deniedOffers[key])) then
                             table.insert(result,{group="upgrade",name=key,tool=tool,upgrade=id,button=button,
-                                price=price,level=level,rank=tool=="Dynamite" and -100+Chapter.rank(tool,id) or Chapter.rank(tool,id)})
+                                price=price,level=level,rank=id=="PotatoWorth" and (level<config.worthEarlyLimit and -300 or -80) or tool=="Dynamite" and -200+Chapter.rank(tool,id) or tool=="Shovel" and -150 or tool=="Drone" and -60 or id=="Luck" and -50 or Chapter.rank(tool,id)})
                         end
                     end
                 end
@@ -2124,9 +2218,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if not balance or not data then return nil end
         if afterSale and postSaleWeaponBought then return nil end
         local options={}
-        if Chapter.owns(data,"Dynamite") and Core.effective(config,"autoBuyUpgrades") then
+        if Core.effective(config,"autoBuyUpgrades") then
             for _,offer in ipairs(upgradeOffers(data,balance,true)) do
-                if offer.tool=="Dynamite" then
+                if offer.upgrade=="PotatoWorth" or offer.tool=="Dynamite" or offer.tool=="Shovel" then
                     progressGoal=offer
                     local blocked=deniedOffers[offer.name]
                     if blocked and balance<blocked.cash and offer.level==blocked.level then progressGoal.price=math.max(offer.price,blocked.cash) return nil end
@@ -2213,7 +2307,17 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         last.postSaleWeaponBought=postSaleWeaponBought
         last.goal=progressGoal
         local data=state()
+        if os.clock()>=masteryAt then
+            local shared=modules["Shared.ToolUpgradeShared"] or {}
+            mastered=Chapter.maxed(shared,data,"Shovel") and Chapter.maxed(shared,data,"Dynamite") masteryAt=os.clock()+1
+        end
+        local removedOk,removed=safeCall(pileController,"GetRemovedFraction")
+        last.focusClear=config.clearPileFirst and mastered and removedOk and type(removed)=="number" and removed<1
         last.drone=data and data.HasDrone==true
+        local round=data and data.RunStartTime or 0
+        if droneRound~=round then droneRound=round droneConsent=false droneAsked=false end
+        last.droneReady=config.autoBuyDrone and droneConsent and not last.drone and (config.autoProgress or config.autoFarm)
+        last.askDrone=config.autoBuyDrone and not droneAsked and not last.drone and (config.autoProgress or config.autoFarm)
         last.dynamiteReady=data and Chapter.owns(data,"Dynamite") and os.clock()>=dynamiteAt
             and protocol.matches("DynamiteThrow",{"NumberU32"}) and itemAlive(candidate)
 
@@ -2293,6 +2397,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                     if Core.acceptVariant(config,kind,pumpkin,isGem) and (not onlyPumpkins or pumpkin) then
                         local worth=({Normal=1,Golden=3,Diamond=6,Rainbow=10,Key=1,Charred=0.5})[kind] or 1
                         local score=config.selection=="Random" and math.random()*1000 or distance
+                        if config.keyPriority and kind=="Key" then score-=10000000000 end
                         if config.pumpkinPriority and pumpkin then score-=1000000000 end
                         if config.gemPriority and isGem and config.collectGems then score-=1000000 end
                         if config.priorityValue and config.rarity=="Any" then score-=worth*10000 end
@@ -2346,6 +2451,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         return root~=nil and itemAlive(item) and (root.Position-position).Magnitude<=18,"alvo fora do alcance"
     end
     local function collect(valid)
+        if isCutting() then cancelCut() end
         local item,message=findCandidate(valid)
         if not item then
             if message then log(message,"error") end
@@ -2523,6 +2629,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local prompt=get(world,{"Map","Water","WaterTerminal","3","Button","WaterPrompt"})
         if not prompt then return false,"WaterPrompt nao encontrado." end
         local initialHeat=resolver.heat()
+        nav.aim(prompt,config.aimCooling)
         local confirmed,reason=false,nil
         for attempt=1,2 do
             local ok,message=nav.trigger(prompt,valid,{method=attempt==1 and "hold" or "native"})
@@ -2535,6 +2642,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             end
             if confirmed or not valid() then break end
         end
+        nav.clearAim()
         snapshotAt=0
         if confirmed then
             counts.cooled+=1 log("Valvula confirmada: agua fluindo ou calor diminuindo.")
@@ -2757,6 +2865,40 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
         if action=="buy" then cachedPurchase=nil purchaseCacheAt=0 end
     end
+    local function drone(valid)
+        if not droneConsent or not config.autoBuyDrone then return true end
+        local data=state()
+        if data and data.HasDrone then return true end
+        interactionTool()
+        local prompt=get(world,{"Map","StoreItems","Robux","Drone","Price","PromptAttachment","ProximityPrompt"})
+        if not prompt then return false,"Loja do drone indisponivel." end
+        local reached,why=nav.trigger(prompt,valid)
+        if not reached then return false,why end
+        local selected=nil
+        waitUntil(function()
+            local screen=playerGui:FindFirstChild("StoreView")
+            if not screen then return false end
+            for _,button in ipairs(screen:GetDescendants()) do
+                if button:IsA("GuiButton") and bridge.visible(button) and button.Active then
+                    local text=string.upper(bridge.texts(button.Parent or button))
+                    local gems=text:find("GEM",1,true) or text:find("DIAMOND",1,true) or text:find("💎",1,true)
+                    local action=string.upper(bridge.texts(button).." "..button.Name)
+                    local buyAction=action:find("BUY",1,true) or action:find("PURCHASE",1,true) or action:find("COMPRAR",1,true)
+                    if buyAction and gems and not text:find("ROBUX",1,true) and not text:find("R$",1,true) and Core.parseAmount(text)==80 then selected=button return true end
+                end
+            end
+            return false
+        end,2,valid)
+        local success=false
+        if selected and valid() then
+            local sent=bridge.activate(selected)
+            if sent then success=waitUntil(function() local current=state() return current and current.HasDrone==true end,3,valid) end
+        end
+        safeCall(storeView,"Close")
+        retryAt.drone=os.clock()+30
+        if success then droneConsent=false counts.purchases+=1 log("Drone adquirido; melhorias de drone liberadas.") return true end
+        return false,"Compra do drone nao confirmada: exige oferta visivel de 80 gemas e saldo suficiente."
+    end
     local function restoreGame()
         interactionTool() nav.stop() safeCall(storeView,"Close")
         safeCall(upgradeController,"SetOpen",false)
@@ -2767,8 +2909,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         table.clear(retryAt) table.clear(tableRetry) reset()
     end
     return {
+        droneAsked=function() droneAsked=true end,droneConfirm=function(value) droneConsent=value==true snapshotAt=0 end,
         snapshot=snapshot,findCandidate=findCandidate,release=release,cancelCut=cancelCut,reset=reset,recover=recover,restoreGame=restoreGame,counts=counts,
-        actions={collect=collect,deliver=deliver,cut=cut,enterCut=enterCut,cool=cool,buy=buy,crank=crank,stageCut=stageCut,sell=sell,returnTable=returnTable,dynamite=dynamite},
+        actions={drone=drone,collect=collect,deliver=deliver,cut=cut,enterCut=enterCut,cool=cool,buy=buy,crank=crank,stageCut=stageCut,sell=sell,returnTable=returnTable,dynamite=dynamite},
         stop=function()
             cancelCut() nav.stop()
             if restoreHeadless then restoreHeadless() restoreHeadless=nil end
@@ -2780,7 +2923,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end,
         close=function()
             closed=true
-            cancelCut() nav.stop() resolver.close()
+            cancelCut() nav.close() resolver.close()
             if restoreHeadless then restoreHeadless() restoreHeadless=nil end
             for _,connection in ipairs(connections) do connection:Disconnect() end
         end,
@@ -2800,7 +2943,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.7.0"
+local VERSION="0.8.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}
@@ -2904,6 +3047,7 @@ local function displayed(field)
 end
 local function change(field,value)
     if config[field]==nil then return end
+    if field=="autoBuyDrone" and value==true then adapter.droneConfirm(false) end
     if config[field]==value and not (config.autoProgress and combinedSet[field]) then return end
     if field=="autoCool" and config.autoProgress and value==false then
         if ui then ui.status("O resfriamento faz parte do Auto Progress. Pause o ciclo para desliga-lo.") ui.refresh() end
@@ -3008,13 +3152,18 @@ local respawnConnection=player.CharacterAdded:Connect(function()
 end)
 lifecycle.add(function() respawnConnection:Disconnect() end)
 
-local actionNames={cool="Resfriando",collect="Coletando",deliver="Entregando",cut="Cortando",enterCut="Indo para a mesa",buy="Comprando",crank="Girando cortador",search="Indexando e selecionando",stageCut="Abastecendo a mesa",sell="Vendendo",returnTable="Retornando a mesa",dynamite="Lancando dinamite"}
+local actionNames={drone="Comprando drone",cool="Resfriando",collect="Coletando",deliver="Entregando",cut="Cortando",enterCut="Indo para a mesa",buy="Comprando",crank="Girando cortador",search="Indexando e selecionando",stageCut="Abastecendo a mesa",sell="Vendendo",returnTable="Retornando a mesa",dynamite="Lancando dinamite"}
 local nextUi=0
 local heartbeat=services.RunService.Heartbeat:Connect(function()
     if not lifecycle.alive() or os.clock()<nextUi then return end
     nextUi=os.clock()+0.5
+    nav.updateCamera()
     local ok,snapshot=pcall(adapter.snapshot)
     if not ok then log("Falha de leitura: "..tostring(snapshot),"error") return end
+    if snapshot.askDrone then
+        adapter.droneAsked()
+        ui.confirmDrone(function(accepted) adapter.droneConfirm(accepted) end)
+    end
     local goal=Core.deliveryGoal(config,snapshot.capacity)
     local money=snapshot.cash and string.format("$%.2f",snapshot.cash) or "indisponivel"
     local capacity=snapshot.capacity==math.huge and "∞" or snapshot.capacity and tostring(snapshot.capacity) or "?"
