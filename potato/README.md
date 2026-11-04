@@ -1,19 +1,16 @@
-# Evolvy / Anonymous Potato 0.6.0 — capitulo 2
+# Anonymous / Evolvy 0.7.0 — capitulo 2
+Chave: Anonymous. PlaceId 116701845804918.
 
-PlaceId 116701845804918. Chave local: Anonymous.
+Os prompts sao acionados com Enabled e RequiresLineOfSight ajustados somente durante a interacao, restaurados ao terminar. Nao ha rotacao da camera nem dependencia do toque no prompt visivel. O servidor ainda valida disponibilidade e distancia. Requer suporte do executor ao acionamento nativo; a valvula tambem tenta pressionamento continuo.
 
-Esta versao corrige a conversao de posicao da pilha para ID da batata. GetPotatoInSlot e GetPotatoSlot precisam concordar antes de usar o ID. Os filtros agora consultam o ID convertido, inclusive quando uma peca e reutilizada.
+IsPeeling booleano e a referencia de estado, evitando que uma batata antiga retornada por GetPotato seja interpretada como uma mesa ativa. O estado dos ScreenGuis e dos quadros superiores e preservado antes da entrada e restaurado no cancelamento.
 
-Auto Progress inclui resfriamento, coleta, entrega, corte, venda e compras. A valvula usa pressionamento continuo de cinco segundos, seguido da verificacao de agua fluindo ou calor diminuindo. Ha uma segunda tentativa pelo acionamento nativo quando a primeira nao e confirmada.
+Melhorias sem preco conhecido ou sem saldo nao entram na fila. Uma melhoria recusada aguarda aumento significativo do saldo antes de tentar outra vez. Depois de adquirir dinamite, suas melhorias recebem prioridade. Estoque cortado pode ser vendido mais cedo quando falta dinheiro para a meta.
 
-A entrega acompanha todas as unidades descarregadas e aguarda o prompt terminar. Falhas recebem espera e recuperacao por etapa, sem desligar todo o ciclo. Pausar continua encerrando as entradas ativas.
+A coleta usa ToolUsing quando o tipo booleano foi identificado, mais ToolSwing e PotatoPick em lotes limitados. O modo de identificacao geometrico/permutado recebe votos apenas apos coleta confirmada. A versao anterior presumia uma inversao que nao foi demonstrada pelo diagnostico. Antes de tres confirmacoes, os testes usam um alvo por vez; depois liberam o lote configurado.
 
-O corte tem meta inicial de 20 tentativas/s e multiplicador por ferramenta de ate 4x. Cada tentativa aguarda a transicao confirmada pelo jogo; nao ha garantia de 20 ou 80 recompensas/s. O painel mostra unidades adicionadas ao estoque por segundo, que podem diferir da quantidade de batatas processadas conforme as regras do jogo.
+Dinamite automatica depende da propriedade da ferramenta, alvo disponivel e confirmacao de DynamiteThrown. O intervalo local e configuravel, com recuo quando o servidor recusa. Nao ha bypass de cooldown comprovado nem garantia de FPS ou tempo de conclusao. Especiais sem modelo continuam condicionados ao estado e as recompensas do servidor.
 
-A coleta permite escolher Mao, Pa ou a melhor ferramenta adquirida. O lote configuravel nao concede melhorias nem altera a capacidade validada pelo servidor. Os especiais sem modelo visivel usam os IDs e as posicoes retornados pelo proprio jogo; recusas recebem pausa de 30 segundos. A rotina nao cria eventos, aboboras ou gemas inexistentes. Tentativas virtuais sao limitadas a uma a cada cinco segundos para nao bloquear a coleta comum.
+Use o loader depois da publicacao. Configuracoes salvas continuam valendo; ative Auto Progress para iniciar. Ative Intervalo acelerado em Ajustes para tentar a dinamite com o intervalo local configurado.
 
-As melhorias usam o protocolo direto identificado sem abrir/selecionar a aba de melhorias. O botao A continua acessivel e existe Restaurar controles do jogo em Ajustes.
-
-Execute LOADSTRING.txt depois da publicacao. Ele aponta para o mesmo repositorio, com parametro de versao para evitar uma copia antiga no cache. Configuracoes salvas sao reaproveitadas; as rotinas sempre comecam pausadas.
-
-Validacao: compilacao oficial Luau 0.745, 11 suites locais, 57 verificacoes de coordenacao e 45 de layout. Inclui regressao para permutacao entre posicao/ID, remocao de batatas e pressionamento/cancelamento da valvula. Nao foi executado no Delta/iPhone pelo agente. Nao foi medido FPS nem confirmado um tempo de conclusao do jogo.
+Validacao: compilacao Luau 0.745, 11 suites locais, 61 verificacoes de coordenacao e 45 de layout. Ainda nao executado pelo agente no Delta/iPhone. Camera, restauracao de interface e taxas reais precisam ser confirmadas na sessao do jogo.

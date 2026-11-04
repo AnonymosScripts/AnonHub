@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.6.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.7.0. Chapter 2 only. No paid purchases.
 
 local Core = (function()
 -- Luau · potato_core.luau · configuration and task coordination · Roblox / CLI · Luau 0.745
@@ -154,6 +154,11 @@ function Core.parseAmount(text)
     local multiplier = ({K=1000,M=1000000,B=1000000000,T=1000000000000})[suffix] or 1
     amount = amount * multiplier
     return amount
+end
+
+function Core.purchaseReady(config,cash,price,level,blocked)
+    if not Core.affordable(config,cash,price,"Cash") then return false end
+    return not blocked or cash>=blocked.cash or level~=blocked.level
 end
 
 function Core.parseCapacity(text)
@@ -467,6 +472,8 @@ function Protocol.create(packets,types)
                 if actual[i]~="String" and actual[i]~="StringLong" then return false end
             elseif wanted=="Vector3" then
                 if not string.match(actual[i],"^Vector3") then return false end
+            elseif wanted=="Boolean" then
+                if actual[i]~="Boolean" and actual[i]~="Boolean8" then return false end
             elseif actual[i]~=wanted then return false end
         end
         return true
@@ -1373,14 +1380,11 @@ function Navigation.create(services, config, log,runtime)
         end
         return false,"nao foi possivel chegar ao prompt"
     end
-    local function trigger(prompt,valid,options)
+    local function triggerRaw(prompt,valid,options)
         options=options or {}
         if not prompt or not prompt.Parent then return false,"prompt removido" end
         local reached,message=approach(prompt,valid)
         if not reached then return false,message end
-        local readyAt=clock()+0.7
-        while not prompt.Enabled and valid() and clock()<readyAt do services.RunService.Heartbeat:Wait() end
-        if not prompt.Enabled then return false,"interacao indisponivel no jogo" end
         if not valid() then return false,"cancelado" end
         local position=promptPosition(prompt)
         local root=actor()
@@ -1411,6 +1415,20 @@ function Navigation.create(services, config, log,runtime)
         if not completed then return false,tostring(finished) end
         if not finished then return false,"interacao interrompida" end
         return true
+    end
+    local function trigger(prompt,valid,options)
+        if not prompt or not prompt.Parent then return false,"prompt removido" end
+        local beforeEnabled,beforeSight=prompt.Enabled,prompt.RequiresLineOfSight
+        local ok,success,message=pcall(function()
+            prompt.Enabled=true prompt.RequiresLineOfSight=false
+            return triggerRaw(prompt,valid,options)
+        end)
+        if prompt.Parent then
+            pcall(function() prompt.RequiresLineOfSight=beforeSight end)
+            if not beforeEnabled then pcall(function() prompt.Enabled=false end) end
+        end
+        if not ok then return false,tostring(success) end
+        return success,message
     end
     return {actor=actor,goTo=goTo,approach=approach,trigger=trigger,promptPosition=promptPosition,stop=stop,waitFor=waitFor,stats=promptStats}
 end
@@ -1665,23 +1683,29 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
         if not bindings.GetPotatoInSlot then return nil end
         local ok,id=bindings.GetPotatoInSlot(index)
         if not ok or not validId(id) then return nil end
-        if bindings.GetPotatoSlot then
-            local good,back=bindings.GetPotatoSlot(id)
-            if not good or back~=index then return nil end
-        end
         return id
     end
-    -- Geometry yields a slot; PotatoPick/GetKind use the potato ID stored in it.
-    -- Never reuse a slot as an ID: the permutation changes after removals.
+    local preferred="geometry"
+    local votes={geometry=0,permuted=0}
     local function slot(part)
         local index=physicalSlot(part)
-        return index and potatoInSlot(index) or nil
+        if preferred=="permuted" then return index and potatoInSlot(index) or nil end
+        return index
     end
-    local function live(id)
-        if not validId(id) or not bindings.GetPotatoSlot then return false end
-        local ok,index=bindings.GetPotatoSlot(id)
-        return ok and validId(index) and potatoInSlot(index)==id
+    local function alternate(part,id)
+        local index=physicalSlot(part)
+        local other=index and (id==index and potatoInSlot(index) or index)
+        return other~=id and other or nil
     end
+    local function confirm(part,id,originalIndex)
+        local index=originalIndex or physicalSlot(part)
+        if not index then return end
+        local mode=id==index and "geometry" or "permuted"
+        votes[mode]+=1
+        if votes[mode]>=3 and votes[mode]>votes[preferred] then preferred=mode end
+        stats.identity={mode=preferred,confirmed_geometry=votes.geometry,confirmed_permuted=votes.permuted}
+    end
+    local function live(id) return validId(id) end
     local function kind(part,index)
         index=index or slot(part)
         if not index then return nil,part and part.Name=="Pumpkin" or false,false end
@@ -1712,7 +1736,7 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
         closed=true observer.close()
         if heatWrapper then pcall(function() if fire.GetHeat==heatWrapper then fire.GetHeat=originalHeat end end) end
     end
-    return {slot=slot,physicalSlot=physicalSlot,live=live,specialTargets=specialTargets,kind=kind,heat=heat,prepare=prepare,requestSync=requestSync,stats=stats,close=close,
+    return {slot=slot,alternate=alternate,confirm=confirm,physicalSlot=physicalSlot,live=live,specialTargets=specialTargets,kind=kind,heat=heat,prepare=prepare,requestSync=requestSync,stats=stats,close=close,
         ready=function() return bindings.GetKind~=nil and bindings.GetSlotPosition~=nil and bindings.GetPotatoInSlot~=nil end,
         refresh=function() nextPrepare=0 end}
 end
@@ -1833,6 +1857,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local resumePosition,lastTable=nil,nil
     local sellRetryAt,dynamiteAt,dynamiteSerial=0,0,0
     local offerRetry={}
+    local deniedOffers={}
     local tableRetry=setmetatable({},{__mode="k"})
     local progressGoal=nil
     local snapshotAt=0
@@ -1865,6 +1890,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local last={}
     local retryAt={}
     local deliveryPending=nil
+    local cutGuiSnapshot=nil
     local cutDriving,closed=false,false
     local equippedTool=nil
     local specialCache,specialAt={},0
@@ -1925,7 +1951,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             or text:find("BURNING",1,true)~=nil
     end
     local function isCutting()
-        if peeling.IsPeeling==true then return true end
+        if type(peeling.IsPeeling)=="boolean" then return peeling.IsPeeling end
         local ok,value=safeCall(cutting,"GetPotato")
         if ok and value~=nil and value~=false then return true end
         local screen=playerGui:FindFirstChild("Peeling")
@@ -1953,6 +1979,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         safeCall(cutting,"SetHeld",false)
         safeCall(cutting,"SetAuto",false)
         safeCall(pileController,"SetUseHeld",false)
+        if protocol.matches("ToolUsing",{"Boolean"}) then protocol.fire("ToolUsing",false) end
     end
     local function cancelCut()
         release()
@@ -1961,6 +1988,12 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 pcall(packets.PeelingCancel.Fire,packets.PeelingCancel)
             end
             safeCall(peeling,"StopPeeling")
+        end
+        if cutGuiSnapshot and peeling.IsPeeling~=true then
+            for object,value in pairs(cutGuiSnapshot) do
+                if object.Parent then pcall(function() if object:IsA("ScreenGui") then object.Enabled=value else object.Visible=value end end) end
+            end
+            cutGuiSnapshot=nil
         end
     end
     local function waitUntil(predicate,timeout,valid)
@@ -2054,7 +2087,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if button and button.Parent then return bridge.cash(bridge.texts(button)) end
         return nil
     end
-    local function upgradeOffers(data,balance)
+    local function upgradeOffers(data,balance,includeUnaffordable)
         local result={}
         local shared=modules["Shared.ToolUpgradeShared"] or {}
         for _,tool in ipairs({"Shovel","Dynamite","PotatoSucker","Hand","AutoPeeler","HandPeeler","Drone","Body"}) do
@@ -2074,9 +2107,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                     if level~=nil and not (maxLevel and level>=maxLevel) and not (maxed and maxed.Enabled)
                         and (button or protocol.matches("ToolUpgradePurchase",{"String","String"})) then
                         local key=tool.."/"..id
-                        if os.clock()>=(offerRetry[key] or 0) and (not price or Core.affordable(config,balance,price,"Cash")) then
+                        if os.clock()>=(offerRetry[key] or 0) and type(price)=="number" and (includeUnaffordable or Core.purchaseReady(config,balance,price,level,deniedOffers[key])) then
                             table.insert(result,{group="upgrade",name=key,tool=tool,upgrade=id,button=button,
-                                price=price,level=level,rank=Chapter.rank(tool,id)})
+                                price=price,level=level,rank=tool=="Dynamite" and -100+Chapter.rank(tool,id) or Chapter.rank(tool,id)})
                         end
                     end
                 end
@@ -2091,6 +2124,17 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if not balance or not data then return nil end
         if afterSale and postSaleWeaponBought then return nil end
         local options={}
+        if Chapter.owns(data,"Dynamite") and Core.effective(config,"autoBuyUpgrades") then
+            for _,offer in ipairs(upgradeOffers(data,balance,true)) do
+                if offer.tool=="Dynamite" then
+                    progressGoal=offer
+                    local blocked=deniedOffers[offer.name]
+                    if blocked and balance<blocked.cash and offer.level==blocked.level then progressGoal.price=math.max(offer.price,blocked.cash) return nil end
+                    if Core.affordable(config,balance,offer.price,"Cash") then return offer end
+                    return nil
+                end
+            end
+        end
         local toolEnabled=Core.effective(config,"autoBuyTools") or afterSale and config.buyAfterSell
         local wanted=nil
         if toolEnabled then
@@ -2162,6 +2206,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if os.clock()-rateAt>=1 then cutRate=cutUnits/(os.clock()-rateAt) cutUnits=0 rateAt=os.clock() end
         last.cutRate=cutRate
         last.sellReady=Chapter.sellReady(config,last.stock,{cutting=last.cutting,crate=crateCount(),carried=count,exhausted=searchEmpty})
+        if progressGoal and progressGoal.price and balance and balance<progressGoal.price+config.reserveCash and last.stock and last.stock>=math.min(50,config.sellThreshold) then last.sellReady=true end
         last.sellRetryAt=sellRetryAt
         last.afterSale=afterSale
         last.returnToTable=afterSale and resumePosition~=nil
@@ -2170,7 +2215,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local data=state()
         last.drone=data and data.HasDrone==true
         last.dynamiteReady=data and Chapter.owns(data,"Dynamite") and os.clock()>=dynamiteAt
-            and protocol.matches("DynamiteThrow",{"NumberU32"}) and candidate~=nil
+            and protocol.matches("DynamiteThrow",{"NumberU32"}) and itemAlive(candidate)
 
         last.canStageCut=get(world,{"Map","PeelingMachines","PotatoCrate","PotatoArea","PlacePrompt"})~=nil
         return last
@@ -2188,7 +2233,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             if itemAlive(item) and os.clock()>=rejectedAt and (not onlyPumpkins or item.pumpkin) then
                 if item.part then item.slot=resolver.slot(item.part) end
                 local hit=item.part and world:Raycast(item.part.Position+Vector3.new(0,25,0),Vector3.new(0,-25.5,0),params)
-                if item.slot and (item.logical or hit and hit.Instance==item.part) then candidate=item searchEmpty=false return item end
+                if item.slot and (item.logical or hit and hit.Instance==item.part) then candidate=item searchEmpty=false snapshotAt=0 return item end
             end
             checked+=1
             if checked%24==0 then services.RunService.Heartbeat:Wait() end
@@ -2197,6 +2242,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     end
 
     local function findCandidate(valid)
+        snapshotAt=0
         local prepared,prepareError=resolver.prepare(valid)
         if not prepared then return nil,prepareError end
         local held,capacity=inventory()
@@ -2318,6 +2364,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if not ok then if item.part then rejected[item.part]=os.clock()+5 else rejectedIds[item.slot]=os.clock()+30 end candidate=nil findAt=0 return false,why end
         if not valid() then return false,"cancelado" end
         item.slot=item.part and resolver.slot(item.part) or item.slot
+        item.geometry=item.part and resolver.physicalSlot(item.part) or nil
         if item.slot then
             item.kind,item.pumpkin,item.gem=resolver.kind(item.part,item.slot)
             if not Core.acceptVariant(config,item.kind,item.pumpkin,item.gem) then candidate=nil return true end
@@ -2329,6 +2376,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             local targets={item}
             local root=nav.actor()
             local limit=Core.pickLimit(config,before,capacity,item.pumpkin)
+            local identity=resolver.stats.identity
+            if not identity or math.max(identity.confirmed_geometry or 0,identity.confirmed_permuted or 0)<3 then limit=1 end
             while #targets<limit and queueIndex<=#queue and root do
                 local extra=queue[queueIndex]
                 if not itemAlive(extra) then queueIndex+=1
@@ -2340,6 +2389,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 end
             end
             local sent,errorMessage=pcall(function()
+                if protocol.matches("ToolUsing",{"Boolean"}) then protocol.fire("ToolUsing",true) end
                 for _,target in ipairs(targets) do
                     if not valid() then break end
                     packets.ToolSwing:Fire()
@@ -2351,8 +2401,22 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
         if not picked then return false,"Indice da batata nao confirmado; filtro especifico mantido em espera." end
         local confirmed,reason=waitUntil(confirmedPick,config.speedMode=="Turbo" and math.min(0.65,config.actionTimeout) or config.actionTimeout,valid)
+        if not confirmed and valid() and item.part and resolver.alternate then
+            local alternative=resolver.alternate(item.part,item.slot)
+            if alternative then
+                local name,pumpkin,gem=resolver.kind(item.part,alternative)
+                if Core.acceptVariant(config,name,pumpkin,gem) then
+                    local ok=protocol.fire("PotatoPick",alternative)
+                    if ok then
+                        confirmed,reason=waitUntil(confirmedPick,0.4,valid)
+                        if confirmed then item.slot=alternative end
+                    end
+                end
+            end
+        end
         local after=inventory()
         if confirmed then
+            if item.part then resolver.confirm(item.part,item.slot,item.geometry) end
             counts.collected+=math.max(0,(after or before)-before)
             if item.pumpkin and pumpkinSerial>beforePumpkin then counts.pumpkins+=pumpkinSerial-beforePumpkin end
             if gemSerial>beforeGem then counts.gems+=gemSerial-beforeGem end
@@ -2433,6 +2497,13 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         interactionTool()
         local prompt=selectedTable(true)
         if not prompt then return false,"Nenhuma mesa liberada com batatas." end
+        cutGuiSnapshot={}
+        for _,screen in ipairs(playerGui:GetChildren()) do
+            if screen:IsA("ScreenGui") and screen.Name~="AnonymousPotatoHub" then
+                cutGuiSnapshot[screen]=screen.Enabled
+                for _,frame in ipairs(screen:GetChildren()) do if frame:IsA("GuiObject") then cutGuiSnapshot[frame]=frame.Visible end end
+            end
+        end
         local ok,message=nav.trigger(prompt,valid)
         if not ok then tableRetry[prompt]=os.clock()+3 snapshotAt=0 return false,message end
         if not ok then return false,message end
@@ -2493,10 +2564,6 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local previous=nav.actor()
         previous=previous and previous.Position
         local wasCutting=isCutting()
-        local screen=playerGui:FindFirstChild("ToolUpgrades")
-        local oldScreenEnabled=screen and screen.Enabled
-        local _,oldOpen=safeCall(upgradeController,"IsOpen")
-        local _,oldTool=safeCall(upgradeController,"GetSelectedTool")
         local function confirmed()
             local data=state()
             if not data then return false end
@@ -2519,7 +2586,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 if afterSale and item.group=="cut" then postSaleWeaponBought=true end
                 log("Compra confirmada: "..item.name..".")
             end
-            offerRetry[item.name]=success and not deferred and 0 or os.clock()+8
+            if item.group=="upgrade" and not success then
+                deniedOffers[item.name]={cash=math.max((beforeCash or 0)*1.5,(beforeCash or 0)+math.max(0.1,(item.price or 0)*0.5)),level=beforeLevel}
+            elseif success and not deferred then deniedOffers[item.name]=nil end
+            offerRetry[item.name]=success and not deferred and 0 or os.clock()+20
             buyRetryAt=os.clock()+(success and 0.15 or 1)
             cachedPurchase=nil purchaseCacheAt=0 snapshotAt=0
             if wasCutting and previous and valid() and item.group~="upgrade" and not afterSale then nav.goTo(previous,valid,true) end
@@ -2614,7 +2684,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if equipped then protocol.fire("ToolEquip","Dynamite") end
         local before=dynamiteSerial
         local ok,message=protocol.fire("DynamiteThrow",candidate.slot)
-        local interval=math.max(config.dynamiteInterval,config.dynamiteAggressive and 0.1 or 3)
+        local interval=math.max(config.dynamiteInterval,config.dynamiteAggressive and 0.1 or 1)
         dynamiteAt=os.clock()+interval
         local confirmed=false
         if ok then confirmed=waitUntil(function() return dynamiteSerial>before end,math.min(1.2,config.actionTimeout),valid) end
@@ -2622,8 +2692,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             local tool=Chapter.owns(data,"PotatoSucker") and "PotatoSucker" or Chapter.owns(data,"Shovel") and "Shovel" or "Hand"
             protocol.fire("ToolEquip",tool)
         end
-        if confirmed then counts.throws+=1 else dynamiteAt=os.clock()+math.max(3,interval*1.5) end
-        return ok,ok and nil or message
+        if confirmed then counts.throws+=1 else dynamiteAt=os.clock()+math.max(1,interval*1.3) end
+        if confirmed then candidate=nil snapshotAt=0 end
+        return confirmed,confirmed and nil or message or "Lancamento sem confirmacao; aguardando recarga."
     end
 
     if cutting.PotatoCut and type(cutting.PotatoCut.Connect)=="function" then
@@ -2729,7 +2800,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.6.0"
+local VERSION="0.7.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}
