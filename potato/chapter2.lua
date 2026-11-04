@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.8.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.9.0. Chapter 2 only. No paid purchases.
 
 local Core = (function()
 -- Luau · potato_core.luau · configuration and task coordination · Roblox / CLI · Luau 0.745
@@ -18,7 +18,7 @@ Core.defaults = {
     infiniteBag=false,collectGems=true,gemPriority=true,
     upgradeDrone=true,upgradeMachines=true,upgradeGeneral=true,saveForNextTool=true,
     dynamiteInterval=1,dynamiteAggressive=false,
-    clearPileFirst=true,autoBuyDrone=false,worthEarlyLimit=3,forceThirdPerson=false,cameraDistance=20,aimCooling=true,keyPriority=true,
+    maintainCutBuffer=true,cutBuffer=400,fixMenuBlur=true,buyMachines=true,clearPileFirst=true,autoBuyDrone=false,worthEarlyLimit=3,forceThirdPerson=false,cameraDistance=20,aimCooling=true,keyPriority=true,
     uiWidth = 760, uiHeight = 580, uiScale = 100, uiX = 0.5, uiY = 0.5,
     buttonX = 0.03, buttonY = 0.22, buttonSize = 56,
     deliveryFill = 90, deliveryBatch = 1000, heatStart = 60, heatStop = 25, coolingRetry = 12,
@@ -40,6 +40,7 @@ local ranges = {
     teleportSettle={0.05,1}, uiWidth={300,1100}, uiHeight={340,900}, uiScale={65,150},
     uiX={0,1},uiY={0,1},buttonX={0,1},buttonY={0,1},buttonSize={44,88},
     pickBatch={1,16},cutBurst={1,6},
+    cutBuffer={1,10000},
     worthEarlyLimit={1,10},cameraDistance={8,100},
     cutTargetRate={1,40},cutToolMultiplier={1,4},
     sellThreshold={1,1000000},dynamiteInterval={0.1,15},
@@ -204,6 +205,7 @@ function Core.choose(config, state, now)
     if state.droneReady and ready("drone") then return "drone" end
     if state.deliveryPending and (Core.effective(config,"autoDeliver") or Core.effective(config,"autoCut")) and ready("deliver") then return "deliver" end
     if Core.effective(config,"autoSell") and state.sellReady and now>=(state.sellRetryAt or 0) and ready("sell") then return "sell" end
+    if state.needBuffer and state.carried and state.carried>0 and state.carried>=(state.bufferDeliveryGoal or 1) and ready("deliver") and Core.effective(config,"autoDeliver") then return "deliver" end
     if state.returnToTable and state.postSaleWeaponBought and ready("returnTable") then return "returnTable" end
     if state.canBuy and now >= (state.buyRetryAt or 0) and ready("buy") then
         if Core.effective(config,"autoBuyTools") or Core.effective(config,"autoBuyUpgrades")
@@ -212,14 +214,14 @@ function Core.choose(config, state, now)
     if state.returnToTable and ready("returnTable") then return "returnTable" end
     if Core.effective(config,"autoDynamite") and state.dynamiteReady and not state.cutting and ready("dynamite") then return "dynamite" end
     if Core.effective(config,"autoCrank") and state.crankReady and ready("crank") then return "crank" end
-    if Core.effective(config,"autoCut") and state.cutting and not state.focusClear and ready("cut") then return "cut" end
+    if Core.effective(config,"autoCut") and state.cutting and not state.focusClear and not state.needBuffer and ready("cut") then return "cut" end
     if Core.effective(config,"autoCut") and not Core.effective(config,"autoFarm") and state.carried and state.carried>0 and state.canStageCut and not state.tableReady and ready("stageCut") then return "stageCut" end
     if Core.effective(config,"autoDeliver") and state.carried and state.carried > 0 then
         local goal=Core.deliveryGoal(config,state.capacity)
         local full=goal and state.carried>=goal
         if (full or state.noCandidate or not Core.effective(config,"autoFarm")) and ready("deliver") then return "deliver" end
     end
-    if Core.effective(config,"autoCut") and state.tableReady and not state.focusClear and ready("enterCut") then return "enterCut" end
+    if Core.effective(config,"autoCut") and state.tableReady and not state.focusClear and not state.needBuffer and ready("enterCut") then return "enterCut" end
     if Core.effective(config,"autoFarm") and state.hasCandidate
         and type(state.capacity)=="number" and type(state.carried)=="number"
         and state.capacity>0 and (state.carried < state.capacity or state.candidatePumpkin) and ready("collect") then return "collect" end
@@ -402,9 +404,9 @@ local Chapter = (function()
 local Chapter={}
 Chapter.allowed={
     Hand={"PickAmount","PickSpeed","HoldPick"},Shovel={"PickAmount","PickSpeed","HoldPick"},
-    Dynamite={"PickAmount","PickSpeed","ThrowRange"},PotatoSucker={"PickAmount","Cooling","Charge"},
+    Dynamite={"PickAmount","PickSpeed"},PotatoSucker={"PickAmount","Cooling","Charge"},
     Body={"PotatoWorth","Luck","WalkSpeed"},General={"PotatoWorth","Luck","WalkSpeed"},
-    Drone={"Capacity","Grasp","FlySpeed"},AutoPeeler={"PeelAmount","PeelSpeed"},HandPeeler={"PeelAmount","Cranks"},
+    Drone={"Capacity","Grasp","FlySpeed"},AutoPeeler={"PeelAmount","PeelSpeed"},HandPeeler={},
 }
 function Chapter.owns(data,id)
     if type(data)~="table" then return false end
@@ -450,7 +452,7 @@ function Chapter.limit(tool,id,cutRank,lastRank,earlyLimit)
     if id=="WalkSpeed" then return 0 end
     if (tool=="Body" or tool=="General") and id=="PotatoWorth" then
         if cutRank<=1 then return 0 end
-        return cutRank>=lastRank and math.huge or earlyLimit or 3
+        return math.huge
     end
     return math.huge
 end
@@ -926,7 +928,7 @@ function UI.create(services, config, callbacks, Layout)
         isOpen=value panel.Visible=value mini.Visible=true
     end
     table.insert(connections,hide.Activated:Connect(function() setOpen(false) end))
-    table.insert(connections,mini.Activated:Connect(function() if os.clock()>suppressMiniUntil then setOpen(true) end end))
+    table.insert(connections,mini.Activated:Connect(function() if os.clock()>suppressMiniUntil then setOpen(not isOpen) end end))
     table.insert(connections,save.Activated:Connect(function() if callbacks.save then callbacks.save() end end))
     table.insert(connections,pause.Activated:Connect(function() callbacks.pause() end))
     local function page(name)
@@ -1119,11 +1121,15 @@ function UI.create(services, config, callbacks, Layout)
     toggle(p,"autoBuyTools","Ferramentas")
     toggle(p,"autoBuyUpgrades","Melhorias")
     toggle(p,"autoBuyStorage","Bolsas e capacidade")
+    toggle(p,"infiniteBag","Tenho mochila infinita","Impede compras de mochilas e usa o limite de entrega por quantidade.")
+    toggle(p,"buyMachines","Comprar cortadores manual e automatico","Depois de maximizar as duas melhorias de dinamite. O manual nao recebe melhorias.")
+    toggle(p,"maintainCutBuffer","Manter reserva para cortar","Apos a ultima faca, coleta e entrega para repor a quantidade abaixo.")
+    number(p,"cutBuffer","Reserva minima para corte",1,10000,1," batatas")
+    toggle(p,"fixMenuBlur","Corrigir desfoque ao fechar menus")
     toggle(p,"saveForNextTool","Guardar para a proxima arma")
     toggle(p,"autoBuyDrone","Oferecer compra do drone a cada partida","Solicita confirmacao de 80 gemas; a oferta real tambem precisa confirmar esse valor.")
     toggle(p,"upgradeDrone","Melhorar drone comprado")
     toggle(p,"clearPileFirst","Limpar antes de cortar","Quando pa e dinamite estiverem no maximo confirmado, coleta e entrega primeiro; corta o restante no fim.")
-    number(p,"worthEarlyLimit","Nivel inicial do valor de venda",1,10,1,"")
     toggle(p,"upgradeMachines","Melhorar maquinas compradas")
     toggle(p,"upgradeGeneral","Melhorias gerais do capitulo 2")
     number(p,"reserveCash","Reserva de dinheiro",0,100000,0.01," $")
@@ -1985,6 +1991,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local cutGuiSnapshot=nil
     local droneConsent,droneAsked,droneRound=false,false,nil
     local masteryAt,mastered=0,false
+    local dynamiteMax=false
+    local nextBlurCheck=0
     local cutDriving,closed=false,false
     local equippedTool=nil
     local specialCache,specialAt={},0
@@ -2110,6 +2118,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local function collectTool()
         local data=state()
         local chosen=config.collectTool
+        if chosen=="Auto" and config.clearPileFirst and dynamiteMax and data and Chapter.owns(data,"Shovel") then chosen="Shovel" end
         if chosen=="Auto" then chosen=data and Chapter.owns(data,"PotatoSucker") and "PotatoSucker" or data and Chapter.owns(data,"Shovel") and "Shovel" or "Hand" end
         if chosen~="Hand" and not (data and Chapter.owns(data,chosen)) then chosen="Hand" end
         equip(chosen)
@@ -2203,7 +2212,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                         local key=tool.."/"..id
                         if os.clock()>=(offerRetry[key] or 0) and type(price)=="number" and (includeUnaffordable or Core.purchaseReady(config,balance,price,level,deniedOffers[key])) then
                             table.insert(result,{group="upgrade",name=key,tool=tool,upgrade=id,button=button,
-                                price=price,level=level,rank=id=="PotatoWorth" and (level<config.worthEarlyLimit and -300 or -80) or tool=="Dynamite" and -200+Chapter.rank(tool,id) or tool=="Shovel" and -150 or tool=="Drone" and -60 or id=="Luck" and -50 or Chapter.rank(tool,id)})
+                                price=price,level=level,rank=id=="PotatoWorth" and (level<config.worthEarlyLimit and -300 or -80) or tool=="Dynamite" and -200+Chapter.rank(tool,id) or tool=="Shovel" and -150 or tool=="Drone" and -175 or id=="Luck" and -50 or Chapter.rank(tool,id)})
                         end
                     end
                 end
@@ -2212,6 +2221,36 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         table.sort(result,function(a,b) return a.rank<b.rank end)
         return result
     end
+    local function machineOffer(data,balance)
+        if not config.buyMachines then return nil end
+        local shared=modules["Shared.ToolUpgradeShared"] or {}
+        if not Chapter.maxed(shared,data,"Dynamite") then return nil end
+        for _,spec in ipairs({{"PeelingMachine","HandPeeler","HasHandPeeler"},{"AutoPeelingMachine","AutoPeeler","HasAutoPeeler"}}) do
+            if data[spec[3]]~=true then
+                local model=get(world,{"Map","PeelingMachines",spec[1]})
+                local pricePart=model and model:FindFirstChild("Price")
+                local prompt=pricePart and get(pricePart,{"PromptAttachment","ProximityPrompt"})
+                local price=prompt and (bridge.cash(prompt.ObjectText) or bridge.cash(bridge.texts(pricePart)))
+                if prompt and string.upper(prompt.ActionText)=="BUY" and price and Core.affordable(config,balance,price,"Cash") then
+                    return {id=spec[2],name=spec[2],group="machine",unlock=spec[3],prompt=prompt,price=price,rank=-75}
+                end
+            end
+        end
+        return nil
+    end
+    local function clearMenuBlur()
+        if not config.fixMenuBlur or isCutting() then return end
+        local good,open=safeCall(upgradeController,"IsOpen")
+        local storeGood,storeOpen=safeCall(storeView,"IsOpen")
+        if not good or not storeGood then return end
+        for _,parent in ipairs({services.Lighting,world.CurrentCamera}) do
+            if parent then
+                for _,effect in ipairs(parent:GetChildren()) do
+                    if effect:IsA("BlurEffect") and effect.Size>0 then effect.Size=0 end
+                end
+            end
+        end
+    end
     local function nextPurchase()
         local balance=cash()
         local data=state()
@@ -2219,14 +2258,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if afterSale and postSaleWeaponBought then return nil end
         local options={}
         if Core.effective(config,"autoBuyUpgrades") then
-            for _,offer in ipairs(upgradeOffers(data,balance,true)) do
-                if offer.upgrade=="PotatoWorth" or offer.tool=="Dynamite" or offer.tool=="Shovel" then
-                    progressGoal=offer
-                    local blocked=deniedOffers[offer.name]
-                    if blocked and balance<blocked.cash and offer.level==blocked.level then progressGoal.price=math.max(offer.price,blocked.cash) return nil end
-                    if Core.affordable(config,balance,offer.price,"Cash") then return offer end
-                    return nil
-                end
+            local offers=upgradeOffers(data,balance)
+            for _,offer in ipairs(offers) do
+                if offer.upgrade=="PotatoWorth" then progressGoal=offer return offer end
+                table.insert(options,offer)
             end
         end
         local toolEnabled=Core.effective(config,"autoBuyTools") or afterSale and config.buyAfterSell
@@ -2241,7 +2276,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                     wanted=offer
                 end
             end
-            if wanted and config.saveForNextTool then progressGoal=wanted return nil end
+            if wanted and config.saveForNextTool and #options==0 then progressGoal=wanted return nil end
             if config.autoProgress or config.autoFarm then
                 for _,id in ipairs({"Shovel","Dynamite","P0T4T0-3000"}) do
                     local ownedId=id=="P0T4T0-3000" and "PotatoSucker" or id
@@ -2258,8 +2293,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if Core.effective(config,"autoBuyUpgrades") then
             for _,offer in ipairs(upgradeOffers(data,balance)) do table.insert(options,offer) end
         end
+        local machine=machineOffer(data,balance)
+        if machine then table.insert(options,machine) end
         local _,capacity=inventory()
-        if Core.effective(config,"autoBuyStorage") and capacity~=math.huge and type(data.CarryLevel)=="number" then
+        if Core.effective(config,"autoBuyStorage") and not config.infiniteBag and capacity~=math.huge and type(data.CarryLevel)=="number" then
             local level=carryShared.Levels and carryShared.Levels[data.CarryLevel+1]
             if type(level)=="table" and level.ItemName then
                 local offer=shopItem("Storage",level.ItemName,"storage",500)
@@ -2309,10 +2346,17 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local data=state()
         if os.clock()>=masteryAt then
             local shared=modules["Shared.ToolUpgradeShared"] or {}
-            mastered=Chapter.maxed(shared,data,"Shovel") and Chapter.maxed(shared,data,"Dynamite") masteryAt=os.clock()+1
+            dynamiteMax=Chapter.maxed(shared,data,"Dynamite")
+            mastered=Chapter.maxed(shared,data,"Shovel") and dynamiteMax masteryAt=os.clock()+1
         end
         local removedOk,removed=safeCall(pileController,"GetRemovedFraction")
-        last.focusClear=config.clearPileFirst and mastered and removedOk and type(removed)=="number" and removed<1
+        last.mountainEmpty=removedOk and type(removed)=="number" and removed>=1
+        last.focusClear=config.clearPileFirst and dynamiteMax and removedOk and type(removed)=="number" and removed<1
+        local finalKnife=data and #(cutShared.Tools or {})>1 and bestCutRank(data)>=#cutShared.Tools
+        local remaining=math.max(0,config.cutBuffer-crateCount())
+        last.needBuffer=config.maintainCutBuffer and finalKnife and remaining>0 and removedOk and type(removed)=="number" and removed<1
+        last.bufferDeliveryGoal=last.needBuffer and math.min(remaining,Core.deliveryGoal(config,capacity) or remaining) or nil
+        if os.clock()>=nextBlurCheck then nextBlurCheck=os.clock()+1 clearMenuBlur() end
         last.drone=data and data.HasDrone==true
         local round=data and data.RunStartTime or 0
         if droneRound~=round then droneRound=round droneConsent=false droneAsked=false end
@@ -2482,6 +2526,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             local targets={item}
             local root=nav.actor()
             local limit=Core.pickLimit(config,before,capacity,item.pumpkin)
+            if last.needBuffer then limit=math.min(limit,math.max(1,(last.bufferDeliveryGoal or 1)-before)) end
             local identity=resolver.stats.identity
             if not identity or math.max(identity.confirmed_geometry or 0,identity.confirmed_permuted or 0)<3 then limit=1 end
             while #targets<limit and queueIndex<=#queue and root do
@@ -2551,7 +2596,12 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             if config.deliveryTarget=="Table" then prompt=selectedTable(true)
             elseif config.deliveryTarget=="Manual" then prompt=machines and get(machines,{"PeelingMachine","Cube.033","Load"})
             elseif config.deliveryTarget=="Auto" then prompt=machines and get(machines,{"AutoPeelingMachine","Cube.042","Load"})
-            else prompt=machines and get(machines,{"PotatoCrate","PotatoArea","PlacePrompt"}) end
+            else
+                local data=state()
+                local automatic=machines and get(machines,{"AutoPeelingMachine","Cube.042","Load"})
+                if config.buyMachines and last.mountainEmpty and data and data.HasAutoPeeler and automatic and automatic.Enabled then prompt=automatic
+                else prompt=machines and get(machines,{"PotatoCrate","PotatoArea","PlacePrompt"}) end
+            end
             if not prompt then return false,"Destino selecionado indisponivel." end
             local ok,message=nav.trigger(prompt,valid)
             if not ok then return false,message end
@@ -2675,6 +2725,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local function confirmed()
             local data=state()
             if not data then return false end
+            if item.group=="machine" then return data[item.unlock]==true end
             if item.group=="upgrade" then
                 local current=Chapter.level(shared,data,item.tool,item.upgrade)
                 return current~=nil and beforeLevel~=nil and current>beforeLevel
@@ -2697,6 +2748,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             if item.group=="upgrade" and not success then
                 deniedOffers[item.name]={cash=math.max((beforeCash or 0)*1.5,(beforeCash or 0)+math.max(0.1,(item.price or 0)*0.5)),level=beforeLevel}
             elseif success and not deferred then deniedOffers[item.name]=nil end
+            clearMenuBlur()
             offerRetry[item.name]=success and not deferred and 0 or os.clock()+20
             buyRetryAt=os.clock()+(success and 0.15 or 1)
             cachedPurchase=nil purchaseCacheAt=0 snapshotAt=0
@@ -2771,7 +2823,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local function returnTable(valid)
         local position=resumePosition
         afterSale=false resumePosition=nil postSaleWeaponBought=false snapshotAt=0
-        if not position then return true end
+        if not position or last.focusClear or last.needBuffer then return true end
         local ok,message=nav.goTo(position,valid,true)
         if not ok then return false,message end
         if Core.effective(config,"autoCut") and selectedTable(true) then return enterCut(valid) end
@@ -2906,6 +2958,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             local screen=playerGui:FindFirstChild(name)
             if screen and screen:IsA("ScreenGui") then screen.Enabled=true end
         end
+        clearMenuBlur()
         table.clear(retryAt) table.clear(tableRetry) reset()
     end
     return {
@@ -2943,12 +2996,12 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.8.0"
+local VERSION="0.9.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}
 for _,name in ipairs({"Players","Workspace","ReplicatedStorage","HttpService","RunService",
-    "UserInputService","TweenService","PathfindingService","StarterGui"}) do services[name]=game:GetService(name) end
+    "Lighting","UserInputService","TweenService","PathfindingService","StarterGui"}) do services[name]=game:GetService(name) end
 local player=services.Players.LocalPlayer
 assert(player,"Execute o hub no cliente Roblox dentro da experiencia.")
 if game.PlaceId~=EXPECTED_PLACE then
