@@ -1,5 +1,5 @@
 {
-  "hub_version": "0.9.0",
+  "hub_version": "0.10.0",
   "place_id": 116701845804918,
   "reference_place_version": 95,
   "compiler": "official Luau 0.745",
@@ -10,5 +10,5 @@
   "suites_status": "passed",
   "runtime_tested_on_phone": false,
   "runtime_tested_in_delta_by_agent": false,
-  "sha256": "dc096d20e2abeaf967468c989704afc1a09d44c08d1fdf6bc1fdbb3f63c42eb3"
+  "sha256": "6150276268cac9449c41b87b624b3260f64fe378548b9afb8aabaf0c23e75274"
 }

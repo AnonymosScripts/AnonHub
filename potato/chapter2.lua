@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.9.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.10.0. Chapter 2 only. No paid purchases.
 
 local Core = (function()
 -- Luau · potato_core.luau · configuration and task coordination · Roblox / CLI · Luau 0.745
@@ -456,12 +456,34 @@ function Chapter.limit(tool,id,cutRank,lastRank,earlyLimit)
     end
     return math.huge
 end
+function Chapter.maximum(shared,definition)
+    if type(shared.GetMaxLevel)=="function" then
+        local ok,value=pcall(shared.GetMaxLevel,definition)
+        if ok and type(value)=="number" and value>=0 and value%1==0 then return value end
+    end
+    if type(definition)=="table" and type(definition.MaxLevel)=="number" then return definition.MaxLevel end
+    return nil
+end
+function Chapter.upgradeGuard()
+    local refusals={}
+    return {
+        allowed=function(key,level) local entry=refusals[key] return not entry or entry.level~=level or entry.count<2 end,
+        result=function(key,level,success)
+            if success then refusals[key]=nil return end
+            local previous=refusals[key]
+            refusals[key]={level=level,count=previous and previous.level==level and previous.count+1 or 1}
+        end,
+        reset=function() table.clear(refusals) end,
+        records=refusals,
+    }
+end
 function Chapter.maxed(shared,data,tool)
     if not Chapter.owns(data,tool) or type(shared.GetUpgrade)~="function" or type(shared.GetMaxLevel)~="function" then return false end
     for _,id in ipairs(Chapter.allowed[tool] or {}) do
         local ok,definition=pcall(shared.GetUpgrade,tool,id)
         if not ok then return false end
-        local good,maximum=pcall(shared.GetMaxLevel,definition)
+        local maximum=Chapter.maximum(shared,definition)
+        local good=maximum~=nil
         local current=Chapter.level(shared,data,tool,id)
         if not good or type(maximum)~="number" or maximum<=0 or current==nil or current<maximum then return false end
     end
@@ -1123,7 +1145,7 @@ function UI.create(services, config, callbacks, Layout)
     toggle(p,"autoBuyStorage","Bolsas e capacidade")
     toggle(p,"infiniteBag","Tenho mochila infinita","Impede compras de mochilas e usa o limite de entrega por quantidade.")
     toggle(p,"buyMachines","Comprar cortadores manual e automatico","Depois de maximizar as duas melhorias de dinamite. O manual nao recebe melhorias.")
-    toggle(p,"maintainCutBuffer","Manter reserva para cortar","Apos a ultima faca, coleta e entrega para repor a quantidade abaixo.")
+    toggle(p,"maintainCutBuffer","Manter reserva para cortar","Somente antes da dinamite maxima. Na fase de limpeza esta reserva fica desativada.")
     number(p,"cutBuffer","Reserva minima para corte",1,10000,1," batatas")
     toggle(p,"fixMenuBlur","Corrigir desfoque ao fechar menus")
     toggle(p,"saveForNextTool","Guardar para a proxima arma")
@@ -1956,6 +1978,12 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local sellRetryAt,dynamiteAt,dynamiteSerial=0,0,0
     local offerRetry={}
     local deniedOffers={}
+    local upgradeGuard=Chapter.upgradeGuard()
+    local nativeVacuum=false
+    local phaseGoal=nil
+    local phaseNeedsIncome=false
+    local bombPending=nil
+    local bombBackoff=0.1
     local tableRetry=setmetatable({},{__mode="k"})
     local progressGoal=nil
     local snapshotAt=0
@@ -2080,6 +2108,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if cutEngine then cutEngine.pause() end
         safeCall(cutting,"SetHeld",false)
         safeCall(cutting,"SetAuto",false)
+        nativeVacuum=false
         safeCall(pileController,"SetUseHeld",false)
         if protocol.matches("ToolUsing",{"Boolean"}) then protocol.fire("ToolUsing",false) end
     end
@@ -2118,10 +2147,13 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local function collectTool()
         local data=state()
         local chosen=config.collectTool
+        if chosen=="Auto" and data and Chapter.owns(data,"PotatoSucker") then chosen="PotatoSucker" end
         if chosen=="Auto" and config.clearPileFirst and dynamiteMax and data and Chapter.owns(data,"Shovel") then chosen="Shovel" end
         if chosen=="Auto" then chosen=data and Chapter.owns(data,"PotatoSucker") and "PotatoSucker" or data and Chapter.owns(data,"Shovel") and "Shovel" or "Hand" end
         if chosen~="Hand" and not (data and Chapter.owns(data,chosen)) then chosen="Hand" end
         equip(chosen)
+        nativeVacuum=chosen=="PotatoSucker" and config.rarity=="Any" and (config.autoProgress or config.autoFarm)
+        safeCall(pileController,"SetUseHeld",nativeVacuum)
     end
     local function tables()
         local result={}
@@ -2198,16 +2230,12 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 if Chapter.canUpgrade(data,tool,id,config) then
                     local level=Chapter.level(shared,data,tool,id)
                     local ok,definition=safeCall(shared,"GetUpgrade",tool,id)
-                    local maxLevel=nil
-                    if ok and type(definition)=="table" then
-                        local good,value=safeCall(shared,"GetMaxLevel",definition)
-                        if good and type(value)=="number" then maxLevel=value end
-                    end
+                    local maxLevel=ok and Chapter.maximum(shared,definition) or nil
                     local buttonOk,button=safeCall(upgradeController,"GetUpgradeButton",tool,id)
                     if not buttonOk or typeof(button)~="Instance" or not button:IsA("GuiButton") then button=nil end
                     local price=upgradePrice(data,tool,id,level,button)
                     local maxed=button and button:FindFirstChild("Maxed")
-                    if level~=nil and level<Chapter.limit(tool,id,bestCutRank(data),#(cutShared.Tools or {}),config.worthEarlyLimit) and not (maxLevel and level>=maxLevel) and not (maxed and maxed.Enabled)
+                    if level~=nil and maxLevel~=nil and upgradeGuard.allowed(tool.."/"..id,level) and level<Chapter.limit(tool,id,bestCutRank(data),#(cutShared.Tools or {}),config.worthEarlyLimit) and not (maxLevel and level>=maxLevel) and not (maxed and maxed.Enabled)
                         and (button or protocol.matches("ToolUpgradePurchase",{"String","String"})) then
                         local key=tool.."/"..id
                         if os.clock()>=(offerRetry[key] or 0) and type(price)=="number" and (includeUnaffordable or Core.purchaseReady(config,balance,price,level,deniedOffers[key])) then
@@ -2221,7 +2249,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         table.sort(result,function(a,b) return a.rank<b.rank end)
         return result
     end
-    local function machineOffer(data,balance)
+    local function machineOffer(data,balance,includeUnaffordable)
         if not config.buyMachines then return nil end
         local shared=modules["Shared.ToolUpgradeShared"] or {}
         if not Chapter.maxed(shared,data,"Dynamite") then return nil end
@@ -2231,7 +2259,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 local pricePart=model and model:FindFirstChild("Price")
                 local prompt=pricePart and get(pricePart,{"PromptAttachment","ProximityPrompt"})
                 local price=prompt and (bridge.cash(prompt.ObjectText) or bridge.cash(bridge.texts(pricePart)))
-                if prompt and string.upper(prompt.ActionText)=="BUY" and price and Core.affordable(config,balance,price,"Cash") then
+                if prompt and string.upper(prompt.ActionText)=="BUY" and price and (includeUnaffordable or Core.affordable(config,balance,price,"Cash")) then
                     return {id=spec[2],name=spec[2],group="machine",unlock=spec[3],prompt=prompt,price=price,rank=-75}
                 end
             end
@@ -2255,6 +2283,28 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local balance=cash()
         local data=state()
         if not balance or not data then return nil end
+        local shared=modules["Shared.ToolUpgradeShared"] or {}
+        phaseGoal=nil phaseNeedsIncome=false
+        if config.clearPileFirst and Chapter.maxed(shared,data,"Dynamite") then
+            local goal=machineOffer(data,balance,true)
+            if not goal and data.HasAutoPeeler and Core.effective(config,"autoBuyUpgrades") then
+                for _,offer in ipairs(upgradeOffers(data,balance,true)) do if offer.tool=="AutoPeeler" then goal=offer break end end
+            end
+            if not goal and not Chapter.owns(data,"PotatoSucker") then goal=shopItem("Tools","P0T4T0-3000","collect",1) end
+            if not goal and Chapter.owns(data,"PotatoSucker") and Core.effective(config,"autoBuyUpgrades") then
+                for _,offer in ipairs(upgradeOffers(data,balance,true)) do
+                    if offer.tool=="PotatoSucker" and (not goal or offer.upgrade=="PickAmount") then goal=offer end
+                end
+            end
+            phaseGoal=goal progressGoal=goal
+            if goal then
+                local blocked=deniedOffers[goal.name]
+                local budgetReady=Core.affordable(config,balance,goal.price,"Cash") and (not blocked or blocked.level~=goal.level or balance>=blocked.cash)
+                phaseNeedsIncome=not budgetReady
+                if budgetReady then return goal end
+            end
+            return nil
+        end
         if afterSale and postSaleWeaponBought then return nil end
         local options={}
         if Core.effective(config,"autoBuyUpgrades") then
@@ -2316,6 +2366,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local function snapshot()
         if os.clock()<snapshotAt then return last end
         snapshotAt=os.clock()+0.12
+        if bombPending and os.clock()>=bombPending.deadline then
+            bombPending=nil bombBackoff=math.min(3,math.max(0.2,bombBackoff*1.5)) dynamiteAt=os.clock()+bombBackoff
+        end
         local count,capacity=inventory()
         local heat,flowing,heatSource=resolver.heat()
         cooling=Core.coolingLatch(cooling,heat,config,alarm())
@@ -2351,19 +2404,21 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
         local removedOk,removed=safeCall(pileController,"GetRemovedFraction")
         last.mountainEmpty=removedOk and type(removed)=="number" and removed>=1
-        last.focusClear=config.clearPileFirst and dynamiteMax and removedOk and type(removed)=="number" and removed<1
+        last.focusClear=config.clearPileFirst and dynamiteMax and not phaseNeedsIncome and removedOk and type(removed)=="number" and removed<1
+        last.phase=dynamiteMax and (phaseGoal and "equipment: "..phaseGoal.name or "clear pile") or "fund dynamite"
+        if dynamiteMax and phaseNeedsIncome and data and data.HasAutoPeeler and last.mountainEmpty~=true then last.focusClear=true end
         local finalKnife=data and #(cutShared.Tools or {})>1 and bestCutRank(data)>=#cutShared.Tools
         local remaining=math.max(0,config.cutBuffer-crateCount())
-        last.needBuffer=config.maintainCutBuffer and finalKnife and remaining>0 and removedOk and type(removed)=="number" and removed<1
+        last.needBuffer=config.maintainCutBuffer and not dynamiteMax and finalKnife and remaining>0 and removedOk and type(removed)=="number" and removed<1
         last.bufferDeliveryGoal=last.needBuffer and math.min(remaining,Core.deliveryGoal(config,capacity) or remaining) or nil
         if os.clock()>=nextBlurCheck then nextBlurCheck=os.clock()+1 clearMenuBlur() end
         last.drone=data and data.HasDrone==true
         local round=data and data.RunStartTime or 0
-        if droneRound~=round then droneRound=round droneConsent=false droneAsked=false end
+        if droneRound~=round then droneRound=round droneConsent=false droneAsked=false upgradeGuard.reset() end
         last.droneReady=config.autoBuyDrone and droneConsent and not last.drone and (config.autoProgress or config.autoFarm)
         last.askDrone=config.autoBuyDrone and not droneAsked and not last.drone and (config.autoProgress or config.autoFarm)
         last.dynamiteReady=data and Chapter.owns(data,"Dynamite") and os.clock()>=dynamiteAt
-            and protocol.matches("DynamiteThrow",{"NumberU32"}) and itemAlive(candidate)
+            and not bombPending and protocol.matches("DynamiteThrow",{"NumberU32"}) and itemAlive(candidate)
 
         last.canStageCut=get(world,{"Map","PeelingMachines","PotatoCrate","PotatoArea","PlacePrompt"})~=nil
         return last
@@ -2567,7 +2622,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
         local after=inventory()
         if confirmed then
-            if item.part then resolver.confirm(item.part,item.slot,item.geometry) end
+            if item.part and not nativeVacuum then resolver.confirm(item.part,item.slot,item.geometry) end
             counts.collected+=math.max(0,(after or before)-before)
             if item.pumpkin and pumpkinSerial>beforePumpkin then counts.pumpkins+=pumpkinSerial-beforePumpkin end
             if gemSerial>beforeGem then counts.gems+=gemSerial-beforeGem end
@@ -2599,7 +2654,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             else
                 local data=state()
                 local automatic=machines and get(machines,{"AutoPeelingMachine","Cube.042","Load"})
-                if config.buyMachines and last.mountainEmpty and data and data.HasAutoPeeler and automatic and automatic.Enabled then prompt=automatic
+                if config.buyMachines and (last.mountainEmpty or last.focusClear) and data and data.HasAutoPeeler and automatic and automatic.Enabled then prompt=automatic
                 else prompt=machines and get(machines,{"PotatoCrate","PotatoArea","PlacePrompt"}) end
             end
             if not prompt then return false,"Destino selecionado indisponivel." end
@@ -2745,6 +2800,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 if afterSale and item.group=="cut" then postSaleWeaponBought=true end
                 log("Compra confirmada: "..item.name..".")
             end
+            if item.group=="upgrade" and not deferred then upgradeGuard.result(item.name,beforeLevel,success) end
             if item.group=="upgrade" and not success then
                 deniedOffers[item.name]={cash=math.max((beforeCash or 0)*1.5,(beforeCash or 0)+math.max(0.1,(item.price or 0)*0.5)),level=beforeLevel}
             elseif success and not deferred then deniedOffers[item.name]=nil end
@@ -2756,6 +2812,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             return success,message
         end
         if item.group=="upgrade" then
+            local definitionOk,definition=safeCall(shared,"GetUpgrade",item.tool,item.upgrade)
+            local maximum=definitionOk and Chapter.maximum(shared,definition)
+            if maximum==nil or beforeLevel==nil or beforeLevel>=maximum or not upgradeGuard.allowed(item.name,beforeLevel) then return finish(true,"Melhoria concluida ou bloqueada para reavaliacao.",true) end
             -- Prices/buttons are read without opening or selecting the game's tabs.
             -- Native upgrade callbacks had side effects on unrelated game ScreenGuis.
             if beforeLevel==nil then return finish(true,"Nivel de melhoria indisponivel.",true) end
@@ -2842,19 +2901,20 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
         local equipped=protocol.matches("ToolEquip",{"String"})
         if equipped then protocol.fire("ToolEquip","Dynamite") end
+        safeCall(pileController,"SetUseHeld",false)
         local before=dynamiteSerial
         local ok,message=protocol.fire("DynamiteThrow",candidate.slot)
         local interval=math.max(config.dynamiteInterval,config.dynamiteAggressive and 0.1 or 1)
         dynamiteAt=os.clock()+interval
-        local confirmed=false
-        if ok then confirmed=waitUntil(function() return dynamiteSerial>before end,math.min(1.2,config.actionTimeout),valid) end
+        if ok then bombPending={serial=before,deadline=os.clock()+0.8} end
         if equipped then
             local tool=Chapter.owns(data,"PotatoSucker") and "PotatoSucker" or Chapter.owns(data,"Shovel") and "Shovel" or "Hand"
             protocol.fire("ToolEquip",tool)
         end
-        if confirmed then counts.throws+=1 else dynamiteAt=os.clock()+math.max(1,interval*1.3) end
-        if confirmed then candidate=nil snapshotAt=0 end
-        return confirmed,confirmed and nil or message or "Lancamento sem confirmacao; aguardando recarga."
+        collectTool()
+        if equipped and Chapter.owns(data,"PotatoSucker") and protocol.matches("ToolUsing",{"Boolean"}) then protocol.fire("ToolUsing",true) end
+        return ok,message
+
     end
 
     if cutting.PotatoCut and type(cutting.PotatoCut.Connect)=="function" then
@@ -2890,7 +2950,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
     end
     watchReward("PotatoDiamondCollected",function() gemSerial+=1 end)
-    watchReward("DynamiteThrown",function() dynamiteSerial+=1 end)
+    watchReward("DynamiteThrown",function()
+        dynamiteSerial+=1
+        if bombPending then counts.throws+=1 bombPending=nil bombBackoff=math.max(0.1,bombBackoff*0.8) end
+    end)
     local function stageCut(valid)
         local prompt=get(world,{"Map","PeelingMachines","PotatoCrate","PotatoArea","PlacePrompt"})
         local before=inventory()
@@ -2982,9 +3045,20 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end,
         diagnostic=function()
             local snap=snapshot()
+            local levels={}
+            local data=state()
+            local shared=modules["Shared.ToolUpgradeShared"] or {}
+            for tool,ids in pairs(Chapter.allowed) do
+                if Chapter.owns(data,tool) then
+                    for _,id in ipairs(ids) do
+                        local ok,definition=safeCall(shared,"GetUpgrade",tool,id)
+                        levels[tool.."/"..id]={level=Chapter.level(shared,data,tool,id),maximum=ok and Chapter.maximum(shared,definition) or nil}
+                    end
+                end
+            end
             return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,
-                state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
-                    heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,cut_engine=cutEngine.stats,prompts=nav.stats,retry_at=retryAt,schemas={upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
+                upgrade_levels=levels,state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
+                    heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,cut_engine=cutEngine.stats,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
         end,
     }
 end
@@ -2996,7 +3070,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.9.0"
+local VERSION="0.10.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}
