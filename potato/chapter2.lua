@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.5.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.6.0. Chapter 2 only. No paid purchases.
 
 local Core = (function()
 -- Luau · potato_core.luau · configuration and task coordination · Roblox / CLI · Luau 0.745
@@ -12,7 +12,8 @@ Core.defaults = {
     cutBuyTools = true, rarity = "Any", selection = "Nearest", tableChoice = "Nearest",
     deliveryMode = "Amount", deliveryTarget = "Crate",
     movement = "Teleport", speedMode = "Turbo", cutMode = "Fast", teleportSettle = 0.10,
-    pickBatch = 6, cutBurst = 3,
+    pickBatch = 8, cutBurst = 3,cutTargetRate=20,cutToolMultiplier=4,
+    collectTool="Auto",logicalSpecials=true,autoRecover=true,
     sellThreshold=500,sellRemainder=true,buyAfterSell=true,returnAfterSell=true,
     infiniteBag=false,collectGems=true,gemPriority=true,
     upgradeDrone=true,upgradeMachines=true,upgradeGeneral=true,saveForNextTool=true,
@@ -38,6 +39,7 @@ local ranges = {
     teleportSettle={0.05,1}, uiWidth={300,1100}, uiHeight={340,900}, uiScale={65,150},
     uiX={0,1},uiY={0,1},buttonX={0,1},buttonY={0,1},buttonSize={44,88},
     pickBatch={1,16},cutBurst={1,6},
+    cutTargetRate={1,40},cutToolMultiplier={1,4},
     sellThreshold={1,1000000},dynamiteInterval={0.1,15},
 }
 local choices = {
@@ -46,6 +48,7 @@ local choices = {
     deliveryMode = {Amount=true,Percent=true},
     deliveryTarget = {Crate=true,Table=true,Manual=true,Auto=true},
     movement={Walk=true,Teleport=true},speedMode={Turbo=true,Standard=true},cutMode={Fast=true,Native=true},
+    collectTool={Auto=true,Hand=true,Shovel=true,PotatoSucker=true},
     tableChoice = {Nearest=true,PeelingTable1=true,PeelingTable2=true,PeelingTable3=true,PeelingTable4=true},
 }
 local automation = {"autoProgress","autoCut","autoFarm","autoDeliver","autoCool","autoCrank","autoSell","autoDynamite",
@@ -179,7 +182,7 @@ function Core.deliveryGoal(config,capacity)
 end
 
 function Core.tickInterval(config)
-    return config.speedMode=="Turbo" and math.min(config.actionDelay,0.04) or config.actionDelay
+    return config.speedMode=="Turbo" and math.min(config.actionDelay,0.02) or config.actionDelay
 end
 
 function Core.pickLimit(config,carried,capacity,pumpkin)
@@ -189,27 +192,29 @@ function Core.pickLimit(config,carried,capacity,pumpkin)
 end
 
 function Core.choose(config, state, now)
-    if Core.effective(config,"autoCool") and state.needCooling and now >= (state.coolingRetryAt or 0) then return "cool" end
-    if Core.effective(config,"autoSell") and state.sellReady and now>=(state.sellRetryAt or 0) then return "sell" end
-    if state.returnToTable and state.postSaleWeaponBought then return "returnTable" end
-    if state.canBuy and now >= (state.buyRetryAt or 0) then
+    local function ready(action) return now>=((state.retryAt or {})[action] or 0) end
+    if Core.effective(config,"autoCool") and state.needCooling and now >= (state.coolingRetryAt or 0) and ready("cool") then return "cool" end
+    if state.deliveryPending and (Core.effective(config,"autoDeliver") or Core.effective(config,"autoCut")) and ready("deliver") then return "deliver" end
+    if Core.effective(config,"autoSell") and state.sellReady and now>=(state.sellRetryAt or 0) and ready("sell") then return "sell" end
+    if state.returnToTable and state.postSaleWeaponBought and ready("returnTable") then return "returnTable" end
+    if state.canBuy and now >= (state.buyRetryAt or 0) and ready("buy") then
         if Core.effective(config,"autoBuyTools") or Core.effective(config,"autoBuyUpgrades")
             or Core.effective(config,"autoBuyStorage") or state.afterSale and config.buyAfterSell then return "buy" end
     end
-    if state.returnToTable then return "returnTable" end
-    if Core.effective(config,"autoDynamite") and state.dynamiteReady and not state.cutting then return "dynamite" end
-    if Core.effective(config,"autoCrank") and state.crankReady then return "crank" end
-    if Core.effective(config,"autoCut") and state.cutting then return "cut" end
-    if Core.effective(config,"autoCut") and not Core.effective(config,"autoFarm") and state.carried and state.carried>0 and state.canStageCut and not state.tableReady then return "stageCut" end
+    if state.returnToTable and ready("returnTable") then return "returnTable" end
+    if Core.effective(config,"autoDynamite") and state.dynamiteReady and not state.cutting and ready("dynamite") then return "dynamite" end
+    if Core.effective(config,"autoCrank") and state.crankReady and ready("crank") then return "crank" end
+    if Core.effective(config,"autoCut") and state.cutting and ready("cut") then return "cut" end
+    if Core.effective(config,"autoCut") and not Core.effective(config,"autoFarm") and state.carried and state.carried>0 and state.canStageCut and not state.tableReady and ready("stageCut") then return "stageCut" end
     if Core.effective(config,"autoDeliver") and state.carried and state.carried > 0 then
         local goal=Core.deliveryGoal(config,state.capacity)
         local full=goal and state.carried>=goal
-        if full or state.noCandidate or not Core.effective(config,"autoFarm") then return "deliver" end
+        if (full or state.noCandidate or not Core.effective(config,"autoFarm")) and ready("deliver") then return "deliver" end
     end
-    if Core.effective(config,"autoCut") and state.tableReady then return "enterCut" end
+    if Core.effective(config,"autoCut") and state.tableReady and ready("enterCut") then return "enterCut" end
     if Core.effective(config,"autoFarm") and state.hasCandidate
         and type(state.capacity)=="number" and type(state.carried)=="number"
-        and state.capacity>0 and (state.carried < state.capacity or state.candidatePumpkin) then return "collect" end
+        and state.capacity>0 and (state.carried < state.capacity or state.candidatePumpkin) and ready("collect") then return "collect" end
     return "idle"
 end
 
@@ -477,63 +482,94 @@ return Protocol
 end)()
 
 local CutEngine = (function()
--- Luau · potato_cut_engine.luau · acknowledged cut progression and native fallback · Roblox / CLI · Luau 0.745
+-- Luau · potato_cut_engine.luau · paced server acknowledgements · Roblox / CLI · Luau 0.745
 local CutEngine={}
 function CutEngine.create(config,io)
     local epoch,lastSent=0,-1
     local active,serverSeen,native=false,false,false
     local progressAt,lastFingerprint,lastCash=io.clock(),nil,nil
-    local sentAt=0
-    local pending=0
-    local recovery=0
-    local stats={attempted=0,accepted=0,epochs=0,native=false,pending=0,throttled=false}
+    local sentAt,nextAt=0,0
+    local pending,recovery=0,0
+    local scheduled=false
+    local generation=0
+    local lastTool=nil
+    local stats={attempted=0,accepted=0,epochs=0,native=false,pending=0,throttled=false,targetRate=20,ackRate=0,timeouts=0}
+    local rateWindow,rateCount=io.clock(),0
+    local tick
+    local function allowed() return not io.allowed or io.allowed() end
     local function drive(value)
         if native~=value then io.native(value) native=value stats.native=value end
     end
-    local function advance()
-        if pending>0 then
-            stats.accepted+=1 pending-=1 stats.pending=pending recovery+=1
-            if recovery>=12 then stats.throttled=false recovery=0 end
+    local function target(tool)
+        local toolRate=type(tool)=="table" and tonumber(tool.AutoCutRate) or 1.5
+        return math.clamp(config.cutTargetRate or 20,1,40)*math.clamp((toolRate or 1.5)/1.5,1,config.cutToolMultiplier or 4)
+    end
+    local function schedule()
+        if not io.schedule or scheduled or not active or not allowed() then return end
+        scheduled=true
+        local token=generation
+        io.schedule(math.max(0,nextAt-io.clock()),function()
+            if token~=generation then return end
+            scheduled=false
+            if active and allowed() then tick(true,lastFingerprint,lastCash,lastTool) end
+        end)
+    end
+    local function advance(ack)
+        if ack and pending>0 then
+            pending=0 stats.pending=0 stats.accepted+=1 recovery+=1 rateCount+=1
+            if recovery>=4 then stats.throttled=false recovery=0 end
         end
-        epoch+=1 stats.epochs=epoch progressAt=io.clock()
+        local now=io.clock()
+        if now-rateWindow>=1 then stats.ackRate=rateCount/(now-rateWindow) rateWindow=now rateCount=0 end
+        epoch+=1 stats.epochs=epoch progressAt=now
     end
     local function event(name)
         serverSeen=true
-        if name=="start" then active=true advance()
-        elseif name=="next" then active=true advance()
-        elseif name=="stop" then active=false pending=0 stats.pending=0 drive(false) end
+        if name=="start" then
+            pending=0 stats.pending=0 active=true lastSent=-1 advance(false)
+        elseif name=="next" then active=true advance(true)
+        elseif name=="stop" then
+            active=false pending=0 stats.pending=0 generation+=1 scheduled=false drive(false)
+        end
+        if name~="stop" then schedule() end
     end
-    local function tick(isActive,fingerprint,cash,tool)
+    tick=function(isActive,fingerprint,cash,tool)
         local now=io.clock()
-        if not isActive then active=false pending=0 stats.pending=0 drive(false) lastFingerprint=nil return true end
-        if not active then active=true advance() lastFingerprint=fingerprint progressAt=now end
-        if not serverSeen and fingerprint~=nil and lastFingerprint~=nil and fingerprint~=lastFingerprint then advance() end
+        if not isActive or not allowed() then
+            active=false pending=0 stats.pending=0 generation+=1 scheduled=false drive(false) lastFingerprint=nil
+            return true
+        end
+        lastTool=tool or lastTool
+        stats.targetRate=target(lastTool)
+        if not active then active=true lastSent=-1 advance(false) lastFingerprint=fingerprint end
+        if not serverSeen and fingerprint~=nil and lastFingerprint~=nil and fingerprint~=lastFingerprint then advance(true) end
         if cash~=nil and lastCash~=nil and cash~=lastCash then progressAt=now end
         lastFingerprint,lastCash=fingerprint,cash
-        if pending>0 and now-sentAt>1.2 then pending=0 stats.pending=0 stats.throttled=true recovery=0 end
-        if config.cutMode=="Fast" and pending==0 and lastSent~=epoch and type(io.finish)=="function" then
-            lastSent=epoch sentAt=now
-            local amount=stats.throttled and 1 or math.clamp(config.cutBurst or 1,1,6)
-            for _=1,amount do
-                local ok,message=io.finish()
-                if not ok then drive(true) return false,message end
-                pending+=1 stats.pending=pending stats.attempted+=1
-            end
+        if pending>0 and now-sentAt>math.max(0.35,4/stats.targetRate) then
+            pending=0 stats.pending=0 stats.throttled=true stats.timeouts+=1 recovery=0 lastSent=-1
+            nextAt=math.max(nextAt,now+0.10)
         end
-        -- Native automatic motion handles the actual slices and the equipped tool.
-        -- Batches are bounded and await server transitions. Unacknowledged bursts
-        -- fall back to one request plus native tool motion.
-        drive(config.cutMode=="Native" or now-sentAt>=0.25)
-        local rate=type(tool)=="table" and tonumber(tool.AutoCutRate) or 1.5
-        local allowance=math.max(config.actionTimeout,12,16/math.max(0.1,rate or 1.5))
-        if now-progressAt>allowance then
+        if config.cutMode=="Fast" and pending==0 and lastSent~=epoch and type(io.finish)=="function" then
+            if now>=nextAt then
+                -- One current potato per acknowledgement. Old multi-finish bursts
+                -- waited for replies the server never sent and permanently throttled.
+                lastSent=epoch sentAt=now nextAt=now+1/stats.targetRate
+                pending=1 stats.pending=1
+                local ok,message=io.finish()
+                if not ok then pending=0 stats.pending=0 drive(true) return false,message end
+                stats.attempted+=1
+            else schedule() end
+        end
+        drive(config.cutMode=="Native" or pending>0 and now-sentAt>=0.12)
+        if now-progressAt>math.max(4,math.min(config.actionTimeout or 10,8)) then
             progressAt=now
-            return false,"O servidor nao confirmou a proxima batata; modo nativo continua ativo."
+            return false,"Corte sem avancar; reabrindo a mesa automaticamente."
         end
         return true
     end
-    return {event=event,tick=tick,pause=function() drive(false) end,
-        stats=stats,epoch=function() return epoch end,serverActive=function() return active end}
+    return {event=event,tick=tick,pause=function()
+        generation+=1 scheduled=false active=false pending=0 stats.pending=0 lastSent=-1 drive(false)
+    end,stats=stats,epoch=function() return epoch end,serverActive=function() return active end}
 end
 return CutEngine
 
@@ -766,10 +802,18 @@ function UI.create(services, config, callbacks, Layout)
         corner(result,8)
         return result
     end
-    local old=player.PlayerGui:FindFirstChild("AnonymousPotatoHub")
+    local uiParent=player.PlayerGui
+    if type(gethui)=="function" then
+        local ok,parent=pcall(gethui)
+        if ok and typeof(parent)=="Instance" then uiParent=parent end
+    end
+    local old=uiParent:FindFirstChild("AnonymousPotatoHub")
     if old then old:Destroy() end
     local gui=make("ScreenGui",{Name="AnonymousPotatoHub",ResetOnSpawn=false,
-        DisplayOrder=90,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},player.PlayerGui)
+        DisplayOrder=10000,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},uiParent)
+    table.insert(connections,gui:GetPropertyChangedSignal("Enabled"):Connect(function()
+        if not closed and not gui.Enabled then gui.Enabled=true end
+    end))
     local canvas=make("Frame",{Name="SafeCanvas",Size=UDim2.fromScale(1,1),BackgroundTransparency=1},gui)
     local panel=make("Frame",{Name="Panel",Position=UDim2.fromOffset(8,8),
         Size=UDim2.fromOffset(760,580),Visible=false,BackgroundColor3=palette.background,BorderSizePixel=0,ClipsDescendants=true},canvas)
@@ -805,7 +849,7 @@ function UI.create(services, config, callbacks, Layout)
     pause.Size,pause.Position=UDim2.fromOffset(143,35),UDim2.fromOffset(111,0)
     local mini=button(canvas,"A")
     mini.Position,mini.Size=UDim2.fromOffset(13,72),UDim2.fromOffset(56,56)
-    mini.BackgroundColor3=palette.accent mini.TextColor3=palette.background mini.TextSize=27 mini.Visible=false
+    mini.BackgroundColor3=palette.accent mini.TextColor3=palette.background mini.TextSize=27 mini.Visible=true mini.ZIndex=20
     local dragBar=make("Frame",{Name="MoveHandle",Size=UDim2.new(1,-18,0,33),BackgroundTransparency=1,Active=true},panel)
     local dragHint=text(dragBar,"≡   ANONYMOUS / POTATO   ·   ARRASTE",10,palette.muted,true)
     dragHint.Position,dragHint.Size=UDim2.fromOffset(15,3),UDim2.new(1,-30,1,-6)
@@ -849,7 +893,7 @@ function UI.create(services, config, callbacks, Layout)
     draggable(dragBar,panel,"panel") draggable(grip,panel,"resize") draggable(mini,mini,"launcher")
 
     local function setOpen(value)
-        isOpen=value panel.Visible=value mini.Visible=not value
+        isOpen=value panel.Visible=value mini.Visible=true
     end
     table.insert(connections,hide.Activated:Connect(function() setOpen(false) end))
     table.insert(connections,mini.Activated:Connect(function() if os.clock()>suppressMiniUntil then setOpen(true) end end))
@@ -1021,7 +1065,8 @@ function UI.create(services, config, callbacks, Layout)
     local c=card(cut,"Mesa e ferramentas")
     toggle(c,"autoCut","Auto Cut")
     choice(c,"cutMode","Modo de corte",{{"Fast","Rapido"},{"Native","Nativo"}})
-    number(c,"cutBurst","Conclusoes por rodada",1,6,1,"")
+    number(c,"cutTargetRate","Meta de tentativas por segundo",1,40,1,"/s")
+    number(c,"cutToolMultiplier","Multiplicador com ferramentas",1,4,0.5,"x")
     choice(c,"tableChoice","Mesa",{{"Nearest","Mais perto"},{"PeelingTable1","Mesa 1"},{"PeelingTable2","Mesa 2"},{"PeelingTable3","Mesa 3"},{"PeelingTable4","Mesa 4"}})
     toggle(c,"cutBuyTools","Comprar no Auto Cut","Compra ferramentas de corte usando o orcamento configurado.")
     toggle(c,"autoCrank","Girar cortador manual","Aciona a maquina quando estiver carregada e liberada pelo jogo.")
@@ -1064,6 +1109,11 @@ function UI.create(services, config, callbacks, Layout)
     choice(s,"movement","Deslocamento",{{"Teleport","Teleporte"},{"Walk","Caminhar"}})
     choice(s,"speedMode","Ritmo",{{"Turbo","Turbo"},{"Standard","Normal"}})
     number(s,"pickBatch","Coletas por rodada",1,16,1,"")
+    choice(s,"collectTool","Ferramenta de coleta",{{"Auto","Melhor adquirida"},{"Hand","Mao"},{"Shovel","Pa"},{"PotatoSucker","P0T4T0-3000"}})
+    toggle(s,"logicalSpecials","Especiais sem modelo visivel","Usa os IDs e as posicoes atuais do jogo. Tentativas recusadas recebem uma pausa; recompensas dependem do servidor.")
+    toggle(s,"autoRecover","Recuperar etapas automaticamente","Falhas de coleta e entrega adiam somente a etapa afetada.")
+    local restore=button(s,"RESTAURAR CONTROLES DO JOGO") restore.Size=UDim2.new(1,0,0,40) restore.LayoutOrder=1000
+    table.insert(connections,restore.Activated:Connect(function() if callbacks.restore then callbacks.restore() end end))
     number(s,"actionDelay","Intervalo entre acoes",0.02,5,0.01," s")
     number(s,"actionTimeout","Tempo limite de acao",2,60,1," s")
     number(s,"travelTimeout","Tempo limite de trajeto",5,120,1," s")
@@ -1177,11 +1227,14 @@ local Navigation = (function()
 -- Luau · potato_navigation.luau · cancellable movement and prompt interactions · Roblox · Luau 0.745
 local Navigation = {}
 
-function Navigation.create(services, config, log)
+function Navigation.create(services, config, log,runtime)
+    local clock=runtime and runtime.clock or os.clock
     local player = services.Players.LocalPlayer
-    local nativePrompt=type(fireproximityprompt)=="function" and fireproximityprompt or nil
+    local nativePrompt=runtime and runtime.nativePrompt or type(fireproximityprompt)=="function" and fireproximityprompt or nil
     local controls, controlDepth, previousEnabled = nil,0,true
     local activeHumanoid = nil
+    local heldPrompt=nil
+    local promptStats={attempts=0,held=0,native=0,lastMethod="none",lastPath="none"}
     local function actor()
         local character = player.Character
         local root = character and character:FindFirstChild("HumanoidRootPart")
@@ -1212,14 +1265,15 @@ function Navigation.create(services, config, log)
         end
     end
     local function stop()
+        if heldPrompt then pcall(heldPrompt.InputHoldEnd,heldPrompt) heldPrompt=nil end
         local root,humanoid = actor()
         if humanoid and root then humanoid:MoveTo(root.Position) end
         activeHumanoid = nil
         unlockControls(true)
     end
     local function waitFor(seconds,valid)
-        local deadline = os.clock()+seconds
-        while os.clock()<deadline do
+        local deadline = clock()+seconds
+        while clock()<deadline do
             if not valid() then return false end
             services.RunService.Heartbeat:Wait()
         end
@@ -1228,17 +1282,17 @@ function Navigation.create(services, config, log)
     local function moveWaypoints(waypoints,valid,deadline)
         for _,point in ipairs(waypoints) do
             local root,humanoid = actor()
-            if not root or not valid() or os.clock()>deadline then return false,"trajeto interrompido" end
+            if not root or not valid() or clock()>deadline then return false,"trajeto interrompido" end
             activeHumanoid = humanoid
             if point.Action==Enum.PathWaypointAction.Jump then humanoid.Jump=true end
             humanoid:MoveTo(point.Position)
-            local previousDistance,lastImprovement = math.huge,os.clock()
+            local previousDistance,lastImprovement = math.huge,clock()
             while Vector2.new(root.Position.X-point.Position.X,root.Position.Z-point.Position.Z).Magnitude>2.5
                 or math.abs(root.Position.Y-point.Position.Y)>7 do
-                if not valid() or humanoid.Health<=0 or not root.Parent or os.clock()>deadline then return false,"trajeto interrompido" end
+                if not valid() or humanoid.Health<=0 or not root.Parent or clock()>deadline then return false,"trajeto interrompido" end
                 local distance=Vector2.new(root.Position.X-point.Position.X,root.Position.Z-point.Position.Z).Magnitude
-                if distance<previousDistance-0.15 then previousDistance,lastImprovement=distance,os.clock() end
-                if os.clock()-lastImprovement>3 then return false,"caminho bloqueado" end
+                if distance<previousDistance-0.15 then previousDistance,lastImprovement=distance,clock() end
+                if clock()-lastImprovement>3 then return false,"caminho bloqueado" end
                 services.RunService.Heartbeat:Wait()
             end
         end
@@ -1271,7 +1325,7 @@ function Navigation.create(services, config, log)
             path:ComputeAsync(root.Position,destination)
             if not valid() then success,message=false,"cancelado" return end
             if path.Status~=Enum.PathStatus.Success then success,message=false,"sem caminho navegavel" return end
-            success,message=moveWaypoints(path:GetWaypoints(),valid,os.clock()+config.travelTimeout)
+            success,message=moveWaypoints(path:GetWaypoints(),valid,clock()+config.travelTimeout)
         end)
         if not ok then success,message=false,tostring(reason) end
         unlockControls()
@@ -1319,33 +1373,46 @@ function Navigation.create(services, config, log)
         end
         return false,"nao foi possivel chegar ao prompt"
     end
-    local function trigger(prompt,valid)
+    local function trigger(prompt,valid,options)
+        options=options or {}
         if not prompt or not prompt.Parent then return false,"prompt removido" end
         local reached,message=approach(prompt,valid)
         if not reached then return false,message end
-        local readyAt=os.clock()+0.7
-        while not prompt.Enabled and valid() and os.clock()<readyAt do services.RunService.Heartbeat:Wait() end
+        local readyAt=clock()+0.7
+        while not prompt.Enabled and valid() and clock()<readyAt do services.RunService.Heartbeat:Wait() end
         if not prompt.Enabled then return false,"interacao indisponivel no jogo" end
         if not valid() then return false,"cancelado" end
         local position=promptPosition(prompt)
         local root=actor()
         if not root or not position or (root.Position-position).Magnitude>prompt.MaxActivationDistance then return false,"fora do alcance" end
-        if nativePrompt then
+        promptStats.attempts+=1 promptStats.lastPath=prompt:GetFullName()
+        local holdFirst=options.method~="native" and (prompt.HoldDuration>0 or options.method=="hold")
+        if nativePrompt and not holdFirst then
             local fired,why=pcall(nativePrompt,prompt)
             if fired then
-                if prompt.HoldDuration>0 and not waitFor(prompt.HoldDuration,valid) then return false,"cancelado" end
+                promptStats.native+=1 promptStats.lastMethod="native"
                 return true
             end
             log("Acionamento nativo do prompt falhou: "..tostring(why),"error")
         end
         local begun,errorMessage=pcall(prompt.InputHoldBegin,prompt)
-        if not begun then return false,tostring(errorMessage) end
-        local finished=waitFor(prompt.HoldDuration>0 and prompt.HoldDuration+0.12 or 0.06,valid)
+        if not begun then
+            if nativePrompt then
+                local fired,why=pcall(nativePrompt,prompt)
+                if fired then promptStats.native+=1 promptStats.lastMethod="native fallback" return true end
+                return false,tostring(why)
+            end
+            return false,tostring(errorMessage)
+        end
+        heldPrompt=prompt promptStats.held+=1 promptStats.lastMethod="continuous hold"
+        local completed,finished=pcall(waitFor,prompt.HoldDuration>0 and prompt.HoldDuration+0.20 or 0.08,valid)
         pcall(prompt.InputHoldEnd,prompt)
+        if heldPrompt==prompt then heldPrompt=nil end
+        if not completed then return false,tostring(finished) end
         if not finished then return false,"interacao interrompida" end
         return true
     end
-    return {actor=actor,goTo=goTo,approach=approach,trigger=trigger,promptPosition=promptPosition,stop=stop,waitFor=waitFor}
+    return {actor=actor,goTo=goTo,approach=approach,trigger=trigger,promptPosition=promptPosition,stop=stop,waitFor=waitFor,stats=promptStats}
 end
 
 return Navigation
@@ -1364,6 +1431,8 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
     local originals,samples,bindings={},{},{}
     local direct=setmetatable({},{__mode="k"})
     local theoretical=nil
+    local worldPositions={}
+    local directPositions=setmetatable({},{__mode="k"})
     local indexedFolder=nil
     local lastSync=-math.huge
     local preparing=false
@@ -1569,35 +1638,82 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
             end
             local selected=frames[best]
             theoretical=Spatial.new(0.09)
-            for index,p in pairs(records) do theoretical.add(selected.apply(p),index) end
-            for part,index in pairs(maps[best]) do direct[part]=index end
+            worldPositions={}
+            for index,p in pairs(records) do
+                local position=selected.apply(p)
+                theoretical.add(position,index) worldPositions[index]=position
+            end
+            for part,index in pairs(maps[best]) do direct[part]=index directPositions[part]=part.Position end
             indexedFolder=folder stats.mapped=bestScore stats.slot="spatial / "..selected.name stats.generation+=1
             log("Indices confirmados por geometria: "..bestScore.."/"..#parts..".")
         end)
         preparing=false nextPrepare=os.clock()+(ok and 0 or 5)
         return ok,ok and nil or tostring(message)
     end
-    local function slot(part)
+    local function physicalSlot(part)
         if not part or not part.Parent then return nil end
-        if direct[part] then return direct[part] end
-        if theoretical then local index=theoretical.find(part.Position) if index then direct[part]=index return index end end
+        local previous=directPositions[part]
+        local position=part.Position
+        if direct[part] and previous and previous.X==position.X and previous.Y==position.Y and previous.Z==position.Z then return direct[part] end
+        if theoretical then
+            local index=theoretical.find(position)
+            if index then direct[part]=index directPositions[part]=position return index end
+        end
         return nil
+    end
+    local function potatoInSlot(index)
+        if not bindings.GetPotatoInSlot then return nil end
+        local ok,id=bindings.GetPotatoInSlot(index)
+        if not ok or not validId(id) then return nil end
+        if bindings.GetPotatoSlot then
+            local good,back=bindings.GetPotatoSlot(id)
+            if not good or back~=index then return nil end
+        end
+        return id
+    end
+    -- Geometry yields a slot; PotatoPick/GetKind use the potato ID stored in it.
+    -- Never reuse a slot as an ID: the permutation changes after removals.
+    local function slot(part)
+        local index=physicalSlot(part)
+        return index and potatoInSlot(index) or nil
+    end
+    local function live(id)
+        if not validId(id) or not bindings.GetPotatoSlot then return false end
+        local ok,index=bindings.GetPotatoSlot(id)
+        return ok and validId(index) and potatoInSlot(index)==id
     end
     local function kind(part,index)
         index=index or slot(part)
-        if not index then return nil,part.Name=="Pumpkin",false end
-        local name,pumpkin,gem=nil,part.Name=="Pumpkin",false
+        if not index then return nil,part and part.Name=="Pumpkin" or false,false end
+        local name,pumpkin,gem=nil,part and part.Name=="Pumpkin" or false,false
         if bindings.GetKind then local ok,value=bindings.GetKind(index) if ok then name=normalize(value) end end
         if bindings.IsPumpkin then local ok,value=bindings.IsPumpkin(index) pumpkin=pumpkin or ok and value==true end
         if bindings.IsDiamond then local ok,value=bindings.IsDiamond(index) gem=ok and value==true end
         return name,pumpkin,gem
     end
+    local function specialTargets(valid)
+        local result={}
+        if not theoretical or not bindings.GetPotatoSlot or not bindings.GetPotatoInSlot then return result end
+        local deadline=os.clock()+0.002
+        for index=1,(pile.SLOT_COUNT or 30009) do
+            if closed or not valid() then return {} end
+            local id=potatoInSlot(index)
+            if id then
+                local name,pumpkin,gem=kind(nil,id)
+                if (pumpkin or gem) and worldPositions[index] then
+                    table.insert(result,{slot=id,position=worldPositions[index],kind=name,pumpkin=pumpkin,gem=gem,logical=true})
+                end
+            end
+            if os.clock()>deadline then services.RunService.Heartbeat:Wait() deadline=os.clock()+0.002 end
+        end
+        return result
+    end
     local function close()
         closed=true observer.close()
         if heatWrapper then pcall(function() if fire.GetHeat==heatWrapper then fire.GetHeat=originalHeat end end) end
     end
-    return {slot=slot,kind=kind,heat=heat,prepare=prepare,requestSync=requestSync,stats=stats,close=close,
-        ready=function() return bindings.GetKind~=nil and bindings.GetSlotPosition~=nil end,
+    return {slot=slot,physicalSlot=physicalSlot,live=live,specialTargets=specialTargets,kind=kind,heat=heat,prepare=prepare,requestSync=requestSync,stats=stats,close=close,
+        ready=function() return bindings.GetKind~=nil and bindings.GetSlotPosition~=nil and bindings.GetPotatoInSlot~=nil end,
         refresh=function() nextPrepare=0 end}
 end
 return Resolver
@@ -1747,6 +1863,18 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local counts={collected=0,pumpkins=0,gems=0,sold=0,sales=0,throws=0,delivered=0,cuts=0,cooled=0,purchases=0}
     local cutEngine=nil
     local last={}
+    local retryAt={}
+    local deliveryPending=nil
+    local cutDriving,closed=false,false
+    local equippedTool=nil
+    local specialCache,specialAt={},0
+    local logicalAttemptAt=0
+    local rejectedIds={}
+    local rateAt,stockBefore,cutUnits,cutRate=os.clock(),nil,0,0
+    local function itemPosition(item) return item.part and item.part.Position or item.position end
+    local function itemAlive(item)
+        return item and (item.part and item.part.Parent~=nil or item.logical and resolver.live(item.slot))
+    end
     local function get(root,path)
         for _,name in ipairs(path) do root=root and root:FindFirstChild(name) end
         return root
@@ -1806,6 +1934,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     end
     cutEngine=CutEngine.create(config,{
         clock=os.clock,
+        allowed=function() return not closed and cutDriving and Core.effective(config,"autoCut") end,
+        schedule=function(delay,callback) task.delay(delay,callback) end,
         finish=function()
             if not isCutting() then return false,"A mesa nao esta ativa." end
             if not packets.PeelingFinished or type(packets.PeelingFinished.Fire)~="function" then return false,"Conclusao de corte indisponivel." end
@@ -1818,6 +1948,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end,
     })
     local function release()
+        cutDriving=false
         if cutEngine then cutEngine.pause() end
         safeCall(cutting,"SetHeld",false)
         safeCall(cutting,"SetAuto",false)
@@ -1840,6 +1971,21 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             services.RunService.Heartbeat:Wait()
         until os.clock()>=deadline
         return false,"o jogo nao confirmou a acao no tempo configurado"
+    end
+    local function equip(tool)
+        if tool==equippedTool or not protocol.matches("ToolEquip",{"String"}) then return end
+        local ok=protocol.fire("ToolEquip",tool)
+        if ok then equippedTool=tool end
+    end
+    local function interactionTool()
+        cancelCut() equip("Hand")
+    end
+    local function collectTool()
+        local data=state()
+        local chosen=config.collectTool
+        if chosen=="Auto" then chosen=data and Chapter.owns(data,"PotatoSucker") and "PotatoSucker" or data and Chapter.owns(data,"Shovel") and "Shovel" or "Hand" end
+        if chosen~="Hand" and not (data and Chapter.owns(data,chosen)) then chosen="Hand" end
+        equip(chosen)
     end
     local function tables()
         local result={}
@@ -2005,12 +2151,16 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local purchase=os.clock()>=buyRetryAt and cachedPurchase or nil
         local crank=get(world,{"Map","PeelingMachines","PeelingMachine","CrankPromptPart","Crank"})
         last={cash=balance,carried=count,capacity=capacity,heat=heat,flowing=flowing,heatSource=heatSource,
-            needCooling=cooling and not flowing,cutting=isCutting(),tableReady=selectedTable(true)~=nil,
-            hasCandidate=candidate~=nil and candidate.part.Parent~=nil or queueIndex<=#queue and os.clock()<queueExpires,
+            needCooling=cooling and not flowing,cutting=isCutting(),tableReady=selectedTable(true)~=nil,retryAt=retryAt,deliveryPending=deliveryPending~=nil,
+            hasCandidate=itemAlive(candidate) or queueIndex<=#queue and os.clock()<queueExpires,
             noCandidate=searchEmpty,candidatePumpkin=candidate~=nil and candidate.pumpkin==true,
             purchase=purchase,canBuy=purchase~=nil,buyRetryAt=buyRetryAt,coolingRetryAt=coolingRetryAt}
         last.crankReady=crank~=nil and crank.Enabled
         last.stock=stockCount()
+        if last.stock and stockBefore and last.stock>stockBefore then cutUnits+=last.stock-stockBefore end
+        stockBefore=last.stock
+        if os.clock()-rateAt>=1 then cutRate=cutUnits/(os.clock()-rateAt) cutUnits=0 rateAt=os.clock() end
+        last.cutRate=cutRate
         last.sellReady=Chapter.sellReady(config,last.stock,{cutting=last.cutting,crate=crateCount(),carried=count,exhausted=searchEmpty})
         last.sellRetryAt=sellRetryAt
         last.afterSale=afterSale
@@ -2020,7 +2170,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local data=state()
         last.drone=data and data.HasDrone==true
         last.dynamiteReady=data and Chapter.owns(data,"Dynamite") and os.clock()>=dynamiteAt
-            and protocol.matches("DynamiteThrow",{"Vector3"}) and candidate~=nil
+            and protocol.matches("DynamiteThrow",{"NumberU32"}) and candidate~=nil
 
         last.canStageCut=get(world,{"Map","PeelingMachines","PotatoCrate","PotatoArea","PlacePrompt"})~=nil
         return last
@@ -2030,14 +2180,18 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if not folder then return nil end
         local params=RaycastParams.new()
         params.FilterType=Enum.RaycastFilterType.Include params.FilterDescendantsInstances={folder}
+        local checked=0
         while queueIndex<=#queue and os.clock()<queueExpires do
             if not valid() then return nil end
             local item=queue[queueIndex] queueIndex+=1
-            local part=item.part
-            if part.Parent and os.clock()>=(rejected[part] or 0) and (not onlyPumpkins or item.pumpkin) then
-                local hit=world:Raycast(part.Position+Vector3.new(0,25,0),Vector3.new(0,-25.5,0),params)
-                if hit and hit.Instance==part then candidate=item searchEmpty=false return item end
+            local rejectedAt=item.part and rejected[item.part] or rejectedIds[item.slot] or 0
+            if itemAlive(item) and os.clock()>=rejectedAt and (not onlyPumpkins or item.pumpkin) then
+                if item.part then item.slot=resolver.slot(item.part) end
+                local hit=item.part and world:Raycast(item.part.Position+Vector3.new(0,25,0),Vector3.new(0,-25.5,0),params)
+                if item.slot and (item.logical or hit and hit.Instance==item.part) then candidate=item searchEmpty=false return item end
             end
+            checked+=1
+            if checked%24==0 then services.RunService.Heartbeat:Wait() end
         end
         return nil
     end
@@ -2051,7 +2205,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             variantEpoch=resolver.stats.generation variantCache=setmetatable({},{__mode="k"})
             candidate=nil queue={} queueIndex=1 queueExpires=0
         end
-        if candidate and candidate.part.Parent and os.clock()>=(rejected[candidate.part] or 0) and (not onlyPumpkins or candidate.pumpkin) then return candidate end
+        if itemAlive(candidate) and os.clock()>=(candidate.part and rejected[candidate.part] or rejectedIds[candidate.slot] or 0) and (not onlyPumpkins or candidate.pumpkin) then return candidate end
         if os.clock()<queueExpires then
             local nextItem=popQueue(valid,onlyPumpkins)
             if nextItem then return nextItem end
@@ -2076,10 +2230,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 if distance<=config.maxDistance then
                     local pumpkin=part.Name=="Pumpkin"
                     local kind,slot,isGem
-                    local needKind=config.rarity~="Any" or config.priorityValue or config.collectPumpkins and not pumpkin
+                    local needKind=true
                     if needKind then
                         local cached=variantCache[part]
-                        if cached then kind,pumpkin,slot,isGem=cached.kind,cached.pumpkin,cached.slot,cached.gem
+                        if cached and resolver.slot(part)==cached.slot then kind,pumpkin,slot,isGem=cached.kind,cached.pumpkin,cached.slot,cached.gem
                         else
                             if attempts<8 or resolver.stats.kind~="unresolved" then
                                 attempts+=1
@@ -2102,6 +2256,22 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             end
             if index%700==0 then services.RunService.Heartbeat:Wait() end
         end
+        if config.logicalSpecials and (config.collectPumpkins or config.collectGems) then
+            if os.clock()>=specialAt then specialCache=resolver.specialTargets(valid) specialAt=os.clock()+20 end
+            local seen={}
+            for _,entry in ipairs(selected.values()) do if entry.slot then seen[entry.slot]=true end end
+            for _,item in ipairs(specialCache) do
+                if not valid() then return nil end
+                if os.clock()>=logicalAttemptAt and not seen[item.slot] and os.clock()>=(rejectedIds[item.slot] or 0) and resolver.live(item.slot)
+                    and Core.acceptVariant(config,item.kind,item.pumpkin,item.gem) and (not onlyPumpkins or item.pumpkin) then
+                    local distance=(item.position-root.Position).Magnitude
+                    if distance<=config.maxDistance then
+                        item.score=distance-(item.pumpkin and config.pumpkinPriority and 1000000000 or item.gem and config.gemPriority and 1000000 or 0)
+                        selected.add(item)
+                    end
+                end
+            end
+        end
         local choices=selected.values()
         queue,queueIndex,queueExpires=choices,1,os.clock()+5
         candidate=popQueue(valid,onlyPumpkins)
@@ -2111,14 +2281,15 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
         return candidate
     end
-    local function approachPart(part,valid)
+    local function approachPart(item,valid)
         local root=nav.actor()
-        if not root or not part.Parent then return false,"alvo indisponivel" end
-        if (root.Position-part.Position).Magnitude<=10 then return true end
-        if config.movement=="Teleport" then return nav.goTo(part.Position+Vector3.new(0,3.5,0),valid,true) end
-        local delta=root.Position-part.Position
+        if not root or not itemAlive(item) then return false,"alvo indisponivel" end
+        local position=itemPosition(item)
+        if (root.Position-position).Magnitude<=10 then return true end
+        if config.movement=="Teleport" then return nav.goTo(position+Vector3.new(0,3.5,0),valid,true) end
+        local delta=root.Position-position
         local horizontal=Vector3.new(delta.X,0,delta.Z)
-        local near=part.Position+(horizontal.Magnitude>0.1 and horizontal.Unit or Vector3.new(0,0,1))*5
+        local near=position+(horizontal.Magnitude>0.1 and horizontal.Unit or Vector3.new(0,0,1))*5
         local params=RaycastParams.new() params.FilterType=Enum.RaycastFilterType.Exclude
         params.FilterDescendantsInstances={player.Character,world:FindFirstChild("PotatoPile")}
         local hit=world:Raycast(near+Vector3.new(0,12,0),Vector3.new(0,-120,0),params)
@@ -2126,7 +2297,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local ok,message=nav.goTo(hit.Position,valid)
         root=nav.actor()
         if not ok then return false,message end
-        return root~=nil and part.Parent~=nil and (root.Position-part.Position).Magnitude<=18,"alvo fora do alcance"
+        return root~=nil and itemAlive(item) and (root.Position-position).Magnitude<=18,"alvo fora do alcance"
     end
     local function collect(valid)
         local item,message=findCandidate(valid)
@@ -2134,6 +2305,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             if message then log(message,"error") end
             return true
         end
+        collectTool()
         local before,capacity=inventory()
         local beforePumpkin,beforeGem=pumpkinSerial,gemSerial
         if not before or not capacity or before>=capacity and not item.pumpkin then return false,"bolsa cheia ou capacidade desconhecida" end
@@ -2142,10 +2314,15 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             return count~=nil and count>before or item.pumpkin and pumpkinSerial>beforePumpkin or item.gem and gemSerial>beforeGem
         end
         if os.clock()<nextPickAt then return true end
-        local ok,why=approachPart(item.part,valid)
-        if not ok then rejected[item.part]=os.clock()+15 candidate=nil findAt=0 return false,why end
+        local ok,why=approachPart(item,valid)
+        if not ok then if item.part then rejected[item.part]=os.clock()+5 else rejectedIds[item.slot]=os.clock()+30 end candidate=nil findAt=0 return false,why end
         if not valid() then return false,"cancelado" end
-        item.slot=item.slot or resolver.slot(item.part)
+        item.slot=item.part and resolver.slot(item.part) or item.slot
+        if item.slot then
+            item.kind,item.pumpkin,item.gem=resolver.kind(item.part,item.slot)
+            if not Core.acceptVariant(config,item.kind,item.pumpkin,item.gem) then candidate=nil return true end
+        end
+        if item.logical then logicalAttemptAt=os.clock()+5 end
         local picked=false
         if item.slot and type(packets.PotatoPick)=="table" and type(packets.PotatoPick.Fire)=="function"
             and type(packets.ToolSwing)=="table" and type(packets.ToolSwing.Fire)=="function" then
@@ -2154,10 +2331,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             local limit=Core.pickLimit(config,before,capacity,item.pumpkin)
             while #targets<limit and queueIndex<=#queue and root do
                 local extra=queue[queueIndex]
-                if not extra.part.Parent then queueIndex+=1
-                elseif extra.pumpkin or (extra.part.Position-root.Position).Magnitude>18 then break
+                if not itemAlive(extra) then queueIndex+=1
+                elseif extra.pumpkin or extra.logical or (itemPosition(extra)-root.Position).Magnitude>18 then break
                 else
-                    extra.slot=extra.slot or resolver.slot(extra.part)
+                    extra.slot=extra.part and resolver.slot(extra.part) or extra.slot
                     if not extra.slot then break end
                     queueIndex+=1 table.insert(targets,extra)
                 end
@@ -2173,14 +2350,18 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             picked=sent
         end
         if not picked then return false,"Indice da batata nao confirmado; filtro especifico mantido em espera." end
-        local confirmed,reason=waitUntil(confirmedPick,config.speedMode=="Turbo" and math.min(1.5,config.actionTimeout) or config.actionTimeout,valid)
+        local confirmed,reason=waitUntil(confirmedPick,config.speedMode=="Turbo" and math.min(0.65,config.actionTimeout) or config.actionTimeout,valid)
         local after=inventory()
         if confirmed then
             counts.collected+=math.max(0,(after or before)-before)
             if item.pumpkin and pumpkinSerial>beforePumpkin then counts.pumpkins+=pumpkinSerial-beforePumpkin end
             if gemSerial>beforeGem then counts.gems+=gemSerial-beforeGem end
             adaptivePickDelay=math.max(0.04,adaptivePickDelay*0.9)
-        else rejected[item.part]=os.clock()+6 adaptivePickDelay=math.min(2,math.max(0.2,adaptivePickDelay*1.5)) end
+        else
+            if item.part then rejected[item.part]=os.clock()+3 else rejectedIds[item.slot]=os.clock()+30 end
+            adaptivePickDelay=math.min(0.6,math.max(0.08,adaptivePickDelay*1.3))
+        end
+        snapshotAt=0
         local cooldown=config.speedMode=="Turbo" and adaptivePickDelay or Core.tickInterval(config)
         local data=state()
         if data and config.speedMode~="Turbo" then
@@ -2192,58 +2373,101 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     end
     local function deliver(valid)
         local before=inventory()
-        if not before or before<=0 then return true end
-        local machines=get(world,{"Map","PeelingMachines"})
-        local prompt
-        if config.deliveryTarget=="Table" then prompt=selectedTable()
-        elseif config.deliveryTarget=="Manual" then prompt=machines and get(machines,{"PeelingMachine","Cube.033","Load"})
-        elseif config.deliveryTarget=="Auto" then prompt=machines and get(machines,{"AutoPeelingMachine","Cube.042","Load"})
-        else prompt=machines and get(machines,{"PotatoCrate","PotatoArea","PlacePrompt"}) end
-        if not prompt then return false,"Destino selecionado indisponivel." end
-        local ok,message=nav.trigger(prompt,valid)
-        if not ok then return false,message end
-        local confirmed,reason=waitUntil(function() local count=inventory() return count~=nil and count<before end,config.actionTimeout,valid)
-        if confirmed then
-            local after=inventory() counts.delivered+=math.max(0,before-(after or before))
-            log("Entrega confirmada: "..tostring(before-(after or before)).." batatas.")
+        if not before or before<=0 then deliveryPending=nil snapshotAt=0 return true end
+        if not deliveryPending then
+            interactionTool()
+            local machines=get(world,{"Map","PeelingMachines"})
+            local prompt
+            if config.deliveryTarget=="Table" then prompt=selectedTable(true)
+            elseif config.deliveryTarget=="Manual" then prompt=machines and get(machines,{"PeelingMachine","Cube.033","Load"})
+            elseif config.deliveryTarget=="Auto" then prompt=machines and get(machines,{"AutoPeelingMachine","Cube.042","Load"})
+            else prompt=machines and get(machines,{"PotatoCrate","PotatoArea","PlacePrompt"}) end
+            if not prompt then return false,"Destino selecionado indisponivel." end
+            local ok,message=nav.trigger(prompt,valid)
+            if not ok then return false,message end
+            deliveryPending={prompt=prompt,last=before,remaining=before,progressAt=os.clock(),began=os.clock(),total=0}
         end
-        return confirmed,reason
+        local pending=deliveryPending
+        local deadline=os.clock()+math.max(4,math.min(8,config.actionTimeout))
+        repeat
+            if not valid() then return false,"cancelado" end
+            local count=inventory()
+            if count and count<pending.last then
+                local amount=pending.last-count
+                counts.delivered+=amount pending.total+=amount pending.progressAt=os.clock()
+                snapshotAt=0
+            end
+            if count then pending.last=count pending.remaining=count end
+            if count==0 then
+                log("Entrega concluida: "..tostring(pending.total).." batatas.")
+                deliveryPending=nil snapshotAt=0 candidate=nil
+                return true
+            end
+            if os.clock()-pending.progressAt>2 then
+                local prompt=pending.prompt
+                if prompt and prompt.Parent and prompt.Enabled then
+                    local ok,message=nav.trigger(prompt,valid)
+                    if not ok then return false,message end
+                    pending.progressAt=os.clock()
+                elseif os.clock()-pending.progressAt>math.max(8,config.actionTimeout) then
+                    deliveryPending=nil snapshotAt=0
+                    return false,"Entrega parou sem progresso; destino sera reavaliado."
+                end
+            end
+            services.RunService.Heartbeat:Wait()
+        until os.clock()>=deadline
+        return true,"Entrega em andamento."
     end
     local function cut(valid)
         if not isCutting() then return true end
         local _,potato=safeCall(cutting,"GetPotato")
         local data=state()
         local tool=data and cutShared.Tools and cutShared.Tools[bestCutRank(data)] or nil
+        cutDriving=true
         local ok,message=cutEngine.tick(true,potato,cash(),tool)
+        if not ok then cancelCut() table.clear(tableRetry) retryAt.enterCut=os.clock()+1 snapshotAt=0 end
         if not valid() then return false,"cancelado" end
         return ok,message
     end
     local function enterCut(valid)
+        interactionTool()
         local prompt=selectedTable(true)
         if not prompt then return false,"Nenhuma mesa liberada com batatas." end
         local ok,message=nav.trigger(prompt,valid)
+        if not ok then tableRetry[prompt]=os.clock()+3 snapshotAt=0 return false,message end
         if not ok then return false,message end
         local confirmed,why=waitUntil(isCutting,math.min(3,config.actionTimeout),valid)
-        if confirmed then lastTable=prompt else tableRetry[prompt]=os.clock()+8 snapshotAt=0 end
+        if not confirmed and valid() and prompt.Enabled then
+            local tried=nav.trigger(prompt,valid,{method="hold"})
+            if tried then confirmed,why=waitUntil(isCutting,math.min(2,config.actionTimeout),valid) end
+        end
+        if confirmed then lastTable=prompt cutDriving=true else tableRetry[prompt]=os.clock()+3 snapshotAt=0 end
         return confirmed,why
     end
     local function cool(valid)
-        coolingRetryAt=os.clock()+config.coolingRetry
+        coolingRetryAt=os.clock()+2
         local root=nav.actor()
         local previous=root and root.Position
-        cancelCut()
+        interactionTool()
         local prompt=get(world,{"Map","Water","WaterTerminal","3","Button","WaterPrompt"})
         if not prompt then return false,"WaterPrompt nao encontrado." end
-        local ok,message=nav.trigger(prompt,valid)
-        if not ok then return false,message end
-        local confirmed,reason=waitUntil(function()
-            local heat,flowing=resolver.heat()
-            if heat then return heat<=config.heatStop end
-            return alarm()==false or flowing
-        end,math.max(config.actionTimeout,7),valid)
+        local initialHeat=resolver.heat()
+        local confirmed,reason=false,nil
+        for attempt=1,2 do
+            local ok,message=nav.trigger(prompt,valid,{method=attempt==1 and "hold" or "native"})
+            if not ok then reason=message
+            else
+                confirmed,reason=waitUntil(function()
+                    local heat,flowing=resolver.heat()
+                    return flowing or heat and (heat<=config.heatStop or initialHeat and heat<initialHeat-1)
+                end,attempt==1 and 1.5 or 6,valid)
+            end
+            if confirmed or not valid() then break end
+        end
+        snapshotAt=0
         if confirmed then
-            counts.cooled+=1 log("Resfriamento confirmado pelo estado do jogo.")
-            cooling=false
+            counts.cooled+=1 log("Valvula confirmada: agua fluindo ou calor diminuindo.")
+            coolingRetryAt=os.clock()+config.coolingRetry
             if config.returnAfterCooling and previous and valid() then nav.goTo(previous,valid,true) end
         end
         return confirmed,reason
@@ -2302,20 +2526,12 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             return success,message
         end
         if item.group=="upgrade" then
-            restoreHeadless=function()
-                if oldTool then safeCall(upgradeController,"SelectTool",oldTool) end
-                safeCall(upgradeController,"SetOpen",oldOpen==true)
-                if screen and screen.Parent then screen.Enabled=oldScreenEnabled end
-            end
+            -- Prices/buttons are read without opening or selecting the game's tabs.
+            -- Native upgrade callbacks had side effects on unrelated game ScreenGuis.
             if beforeLevel==nil then return finish(true,"Nivel de melhoria indisponivel.",true) end
-            -- Refresh native data while the ScreenGui is hidden. No tab is exposed.
-            if screen then screen.Enabled=false end
-            safeCall(upgradeController,"SetOpen",true)
-            safeCall(upgradeController,"SelectTool",item.tool)
-            services.RunService.Heartbeat:Wait()
             local ok,button=safeCall(upgradeController,"GetUpgradeButton",item.tool,item.upgrade)
             if ok and typeof(button)=="Instance" and button:IsA("GuiButton") then item.button=button end
-            if item.button then item.price=bridge.cash(bridge.texts(item.button)) or item.price end
+            item.price=upgradePrice(state(),item.tool,item.upgrade,beforeLevel,item.button) or item.price
             if not valid() then return finish(false,"cancelado") end
             if not item.price or not Core.affordable(config,cash(),item.price,"Cash") then return finish(true,"Aguardando saldo para "..item.name,true) end
             local fired,why
@@ -2328,7 +2544,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             return finish(success,message)
         end
         if not Core.affordable(config,beforeCash,item.price,"Cash") then return finish(true,"Aguardando saldo.",true) end
-        cancelCut()
+        interactionTool()
         local approached,why=nav.trigger(item.prompt,valid)
         if not approached then return finish(false,why) end
         local button,message
@@ -2360,7 +2576,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if not before or before<=0 then return true end
         local root=nav.actor()
         resumePosition=config.returnAfterSell and root and root.Position or nil
-        cancelCut()
+        interactionTool()
         local prompt=get(world,{"Map","PeelingMachines","SellCrate","PotatoArea","SellPrompt"})
         sellRetryAt=os.clock()+3
         local ok,message=nav.trigger(prompt,valid)
@@ -2385,19 +2601,19 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     end
     local function dynamite(valid)
         local data=state()
-        if not Chapter.owns(data,"Dynamite") or not candidate or not candidate.part.Parent then return true end
-        if not protocol.matches("DynamiteThrow",{"Vector3"}) then return true end
+        if not Chapter.owns(data,"Dynamite") or not itemAlive(candidate) then return true end
+        if not protocol.matches("DynamiteThrow",{"NumberU32"}) then return true end
         local root=nav.actor()
         if not root then return false,"personagem indisponivel" end
-        local target=candidate.part.Position
+        local target=itemPosition(candidate)
         if (root.Position-target).Magnitude>18 then
-            local moved,why=approachPart(candidate.part,valid)
+            local moved,why=approachPart(candidate,valid)
             if not moved then return false,why end
         end
         local equipped=protocol.matches("ToolEquip",{"String"})
         if equipped then protocol.fire("ToolEquip","Dynamite") end
         local before=dynamiteSerial
-        local ok,message=protocol.fire("DynamiteThrow",target)
+        local ok,message=protocol.fire("DynamiteThrow",candidate.slot)
         local interval=math.max(config.dynamiteInterval,config.dynamiteAggressive and 0.1 or 3)
         dynamiteAt=os.clock()+interval
         local confirmed=false
@@ -2457,12 +2673,33 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         candidate=nil findAt=0 queue={} queueIndex=1 queueExpires=0 searchEmpty=false
         cachedPurchase=nil purchaseCacheAt=0
         variantCache=setmetatable({},{__mode="k"})
+        specialCache={} specialAt=0 equippedTool=nil
+    end
+    local function recover(action,attempt)
+        retryAt[action]=os.clock()+math.min(12,0.5*2^math.min(attempt or 1,4))
+        snapshotAt=0
+        if action=="collect" or action=="dynamite" then candidate=nil queue={} queueIndex=1 findAt=0 end
+        if action=="enterCut" or action=="cut" or action=="returnTable" then cancelCut() end
+        if action=="deliver" or action=="stageCut" then
+            local count=inventory()
+            if not count or count<=0 then deliveryPending=nil end
+        end
+        if action=="buy" then cachedPurchase=nil purchaseCacheAt=0 end
+    end
+    local function restoreGame()
+        interactionTool() nav.stop() safeCall(storeView,"Close")
+        safeCall(upgradeController,"SetOpen",false)
+        for _,name in ipairs({"Cash","Bag","Hotbar","ToolHotbar"}) do
+            local screen=playerGui:FindFirstChild(name)
+            if screen and screen:IsA("ScreenGui") then screen.Enabled=true end
+        end
+        table.clear(retryAt) table.clear(tableRetry) reset()
     end
     return {
-        snapshot=snapshot,findCandidate=findCandidate,release=release,cancelCut=cancelCut,reset=reset,counts=counts,
+        snapshot=snapshot,findCandidate=findCandidate,release=release,cancelCut=cancelCut,reset=reset,recover=recover,restoreGame=restoreGame,counts=counts,
         actions={collect=collect,deliver=deliver,cut=cut,enterCut=enterCut,cool=cool,buy=buy,crank=crank,stageCut=stageCut,sell=sell,returnTable=returnTable,dynamite=dynamite},
         stop=function()
-            release() nav.stop()
+            cancelCut() nav.stop()
             if restoreHeadless then restoreHeadless() restoreHeadless=nil end
             if openedUpgrade then safeCall(upgradeController,"SetOpen",false) openedUpgrade=false end
         end,
@@ -2471,7 +2708,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             if action=="cool" then coolingRetryAt=os.clock()+seconds end
         end,
         close=function()
-            release() nav.stop() resolver.close()
+            closed=true
+            cancelCut() nav.stop() resolver.close()
             if restoreHeadless then restoreHeadless() restoreHeadless=nil end
             for _,connection in ipairs(connections) do connection:Disconnect() end
         end,
@@ -2479,7 +2717,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             local snap=snapshot()
             return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,
                 state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
-                    heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting},counts=counts,cut_engine=cutEngine.stats,schemas={upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
+                    heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,cut_engine=cutEngine.stats,prompts=nav.stats,retry_at=retryAt,schemas={upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
         end,
     }
 end
@@ -2491,7 +2729,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.5.0"
+local VERSION="0.6.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}
@@ -2596,6 +2834,10 @@ end
 local function change(field,value)
     if config[field]==nil then return end
     if config[field]==value and not (config.autoProgress and combinedSet[field]) then return end
+    if field=="autoCool" and config.autoProgress and value==false then
+        if ui then ui.status("O resfriamento faz parte do Auto Progress. Pause o ciclo para desliga-lo.") ui.refresh() end
+        return
+    end
     if config.autoProgress and combinedSet[field] and type(value)=="boolean" then
         for _,name in ipairs(combined) do config[name]=Core.effective(config,name) end
         config.autoProgress=false
@@ -2613,7 +2855,8 @@ local function export()
     local ok,result=pcall(function()
         local report=adapter.diagnostic()
         report.hub_version=VERSION report.module_errors=moduleErrors report.log=logger.records()
-        report.config=Core.validate(config,true)
+        report.config=Core.validate(config,false)
+        report.active_action=activeAction report.failures=Core.clone(failures)
         return json.encode(report)
     end)
     if not ok then log("Falha ao criar diagnostico: "..tostring(result),"error") return end
@@ -2634,6 +2877,10 @@ ui=UI.create(services,config,{
         binding=field ui.status("Pressione uma tecla para o atalho; Esc cancela e Backspace remove.")
     end,
     export=export,close=lifecycle.close,
+    restore=function()
+        cancellation.cancel() adapter.restoreGame() table.clear(failures)
+        ui.show() ui.status("Controles restaurados; a rotina continua conforme as opcoes ativas.")
+    end,
     copyLoader=function()
         local code='loadstring(game:HttpGet("https://raw.githubusercontent.com/AnonymosScripts/Script-1-Evolvy-Hub/main/potato/loader.lua"))()'
         local clipboard=type(setclipboard)=="function" and setclipboard or (type(toclipboard)=="function" and toclipboard or nil)
@@ -2705,8 +2952,8 @@ local heartbeat=services.RunService.Heartbeat:Connect(function()
     local message=activeAction and actionNames[activeAction] or "Aguardando rotina ou recurso disponivel"
     local stock=snapshot.stock and tostring(snapshot.stock) or "?"
     local target=snapshot.goal and snapshot.goal.name or "coletar e cortar"
-    ui.summary(string.format("%s  |  Bolsa: %s\nEntrega: %s  |  Cortadas: %s/%d\nMeta: %s\nCalor: %s  |  Gemas: %d\n%s | vendas: %d",
-        money,bag,goal and tostring(goal) or "?",stock,config.sellThreshold,target,heat,adapter.counts.gems,message,adapter.counts.sales))
+    ui.summary(string.format("%s  |  Bolsa: %s\nEntrega: %s  |  Cortadas: %s/%d\nMeta: %s\nCalor: %s  |  Gemas: %d\n%.1f cortadas/s | %s | vendas: %d",
+        money,bag,goal and tostring(goal) or "?",stock,config.sellThreshold,target,heat,adapter.counts.gems,snapshot.cutRate or 0,message,adapter.counts.sales))
     if not binding then ui.status(message) end
     if activeAction and activeAction~="cool" and snapshot.needCooling and Core.effective(config,"autoCool")
         and os.clock()>=snapshot.coolingRetryAt then cancellation.cancel() adapter.stop() end
@@ -2744,7 +2991,10 @@ task.spawn(function()
                 log((actionNames[action] or action)..": "..tostring(message),"error")
                 if action=="buy" then adapter.defer(action,3) end
                 if action=="cool" then adapter.defer(action,config.coolingRetry) end
-                if failures[action]>=3 and action~="buy" and action~="enterCut" and action~="sell" and action~="dynamite" then
+                if config.autoRecover then
+                    adapter.recover(action,failures[action])
+                    if failures[action]==3 then log("Recuperacao automatica de "..(actionNames[action] or action).."; outras etapas continuam.") end
+                elseif failures[action]>=3 and action~="buy" and action~="enterCut" and action~="sell" and action~="dynamite" then
                     pause("Rotinas pausadas apos tres falhas em "..(actionNames[action] or action)..". Veja Registros.")
                     notify("Rotina pausada; veja Registros e exporte o diagnostico se necessario.")
                 end
@@ -2754,8 +3004,12 @@ task.spawn(function()
             end
         end)
         if not ok then
+            local failed=activeAction or "collect"
             activeAction=nil adapter.stop()
-            pause("Falha de execucao; controles restaurados.") log(tostring(errorMessage),"error")
+            log("Falha de execucao: "..tostring(errorMessage),"error")
+            if config.autoRecover then
+                failures[failed]=(failures[failed] or 0)+1 adapter.recover(failed,failures[failed])
+            else pause("Falha de execucao; controles restaurados.") end
         end
         task.wait(Core.tickInterval(config))
     end
