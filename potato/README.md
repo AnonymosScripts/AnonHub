@@ -1,31 +1,29 @@
-# Evolvy / Anonymous 0.17.0 — teste de chave antecipada
+# Evolvy / Anonymous 0.18.0 — mapa nativo, renda e chave
 
 Chave do hub: Anonymous. Capitulo 2, PlaceId 116701845804918.
 
-Ative **Ajustes → ultimo cartao → OP Alto Zerar** e mantenha **Testar chave antecipada** ligado. Nao precisa ativar Auto Progress junto. PAUSAR interrompe as rotinas.
+Ative **Ajustes → OP Alto Zerar** com **Testar chave antecipada** ligado. PAUSAR interrompe as rotinas. Confirme Anonymous Potato 0.18.0 no registro para evitar comparar com uma versao anterior em cache.
 
-## Hipotese investigada
+## Falhas do registro anterior
 
-Uma fonte publica de codigo consulta `KeyPotatoId` no estado da pilha e acompanha `PotatoKeyMoved`. Isso mostra uma forma de localizar uma chave que o cliente conheca. Nao demonstra que o servidor permita pega-la antes do requisito da partida. A v0.17 testa essa possibilidade com o ID real divulgado, sem exigir as APIs de upvalues que estavam indisponiveis nos registros do Delta.
+O metodo anterior nao encontrou um ID de chave: por isso houve zero tentativas. As 59 ondas de coleta tiveram 52 sem resposta. O OP tambem ficou sem gerar renda para a proxima melhoria, com $0,23, 85 batatas carregadas e 47 cortadas. A indicacao de upvalues indisponiveis era um valor fixo, e nao uma verificacao real da API.
 
-O resolvedor examina somente as tabelas de pilha recebidas nas chamadas nativas ja observadas e o evento do jogo. Se houver ID valido e posicao pelo mapeamento nativo, a rotina vai ate o local e envia uma coleta direcionada, inclusive quando a peca estiver coberta. Se o cliente nao divulgar o ID ou a posicao, nao envia um pedido inventado. Se o servidor confirmar `HasKey`, prioriza a saida. `KeyRevealed` sozinho nao e tratado como propriedade da chave nem como conclusao.
+## Correcoes
 
-Sao no maximo duas tentativas por ID/estado, separadas por pelo menos 10 segundos. Uma mudanca real do ID, um evento de revelacao ou o fim da pilha permite reavaliar. Uma recusa devolve o controle a progressao normal. O contador de vitórias nao e alterado localmente; a conclusao continua dependendo do evento real `Escaped`.
+- Leitura real das upvalues disponiveis, com limites de funcoes, profundidade e amostragem. Procura o mapa BasePart → ID utilizado pelo controlador; nao usa posicao de array como ID nativo. A API ausente ou uma tabela nao reconhecida mantem o resolvedor espacial como alternativa.
+- Quando o mapa nativo e encontrado, evita a indexacao teorica completa de posicoes na largada. O predicado nativo de exposicao e usado quando o estado esta disponivel. Partes removidas, outra pilha e IDs invalidos sao recusados.
+- A chave pode ser lida tambem do estado interno do controlador. Um ID real nesse estado permite testar a coleta mesmo que o evento publico use zero. Se o ID nao estiver divulgado em nenhuma fonte, nao envia pedidos inventados. Posições sem modelo exigem uma transformacao validada em tres correspondencias reais.
+- Quando falta dinheiro para a proxima melhoria, o OP vende estoque existente ou abastece/corta um lote de renda. Uma bolsa infinita nao impede esse abastecimento. Com a producao completa, deixa de interromper a limpeza para financiar compras opcionais.
+- Equipamento usa o controlador nativo quando disponivel. GetPickCooldown recebe o nome da ferramenta. O intervalo nativo e o recuo apos ausencia de confirmacao reduzem lancamentos/coletas recusados.
 
-## Como avaliar
+## Conferir no proximo diagnostico
 
-Depois de aproximadamente 60 segundos, exporte em **Registros → EXPORTAR DIAGNOSTICO**. Confira:
+`bindings.native_discovery` informa API, funcoes inspecionadas, mapa e estado encontrados. `bindings.native_map` indica uso do mapa nativo. `bindings.key` e `key_shortcut` mostram a descoberta/tentativa da chave. `op_funding` mostra se a rotina precisa gerar renda. `dynamite_timing`, `op_burst` e `pile_progress` permitem comparar intervalo, ganhos e reducao da pilha. O contador da pilha pode incluir outros jogadores.
 
-- `bindings.key`: ID divulgado, origem e motivo quando indisponivel.
-- `key_shortcut.results`: tentativas e `confirmed`, que exige `HasKey` real.
-- `key_shortcut.guard`: limites e proximas tentativas por estado.
-- `pile_progress`: fracao removida lida do contador nativo da partida.
-- `op_burst` e `action_timings`: coleta e tempo gasto por etapa.
+**Nao foi demonstrada vitoria em um minuto nem coleta da chave antes dos requisitos do servidor.** A v0.18 corrige falhas concretas e adiciona leitura nativa que a v0.17 nao tentava. Nao houve execucao real pelo agente no Delta/iPhone. A conclusao continua exigindo HasKey e o evento real Escaped.
 
-Nao foi demonstrada conclusao em 1 minuto. Esta versao introduz uma tentativa de atalho sustentada pelo codigo publico consultado. O teste real de aceitacao pelo servidor continua pendente. Os recursos e a ordem do OP da v0.16 foram preservados.
+## Validacao e publicacao
 
-## Pesquisa e validacao
+Compilacao oficial Luau 0.745 e 15 suites locais. Novos casos cobrem mapa nativo diferente do indice geometrico, tabela de partes confundida com mapa, ciclos de closures, IDs removidos, chave do controlador, posicao de chave sem modelo, alvo coberto, renda com os valores do registro e argumento correto de cooldown.
 
-Veja **PESQUISA_ATALHOS.md** no pacote para as fontes, resultados e limitacoes. Nenhum loader de terceiros foi executado. Compilacao oficial Luau 0.745 e 14 suites locais; casos novos cobrem captura da chave por contexto/evento, ocultacao, mapeamento, limites, prioridades e limpeza dos listeners. Sem teste real pelo agente no Delta/iPhone.
-
-Para publicar, execute PUBLICAR_V017.cmd no seu Windows. Ele solicita a conta AnonymosScripts e verifica os arquivos publicos apos o push. O plugin conectado a Lucasxshttp nao possui permissao de escrita neste repositorio.
+Publique com PUBLICAR_V018.cmd no seu Windows usando AnonymosScripts. O publicador verifica o commit preparado e compara chapter2.lua/loader.lua com as URLs publicas. O plugin conectado a Lucasxshttp nao possui permissao de escrita nesse repositorio. Veja PESQUISA_ATALHOS.md para as fontes e os limites da investigacao.

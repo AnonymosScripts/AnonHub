@@ -1,5 +1,71 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.17.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.18.0. Chapter 2 only. No paid purchases.
+
+local NativeMap = (function()
+-- Luau · potato_native_map.luau · bounded read-only native closure discovery · Roblox / CLI · Luau 0.745
+local NativeMap={}
+function NativeMap.discover(controller,folder,options)
+    options=options or {}
+    local typeOf=options.typeOf or typeof
+    local getters=options.getters or {}
+    if not options.getters then
+        if type(getupvalues)=="function" then table.insert(getters,getupvalues) end
+        if debug and type(debug.getupvalues)=="function" then table.insert(getters,debug.getupvalues) end
+    end
+    local info={api=#getters>0,visited=0,samples=0}
+    if #getters==0 then info.reason="upvalue getter unavailable" return nil,nil,info end
+    local queue,seen={},{}
+    for _,name in ipairs({"SetUseHeld","GetParts","GetRemovedFraction","Start","Init"}) do
+        if type(controller[name])=="function" then table.insert(queue,{fn=controller[name],depth=0}) end
+    end
+    local found,state=nil,nil
+    local cursor=1
+    while cursor<=#queue and info.visited<32 do
+        local current=queue[cursor] cursor+=1
+        if not seen[current.fn] then
+            seen[current.fn]=true info.visited+=1
+            local values=nil
+            for _,getter in ipairs(getters) do
+                local ok,result=pcall(getter,current.fn)
+                if ok and type(result)=="table" then values=result break end
+            end
+            local inspected=0
+            for _,value in pairs(values or {}) do
+                inspected+=1 if inspected>64 then break end
+                if type(value)=="function" and current.depth<3 and #queue<64 then
+                    table.insert(queue,{fn=value,depth=current.depth+1})
+                elseif type(value)=="table" then
+                    if rawget(value,"PotatoSlots")~=nil and type(rawget(value,"Seed"))=="number" then state=value end
+                    if not found then
+                        local checked,valid,unique=0,0,{}
+                        for part,id in pairs(value) do
+                            checked+=1 if checked>16 then break end
+                            if typeOf(part)=="Instance" and type(id)=="number" and id%1==0 and id>=1 and id<=30009 then
+                                local ok,match=pcall(function() return part:IsA("BasePart") and part:IsDescendantOf(folder) end)
+                                if ok and match and not unique[id] then valid+=1 unique[id]=true end
+                            end
+                        end
+                        if valid>=3 and valid>=math.min(16,checked)*0.8 then found=value info.samples=valid end
+                    end
+                end
+            end
+        end
+    end
+    info.found=found~=nil info.state=state~=nil
+    info.reason=found and "native part-to-ID table" or "no matching native table"
+    return found,state,info
+end
+function NativeMap.id(map,part,folder,typeOf)
+    typeOf=typeOf or typeof
+    if type(map)~="table" or typeOf(part)~="Instance" then return nil end
+    local id=rawget(map,part)
+    if type(id)~="number" or id%1~=0 or id<1 or id>30009 then return nil end
+    local ok,valid=pcall(function() return part.Parent~=nil and part:IsA("BasePart") and part:IsDescendantOf(folder) end)
+    return ok and valid and id or nil
+end
+return NativeMap
+
+end)()
 
 local Burst = (function()
 -- Luau · potato_burst.luau · bounded acknowledged collection experiment · Roblox / CLI · Luau 0.745
@@ -800,6 +866,34 @@ end
 function Chapter.clearReady(config,shared,data)
     if config.opAutoFinish then return Chapter.owns(data,"Dynamite") or Chapter.owns(data,"PotatoSucker") end
     return Chapter.productionReady(shared,data)
+end
+function Chapter.fundingPlan(Core,config,balance,goal,crate,stock,capacity,complete)
+    local plan={needed=false,cut=false,sell=false}
+    if not config.opAutoFinish or complete or type(goal)~="table" or type(balance)~="number" or type(goal.price)~="number" then return plan end
+    if goal.price<=0 or goal.price~=goal.price or goal.price==math.huge or config.maxPurchase>0 and goal.price>config.maxPurchase then return plan end
+    plan.needed=balance<goal.price+config.reserveCash
+    if not plan.needed then return plan end
+    plan.cut=type(crate)=="number" and crate>0
+    plan.sell=type(stock)=="number" and stock>0 and (stock>=math.min(50,config.sellThreshold) or not plan.cut)
+    plan.deliveryGoal=math.min(type(capacity)=="number" and capacity>0 and capacity or 50,50)
+    return plan
+end
+function Chapter.pickTiming(shared,controller,pileController,data,tool)
+    local remaining,interval,source=0,nil,"unavailable"
+    if type(pileController.GetPickCooldown)=="function" then
+        local ok,first,second=pcall(pileController.GetPickCooldown,tool)
+        if ok and type(first)=="number" and first>=0 and first<=60 then remaining=first source="GetPickCooldown(tool ID)" end
+        if ok and type(second)=="number" and second>=0.02 and second<=60 then interval=second end
+    end
+    local upgrades=data and data.Upgrades
+    if type(controller.GetEquippedUpgrades)=="function" then local ok,value=pcall(controller.GetEquippedUpgrades) if ok and type(value)=="table" then upgrades=value end end
+    local class=data and data.SaveData and data.SaveData.Class
+    if type(controller.GetClassId)=="function" then local ok,value=pcall(controller.GetClassId) if ok then class=value end end
+    if type(shared.GetPickInterval)=="function" and upgrades then
+        local ok,value=pcall(shared.GetPickInterval,upgrades,tool,class,false)
+        if ok and type(value)=="number" and value>=0.02 and value<=60 then interval=value source="GetPickInterval(native upgrades, tool ID, class)" end
+    end
+    return remaining,interval,source
 end
 function Chapter.keyProbeGuard()
     local records={}
@@ -2026,7 +2120,7 @@ end)()
 local Resolver = (function()
 -- Luau · potato_resolver.luau · bounded contracts and spatial pile index · Roblox / Delta · Luau 0.745
 local Resolver={}
-function Resolver.create(modules,services,log,Observer,Spatial,runtime)
+function Resolver.create(modules,services,log,Observer,Spatial,runtime,NativeMap)
     local valueType=runtime and runtime.typeOf or typeof
     local pile=modules["Shared.PotatoPileShared"] or {}
     local packets=modules["Modules.Resources.Packets"] or {}
@@ -2047,6 +2141,9 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
     local keyRevision=0
     local keyConnections={}
     local observer=nil
+    local nativeMap,nativeState,nativeFolder=nil,nil,nil
+    local nativeScanAt=0
+    local nativeTransform=nil
     local stats={slot="pending spatial index",kind="pending captured arguments",generation=0,
         mapped=0,parts=0,syncRequests=0,contracts={},scores={},upvalues=false}
     for _,name in ipairs(names) do originals[name]=pile[name] samples[name]={} end
@@ -2199,8 +2296,25 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
         end
         return result
     end
+    local function discoverNative()
+        local folder=world:FindFirstChild("PotatoPile")
+        if NativeMap and folder then
+            if nativeFolder~=folder then nativeMap=nil nativeState=nil nativeFolder=folder nativeScanAt=0 nativeTransform=nil end
+            if not nativeMap and os.clock()>=nativeScanAt then
+                nativeScanAt=os.clock()+5
+                local info
+                nativeMap,nativeState,info=NativeMap.discover(modules["Controllers.PotatoPileController"] or {},folder,runtime and runtime.nativeOptions)
+                stats.upvalues=info.api stats.native_discovery=info stats.native_map=nativeMap~=nil
+                if nativeState then keyInputs[nativeState]=true end
+                if nativeMap then log("Mapa nativo de batatas identificado.") end
+            end
+            if nativeMap then stats.slot="native part-to-ID map" return true end
+        end
+        return false
+    end
     local function prepare(valid)
         local folder=world:FindFirstChild("PotatoPile")
+        if discoverNative() then return true end
         if indexedFolder==folder and theoretical then return true end
         if preparing or os.clock()<nextPrepare then return false,"Preparando os indices da pilha." end
         if not bindings.GetSlotPosition then
@@ -2293,6 +2407,7 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
         return error
     end
     local function slot(part)
+        if nativeMap then return NativeMap.id(nativeMap,part,nativeFolder,valueType) end
         local index=physicalSlot(part)
         if not index then return nil end
         local cached=orientationCache[part]
@@ -2315,6 +2430,7 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
         return index
     end
     local function alternate(part,id)
+        if nativeMap then return nil end
         local index=physicalSlot(part)
         local other=index and (id==index and potatoInSlot(index) or index)
         return other~=id and other or nil
@@ -2332,10 +2448,21 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
         index=index or slot(part)
         if not index then return nil,part and part.Name=="Pumpkin" or false,false end
         local name,pumpkin,gem=nil,part and part.Name=="Pumpkin" or false,false
-        if bindings.GetKind then local ok,value=bindings.GetKind(index) if ok then name=normalize(value) end end
+        if bindings.GetKind then local ok,value=bindings.GetKind(index) if ok then name=normalize(value) end
+        elseif nativeState and type(originals.GetKind)=="function" then local ok,value=pcall(originals.GetKind,nativeState,index) if ok then name=normalize(value) end end
         if bindings.IsPumpkin then local ok,value=bindings.IsPumpkin(index) pumpkin=pumpkin or ok and value==true end
         if bindings.IsDiamond then local ok,value=bindings.IsDiamond(index) gem=ok and value==true end
+        if nativeState and not bindings.IsPumpkin and type(originals.IsPumpkin)=="function" then local ok,value=pcall(originals.IsPumpkin,nativeState,index) pumpkin=pumpkin or ok and value==true end
+        if nativeState and not bindings.IsDiamond and type(originals.IsDiamond)=="function" then local ok,value=pcall(originals.IsDiamond,nativeState,index) gem=ok and value==true end
         return name,pumpkin,gem
+    end
+    local function exposed(part,id)
+        if not nativeState or type(originals.GetPotatoSlot)~="function" or type(pile.IsExposed)~="function" then return nil end
+        local ok,index=pcall(originals.GetPotatoSlot,nativeState,id)
+        if not ok or not validId(index) then return nil end
+        local good,value=pcall(pile.IsExposed,nativeState,index)
+        if good and type(value)=="boolean" then return value end
+        return nil
     end
     local function specialTargets(valid)
         local result={}
@@ -2372,6 +2499,8 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
     local function keyTarget()
         local id=keyEventId
         local source=id~=nil and "PotatoKeyMoved" or nil
+        local nativeKey=nativeState and rawget(nativeState,"KeyPotatoId")
+        if (id==nil or id==0) and validId(nativeKey) then id=nativeKey source="native controller KeyPotatoId" end
         if id==nil then
             for input in pairs(keyInputs) do
                 local value=rawget(input,"KeyPotatoId")
@@ -2380,6 +2509,43 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
         end
         stats.key={known=validId(id),source=source,id=validId(id) and id or nil}
         if not validId(id) then stats.key.reason="client has not disclosed a valid key ID" return nil end
+        if nativeMap then
+            for part,value in pairs(nativeMap) do
+                if value==id and NativeMap.id(nativeMap,part,nativeFolder,valueType)==id then
+                    return {slot=id,part=part,position=part.Position,logical=true,key=true,source=source,revision=keyRevision}
+                end
+            end
+            if nativeState and type(originals.GetPotatoSlot)=="function" and type(originals.GetSlotPosition)=="function" then
+                if not nativeTransform then
+                    for _,frame in ipairs(transforms()) do
+                        local matches,tested=0,0
+                        for part,value in pairs(nativeMap) do
+                            if NativeMap.id(nativeMap,part,nativeFolder,valueType) then
+                                tested+=1
+                                local ok,index=pcall(originals.GetPotatoSlot,nativeState,value)
+                                local good,raw=pcall(originals.GetSlotPosition,nativeState,ok and index or 0)
+                                local p=good and point(raw)
+                                if p then
+                                    local position=frame.apply(p)
+                                    local actual=part.Position
+                                    if math.abs(position.X-actual.X)+math.abs(position.Y-actual.Y)+math.abs(position.Z-actual.Z)<0.15 then matches+=1 end
+                                end
+                                if tested>=8 or matches>=3 then break end
+                            end
+                        end
+                        if matches>=3 then nativeTransform=frame stats.native_key_transform=frame.name break end
+                    end
+                end
+                if nativeTransform then
+                    local ok,index=pcall(originals.GetPotatoSlot,nativeState,id)
+                    if ok and validId(index) then
+                        local good,raw=pcall(originals.GetSlotPosition,nativeState,index)
+                        local p=good and point(raw)
+                        if p then return {slot=id,position=nativeTransform.apply(p),logical=true,key=true,source=source,revision=keyRevision} end
+                    end
+                end
+            end
+        end
         if not bindings.GetPotatoSlot then stats.key.reason="native slot mapping unavailable" return nil end
         local ok,index=bindings.GetPotatoSlot(id)
         local position=ok and validId(index) and worldPositions[index] or nil
@@ -2391,7 +2557,7 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
         for _,connection in ipairs(keyConnections) do pcall(function() connection:Disconnect() end) end
         if heatWrapper then pcall(function() if fire.GetHeat==heatWrapper then fire.GetHeat=originalHeat end end) end
     end
-    return {slot=slot,alternate=alternate,confirm=confirm,physicalSlot=physicalSlot,live=live,specialTargets=specialTargets,keyTarget=keyTarget,kind=kind,heat=heat,prepare=prepare,requestSync=requestSync,stats=stats,close=close,
+    return {slot=slot,alternate=alternate,confirm=confirm,physicalSlot=physicalSlot,live=live,specialTargets=specialTargets,keyTarget=keyTarget,exposed=exposed,kind=kind,heat=heat,prepare=prepare,discover=discoverNative,requestSync=requestSync,stats=stats,close=close,
         ready=function() return bindings.GetKind~=nil and bindings.GetSlotPosition~=nil and bindings.GetPotatoInSlot~=nil end,
         refresh=function() nextPrepare=0 end}
 end
@@ -2531,6 +2697,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local peeling=modules["Controllers.PeelingController"] or {}
     local cutting=modules["Controllers.CuttingController"] or {}
     local pileController=modules["Controllers.PotatoPileController"] or {}
+    local toolController=modules["Controllers.ToolEquipController"] or {}
     local storeView=modules["Controllers.StoreViewController"] or {}
     local upgradeController=modules["Controllers.ToolUpgradeController"] or {}
     local stateShared=modules["Shared.PlayerStateShared"] or {}
@@ -2566,6 +2733,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local keyProbeAt=0
     local keyProbeStats={attempts=0,confirmed=false}
     local keyProbeGuard=Chapter.keyProbeGuard()
+    local bombTiming={remaining=0,source="unavailable"}
     local autoFeedRetryAt=0
     local nextBlurCheck=0
     local placement=Chapter.placementTiming(modules["Shared.PotatoTableShared"])
@@ -2656,6 +2824,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     })
     local function release()
         burst.cancel()
+        safeCall(toolController,"SetUsing",false)
         cutDriving=false
         equippedTool=nil
         if cutEngine then cutEngine.pause() end
@@ -2692,11 +2861,16 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local function equip(tool)
         if tool==equippedTool then return end
         local activated=false
+        if type(toolController.Equip)=="function" then
+            local ok=safeCall(toolController,"Equip",tool)
+            local read,current=safeCall(toolController,"GetEquippedTool")
+            activated=ok and (not read or current==tool)
+        end
         local hotbar=playerGui:FindFirstChild("Hotbar")
         local aliases={PotatoSucker="P0T4T0-3000",Shovel="Shovel",Dynamite="Dynamite",Hand="Hand"}
         local wantedIcon=nil
         for _,definition in ipairs((modules["Shared.ToolUpgradeShared"] or {}).Tools or {}) do if definition.Id==tool then wantedIcon=definition.Icon end end
-        if hotbar then
+        if hotbar and not activated then
             for _,button in ipairs(hotbar:GetDescendants()) do
                 local identified=button.Name==tool or button:GetAttribute("ToolId")==tool
                 if button:IsA("GuiButton") and not identified then
@@ -2969,7 +3143,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         snapshotAt=os.clock()+0.12
         placement.apply(config.fastDelivery and not fastDeliverySuppressed,config.placementDelay)
         if bombPending and os.clock()>=bombPending.deadline then
-            bombPending=nil bombBackoff=math.min(3,math.max(0.2,bombBackoff*1.5)) dynamiteAt=os.clock()+bombBackoff
+            bombPending=nil bombBackoff=math.min(12,math.max(0.5,bombBackoff*1.75)) dynamiteAt=os.clock()+bombBackoff
         end
         local count,capacity=inventory()
         local gained,missed=burst.observe(os.clock(),count)
@@ -3013,15 +3187,20 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         last.mountainEmpty=removedOk and type(removed)=="number" and removed>=1
         local clearReady=Chapter.clearReady(config,modules["Shared.ToolUpgradeShared"] or {},data)
         last.focusClear=Core.effective(config,"autoFarm") and (config.clearPileFirst or config.opAutoFinish) and clearReady and removedOk and type(removed)=="number" and removed<1
+        local funding=Chapter.fundingPlan(Core,config,balance,progressGoal,crateCount(),last.stock,capacity,productionReady)
+        last.opFunding=funding
+        if funding.needed and funding.cut then last.focusClear=false end
+        if funding.sell then last.sellReady=true end
         if config.opAutoFinish and removedOk and type(removed)=="number" and removed==removed and removed>=0 and removed<=1 then
             if not pileBaseline then pileBaseline={time=os.clock(),fraction=removed} end
             last.pileProgress={source="native GetRemovedFraction",removed_fraction=removed,
                 delta_fraction=math.max(0,removed-pileBaseline.fraction),elapsed=os.clock()-pileBaseline.time}
         end
         last.phase=dynamiteMax and (phaseGoal and "equipment: "..phaseGoal.name or "clear pile") or "fund dynamite"
-        if config.opAutoFinish then last.phase=last.focusClear and "OP: clear with acquired explosives/vacuum" or last.mountainEmpty and "OP: process remainder" or "OP: fund shovel and dynamite" end
+        if config.opAutoFinish then last.phase=funding.needed and "OP: income for "..tostring(progressGoal and progressGoal.name) or last.focusClear and "OP: clear with acquired explosives/vacuum" or last.mountainEmpty and "OP: process remainder" or "OP: fund shovel and dynamite" end
         last.productionReady=productionReady
         last.deliveryGoal=last.focusClear and Core.productionGoal(config,capacity) or nil
+        if funding.needed and not funding.cut then last.deliveryGoal=funding.deliveryGoal end
         last.opBurst=burst.stats
         local keyTarget=config.opAutoFinish and config.opKeyShortcut and resolver.keyTarget and resolver.keyTarget() or nil
         last.keyProbeReady=keyTarget~=nil and data and data.HasKey~=true and count and capacity and count<capacity and os.clock()>=keyProbeAt and keyProbeGuard.allowed(keyTarget,last.mountainEmpty,os.clock())
@@ -3038,6 +3217,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         last.askDrone=config.autoBuyDrone and not droneAsked and not last.drone and Core.effective(config,"autoFarm")
         last.dynamiteReady=data and Chapter.owns(data,"Dynamite") and os.clock()>=dynamiteAt
             and not bombPending and protocol.matches("DynamiteThrow",{"NumberU32"}) and itemAlive(candidate)
+        if last.dynamiteReady then
+            bombTiming.remaining,bombTiming.interval,bombTiming.source=Chapter.pickTiming(modules["Shared.ToolUpgradeShared"] or {},toolController,pileController,data,"Dynamite")
+            last.dynamiteReady=bombTiming.remaining<=0
+        end
 
         last.canStageCut=get(world,{"Map","PeelingMachines","PotatoCrate","PotatoArea","PlacePrompt"})~=nil
         return last
@@ -3054,8 +3237,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             local rejectedAt=item.part and rejected[item.part] or rejectedIds[item.slot] or 0
             if itemAlive(item) and os.clock()>=rejectedAt and (not onlyPumpkins or item.pumpkin) then
                 if item.part then item.slot=resolver.slot(item.part) end
-                local hit=item.part and world:Raycast(item.part.Position+Vector3.new(0,25,0),Vector3.new(0,-25.5,0),params)
-                if item.slot and (item.logical or hit and hit.Instance==item.part) then candidate=item searchEmpty=false snapshotAt=0 return item end
+                local exposed=resolver.exposed and resolver.exposed(item.part,item.slot)
+                local hit=exposed==nil and item.part and world:Raycast(item.part.Position+Vector3.new(0,25,0),Vector3.new(0,-25.5,0),params)
+                if item.slot and (item.logical or exposed==true or hit and hit.Instance==item.part) then candidate=item searchEmpty=false snapshotAt=0 return item end
             end
             checked+=1
             if checked%24==0 then services.RunService.Heartbeat:Wait() end
@@ -3200,6 +3384,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     end
     local function collect(valid)
         if config.opAutoFinish and burst.stats.pending>0 then return true end
+        if config.opAutoFinish and os.clock()<nextPickAt then return true end
         if isCutting() then cancelCut() end
         local item,message=findCandidate(valid)
         if not item then
@@ -3207,11 +3392,17 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             return true
         end
         collectTool()
+        local pickInterval=nil
+        if config.opAutoFinish then
+            local remaining
+            remaining,pickInterval=Chapter.pickTiming(modules["Shared.ToolUpgradeShared"] or {},toolController,pileController,state(),equippedTool or "Hand")
+            if remaining>0 then nextPickAt=os.clock()+math.min(remaining,0.25) return true end
+        end
         local before,capacity=inventory()
         local beforePumpkin,beforeGem=pumpkinSerial,gemSerial
         if not before or not capacity or before>=capacity and not item.pumpkin then return false,"bolsa cheia ou capacidade desconhecida" end
         local identity=resolver.stats.identity
-        local mapped=identity and math.max(identity.confirmed_geometry or 0,identity.confirmed_permuted or 0)>=3
+        local mapped=resolver.stats.native_map or identity and math.max(identity.confirmed_geometry or 0,identity.confirmed_permuted or 0)>=3
         if config.opAutoFinish and mapped and exactBagBound and not item.logical then
             local limit=burst.budget(os.clock(),before,capacity)
             if limit==0 then return true end
@@ -3226,9 +3417,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             local ids={}
             local function add(target)
                 if not itemAlive(target) or not target.part or (target.part.Position-root.Position).Magnitude>math.min(18,config.auraRadius) then return end
-                local hit=world:Raycast(target.part.Position+Vector3.new(0,25,0),Vector3.new(0,-25.5,0),params)
-                if not hit or hit.Instance~=target.part then return end
                 local id=resolver.slot(target.part)
+                local exposed=resolver.exposed and resolver.exposed(target.part,id)
+                local hit=exposed==nil and world:Raycast(target.part.Position+Vector3.new(0,25,0),Vector3.new(0,-25.5,0),params)
+                if exposed~=true and (not hit or hit.Instance~=target.part) then return end
                 if not burst.available(id,os.clock()) or table.find(ids,id) then return end
                 table.insert(ids,id)
             end
@@ -3243,6 +3435,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             if not valid() or #ids==0 then return true end
             if not protocol.matches("PotatoPick",{"NumberU32"}) or not protocol.matches("ToolSwing",{}) then return false,"Protocolo de coleta OP indisponivel." end
             if not burst.begin(os.clock(),before,ids) then return true end
+            nextPickAt=os.clock()+math.max(0.08,pickInterval or 0.08)
             if protocol.matches("ToolUsing",{"Boolean"}) then protocol.fire("ToolUsing",true) end
             for _,id in ipairs(ids) do
                 if not valid() then burst.cancel() return false,"cancelado" end
@@ -3334,7 +3527,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local cooldown=config.speedMode=="Turbo" and adaptivePickDelay or Core.tickInterval(config)
         local data=state()
         if data and config.speedMode~="Turbo" then
-            local good,value=safeCall(pileController,"GetPickCooldown",data)
+            local good,value=safeCall(pileController,"GetPickCooldown",equippedTool or "Hand")
             if good and type(value)=="number" and value>0 and value<3 then cooldown=math.max(cooldown,value) end
         end
         nextPickAt=os.clock()+cooldown candidate=nil
@@ -3603,6 +3796,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local data=state()
         if not Chapter.owns(data,"Dynamite") or not itemAlive(candidate) then return true end
         if not protocol.matches("DynamiteThrow",{"NumberU32"}) then return true end
+        local remaining,interval,source=Chapter.pickTiming(modules["Shared.ToolUpgradeShared"] or {},toolController,pileController,data,"Dynamite")
+        bombTiming={remaining=remaining,interval=interval,source=source}
+        if remaining>0 then dynamiteAt=os.clock()+remaining return true end
         local root=nav.actor()
         if not root then return false,"personagem indisponivel" end
         local target=itemPosition(candidate)
@@ -3615,8 +3811,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         safeCall(pileController,"SetUseHeld",false)
         local before=dynamiteSerial
         local ok,message=protocol.fire("DynamiteThrow",candidate.slot)
-        local interval=config.opAutoFinish and 0.1 or math.max(config.dynamiteInterval,config.dynamiteAggressive and 0.1 or 1)
-        dynamiteAt=os.clock()+interval
+        local localInterval=config.opAutoFinish and 0.1 or math.max(config.dynamiteInterval,config.dynamiteAggressive and 0.1 or 1)
+        dynamiteAt=os.clock()+math.max(localInterval,interval or 0)
         if ok then bombPending={serial=before,deadline=os.clock()+0.8} end
         if equipped then
             local tool=Chapter.owns(data,"PotatoSucker") and "PotatoSucker" or Chapter.owns(data,"Shovel") and "Shovel" or "Hand"
@@ -3800,7 +3996,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                     end
                 end
             end
-            return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,pile_progress=snap.pileProgress,key_shortcut={results=keyProbeStats,guard=keyProbeGuard.records},
+            return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,pile_progress=snap.pileProgress,op_funding=snap.opFunding,dynamite_timing=bombTiming,key_shortcut={results=keyProbeStats,guard=keyProbeGuard.records},
                 upgrade_audit=upgradeAudit,upgrade_levels=levels,state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
                     heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,production_ready=productionReady,sucker_overheated=vacuumHot,sucker_retry_at=vacuumRetryAt,inventory_source=exactBagBound and "replicated Potatoes" or "UI",phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,op_burst=burst.stats,cut_engine=cutEngine.stats,placement_timing=placement.stats,action_timings=actionTimings,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
         end,
@@ -3814,7 +4010,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.17.0"
+local VERSION="0.18.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}
@@ -3892,7 +4088,7 @@ local moduleNames={
     "Shared.PotatoTableShared","Shared.CarryUpgradeShared","Shared.CutToolShared","Shared.ToolUpgradeShared","Shared.FireShared",
     "Modules.Resources.Prices","Modules.Resources.Packets","Controllers.SyncController","Controllers.PotatoPileController",
     "Controllers.PotatoTableController","Controllers.PeelingController","Controllers.CuttingController",
-    "Controllers.FireController","Controllers.StoreViewController","Controllers.ToolUpgradeController",
+    "Controllers.FireController","Controllers.StoreViewController","Controllers.ToolUpgradeController","Controllers.ToolEquipController",
     "ModifiedPackages.Packet._Types",
 }
 modules,moduleErrors={},{}
@@ -3912,8 +4108,10 @@ for index,path in ipairs(moduleNames) do
 end
 if not lifecycle.alive() then return end
 local nav=Navigation.create(services,config,log)
-local resolver=Resolver.create(modules,services,log,Observer,Spatial)
+local resolver=Resolver.create(modules,services,log,Observer,Spatial,nil,NativeMap)
 lifecycle.add(resolver.close)
+local nativeOk,nativeError=pcall(resolver.discover)
+if not nativeOk then log("Leitura do mapa nativo indisponivel: "..tostring(nativeError),"error") end
 gate.progress(0.9,"Sincronizando os indices e as variantes da pilha...")
 resolver.requestSync()
 local syncDeadline=os.clock()+1.2
