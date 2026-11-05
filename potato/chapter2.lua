@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.11.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.11.1. Chapter 2 only. No paid purchases.
 
 local Core = (function()
 -- Luau · potato_core.luau · configuration and task coordination · Roblox / CLI · Luau 0.745
@@ -459,7 +459,6 @@ end
 function Chapter.limit(tool,id,cutRank,lastRank,earlyLimit)
     if id=="WalkSpeed" then return 0 end
     if (tool=="Body" or tool=="General") and id=="PotatoWorth" then
-        if cutRank<=1 then return 0 end
         return math.huge
     end
     return math.huge
@@ -521,6 +520,37 @@ function Chapter.maxed(shared,data,tool)
         if not good or type(maximum)~="number" or maximum<=0 or current==nil or current<maximum then return false end
     end
     return true
+end
+function Chapter.purchasePriority(offer)
+    if offer.upgrade=="PotatoWorth" then return 1 end
+    if offer.group=="cut" then return 10+(offer.tier or 0)/100 end
+    if offer.id=="Dynamite" or offer.tool=="Dynamite" then return 20 end
+    if offer.tool=="Drone" then return 30 end
+    if offer.id=="Shovel" or offer.tool=="Shovel" then return 40 end
+    if offer.group=="storage" then return 90 end
+    return 50
+end
+function Chapter.selectPurchase(Core,config,balance,offers)
+    table.sort(offers,function(a,b)
+        local left,right=Chapter.purchasePriority(a),Chapter.purchasePriority(b)
+        if left~=right then return left<right end
+        return (a.name or "")<(b.name or "")
+    end)
+    for _,offer in ipairs(offers) do
+        if type(offer.price)=="number" and offer.price>0 then
+            local affordable=Core.affordable(config,balance,offer.price,"Cash")
+            return offer,affordable
+        end
+    end
+    return nil,false
+end
+function Chapter.profilePrice(profile,tool,id,level)
+    if type(profile)~="table" or type(profile.Upgrades)~="table" or type(level)~="number" then return nil end
+    local list=profile.Upgrades[tool=="Body" and "General" or tool]
+    local values=type(list)=="table" and list[id] or nil
+    local price=type(values)=="table" and values[level+1] or nil
+    if type(price)=="number" and price>0 then return price end
+    return nil
 end
 function Chapter.sellReady(config,stock,state)
     if type(stock)~="number" or stock<=0 then return false end
@@ -2048,6 +2078,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local heatUiAt,heatReadAt=0,0
     local heatLabels={}
     local vacuumHot=false
+    local upgradeAudit={}
     local phaseGoal=nil
     local phaseNeedsIncome=false
     local bombPending=nil
@@ -2312,11 +2343,18 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             local ok,value=pcall(shared.GetUpgradeCost,data,tool,id)
             if ok and type(value)=="number" and value>0 then return value end
         end
+        local prices=modules["Modules.Resources.Prices"] or {}
+        local loaded,profile=safeCall(prices,"Get",player)
+        if loaded then
+            local price=Chapter.profilePrice(profile,tool,id,level)
+            if price then return price end
+        end
         if button and button.Parent then return bridge.cash(bridge.texts(button)) end
         return nil
     end
     local function upgradeOffers(data,balance,includeUnaffordable)
         local result={}
+        upgradeAudit={}
         local shared=modules["Shared.ToolUpgradeShared"] or {}
         for _,tool in ipairs({"Shovel","Dynamite","PotatoSucker","Hand","AutoPeeler","HandPeeler","Drone","Body"}) do
             for _,id in ipairs(Chapter.allowed[tool] or {}) do
@@ -2328,8 +2366,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                     local buttonOk,button=safeCall(upgradeController,"GetUpgradeButton",tool,id)
                     if not buttonOk or typeof(button)~="Instance" or not button:IsA("GuiButton") then button=nil end
                     local price=upgradePrice(data,tool,id,level,button)
+                    upgradeAudit[tool.."/"..id]={level=level,maximum=maxLevel,price=price,
+                        reason=level==nil and "level unavailable" or maxLevel==nil and "maximum unavailable" or level>=maxLevel and "maximum reached" or price==nil and "price unavailable" or not upgradeGuard.allowed(tool.."/"..id,level) and "refused without progress" or "eligible"}
                     local maxed=button and button:FindFirstChild("Maxed")
-                    if level~=nil and maxLevel~=nil and upgradeGuard.allowed(tool.."/"..id,level) and level<Chapter.limit(tool,id,bestCutRank(data),#(cutShared.Tools or {}),config.worthEarlyLimit) and not (maxLevel and level>=maxLevel) and not (maxed and maxed.Enabled)
+                    if level~=nil and maxLevel~=nil and upgradeGuard.allowed(tool.."/"..id,level) and level<Chapter.limit(tool,id,bestCutRank(data),#(cutShared.Tools or {}),config.worthEarlyLimit) and not (maxLevel and level>=maxLevel)
                         and (button or protocol.matches("ToolUpgradePurchase",{"String","String"})) then
                         local key=tool.."/"..id
                         if os.clock()>=(offerRetry[key] or 0) and type(price)=="number" and (includeUnaffordable or Core.purchaseReady(config,balance,price,level,deniedOffers[key])) then
@@ -2399,57 +2439,40 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             end
             return nil
         end
-        if afterSale and postSaleWeaponBought then return nil end
         local options={}
         if Core.effective(config,"autoBuyUpgrades") then
-            local offers=upgradeOffers(data,balance)
-            for _,offer in ipairs(offers) do
-                if offer.upgrade=="PotatoWorth" then progressGoal=offer return offer end
-                table.insert(options,offer)
+            local available=upgradeOffers(data,balance,true)
+            local worth=upgradeAudit["Body/PotatoWorth"]
+            if worth and (worth.level==nil or worth.maximum==nil or worth.level<worth.maximum and worth.price==nil) then
+                progressGoal={name="Body/PotatoWorth: "..worth.reason}
+                return nil
+            end
+            for _,offer in ipairs(available) do
+                local blocked=deniedOffers[offer.name]
+                if not blocked or blocked.level~=offer.level or balance>=blocked.cash then table.insert(options,offer) end
             end
         end
-        local toolEnabled=Core.effective(config,"autoBuyTools") or afterSale and config.buyAfterSell
-        local wanted=nil
-        if toolEnabled then
+        if Core.effective(config,"autoBuyTools") or afterSale and config.buyAfterSell then
             local best=bestCutRank(data)
-            local tools=cutShared.Tools or {}
-            for index=#tools,best+1,-1 do
-                local offer=shopItem("Knives",tools[index].Id,"cut",1)
-                if offer then
-                    if Core.affordable(config,balance,offer.price,"Cash") then progressGoal=offer return offer end
-                    wanted=offer
-                end
+            for index,tool in ipairs(cutShared.Tools or {}) do
+                if index>best then local offer=shopItem("Knives",tool.Id,"cut",10) if offer then offer.tier=index table.insert(options,offer) end end
             end
-            if wanted and config.saveForNextTool and #options==0 then progressGoal=wanted return nil end
-            if config.autoProgress or config.autoFarm then
-                for _,id in ipairs({"Shovel","Dynamite","P0T4T0-3000"}) do
+            if Core.effective(config,"autoFarm") then
+                for _,id in ipairs({"Dynamite","Shovel","P0T4T0-3000"}) do
                     local ownedId=id=="P0T4T0-3000" and "PotatoSucker" or id
-                    if not Chapter.owns(data,ownedId) then
-                        local offer=shopItem("Tools",id,"collect",2)
-                        if offer then
-                            wanted=wanted or offer
-                            if Core.affordable(config,balance,offer.price,"Cash") then progressGoal=offer return offer end
-                        end
-                    end
+                    if not Chapter.owns(data,ownedId) then local offer=shopItem("Tools",id,"collect",20) if offer then table.insert(options,offer) end end
                 end
             end
         end
-        if Core.effective(config,"autoBuyUpgrades") then
-            for _,offer in ipairs(upgradeOffers(data,balance)) do table.insert(options,offer) end
-        end
-        local machine=machineOffer(data,balance)
-        if machine then table.insert(options,machine) end
         local _,capacity=inventory()
         if Core.effective(config,"autoBuyStorage") and not config.infiniteBag and capacity~=math.huge and type(data.CarryLevel)=="number" then
             local level=carryShared.Levels and carryShared.Levels[data.CarryLevel+1]
-            if type(level)=="table" and level.ItemName then
-                local offer=shopItem("Storage",level.ItemName,"storage",500)
-                if offer and Core.affordable(config,balance,offer.price,"Cash") then table.insert(options,offer) end
-            end
+            if type(level)=="table" and level.ItemName then local offer=shopItem("Storage",level.ItemName,"storage",90) if offer then table.insert(options,offer) end end
         end
-        table.sort(options,function(a,b) return a.rank<b.rank end)
-        progressGoal=wanted or options[1]
-        return options[1]
+        local goal,affordable=Chapter.selectPurchase(Core,config,balance,options)
+        progressGoal=goal
+        if affordable then return goal end
+        return nil
     end
 
     local function stockCount()
@@ -3158,7 +3181,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 end
             end
             return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,
-                upgrade_levels=levels,state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
+                upgrade_audit=upgradeAudit,upgrade_levels=levels,state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
                     heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,sucker_overheated=vacuumHot,sucker_retry_at=vacuumRetryAt,inventory_source=exactBagBound and "replicated Potatoes" or "UI",phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,cut_engine=cutEngine.stats,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
         end,
     }
@@ -3171,7 +3194,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.11.0"
+local VERSION="0.11.1"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}
@@ -3230,7 +3253,7 @@ if not gate.wait() then lifecycle.close() return end
 local moduleNames={
     "Shared.PlayerStateShared","Shared.PotatoPileShared","Shared.PotatoKindShared","Shared.PotatoHoldShared",
     "Shared.CarryUpgradeShared","Shared.CutToolShared","Shared.ToolUpgradeShared","Shared.FireShared",
-    "Modules.Resources.Packets","Controllers.SyncController","Controllers.PotatoPileController",
+    "Modules.Resources.Prices","Modules.Resources.Packets","Controllers.SyncController","Controllers.PotatoPileController",
     "Controllers.PotatoTableController","Controllers.PeelingController","Controllers.CuttingController",
     "Controllers.FireController","Controllers.StoreViewController","Controllers.ToolUpgradeController",
     "ModifiedPackages.Packet._Types",
