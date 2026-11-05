@@ -33,7 +33,16 @@ function Recovery.restore(services,modules)
             if allowed[object.Name] then
                 attempt(function()
                     if object:IsA("ScreenGui") then object.Enabled=true
-                    elseif object:IsA("GuiObject") then object.Visible=true
+                    elseif object:IsA("GuiObject") then
+                        local ancestor=object.Parent
+                        local screen=nil
+                        while ancestor and ancestor~=gui do
+                            if ancestor:IsA("ScreenGui") then screen=ancestor break end
+                            ancestor=ancestor.Parent
+                        end
+                        if screen and (screen.Name=="ToolUpgrades" or screen.Name=="StoreView" or screen.Name:find("Cutscene",1,true)) then return end
+                        object.Visible=true
+                        if screen then screen.Enabled=true end
                     else return end
                     report.restored+=1 table.insert(report.names,object.Name)
                 end)
