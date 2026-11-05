@@ -1,29 +1,31 @@
-# Evolvy / Anonymous 0.16.0 — iniciar a limpeza cedo
+# Evolvy / Anonymous 0.17.0 — teste de chave antecipada
 
-Chave: Anonymous. Capitulo 2, PlaceId 116701845804918.
+Chave do hub: Anonymous. Capitulo 2, PlaceId 116701845804918.
 
-**Ajustes → ultimo cartao → OP Alto Zerar**. Inicia o ciclo completo. PAUSAR interrompe as rotinas. Ativacoes ficam desligadas ao carregar/renascer.
+Ative **Ajustes → ultimo cartao → OP Alto Zerar** e mantenha **Testar chave antecipada** ligado. Nao precisa ativar Auto Progress junto. PAUSAR interrompe as rotinas.
 
-## Falha encontrada no teste anterior
+## Hipotese investigada
 
-O registro da v0.15 mostrou 137,59 segundos de sessao, 702 batatas vendidas, somente 9 coletadas e zero ondas OP enviadas. A rotina ficou cortando e comprando facas, com Mezzaluna como proxima meta. A janela OP nao foi exercitada nesse teste. Nao houve evidencia de limpeza instantanea.
+Uma fonte publica de codigo consulta `KeyPotatoId` no estado da pilha e acompanha `PotatoKeyMoved`. Isso mostra uma forma de localizar uma chave que o cliente conheca. Nao demonstra que o servidor permita pega-la antes do requisito da partida. A v0.17 testa essa possibilidade com o ID real divulgado, sem exigir as APIs de upvalues que estavam indisponiveis nos registros do Delta.
 
-## Mudanca da v0.16
+O resolvedor examina somente as tabelas de pilha recebidas nas chamadas nativas ja observadas e o evento do jogo. Se houver ID valido e posicao pelo mapeamento nativo, a rotina vai ate o local e envia uma coleta direcionada, inclusive quando a peca estiver coberta. Se o cliente nao divulgar o ID ou a posicao, nao envia um pedido inventado. Se o servidor confirmar `HasKey`, prioriza a saida. `KeyRevealed` sozinho nao e tratado como propriedade da chave nem como conclusao.
 
-O OP usa uma ordem de compras propria: valor de venda ate nivel 3, primeira faca adicional, bolsa de ate 50 se necessaria, pa, dinamite, melhorias da dinamite, sugador/melhorias, drone adquirido, melhorias da pa, maquinas e demais equipamentos. Ofertas indisponiveis nao sao inventadas. Preco, saldo, reserva, propriedade e maximos continuam sendo verificados. A progressao normal mantem a ordem anterior.
+Sao no maximo duas tentativas por ID/estado, separadas por pelo menos 10 segundos. Uma mudanca real do ID, um evento de revelacao ou o fim da pilha permite reavaliar. Uma recusa devolve o controle a progressao normal. O contador de vitórias nao e alterado localmente; a conclusao continua dependendo do evento real `Escaped`.
 
-Assim que tiver dinamite ou sugador, o OP prioriza a montanha; nao exige todos os equipamentos no maximo. Vendas de estoque existente e compras confirmadas ainda tem prioridade quando disponiveis. A limpeza pode continuar com equipamento basico enquanto junta dinheiro. Com bolsa finita, entrega ao encher na caixa; o automatico vira destino apos os equipamentos completos. Com bolsa infinita detectada, permanece na montanha ate a pilha terminar. Uma chave real tem prioridade sobre as outras etapas. Depois da limpeza, processa o estoque restante.
+## Como avaliar
 
-Mantidas as ondas adaptativas da v0.15: 2 ate 16 IDs unicos de pecas expostas dentro do raio local (maximo 18 studs), com confirmacao pelo inventario replicado, janela pendente de ate 0,35 s, recuo em ausencia de progresso e protecao contra repeticao imediata do mesmo ID. A ativacao requer mapeamento previamente confirmado; antes disso, usa a coleta anterior. A dinamite aproveita o alvo da rodada e volta para a melhor ferramenta adquirida. Cooldowns impostos pelo servidor continuam podendo limitar o ritmo.
+Depois de aproximadamente 60 segundos, exporte em **Registros → EXPORTAR DIAGNOSTICO**. Confira:
 
-## Medir a limpeza real
+- `bindings.key`: ID divulgado, origem e motivo quando indisponivel.
+- `key_shortcut.results`: tentativas e `confirmed`, que exige `HasKey` real.
+- `key_shortcut.guard`: limites e proximas tentativas por estado.
+- `pile_progress`: fracao removida lida do contador nativo da partida.
+- `op_burst` e `action_timings`: coleta e tempo gasto por etapa.
 
-`op_burst` registra pedidos, ondas, ganhos de inventario e ondas sem resposta. Ganhos de inventario podem incluir a dinamite e nao comprovam aceitacao de todos os IDs enviados. `pile_progress` registra a fracao removida lida do contador nativo, a diferenca desde o inicio do OP e o tempo observado. Esse contador da partida pode incluir outros jogadores. `action_timings` mostra o tempo gasto em cada etapa.
+Nao foi demonstrada conclusao em 1 minuto. Esta versao introduz uma tentativa de atalho sustentada pelo codigo publico consultado. O teste real de aceitacao pelo servidor continua pendente. Os recursos e a ordem do OP da v0.16 foram preservados.
 
-Teste por aproximadamente 60 segundos e exporte em **Registros → EXPORTAR DIAGNOSTICO**. O resultado esperado desta correcao e adquirir dinamite antes das ultimas facas e entrar na fase de limpeza cedo. Nao ha tempo de 1 minuto demonstrado. Pecas nao sao apagadas apenas no cliente; o contador do jogo e a chave dependem das acoes aceitas pelo jogo. A conclusao somente e marcada pelo evento real Escaped.
+## Pesquisa e validacao
 
-## Validacao e publicacao
+Veja **PESQUISA_ATALHOS.md** no pacote para as fontes, resultados e limitacoes. Nenhum loader de terceiros foi executado. Compilacao oficial Luau 0.745 e 14 suites locais; casos novos cobrem captura da chave por contexto/evento, ocultacao, mapeamento, limites, prioridades e limpeza dos listeners. Sem teste real pelo agente no Delta/iPhone.
 
-Compilacao oficial Luau 0.745 e 14 suites locais. Casos novos cobrem compras OP antes de facas caras, bolsa pequena antes da dinamite, bolsas maiores sem bloquear explosivos e entrada na limpeza sem exigir equipamento maximo. Sem execucao real pelo agente no Delta/iPhone. Testes locais nao demonstram desempenho no servidor.
-
-Execute PUBLICAR_V016.cmd no seu Windows para publicar o commit preparado e verificar os arquivos publicos. O plugin GitHub desta sessao esta conectado a Lucasxshttp, com permissao de leitura e sem permissao de push neste repositorio. O publicador solicita a conta AnonymosScripts, conforme as publicacoes anteriores.
+Para publicar, execute PUBLICAR_V017.cmd no seu Windows. Ele solicita a conta AnonymosScripts e verifica os arquivos publicos apos o push. O plugin conectado a Lucasxshttp nao possui permissao de escrita neste repositorio.

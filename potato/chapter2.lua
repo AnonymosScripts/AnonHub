@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.16.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.17.0. Chapter 2 only. No paid purchases.
 
 local Burst = (function()
 -- Luau · potato_burst.luau · bounded acknowledged collection experiment · Roblox / CLI · Luau 0.745
@@ -240,7 +240,7 @@ local Core = (function()
 local Core = {}
 
 Core.defaults = {
-    opAutoFinish=false,
+    opAutoFinish=false,opKeyShortcut=true,
     fastDelivery=true,placementDelay=0.01,throughputMode=true,
     autoRepairGui=true,aimTable=true,autoEscape=false,productionBatch=500,
     autoProgress = false, autoCut = false, autoFarm = false, autoDeliver = false,
@@ -458,6 +458,7 @@ function Core.choose(config, state, now)
     local function ready(action) return now>=((state.retryAt or {})[action] or 0) end
     if Core.effective(config,"autoEscape") and state.hasKey and ready("escape") then return "escape" end
     if Core.effective(config,"autoCool") and state.needCooling and now >= (state.coolingRetryAt or 0) and ready("cool") then return "cool" end
+    if config.opAutoFinish and config.opKeyShortcut and state.keyProbeReady and ready("keyProbe") then return "keyProbe" end
     if state.droneReady and ready("drone") then return "drone" end
     if state.deliveryPending and (Core.effective(config,"autoDeliver") or Core.effective(config,"autoCut")) and ready("deliver") then return "deliver" end
     if Core.effective(config,"autoSell") and state.sellReady and now>=(state.sellRetryAt or 0) and ready("sell") then return "sell" end
@@ -799,6 +800,26 @@ end
 function Chapter.clearReady(config,shared,data)
     if config.opAutoFinish then return Chapter.owns(data,"Dynamite") or Chapter.owns(data,"PotatoSucker") end
     return Chapter.productionReady(shared,data)
+end
+function Chapter.keyProbeGuard()
+    local records={}
+    local function token(item,empty)
+        if type(item)~="table" or type(item.slot)~="number" or item.slot%1~=0 or item.slot<1 or item.slot>=4294967296 then return nil end
+        return tostring(item.slot)..":"..tostring(item.revision or 0)..":"..tostring(empty==true)
+    end
+    local function allowed(item,empty,now)
+        local key=token(item,empty)
+        if not key then return false end
+        local entry=records[key]
+        return not entry or entry.attempts<2 and now>=entry.retryAt
+    end
+    return {records=records,allowed=allowed,begin=function(item,empty,now)
+        if not allowed(item,empty,now) then return false end
+        local key=token(item,empty)
+        local entry=records[key] or {attempts=0}
+        entry.attempts+=1 entry.retryAt=now+10 records[key]=entry
+        return true
+    end}
 end
 function Chapter.purchasePriority(offer,config)
     if config and config.opAutoFinish then
@@ -1615,6 +1636,7 @@ function UI.create(services, config, callbacks, Layout)
     end
     local op=card(settings,"OP Alto Zerar","EXPERIMENTAL | Ciclo completo com rajadas adaptativas, alvos proximos e prioridade para limpar a montanha. Nao garante limpeza instantanea.")
     toggle(op,"opAutoFinish","OP Alto Zerar","Compra a primeira faca, bolsa pequena, pa e dinamite antes das facas caras. Comeca a limpeza assim que tiver dinamite ou sugador. Bolsa finita entrega ao encher; infinita fica na montanha. Inclui resfriamento e saida. PAUSAR interrompe tudo.")
+    toggle(op,"opKeyShortcut","Testar chave antecipada","Experimental: usa somente um ID de chave recebido do jogo. Confirma HasKey antes de ir para a saida. Se o jogo nao divulgar ou recusar, continua a limpeza.")
     local logPage=newPage("Registros",8)
     local l=card(logPage,"Atividade recente")
     local logText=text(l,"Pronto.",11,palette.muted,false)
@@ -2020,6 +2042,10 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
     local preparing=false
     local nextPrepare=0
     local closed=false
+    local keyInputs={}
+    local keyEventId=nil
+    local keyRevision=0
+    local keyConnections={}
     local observer=nil
     local stats={slot="pending spatial index",kind="pending captured arguments",generation=0,
         mapped=0,parts=0,syncRequests=0,contracts={},scores={},upvalues=false}
@@ -2085,6 +2111,10 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
     end
     observer=Observer.create(pile,names,function(name,args,result)
         if closed then return true end
+        for i=1,args.n do
+            local input=args[i]
+            if type(input)=="table" and (rawget(input,"PotatoSlots")~=nil or type(rawget(input,"Seed"))=="number" or rawget(input,"KeyPotatoId")~=nil) then keyInputs[input]=true end
+        end
         if name=="GetPotatoSlot" and validId(result[1]) then
             local folder=world:FindFirstChild("PotatoPile")
             for i=1,args.n do
@@ -2324,11 +2354,44 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
         end
         return result
     end
+    local keyEvent=packets.PotatoKeyMoved and packets.PotatoKeyMoved.OnClientEvent
+    if keyEvent and type(keyEvent.Connect)=="function" then
+        local ok,connection=pcall(keyEvent.Connect,keyEvent,function(id)
+            if id==0 or validId(id) then
+                if keyEventId~=id then keyRevision+=1 end
+                keyEventId=id
+            end
+        end)
+        if ok and connection then table.insert(keyConnections,connection) end
+    end
+    local revealed=packets.KeyRevealed and packets.KeyRevealed.OnClientEvent
+    if revealed and type(revealed.Connect)=="function" then
+        local ok,connection=pcall(revealed.Connect,revealed,function() keyRevision+=1 end)
+        if ok and connection then table.insert(keyConnections,connection) end
+    end
+    local function keyTarget()
+        local id=keyEventId
+        local source=id~=nil and "PotatoKeyMoved" or nil
+        if id==nil then
+            for input in pairs(keyInputs) do
+                local value=rawget(input,"KeyPotatoId")
+                if validId(value) then id=value source="captured native KeyPotatoId" break end
+            end
+        end
+        stats.key={known=validId(id),source=source,id=validId(id) and id or nil}
+        if not validId(id) then stats.key.reason="client has not disclosed a valid key ID" return nil end
+        if not bindings.GetPotatoSlot then stats.key.reason="native slot mapping unavailable" return nil end
+        local ok,index=bindings.GetPotatoSlot(id)
+        local position=ok and validId(index) and worldPositions[index] or nil
+        if not position then stats.key.reason="key position unavailable" return nil end
+        return {slot=id,position=position,logical=true,key=true,source=source,revision=keyRevision}
+    end
     local function close()
         closed=true observer.close()
+        for _,connection in ipairs(keyConnections) do pcall(function() connection:Disconnect() end) end
         if heatWrapper then pcall(function() if fire.GetHeat==heatWrapper then fire.GetHeat=originalHeat end end) end
     end
-    return {slot=slot,alternate=alternate,confirm=confirm,physicalSlot=physicalSlot,live=live,specialTargets=specialTargets,kind=kind,heat=heat,prepare=prepare,requestSync=requestSync,stats=stats,close=close,
+    return {slot=slot,alternate=alternate,confirm=confirm,physicalSlot=physicalSlot,live=live,specialTargets=specialTargets,keyTarget=keyTarget,kind=kind,heat=heat,prepare=prepare,requestSync=requestSync,stats=stats,close=close,
         ready=function() return bindings.GetKind~=nil and bindings.GetSlotPosition~=nil and bindings.GetPotatoInSlot~=nil end,
         refresh=function() nextPrepare=0 end}
 end
@@ -2500,6 +2563,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local dynamiteMax=false
     local productionReady=false
     local pileBaseline=nil
+    local keyProbeAt=0
+    local keyProbeStats={attempts=0,confirmed=false}
+    local keyProbeGuard=Chapter.keyProbeGuard()
     local autoFeedRetryAt=0
     local nextBlurCheck=0
     local placement=Chapter.placementTiming(modules["Shared.PotatoTableShared"])
@@ -2957,6 +3023,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         last.productionReady=productionReady
         last.deliveryGoal=last.focusClear and Core.productionGoal(config,capacity) or nil
         last.opBurst=burst.stats
+        local keyTarget=config.opAutoFinish and config.opKeyShortcut and resolver.keyTarget and resolver.keyTarget() or nil
+        last.keyProbeReady=keyTarget~=nil and data and data.HasKey~=true and count and capacity and count<capacity and os.clock()>=keyProbeAt and keyProbeGuard.allowed(keyTarget,last.mountainEmpty,os.clock())
         if last.focusClear and os.clock()<autoFeedRetryAt and capacity==math.huge then last.deliveryGoal=math.huge end
         local finalKnife=data and #(cutShared.Tools or {})>1 and bestCutRank(data)>=#cutShared.Tools
         local remaining=math.max(0,config.cutBuffer-crateCount())
@@ -3102,6 +3170,34 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         return root~=nil and itemAlive(item) and (root.Position-position).Magnitude<=18,"alvo fora do alcance"
     end
     local dynamite
+    local function keyProbe(valid)
+        local item=resolver.keyTarget and resolver.keyTarget()
+        if not item then return true end
+        keyProbeAt=os.clock()+10 snapshotAt=0
+        if not protocol.matches("PotatoPick",{"NumberU32"}) or not protocol.matches("ToolSwing",{}) then return true end
+        interactionTool()
+        local moved,why=approachPart(item,valid)
+        if not moved then keyProbeStats.last_result=tostring(why) return false,why end
+        local current=resolver.keyTarget()
+        if not valid() or not current or current.slot~=item.slot then return true end
+        if not keyProbeGuard.begin(current,last.mountainEmpty,os.clock()) then return true end
+        keyProbeAt=0
+        keyProbeStats.attempts+=1 keyProbeStats.id=item.slot keyProbeStats.source=item.source
+        local swung=protocol.fire("ToolSwing")
+        local sent,message=false,"Ferramenta de coleta indisponivel."
+        if swung then sent,message=protocol.fire("PotatoPick",item.slot) end
+        if not sent then keyProbeStats.last_result="local send failed" return false,message end
+        local confirmed=waitUntil(function()
+            local data=state()
+            return data and data.HasKey==true
+        end,0.8,valid)
+        keyProbeStats.confirmed=confirmed==true
+        keyProbeStats.last_result=confirmed and "HasKey confirmed by player state" or "no HasKey confirmation; normal progression continues"
+        snapshotAt=0 candidate=nil
+        if confirmed then log("Atalho da chave confirmado pelo estado do jogo.")
+        else log("Teste da chave: o servidor nao confirmou a coleta antecipada.") end
+        return true
+    end
     local function collect(valid)
         if config.opAutoFinish and burst.stats.pending>0 then return true end
         if isCutting() then cancelCut() end
@@ -3672,7 +3768,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end,
         droneAsked=function() droneAsked=true end,droneConfirm=function(value) droneConsent=value==true snapshotAt=0 end,
         snapshot=snapshot,findCandidate=findCandidate,release=release,cancelCut=cancelCut,reset=reset,recover=recover,restoreGame=restoreGame,counts=counts,
-        actions={drone=drone,collect=collect,deliver=deliver,cut=cut,enterCut=enterCut,cool=cool,buy=buy,crank=crank,stageCut=stageCut,sell=sell,returnTable=returnTable,dynamite=dynamite},
+        actions={keyProbe=keyProbe,drone=drone,collect=collect,deliver=deliver,cut=cut,enterCut=enterCut,cool=cool,buy=buy,crank=crank,stageCut=stageCut,sell=sell,returnTable=returnTable,dynamite=dynamite},
         stop=function()
             cancelCut() nav.stop()
             if restoreHeadless then restoreHeadless() restoreHeadless=nil end
@@ -3704,7 +3800,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                     end
                 end
             end
-            return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,pile_progress=snap.pileProgress,
+            return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,pile_progress=snap.pileProgress,key_shortcut={results=keyProbeStats,guard=keyProbeGuard.records},
                 upgrade_audit=upgradeAudit,upgrade_levels=levels,state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
                     heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,production_ready=productionReady,sucker_overheated=vacuumHot,sucker_retry_at=vacuumRetryAt,inventory_source=exactBagBound and "replicated Potatoes" or "UI",phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,op_burst=burst.stats,cut_engine=cutEngine.stats,placement_timing=placement.stats,action_timings=actionTimings,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
         end,
@@ -3718,7 +3814,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.16.0"
+local VERSION="0.17.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}
@@ -3961,7 +4057,7 @@ local respawnConnection=player.CharacterAdded:Connect(function()
 end)
 lifecycle.add(function() respawnConnection:Disconnect() end)
 
-local actionNames={escape="Indo para a saida com a chave",drone="Comprando drone",cool="Resfriando",collect="Coletando",deliver="Entregando",cut="Cortando",enterCut="Indo para a mesa",buy="Comprando",crank="Girando cortador",search="Indexando e selecionando",stageCut="Abastecendo a mesa",sell="Vendendo",returnTable="Retornando a mesa",dynamite="Lancando dinamite"}
+local actionNames={keyProbe="Testando chave antecipada",escape="Indo para a saida com a chave",drone="Comprando drone",cool="Resfriando",collect="Coletando",deliver="Entregando",cut="Cortando",enterCut="Indo para a mesa",buy="Comprando",crank="Girando cortador",search="Indexando e selecionando",stageCut="Abastecendo a mesa",sell="Vendendo",returnTable="Retornando a mesa",dynamite="Lancando dinamite"}
 local nextUi=0
 local heartbeat=services.RunService.Heartbeat:Connect(function()
     if not lifecycle.alive() or os.clock()<nextUi then return end
