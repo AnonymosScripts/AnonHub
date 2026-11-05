@@ -1,11 +1,69 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.11.1. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.12.0. Chapter 2 only. No paid purchases.
+
+local Recovery = (function()
+-- Luau · potato_recovery.luau · explicit native UI recovery · Roblox / CLI · Luau 0.745
+local Recovery={}
+local allowed={Cash=true,Bag=true,Hotbar=true,ToolHotbar=true,ToolBar=true,Toolbar=true,Tools=true,ToolSelection=true,Interactions=true,Interaction=true,ProximityPrompts=true}
+function Recovery.restore(services,modules)
+    modules=modules or {}
+    local report={restored=0,errors=0,names={}}
+    local function attempt(callback)
+        local ok=pcall(callback)
+        if not ok then report.errors+=1 end
+    end
+    local function call(path,name,...)
+        local module=modules[path]
+        if type(module)=="table" and type(module[name])=="function" then
+            local args=table.pack(...)
+            attempt(function() module[name](table.unpack(args,1,args.n)) end)
+        end
+    end
+    call("Controllers.CuttingController","SetHeld",false)
+    call("Controllers.CuttingController","SetAuto",false)
+    call("Controllers.PotatoPileController","SetUseHeld",false)
+    local peeling=modules["Controllers.PeelingController"]
+    if peeling and peeling.IsPeeling==true then call("Controllers.PeelingController","StopPeeling") end
+    call("Controllers.StoreViewController","Close")
+    call("Controllers.ToolUpgradeController","SetOpen",false)
+    local player=services.Players.LocalPlayer
+    local gui=player:FindFirstChild("PlayerGui")
+    if gui then
+        for _,object in ipairs(gui:GetDescendants()) do
+            if allowed[object.Name] then
+                attempt(function()
+                    if object:IsA("ScreenGui") then object.Enabled=true
+                    elseif object:IsA("GuiObject") then object.Visible=true
+                    else return end
+                    report.restored+=1 table.insert(report.names,object.Name)
+                end)
+            end
+        end
+    end
+    if services.ProximityPromptService then attempt(function() services.ProximityPromptService.Enabled=true end) end
+    local scripts=player:FindFirstChild("PlayerScripts")
+    local module=scripts and scripts:FindFirstChild("PlayerModule")
+    if module then
+        attempt(function()
+            local controls=require(module):GetControls()
+            controls:Enable()
+        end)
+    end
+    local character=player.Character
+    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
+    if humanoid then attempt(function() humanoid.AutoRotate=true end) end
+    return report
+end
+return Recovery
+
+end)()
 
 local Core = (function()
 -- Luau · potato_core.luau · configuration and task coordination · Roblox / CLI · Luau 0.745
 local Core = {}
 
 Core.defaults = {
+    autoRepairGui=true,
     autoProgress = false, autoCut = false, autoFarm = false, autoDeliver = false,
     autoCool = false, autoSell = false, autoDynamite = false, autoCrank = false, autoBuyTools = false, autoBuyUpgrades = false,
     autoBuyStorage = false, collectPumpkins = false, pumpkinPriority = true, priorityValue = true,
@@ -895,10 +953,10 @@ function UI.create(services, config, callbacks, Layout)
     local connections, bindings, pages, navButtons = {}, {}, {}, {}
     local closed, activePage, isOpen = false,"Inicio",true
     local palette = {
-        background=Color3.fromRGB(11,15,24), sidebar=Color3.fromRGB(16,21,33),
-        card=Color3.fromRGB(23,29,44), line=Color3.fromRGB(47,58,79),
-        text=Color3.fromRGB(244,240,255), muted=Color3.fromRGB(153,148,173),
-        accent=Color3.fromRGB(164,148,255), mint=Color3.fromRGB(95,230,192),
+        background=Color3.fromRGB(9,16,25), sidebar=Color3.fromRGB(13,24,34),
+        card=Color3.fromRGB(18,33,45), line=Color3.fromRGB(38,66,77),
+        text=Color3.fromRGB(244,240,255), muted=Color3.fromRGB(164,187,198),
+        accent=Color3.fromRGB(87,228,196), mint=Color3.fromRGB(95,230,192),
     }
     local function make(class, properties, parent)
         local result = Instance.new(class)
@@ -935,10 +993,10 @@ function UI.create(services, config, callbacks, Layout)
     local panel=make("Frame",{Name="Panel",Position=UDim2.fromOffset(8,8),
         Size=UDim2.fromOffset(760,580),Visible=false,BackgroundColor3=palette.background,BorderSizePixel=0,ClipsDescendants=true},canvas)
     local panelScale=make("UIScale",{Scale=1},panel)
-    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(21,25,39),palette.background),Rotation=90},panel)
+    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(13,39,49),palette.background),Rotation=90},panel)
     corner(panel,15) stroke(panel)
     local sidebar=make("Frame",{Size=UDim2.new(0,174,1,0),BackgroundColor3=palette.sidebar,BorderSizePixel=0},panel)
-    local brand=text(sidebar,"anonymous",20,palette.text,true)
+    local brand=text(sidebar,"EVOLVY",20,palette.text,true)
     brand.Position,brand.Size=UDim2.fromOffset(17,21),UDim2.new(1,-32,0,28)
     local edition=text(sidebar,"POTATO / CONTROL",10,palette.accent,true)
     edition.Position,edition.Size=UDim2.fromOffset(18,51),UDim2.new(1,-32,0,16) edition.Text="CHAPTER II / EVOLVY"
@@ -956,7 +1014,8 @@ function UI.create(services, config, callbacks, Layout)
     hide.Position,hide.Size=UDim2.new(1,-100,0,0),UDim2.fromOffset(100,31)
     local status=text(content,"Inicializando...",11,palette.muted,false)
     status.Position,status.Size=UDim2.fromOffset(0,40),UDim2.new(1,0,0,35)
-    status.TextWrapped=true
+    status.TextWrapped=true status.BackgroundTransparency=0.12 status.BackgroundColor3=palette.card
+    corner(status,8)
     local pageArea=make("Frame",{BackgroundTransparency=1,Position=UDim2.fromOffset(0,87),
         Size=UDim2.new(1,0,1,-146)},content)
     local footer=make("Frame",{BackgroundTransparency=1,Position=UDim2.new(0,0,1,-43),Size=UDim2.new(1,0,0,38)},content)
@@ -1020,7 +1079,7 @@ function UI.create(services, config, callbacks, Layout)
         activePage=name heading.Text=name
         for key,frame in pairs(pages) do frame.Visible=key==name end
         for key,item in pairs(navButtons) do
-            item.BackgroundColor3=key==name and Color3.fromRGB(48,37,68) or palette.sidebar
+            item.BackgroundColor3=key==name and Color3.fromRGB(21,66,68) or palette.sidebar
             item.TextColor3=key==name and palette.accent or palette.muted
         end
     end
@@ -1148,8 +1207,15 @@ function UI.create(services, config, callbacks, Layout)
     end
 
     local home=newPage("Inicio",1)
-    local hero=card(home,"EVOLVY / CHAPTER II","COLETAR  >  CORTAR  >  VENDER  >  EVOLUIR")
-    toggle(hero,"autoProgress","Auto Progress","Vende ao atingir a meta, prioriza ferramentas e retorna ao trabalho.")
+    local recovery=card(home,"INTERFACE E CONTROLES","Se a mao, as ferramentas ou os prompts sumirem, recupere por aqui. O botao RESTAURAR GUI fora do painel funciona desde a abertura.")
+    recovery.LayoutOrder=-10
+    local recover=button(recovery,"RESTAURAR GUI E CONTROLES")
+    recover.Size=UDim2.new(1,0,0,48) recover.BackgroundColor3=Color3.fromRGB(18,113,100) recover.LayoutOrder=3
+    table.insert(connections,recover.Activated:Connect(function() if callbacks.restore then callbacks.restore() end end))
+    toggle(recovery,"autoRepairGui","Recuperar ao iniciar e renascer","A interface e restaurada; as rotinas continuam pausadas depois de morrer.")
+    local hero=card(home,"PROGRESSO / CAPITULO II","RENDA  /  FERRAMENTAS  /  LIMPEZA  /  FINALIZACAO")
+    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(20,65,69),palette.card),Rotation=20},hero)
+    toggle(hero,"autoProgress","Auto Progress","Inclui renda, compras, dinamite, cortador automatico, pa e P0T4T0-3000, conforme propriedade e saldo.")
     toggle(hero,"autoCut","Auto Cut","Somente mesa de corte, com compra de ferramentas opcional.")
     local counters=card(home,"Sessao")
     local summary=text(counters,"Dinheiro: —\nBolsa: —\nCalor: —\nEstado: aguardando",12,palette.muted,false)
@@ -1302,7 +1368,7 @@ function UI.create(services, config, callbacks, Layout)
         navLayout.FillDirection=compact and Enum.FillDirection.Horizontal or Enum.FillDirection.Vertical
         dragHint.Text=compact and "≡   ANONYMOUS / POTATO   ·   ARRASTE" or "≡   ARRASTE PARA MOVER"
         dragHint.TextXAlignment=compact and Enum.TextXAlignment.Left or Enum.TextXAlignment.Right
-        brand.Text=compact and "A" or "anonymous"
+        brand.Text=compact and "A" or "EVOLVY"
         brand.TextSize=compact and 27 or 20
         edition.Visible=not compact session.Visible=not compact
         for name,b in pairs(navButtons) do
@@ -2430,6 +2496,11 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                     if offer.tool=="PotatoSucker" and (not goal or offer.upgrade=="PickAmount") then goal=offer end
                 end
             end
+            if not goal and Core.effective(config,"autoBuyUpgrades") then
+                for _,offer in ipairs(upgradeOffers(data,balance,true)) do
+                    if offer.tool=="Shovel" or offer.tool=="Dynamite" or offer.tool=="AutoPeeler" or offer.tool=="PotatoSucker" or offer.tool=="Drone" then goal=offer break end
+                end
+            end
             phaseGoal=goal progressGoal=goal
             if goal then
                 local blocked=deniedOffers[goal.name]
@@ -3194,12 +3265,12 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.11.1"
+local VERSION="0.12.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}
 for _,name in ipairs({"Players","Workspace","ReplicatedStorage","HttpService","RunService",
-    "Lighting","UserInputService","TweenService","PathfindingService","StarterGui"}) do services[name]=game:GetService(name) end
+    "Lighting","ProximityPromptService","UserInputService","TweenService","PathfindingService","StarterGui"}) do services[name]=game:GetService(name) end
 local player=services.Players.LocalPlayer
 assert(player,"Execute o hub no cliente Roblox dentro da experiencia.")
 if game.PlaceId~=EXPECTED_PLACE then
@@ -3222,6 +3293,8 @@ local store=Session.create(Core,json,{read=type(readfile)=="function" and readfi
 local config,loadMessage=store.load()
 local logger=Session.log(14)
 local ui,adapter,activeAction=nil,nil,nil
+local modules,moduleErrors={},{}
+local lastRecovery=nil
 local failures={}
 local recent={}
 local function log(message,level)
@@ -3247,6 +3320,28 @@ lifecycle.add(function()
     cancellation.cancel()
     if adapter then adapter.close() end
 end)
+local function restoreInterface()
+    cancellation.cancel()
+    if adapter then adapter.restoreGame() end
+    lastRecovery=Recovery.restore(services,modules)
+    table.clear(failures)
+    if ui then ui.show() ui.refresh() ui.status("Interface recuperada. Ative Auto Progress se a rotina estiver pausada.") end
+    log("Recuperacao de interface: "..lastRecovery.restored.." componentes; "..lastRecovery.errors.." falhas.")
+end
+local rescueParent=player:WaitForChild("PlayerGui")
+if type(gethui)=="function" then local ok,parent=pcall(gethui) if ok and typeof(parent)=="Instance" then rescueParent=parent end end
+local rescue=Instance.new("ScreenGui")
+rescue.Name="AnonymousPotatoRescue" rescue.ResetOnSpawn=false rescue.DisplayOrder=20000 rescue.Parent=rescueParent
+local rescueButton=Instance.new("TextButton")
+rescueButton.Name="RestoreGui" rescueButton.Text="RESTAURAR GUI" rescueButton.TextSize=13
+rescueButton.Font=Enum.Font.GothamBold rescueButton.TextColor3=Color3.fromRGB(233,255,250)
+rescueButton.BackgroundColor3=Color3.fromRGB(14,103,95) rescueButton.BorderSizePixel=0
+rescueButton.Position=UDim2.new(1,-176,0,55) rescueButton.Size=UDim2.fromOffset(164,44) rescueButton.Parent=rescue
+local rescueCorner=Instance.new("UICorner") rescueCorner.CornerRadius=UDim.new(0,12) rescueCorner.Parent=rescueButton
+local rescueClick=rescueButton.Activated:Connect(restoreInterface)
+local rescueEnabled=rescue:GetPropertyChangedSignal("Enabled"):Connect(function() if lifecycle.alive() and not rescue.Enabled then rescue.Enabled=true end end)
+lifecycle.add(function() rescueClick:Disconnect() rescueEnabled:Disconnect() rescue:Destroy() end)
+if config.autoRepairGui then restoreInterface() end
 local gate=Gate.open(services,lifecycle,ACCESS)
 if not gate.wait() then lifecycle.close() return end
 
@@ -3258,7 +3353,7 @@ local moduleNames={
     "Controllers.FireController","Controllers.StoreViewController","Controllers.ToolUpgradeController",
     "ModifiedPackages.Packet._Types",
 }
-local modules,moduleErrors={},{}
+modules,moduleErrors={},{}
 for index,path in ipairs(moduleNames) do
     if not lifecycle.alive() then return end
     gate.progress((index-1)/(#moduleNames+2),"Lendo "..path)
@@ -3322,6 +3417,7 @@ local function export()
         local report=adapter.diagnostic()
         report.hub_version=VERSION report.module_errors=moduleErrors report.log=logger.records()
         report.config=Core.validate(config,false)
+        report.gui_recovery=lastRecovery
         report.active_action=activeAction report.failures=Core.clone(failures)
         return json.encode(report)
     end)
@@ -3343,10 +3439,7 @@ ui=UI.create(services,config,{
         binding=field ui.status("Pressione uma tecla para o atalho; Esc cancela e Backspace remove.")
     end,
     export=export,close=lifecycle.close,
-    restore=function()
-        cancellation.cancel() adapter.restoreGame() table.clear(failures)
-        ui.show() ui.status("Controles restaurados; a rotina continua conforme as opcoes ativas.")
-    end,
+    restore=restoreInterface,
     copyLoader=function()
         local code='loadstring(game:HttpGet("https://raw.githubusercontent.com/AnonymosScripts/Script-1-Evolvy-Hub/main/potato/loader.lua"))()'
         local clipboard=type(setclipboard)=="function" and setclipboard or (type(toclipboard)=="function" and toclipboard or nil)
@@ -3400,6 +3493,10 @@ end)
 lifecycle.add(function() inputConnection:Disconnect() end)
 local respawnConnection=player.CharacterAdded:Connect(function()
     pause("Personagem recarregado; rotinas pausadas.") adapter.reset()
+    if config.autoRepairGui then
+        local character=player.Character
+        task.delay(1,function() if lifecycle.alive() and player.Character==character then restoreInterface() end end)
+    end
 end)
 lifecycle.add(function() respawnConnection:Disconnect() end)
 
