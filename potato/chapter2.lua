@@ -1,5 +1,63 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.14.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.15.0. Chapter 2 only. No paid purchases.
+
+local Burst = (function()
+-- Luau · potato_burst.luau · bounded acknowledged collection experiment · Roblox / CLI · Luau 0.745
+local Burst={}
+function Burst.new()
+    local stats={waves=0,requests=0,inventory_gain=0,timeouts=0,cancelled=0,limit=2,pending=0,successes=0}
+    local pending=nil
+    local retryAt=0
+    local seen={}
+    local started=nil
+    return {
+        stats=stats,
+        cancel=function()
+            if pending then stats.cancelled+=1 end
+            pending=nil stats.pending=0
+        end,
+        observe=function(now,count)
+            if started then stats.elapsed=math.max(0,now-started) stats.gain_per_second=stats.inventory_gain/math.max(1,stats.elapsed) end
+            if not pending then return 0,false end
+            local gain=type(count)=="number" and count-pending.before or 0
+            if gain>0 then
+                stats.inventory_gain+=gain stats.successes+=1
+                -- Progress does not confirm that every requested ID was accepted.
+                if stats.successes%3==0 then stats.limit=math.min(16,stats.limit+1) end
+                pending=nil stats.pending=0 retryAt=now+0.08
+                return gain,false
+            end
+            if now>=pending.deadline then
+                stats.timeouts+=1 stats.limit=math.max(1,math.floor(stats.limit/2))
+                pending=nil stats.pending=0 retryAt=now+math.min(0.6,0.08*stats.timeouts)
+                return 0,true
+            end
+            return 0,false
+        end,
+        budget=function(now,carried,capacity)
+            if pending or now<retryAt or type(carried)~="number" or type(capacity)~="number" or carried~=carried or capacity~=capacity or carried<0 or carried==math.huge then return 0 end
+            return math.max(0,math.min(stats.limit,math.floor(capacity-carried)))
+        end,
+        available=function(id,now) return type(id)=="number" and now>=(seen[id] or 0) end,
+        begin=function(now,count,ids)
+            if pending or now<retryAt or type(count)~="number" or count<0 or count~=count or count==math.huge or #ids==0 or #ids>stats.limit then return false end
+            local unique={}
+            for _,id in ipairs(ids) do
+                if type(id)~="number" or id%1~=0 or id<0 or id>=4294967296 or unique[id] or now<(seen[id] or 0) then return false end
+                unique[id]=true
+            end
+            for id in pairs(unique) do seen[id]=now+1 end
+            if not started then started=now end
+            if stats.waves%64==0 then for id,untilTime in pairs(seen) do if untilTime<=now then seen[id]=nil end end end
+            pending={before=count,deadline=now+0.35}
+            stats.waves+=1 stats.requests+=#ids stats.pending=#ids
+            return true
+        end,
+    }
+end
+return Burst
+
+end)()
 
 local Exit = (function()
 -- Luau · potato_exit.luau · observed key and native vehicle prompts · Roblox · Luau 0.745
@@ -182,6 +240,7 @@ local Core = (function()
 local Core = {}
 
 Core.defaults = {
+    opAutoFinish=false,
     fastDelivery=true,placementDelay=0.01,throughputMode=true,
     autoRepairGui=true,aimTable=true,autoEscape=false,productionBatch=500,
     autoProgress = false, autoCut = false, autoFarm = false, autoDeliver = false,
@@ -235,7 +294,7 @@ local choices = {
     collectTool={Auto=true,Hand=true,Shovel=true,PotatoSucker=true},
     tableChoice = {Nearest=true,PeelingTable1=true,PeelingTable2=true,PeelingTable3=true,PeelingTable4=true},
 }
-local automation = {"autoProgress","autoCut","autoFarm","autoDeliver","autoCool","autoCrank","autoSell","autoDynamite",
+local automation = {"opAutoFinish","autoProgress","autoCut","autoFarm","autoDeliver","autoCool","autoCrank","autoSell","autoDynamite",
     "autoBuyTools","autoBuyUpgrades","autoBuyStorage","collectPumpkins","autoEscape"}
 
 function Core.clone(value)
@@ -280,19 +339,22 @@ function Core.pause(config)
     for _, key in ipairs(automation) do config[key] = false end
 end
 
+function Core.progress(config) return config.autoProgress or config.opAutoFinish end
+
 function Core.effective(config, name)
-    if name=="autoCrank" and config.autoProgress and config.deliveryTarget=="Manual" then return true end
+    if name=="autoCrank" and Core.progress(config) and config.deliveryTarget=="Manual" then return true end
     if name == "autoFarm" and config.collectPumpkins then return true end
     if name == "autoCool" or name == "autoFarm" or name == "autoDeliver"
         or name == "autoBuyTools" or name == "autoBuyUpgrades" or name == "autoBuyStorage" or name=="autoSell" or name=="autoDynamite" or name=="autoEscape" then
-        if config.autoProgress then return true end
+        if Core.progress(config) then return true end
     end
-    if name == "autoCut" then return config.autoProgress or config.autoCut end
+    if name == "autoCut" then return Core.progress(config) or config.autoCut end
     if name == "autoBuyTools" and config.autoCut and config.cutBuyTools then return true end
     return config[name] == true
 end
 
 function Core.acceptVariant(config, kind, isPumpkin,isGem)
+    if config.opAutoFinish then return not isPumpkin or config.collectPumpkins end
     if isPumpkin then return config.collectPumpkins end
     if isGem and config.collectGems then return true end
     if not config.autoProgress and not config.autoFarm and not config.autoDynamite then return false end
@@ -377,6 +439,11 @@ function Core.deliveryGoal(config,capacity)
     return math.min(capacity,config.deliveryBatch)
 end
 
+function Core.productionGoal(config,capacity)
+    if config.opAutoFinish then return capacity end
+    return math.min(capacity or config.productionBatch,config.productionBatch)
+end
+
 function Core.tickInterval(config)
     return config.speedMode=="Turbo" and math.min(config.actionDelay,0.02) or config.actionDelay
 end
@@ -409,7 +476,8 @@ function Core.choose(config, state, now)
     if Core.effective(config,"autoDeliver") and state.carried and state.carried > 0 then
         local goal=state.deliveryGoal or Core.deliveryGoal(config,state.capacity)
         local full=goal and state.carried>=goal
-        if (full or state.noCandidate or not Core.effective(config,"autoFarm")) and ready("deliver") then return "deliver" end
+        local noTargets=state.noCandidate and not (config.opAutoFinish and state.focusClear)
+        if (full or noTargets or not Core.effective(config,"autoFarm")) and ready("deliver") then return "deliver" end
     end
     if Core.effective(config,"autoCut") and state.tableReady and (soloCut or not state.focusClear and not state.needBuffer) and ready("enterCut") then return "enterCut" end
     if Core.effective(config,"autoFarm") and state.hasCandidate
@@ -1375,7 +1443,7 @@ function UI.create(services, config, callbacks, Layout)
     local start=button(hero,"INICIAR AUTO PROGRESS") start.Size=UDim2.new(1,0,0,52) start.LayoutOrder=2
     start.BackgroundColor3=palette.accent start.TextColor3=palette.background start.TextSize=15
     bindField("autoProgress",function(value) start.Text=value and "PAUSAR AUTO PROGRESS" or "INICIAR AUTO PROGRESS" end)
-    table.insert(connections,start.Activated:Connect(function() callbacks.change("autoProgress",not config.autoProgress) end))
+    table.insert(connections,start.Activated:Connect(function() callbacks.change("autoProgress",not callbacks.value("autoProgress")) end))
     toggle(hero,"autoProgress","Auto Progress","Inclui renda, compras, dinamite, cortador automatico, pa e P0T4T0-3000, conforme propriedade e saldo.")
     toggle(hero,"autoCut","Auto Cut","Somente mesa de corte, com compra de ferramentas opcional.")
     toggle(hero,"autoEscape","Usar chave e procurar saida","No Auto Progress, prioriza a chave real e os prompts nativos de caminhao ou guindaste.")
@@ -1522,6 +1590,8 @@ function UI.create(services, config, callbacks, Layout)
         bindField(field,function(value) b.Text=value end)
         table.insert(connections,b.Activated:Connect(function() callbacks.bind(field) end))
     end
+    local op=card(settings,"OP Alto Zerar","EXPERIMENTAL | Ciclo completo com rajadas adaptativas, alvos proximos e prioridade para limpar a montanha. Nao garante limpeza instantanea.")
+    toggle(op,"opAutoFinish","OP Alto Zerar","Inclui resfriamento, compras, corte e saida com a chave. Ignora o filtro de raridade; com equipamento completo e bolsa infinita, coleta ate esvaziar a pilha antes de descarregar. PAUSAR interrompe tudo.")
     local logPage=newPage("Registros",8)
     local l=card(logPage,"Atividade recente")
     local logText=text(l,"Pronto.",11,palette.muted,false)
@@ -2346,7 +2416,7 @@ local Adapter = (function()
 -- Luau · potato_adapter.luau · gameplay coordination for PlaceId 116701845804918 · Roblox / Delta · Luau 0.745
 local Adapter={}
 
-function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,CutEngine,Chapter,Protocol,TopK)
+function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,CutEngine,Chapter,Protocol,TopK,Burst)
     local player=services.Players.LocalPlayer
     local playerGui=player:WaitForChild("PlayerGui")
     local world=services.Workspace
@@ -2411,6 +2481,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local placement=Chapter.placementTiming(modules["Shared.PotatoTableShared"])
     local fastDeliverySuppressed=false
     local actionTimings={}
+    local burst=Burst.new()
     local dashboardAt,dashboardCache=0,nil
     local cutDriving,closed=false,false
     local equippedTool=nil
@@ -2459,7 +2530,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 if type(level)=="table" and type(level.Capacity)=="number" then capacity=level.Capacity end
             end
         end
-        if config.infiniteBag then capacity=math.huge end
+        if config.infiniteBag and not config.opAutoFinish then capacity=math.huge end
         return count,capacity
     end
     local function alarm()
@@ -2494,6 +2565,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end,
     })
     local function release()
+        burst.cancel()
         cutDriving=false
         equippedTool=nil
         if cutEngine then cutEngine.pause() end
@@ -2579,7 +2651,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     end
     local function collectTool()
         local data=state()
-        local chosen=config.collectTool
+        local chosen=config.opAutoFinish and "Auto" or config.collectTool
         if chosen=="Auto" and data and Chapter.owns(data,"PotatoSucker") then chosen="PotatoSucker" end
         if chosen=="Auto" and config.clearPileFirst and dynamiteMax and data and Chapter.owns(data,"Shovel") then chosen="Shovel" end
         if chosen=="Auto" then chosen=data and Chapter.owns(data,"PotatoSucker") and "PotatoSucker" or data and Chapter.owns(data,"Shovel") and "Shovel" or "Hand" end
@@ -2588,7 +2660,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
         if chosen~="Hand" and not (data and Chapter.owns(data,chosen)) then chosen="Hand" end
         equip(chosen)
-        nativeVacuum=not config.auraCollect and chosen=="PotatoSucker" and config.rarity=="Any" and (config.autoProgress or config.autoFarm)
+        nativeVacuum=not config.opAutoFinish and not config.auraCollect and chosen=="PotatoSucker" and config.rarity=="Any" and Core.effective(config,"autoFarm")
         safeCall(pileController,"SetUseHeld",nativeVacuum)
     end
     local function tables()
@@ -2731,7 +2803,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if not balance or not data then return nil end
         local shared=modules["Shared.ToolUpgradeShared"] or {}
         phaseGoal=nil phaseNeedsIncome=false
-        if config.clearPileFirst and Chapter.maxed(shared,data,"Dynamite") then
+        if (config.clearPileFirst or config.opAutoFinish) and Chapter.maxed(shared,data,"Dynamite") then
             local goal=machineOffer(data,balance,true)
             if not goal and data.HasAutoPeeler and Core.effective(config,"autoBuyUpgrades") then
                 for _,offer in ipairs(upgradeOffers(data,balance,true)) do if offer.tool=="AutoPeeler" then goal=offer break end end
@@ -2806,6 +2878,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             bombPending=nil bombBackoff=math.min(3,math.max(0.2,bombBackoff*1.5)) dynamiteAt=os.clock()+bombBackoff
         end
         local count,capacity=inventory()
+        local gained,missed=burst.observe(os.clock(),count)
+        counts.collected+=gained
+        if missed and equippedTool=="PotatoSucker" then vacuumRetryAt=os.clock()+2 end
         local heat,flowing,heatSource=resolver.heat()
         cooling=Core.coolingLatch(cooling,heat,config,alarm())
         local balance=cash()
@@ -2842,10 +2917,11 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
         local removedOk,removed=safeCall(pileController,"GetRemovedFraction")
         last.mountainEmpty=removedOk and type(removed)=="number" and removed>=1
-        last.focusClear=Core.effective(config,"autoFarm") and config.clearPileFirst and productionReady and removedOk and type(removed)=="number" and removed<1
+        last.focusClear=Core.effective(config,"autoFarm") and (config.clearPileFirst or config.opAutoFinish) and productionReady and removedOk and type(removed)=="number" and removed<1
         last.phase=dynamiteMax and (phaseGoal and "equipment: "..phaseGoal.name or "clear pile") or "fund dynamite"
         last.productionReady=productionReady
-        last.deliveryGoal=last.focusClear and math.min(capacity or config.productionBatch,config.productionBatch) or nil
+        last.deliveryGoal=last.focusClear and Core.productionGoal(config,capacity) or nil
+        last.opBurst=burst.stats
         if last.focusClear and os.clock()<autoFeedRetryAt and capacity==math.huge then last.deliveryGoal=math.huge end
         local finalKnife=data and #(cutShared.Tools or {})>1 and bestCutRank(data)>=#cutShared.Tools
         local remaining=math.max(0,config.cutBuffer-crateCount())
@@ -2855,8 +2931,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         last.drone=data and data.HasDrone==true
         local round=data and data.RunStartTime or 0
         if droneRound~=round then droneRound=round droneConsent=false droneAsked=false upgradeGuard.reset() end
-        last.droneReady=config.autoBuyDrone and droneConsent and not last.drone and (config.autoProgress or config.autoFarm)
-        last.askDrone=config.autoBuyDrone and not droneAsked and not last.drone and (config.autoProgress or config.autoFarm)
+        last.droneReady=config.autoBuyDrone and droneConsent and not last.drone and Core.effective(config,"autoFarm")
+        last.askDrone=config.autoBuyDrone and not droneAsked and not last.drone and Core.effective(config,"autoFarm")
         last.dynamiteReady=data and Chapter.owns(data,"Dynamite") and os.clock()>=dynamiteAt
             and not bombPending and protocol.matches("DynamiteThrow",{"NumberU32"}) and itemAlive(candidate)
 
@@ -2886,7 +2962,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
 
     local function findCandidate(valid)
         snapshotAt=0
-        local bulk=productionReady and config.throughputMode and config.rarity=="Any"
+        local bulk=config.opAutoFinish or productionReady and config.throughputMode and config.rarity=="Any"
         local prepared,prepareError=resolver.prepare(valid)
         if not prepared then return nil,prepareError end
         local held,capacity=inventory()
@@ -2920,7 +2996,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 if distance<=config.maxDistance then
                     local pumpkin=part.Name=="Pumpkin"
                     local kind,slot,isGem
-                    local needKind=true
+                    local needKind=not config.opAutoFinish
                     if needKind then
                         local cached=variantCache[part]
                         if cached and resolver.slot(part)==cached.slot then kind,pumpkin,slot,isGem=cached.kind,cached.pumpkin,cached.slot,cached.gem
@@ -2936,7 +3012,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                     end
                     if Core.acceptVariant(config,kind,pumpkin,isGem) and (not onlyPumpkins or pumpkin) then
                         local worth=({Normal=1,Golden=3,Diamond=6,Rainbow=10,Key=1,Charred=0.5})[kind] or 1
-                        local score=config.selection=="Random" and math.random()*1000 or distance
+                        local score=not config.opAutoFinish and config.selection=="Random" and math.random()*1000 or distance
                         if config.keyPriority and kind=="Key" then score-=10000000000 end
                         if config.pumpkinPriority and pumpkin then score-=1000000000 end
                         if not bulk and config.gemPriority and isGem and config.collectGems then score-=1000000 end
@@ -2990,7 +3066,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if not ok then return false,message end
         return root~=nil and itemAlive(item) and (root.Position-position).Magnitude<=18,"alvo fora do alcance"
     end
+    local dynamite
     local function collect(valid)
+        if config.opAutoFinish and burst.stats.pending>0 then return true end
         if isCutting() then cancelCut() end
         local item,message=findCandidate(valid)
         if not item then
@@ -3001,6 +3079,49 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local before,capacity=inventory()
         local beforePumpkin,beforeGem=pumpkinSerial,gemSerial
         if not before or not capacity or before>=capacity and not item.pumpkin then return false,"bolsa cheia ou capacidade desconhecida" end
+        local identity=resolver.stats.identity
+        local mapped=identity and math.max(identity.confirmed_geometry or 0,identity.confirmed_permuted or 0)>=3
+        if config.opAutoFinish and mapped and exactBagBound and not item.logical then
+            local limit=burst.budget(os.clock(),before,capacity)
+            if limit==0 then return true end
+            local moved,why=approachPart(item,valid)
+            if not moved then candidate=nil return false,why end
+            if valid() and Core.effective(config,"autoDynamite") and not bombPending and os.clock()>=dynamiteAt then dynamite(valid) end
+            local root=nav.actor()
+            local folder=world:FindFirstChild("PotatoPile")
+            if not root or not folder then return true end
+            local params=RaycastParams.new()
+            params.FilterType=Enum.RaycastFilterType.Include params.FilterDescendantsInstances={folder}
+            local ids={}
+            local function add(target)
+                if not itemAlive(target) or not target.part or (target.part.Position-root.Position).Magnitude>math.min(18,config.auraRadius) then return end
+                local hit=world:Raycast(target.part.Position+Vector3.new(0,25,0),Vector3.new(0,-25.5,0),params)
+                if not hit or hit.Instance~=target.part then return end
+                local id=resolver.slot(target.part)
+                if not burst.available(id,os.clock()) or table.find(ids,id) then return end
+                table.insert(ids,id)
+            end
+            add(item)
+            local inspected=0
+            while #ids<limit and queueIndex<=#queue and inspected<64 do
+                local extra=queue[queueIndex]
+                if itemAlive(extra) and (itemPosition(extra)-root.Position).Magnitude>math.min(18,config.auraRadius) then break end
+                queueIndex+=1 inspected+=1 add(extra)
+            end
+            candidate=nil snapshotAt=0
+            if not valid() or #ids==0 then return true end
+            if not protocol.matches("PotatoPick",{"NumberU32"}) or not protocol.matches("ToolSwing",{}) then return false,"Protocolo de coleta OP indisponivel." end
+            if not burst.begin(os.clock(),before,ids) then return true end
+            if protocol.matches("ToolUsing",{"Boolean"}) then protocol.fire("ToolUsing",true) end
+            for _,id in ipairs(ids) do
+                if not valid() then burst.cancel() return false,"cancelado" end
+                local swung=protocol.fire("ToolSwing")
+                local sent=swung and protocol.fire("PotatoPick",id)
+                if not sent then burst.cancel() return false,"Pedido OP recusado pelo protocolo local." end
+            end
+            -- Poll from snapshots instead of blocking the scheduler on every target.
+            return true
+        end
         local function confirmedPick()
             local count=inventory()
             return count~=nil and count>before or item.pumpkin and pumpkinSerial>beforePumpkin or item.gem and gemSerial>beforeGem
@@ -3095,7 +3216,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             interactionTool()
             local machines=get(world,{"Map","PeelingMachines"})
             local prompt
-            local target=config.autoProgress and (last.focusClear and "Auto" or "Crate") or config.deliveryTarget
+            local target=Core.progress(config) and (last.focusClear and "Auto" or "Crate") or config.deliveryTarget
             if target=="Table" then prompt=selectedTable(true)
             elseif target=="Manual" then prompt=machines and get(machines,{"PeelingMachine","Cube.033","Load"})
             elseif target=="Auto" then prompt=machines and get(machines,{"AutoPeelingMachine","Cube.042","Load"})
@@ -3347,7 +3468,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if Core.effective(config,"autoCut") and selectedTable(true) then return enterCut(valid) end
         return true
     end
-    local function dynamite(valid)
+    dynamite=function(valid)
         local data=state()
         if not Chapter.owns(data,"Dynamite") or not itemAlive(candidate) then return true end
         if not protocol.matches("DynamiteThrow",{"NumberU32"}) then return true end
@@ -3363,7 +3484,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         safeCall(pileController,"SetUseHeld",false)
         local before=dynamiteSerial
         local ok,message=protocol.fire("DynamiteThrow",candidate.slot)
-        local interval=math.max(config.dynamiteInterval,config.dynamiteAggressive and 0.1 or 1)
+        local interval=config.opAutoFinish and 0.1 or math.max(config.dynamiteInterval,config.dynamiteAggressive and 0.1 or 1)
         dynamiteAt=os.clock()+interval
         if ok then bombPending={serial=before,deadline=os.clock()+0.8} end
         if equipped then
@@ -3422,6 +3543,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         return waitUntil(function() local n=inventory() return n and n<before end,config.actionTimeout,valid)
     end
     local function reset()
+        burst.cancel()
         snapshotAt=0
         candidate=nil findAt=0 queue={} queueIndex=1 queueExpires=0 searchEmpty=false
         cachedPurchase=nil purchaseCacheAt=0
@@ -3549,7 +3671,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             end
             return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,
                 upgrade_audit=upgradeAudit,upgrade_levels=levels,state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
-                    heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,production_ready=productionReady,sucker_overheated=vacuumHot,sucker_retry_at=vacuumRetryAt,inventory_source=exactBagBound and "replicated Potatoes" or "UI",phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,cut_engine=cutEngine.stats,placement_timing=placement.stats,action_timings=actionTimings,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
+                    heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,production_ready=productionReady,sucker_overheated=vacuumHot,sucker_retry_at=vacuumRetryAt,inventory_source=exactBagBound and "replicated Potatoes" or "UI",phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,op_burst=burst.stats,cut_engine=cutEngine.stats,placement_timing=placement.stats,action_timings=actionTimings,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
         end,
     }
 end
@@ -3561,7 +3683,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.14.0"
+local VERSION="0.15.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}
@@ -3667,7 +3789,7 @@ local syncDeadline=os.clock()+1.2
 while lifecycle.alive() and not resolver.ready() and os.clock()<syncDeadline do task.wait(0.05) end
 if not lifecycle.alive() then resolver.close() return end
 local bridge=Bridge.create(services,Core)
-adapter=Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,CutEngine,Chapter,Protocol,TopK)
+adapter=Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,CutEngine,Chapter,Protocol,TopK,Burst)
 escapeDriver=Exit.create(services,modules,nav,log)
 lifecycle.add(escapeDriver.close)
 adapter.actions.escape=function(valid)
@@ -3684,21 +3806,25 @@ local combined={"autoFarm","autoDeliver","autoCut","autoCool","autoBuyTools","au
 local combinedSet={}
 for _,name in ipairs(combined) do combinedSet[name]=true end
 local function displayed(field)
-    if field=="autoFarm" then return config.autoProgress or config.autoFarm end
+    if field=="autoProgress" then return Core.progress(config) end
+    if field=="autoFarm" then return Core.progress(config) or config.autoFarm end
     for _,name in ipairs(combined) do if name==field then return Core.effective(config,field) end end
     return config[field]
 end
 local function change(field,value)
     if config[field]==nil then return end
     if field=="autoBuyDrone" and value==true then adapter.droneConfirm(false) end
-    if config[field]==value and not (config.autoProgress and combinedSet[field]) then return end
-    if field=="autoCool" and config.autoProgress and value==false then
+    local stoppingOp=field=="autoProgress" and config.opAutoFinish and value==false
+    if stoppingOp then config.opAutoFinish=false end
+    if config[field]==value and not stoppingOp and not (Core.progress(config) and combinedSet[field]) then return end
+    if field=="autoCool" and Core.progress(config) and value==false then
         if ui then ui.status("O resfriamento faz parte do Auto Progress. Pause o ciclo para desliga-lo.") ui.refresh() end
         return
     end
-    if config.autoProgress and combinedSet[field] and type(value)=="boolean" then
+    if Core.progress(config) and combinedSet[field] and type(value)=="boolean" then
         for _,name in ipairs(combined) do config[name]=Core.effective(config,name) end
         config.autoProgress=false
+        config.opAutoFinish=false
     end
     if field=="autoBuyTools" and value==false then config.cutBuyTools=false end
     local nextConfig=Core.clone(config) nextConfig[field]=value
@@ -3828,6 +3954,10 @@ local heartbeat=services.RunService.Heartbeat:Connect(function()
         panelData.hasKey=exitState.has_key panelData.finished=exitState.finished
         ui.dashboard(panelData,os.clock()-sessionStartedAt)
     end
+    if config.opAutoFinish then
+        local stats=snapshot.opBurst or {}
+        message=string.format("OP | %.1f ganhos/s | %d pedidos | %d sem resposta | %s",stats.gain_per_second or 0,stats.requests or 0,stats.timeouts or 0,message)
+    end
     if not binding then ui.status(message) end
     if activeAction and activeAction~="cool" and snapshot.needCooling and Core.effective(config,"autoCool")
         and os.clock()>=snapshot.coolingRetryAt then cancellation.cancel() adapter.stop() end
@@ -3845,6 +3975,7 @@ task.spawn(function()
             if not hasActor then return end
             local action=Core.choose(config,snapshot,os.clock())
             if action=="idle" and (Core.effective(config,"autoFarm") or Core.effective(config,"autoDynamite"))
+                and not (config.opAutoFinish and snapshot.opBurst and snapshot.opBurst.pending>0)
                 and (Core.effective(config,"autoDynamite") or config.collectPumpkins or snapshot.carried and snapshot.capacity and snapshot.carried<snapshot.capacity) then
                 activeAction="search"
                 local current,why=adapter.findCandidate(valid)
