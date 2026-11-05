@@ -713,11 +713,15 @@ function Chapter.placementTiming(shared)
     local function apply(enabled,delay)
         if not stats.available then return end
         local value=enabled and math.clamp(delay,0.005,original) or original
-        if last~=value then shared.PLACEMENT_STAGGER=value last=value end
+        if last~=value then
+            local ok,why=pcall(function() shared.PLACEMENT_STAGGER=value end)
+            if not ok then stats.available=false stats.enabled=false stats.error=tostring(why) return end
+            last=value
+        end
         stats.applied=value stats.enabled=enabled
     end
     return {apply=apply,stats=stats,close=function()
-        if stats.available and shared.PLACEMENT_STAGGER==last then shared.PLACEMENT_STAGGER=original end
+        if stats.available and shared.PLACEMENT_STAGGER==last then pcall(function() shared.PLACEMENT_STAGGER=original end) end
     end}
 end
 function Chapter.productionReady(shared,data)
