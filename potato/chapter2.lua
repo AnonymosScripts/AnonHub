@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.10.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.11.0. Chapter 2 only. No paid purchases.
 
 local Core = (function()
 -- Luau · potato_core.luau · configuration and task coordination · Roblox / CLI · Luau 0.745
@@ -13,7 +13,7 @@ Core.defaults = {
     deliveryMode = "Amount", deliveryTarget = "Crate",
     movement = "Teleport", speedMode = "Turbo", cutMode = "Fast", teleportSettle = 0.10,
     pickBatch = 8, cutBurst = 3,cutTargetRate=20,cutToolMultiplier=4,
-    collectTool="Auto",logicalSpecials=true,autoRecover=true,
+    auraCollect=true,auraRadius=16,collectTool="Auto",logicalSpecials=true,autoRecover=true,
     sellThreshold=500,sellRemainder=true,buyAfterSell=true,returnAfterSell=true,
     infiniteBag=false,collectGems=true,gemPriority=true,
     upgradeDrone=true,upgradeMachines=true,upgradeGeneral=true,saveForNextTool=true,
@@ -40,6 +40,7 @@ local ranges = {
     teleportSettle={0.05,1}, uiWidth={300,1100}, uiHeight={340,900}, uiScale={65,150},
     uiX={0,1},uiY={0,1},buttonX={0,1},buttonY={0,1},buttonSize={44,88},
     pickBatch={1,16},cutBurst={1,6},
+    auraRadius={5,18},
     cutBuffer={1,10000},
     worthEarlyLimit={1,10},cameraDistance={8,100},
     cutTargetRate={1,40},cutToolMultiplier={1,4},
@@ -172,6 +173,13 @@ function Core.parseCapacity(text)
     local capacity=string.find(right,"∞",1,true) and math.huge or Core.parseAmount(right)
     if not current or not capacity or capacity<=0 or current%1~=0 then return nil,nil end
     return current,capacity
+end
+
+function Core.bagCount(data,text)
+    local value=type(data)=="table" and data.Potatoes or nil
+    if type(value)=="number" and value>=0 and value%1==0 and value<math.huge then return value,true end
+    local count=Core.parseCapacity(text)
+    return count,false
 end
 
 function Core.coolingLatch(wasCooling, heatPercent, config, alarm)
@@ -456,10 +464,35 @@ function Chapter.limit(tool,id,cutRank,lastRank,earlyLimit)
     end
     return math.huge
 end
+function Chapter.definition(shared,tool,id)
+    local native=nil
+    if type(shared.GetUpgrade)=="function" then local ok,value=pcall(shared.GetUpgrade,tool,id) if ok then native=value end end
+    if type(native)=="table" and (native.Id==id or native.Values~=nil or native.MaxLevel~=nil) then return native end
+    local definition=nil
+    if type(shared.GetUpgradeable)=="function" then local ok,value=pcall(shared.GetUpgradeable,tool) if ok and type(value)=="table" then definition=value end end
+    if not definition then
+        for _,list in ipairs({shared.Tools or {},shared.Machines or {}}) do
+            for _,value in pairs(list) do if type(value)=="table" and value.Id==tool then definition=value break end end
+        end
+        definition=definition or shared[tool]
+    end
+    if type(definition)=="table" then
+        for key,value in pairs(definition.Upgrades or {}) do
+            if type(value)=="table" and (value.Id==id or key==id) then return value end
+        end
+        if type(shared.GetUpgrade)=="function" then
+            local ok,value=pcall(shared.GetUpgrade,definition,id)
+            if ok and type(value)=="table" then return value end
+        end
+    end
+    return native
+end
 function Chapter.maximum(shared,definition)
     if type(shared.GetMaxLevel)=="function" then
-        local ok,value=pcall(shared.GetMaxLevel,definition)
-        if ok and type(value)=="number" and value>=0 and value%1==0 then return value end
+        for _,input in ipairs({definition,type(definition)=="table" and definition.Values or false}) do
+            local ok,value=pcall(shared.GetMaxLevel,input)
+            if ok and type(value)=="number" and value>0 and value%1==0 then return value end
+        end
     end
     if type(definition)=="table" and type(definition.MaxLevel)=="number" then return definition.MaxLevel end
     return nil
@@ -478,10 +511,10 @@ function Chapter.upgradeGuard()
     }
 end
 function Chapter.maxed(shared,data,tool)
-    if not Chapter.owns(data,tool) or type(shared.GetUpgrade)~="function" or type(shared.GetMaxLevel)~="function" then return false end
+    if not Chapter.owns(data,tool) then return false end
     for _,id in ipairs(Chapter.allowed[tool] or {}) do
-        local ok,definition=pcall(shared.GetUpgrade,tool,id)
-        if not ok then return false end
+        local definition=Chapter.definition(shared,tool,id)
+        if definition==nil then return false end
         local maximum=Chapter.maximum(shared,definition)
         local good=maximum~=nil
         local current=Chapter.level(shared,data,tool,id)
@@ -1174,6 +1207,8 @@ function UI.create(services, config, callbacks, Layout)
     choice(s,"movement","Deslocamento",{{"Teleport","Teleporte"},{"Walk","Caminhar"}})
     choice(s,"speedMode","Ritmo",{{"Turbo","Turbo"},{"Standard","Normal"}})
     number(s,"pickBatch","Coletas por rodada",1,16,1,"")
+    toggle(s,"auraCollect","Coletar ao redor sem mirar","Usa IDs dos alvos proximos; teleporta quando necessario. O servidor ainda valida o alcance.")
+    number(s,"auraRadius","Raio local da coleta",5,18,1," studs")
     choice(s,"collectTool","Ferramenta de coleta",{{"Auto","Melhor adquirida"},{"Hand","Mao"},{"Shovel","Pa"},{"PotatoSucker","P0T4T0-3000"}})
     toggle(s,"logicalSpecials","Especiais sem modelo visivel","Usa os IDs e as posicoes atuais do jogo. Tentativas recusadas recebem uma pausa; recompensas dependem do servidor.")
     toggle(s,"autoRecover","Recuperar etapas automaticamente","Falhas de coleta e entrega adiam somente a etapa afetada.")
@@ -1807,9 +1842,37 @@ function Resolver.create(modules,services,log,Observer,Spatial,runtime)
     end
     local preferred="geometry"
     local votes={geometry=0,permuted=0}
+    local orientationCache=setmetatable({},{__mode="k"})
+    local function rotationError(part,id)
+        if not id or not part.CFrame or not bindings.GetRotation then return nil end
+        local ok,rotation=bindings.GetRotation(id)
+        if not ok or valueType(rotation)~="CFrame" then return nil end
+        local actual={part.CFrame:GetComponents()}
+        local expected={rotation:GetComponents()}
+        local error=0
+        for i=4,12 do error+=math.abs(actual[i]-expected[i]) end
+        return error
+    end
     local function slot(part)
         local index=physicalSlot(part)
-        if preferred=="permuted" then return index and potatoInSlot(index) or nil end
+        if not index then return nil end
+        local cached=orientationCache[part]
+        if cached and cached.frame==part.CFrame then return cached.id end
+        local permuted=potatoInSlot(index)
+        if part.CFrame and permuted and permuted~=index then
+            local rawError,permutedError=rotationError(part,index),rotationError(part,permuted)
+            if rawError and permutedError then
+                local chosen=nil
+                if rawError<0.02 and permutedError>0.1 then chosen=index
+                elseif permutedError<0.02 and rawError>0.1 then chosen=permuted end
+                if chosen then
+                    orientationCache[part]={frame=part.CFrame,id=chosen}
+                    stats.rotation_matches=(stats.rotation_matches or 0)+1
+                    return chosen
+                end
+            end
+        end
+        if preferred=="permuted" then return permuted end
         return index
     end
     local function alternate(part,id)
@@ -1980,6 +2043,11 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local deniedOffers={}
     local upgradeGuard=Chapter.upgradeGuard()
     local nativeVacuum=false
+    local vacuumRetryAt=0
+    local vacuumMisses=0
+    local heatUiAt,heatReadAt=0,0
+    local heatLabels={}
+    local vacuumHot=false
     local phaseGoal=nil
     local phaseNeedsIncome=false
     local bombPending=nil
@@ -2056,11 +2124,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local label=get(playerGui,{"Bag","Counter","Value"})
         local count,capacity=Core.parseCapacity(label and label.Text)
         local data=state()
+        count,exactBagBound=Core.bagCount(data,label and label.Text)
         if data then
             if type(data.Potatoes)=="number" and data.Potatoes>=0 and data.Potatoes%1==0 then
-                local abbreviated=label and string.find(string.upper(label.Text),"[KMBT]")~=nil
-                if not abbreviated and count~=nil then exactBagBound=count>0 and count==data.Potatoes end
-                if abbreviated and exactBagBound then count=data.Potatoes end
+                count=data.Potatoes exactBagBound=true
             end
             local ok,infinite=safeCall(carryShared,"HasInfiniteStorage",data)
             if ok and infinite==true then capacity=math.huge end
@@ -2144,15 +2211,41 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local function interactionTool()
         cancelCut() equip("Hand")
     end
+    local function suckerOverheated()
+        if os.clock()<heatReadAt then return vacuumHot end
+        heatReadAt=os.clock()+0.3
+        local data=state()
+        vacuumHot=data and (data.SuckerOverheated==true or data.PotatoSuckerOverheated==true) or player:GetAttribute("SuckerOverheated")==true
+        if os.clock()>=heatUiAt then
+            heatLabels={} heatUiAt=os.clock()+5
+            for _,screen in ipairs(playerGui:GetChildren()) do
+                if screen.Name~="AnonymousPotatoHub" then
+                    for _,object in ipairs(screen:GetDescendants()) do if object:IsA("TextLabel") or object:IsA("TextButton") then table.insert(heatLabels,object) end end
+                end
+            end
+        end
+        if not vacuumHot then
+            for _,label in ipairs(heatLabels) do
+                if label.Parent and bridge.visible(label) then
+                    local text=string.upper(label.Text)
+                    if text:find("OVERHEAT",1,true) or text:find("SUPERAQUEC",1,true) then vacuumHot=true break end
+                end
+            end
+        end
+        return vacuumHot
+    end
     local function collectTool()
         local data=state()
         local chosen=config.collectTool
         if chosen=="Auto" and data and Chapter.owns(data,"PotatoSucker") then chosen="PotatoSucker" end
         if chosen=="Auto" and config.clearPileFirst and dynamiteMax and data and Chapter.owns(data,"Shovel") then chosen="Shovel" end
         if chosen=="Auto" then chosen=data and Chapter.owns(data,"PotatoSucker") and "PotatoSucker" or data and Chapter.owns(data,"Shovel") and "Shovel" or "Hand" end
+        if chosen=="PotatoSucker" and (suckerOverheated() or os.clock()<vacuumRetryAt) then
+            chosen=data and Chapter.owns(data,"Shovel") and "Shovel" or "Hand"
+        end
         if chosen~="Hand" and not (data and Chapter.owns(data,chosen)) then chosen="Hand" end
         equip(chosen)
-        nativeVacuum=chosen=="PotatoSucker" and config.rarity=="Any" and (config.autoProgress or config.autoFarm)
+        nativeVacuum=not config.auraCollect and chosen=="PotatoSucker" and config.rarity=="Any" and (config.autoProgress or config.autoFarm)
         safeCall(pileController,"SetUseHeld",nativeVacuum)
     end
     local function tables()
@@ -2229,7 +2322,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             for _,id in ipairs(Chapter.allowed[tool] or {}) do
                 if Chapter.canUpgrade(data,tool,id,config) then
                     local level=Chapter.level(shared,data,tool,id)
-                    local ok,definition=safeCall(shared,"GetUpgrade",tool,id)
+                    local definition=Chapter.definition(shared,tool,id)
+                    local ok=definition~=nil
                     local maxLevel=ok and Chapter.maximum(shared,definition) or nil
                     local buttonOk,button=safeCall(upgradeController,"GetUpgradeButton",tool,id)
                     if not buttonOk or typeof(button)~="Instance" or not button:IsA("GuiButton") then button=nil end
@@ -2535,7 +2629,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local root=nav.actor()
         if not root or not itemAlive(item) then return false,"alvo indisponivel" end
         local position=itemPosition(item)
-        if (root.Position-position).Magnitude<=10 then return true end
+        if (root.Position-position).Magnitude<=math.min(18,config.auraRadius) then return true end
         if config.movement=="Teleport" then return nav.goTo(position+Vector3.new(0,3.5,0),valid,true) end
         local delta=root.Position-position
         local horizontal=Vector3.new(delta.X,0,delta.Z)
@@ -2587,7 +2681,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             while #targets<limit and queueIndex<=#queue and root do
                 local extra=queue[queueIndex]
                 if not itemAlive(extra) then queueIndex+=1
-                elseif extra.pumpkin or extra.logical or (itemPosition(extra)-root.Position).Magnitude>18 then break
+                elseif extra.pumpkin or extra.logical or (itemPosition(extra)-root.Position).Magnitude>math.min(18,config.auraRadius) then break
                 else
                     extra.slot=extra.part and resolver.slot(extra.part) or extra.slot
                     if not extra.slot then break end
@@ -2622,12 +2716,17 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
         local after=inventory()
         if confirmed then
+            vacuumMisses=0
             if item.part and not nativeVacuum then resolver.confirm(item.part,item.slot,item.geometry) end
             counts.collected+=math.max(0,(after or before)-before)
             if item.pumpkin and pumpkinSerial>beforePumpkin then counts.pumpkins+=pumpkinSerial-beforePumpkin end
             if gemSerial>beforeGem then counts.gems+=gemSerial-beforeGem end
             adaptivePickDelay=math.max(0.04,adaptivePickDelay*0.9)
         else
+            if equippedTool=="PotatoSucker" then
+                vacuumMisses+=1
+                if vacuumMisses>=2 then vacuumRetryAt=os.clock()+2 vacuumMisses=0 end
+            end
             if item.part then rejected[item.part]=os.clock()+3 else rejectedIds[item.slot]=os.clock()+30 end
             adaptivePickDelay=math.min(0.6,math.max(0.08,adaptivePickDelay*1.3))
         end
@@ -2812,7 +2911,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             return success,message
         end
         if item.group=="upgrade" then
-            local definitionOk,definition=safeCall(shared,"GetUpgrade",item.tool,item.upgrade)
+            local definition=Chapter.definition(shared,item.tool,item.upgrade)
+            local definitionOk=definition~=nil
             local maximum=definitionOk and Chapter.maximum(shared,definition)
             if maximum==nil or beforeLevel==nil or beforeLevel>=maximum or not upgradeGuard.allowed(item.name,beforeLevel) then return finish(true,"Melhoria concluida ou bloqueada para reavaliacao.",true) end
             -- Prices/buttons are read without opening or selecting the game's tabs.
@@ -2900,7 +3000,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             if not moved then return false,why end
         end
         local equipped=protocol.matches("ToolEquip",{"String"})
-        if equipped then protocol.fire("ToolEquip","Dynamite") end
+        if equipped then equip("Dynamite") end
         safeCall(pileController,"SetUseHeld",false)
         local before=dynamiteSerial
         local ok,message=protocol.fire("DynamiteThrow",candidate.slot)
@@ -2909,7 +3009,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if ok then bombPending={serial=before,deadline=os.clock()+0.8} end
         if equipped then
             local tool=Chapter.owns(data,"PotatoSucker") and "PotatoSucker" or Chapter.owns(data,"Shovel") and "Shovel" or "Hand"
-            protocol.fire("ToolEquip",tool)
+            equip(tool)
         end
         collectTool()
         if equipped and Chapter.owns(data,"PotatoSucker") and protocol.matches("ToolUsing",{"Boolean"}) then protocol.fire("ToolUsing",true) end
@@ -3051,14 +3151,15 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             for tool,ids in pairs(Chapter.allowed) do
                 if Chapter.owns(data,tool) then
                     for _,id in ipairs(ids) do
-                        local ok,definition=safeCall(shared,"GetUpgrade",tool,id)
+                        local definition=Chapter.definition(shared,tool,id)
+                    local ok=definition~=nil
                         levels[tool.."/"..id]={level=Chapter.level(shared,data,tool,id),maximum=ok and Chapter.maximum(shared,definition) or nil}
                     end
                 end
             end
             return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,
                 upgrade_levels=levels,state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
-                    heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,cut_engine=cutEngine.stats,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
+                    heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,sucker_overheated=vacuumHot,sucker_retry_at=vacuumRetryAt,inventory_source=exactBagBound and "replicated Potatoes" or "UI",phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,cut_engine=cutEngine.stats,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
         end,
     }
 end
@@ -3070,7 +3171,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.10.0"
+local VERSION="0.11.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}
