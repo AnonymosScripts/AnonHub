@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.15.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.16.0. Chapter 2 only. No paid purchases.
 
 local Burst = (function()
 -- Luau · potato_burst.luau · bounded acknowledged collection experiment · Roblox / CLI · Luau 0.745
@@ -796,7 +796,30 @@ function Chapter.productionReady(shared,data)
     return Chapter.maxed(shared,data,"Dynamite") and Chapter.maxed(shared,data,"Shovel")
         and Chapter.maxed(shared,data,"AutoPeeler") and Chapter.maxed(shared,data,"PotatoSucker")
 end
-function Chapter.purchasePriority(offer)
+function Chapter.clearReady(config,shared,data)
+    if config.opAutoFinish then return Chapter.owns(data,"Dynamite") or Chapter.owns(data,"PotatoSucker") end
+    return Chapter.productionReady(shared,data)
+end
+function Chapter.purchasePriority(offer,config)
+    if config and config.opAutoFinish then
+        -- Fund the first useful knife, a small bag and explosives before luxury knives.
+        if offer.upgrade=="PotatoWorth" and (offer.level or 0)<3 then return 1 end
+        if offer.group=="cut" and offer.tier==2 then return 2 end
+        if offer.group=="storage" and type(offer.capacity)=="number" and offer.capacity<=50 then return 3 end
+        if offer.id=="Shovel" then return 4 end
+        if offer.id=="Dynamite" then return 5 end
+        if offer.tool=="Dynamite" then return 6+(offer.level or 0)/100+(offer.upgrade=="PickAmount" and 0 or 0.001) end
+        if offer.id=="P0T4T0-3000" or offer.id=="PotatoSucker" then return 7 end
+        if offer.tool=="PotatoSucker" then return 8 end
+        if offer.tool=="Drone" then return 9 end
+        if offer.id=="Shovel" or offer.tool=="Shovel" then return 10 end
+        if offer.group=="machine" or offer.tool=="AutoPeeler" then return 11 end
+        if offer.group=="cut" then return 12+(offer.tier or 0)/100 end
+        if offer.upgrade=="PotatoWorth" then return 13 end
+        if offer.group=="storage" then return 14 end
+        if offer.upgrade=="Luck" then return 15 end
+        return 90
+    end
     if offer.upgrade=="PotatoWorth" then return 1 end
     if offer.group=="cut" then return 10+(offer.tier or 0)/100 end
     if offer.id=="Dynamite" or offer.tool=="Dynamite" then return 20 end
@@ -807,7 +830,7 @@ function Chapter.purchasePriority(offer)
 end
 function Chapter.selectPurchase(Core,config,balance,offers)
     table.sort(offers,function(a,b)
-        local left,right=Chapter.purchasePriority(a),Chapter.purchasePriority(b)
+        local left,right=Chapter.purchasePriority(a,config),Chapter.purchasePriority(b,config)
         if left~=right then return left<right end
         return (a.name or "")<(b.name or "")
     end)
@@ -1591,7 +1614,7 @@ function UI.create(services, config, callbacks, Layout)
         table.insert(connections,b.Activated:Connect(function() callbacks.bind(field) end))
     end
     local op=card(settings,"OP Alto Zerar","EXPERIMENTAL | Ciclo completo com rajadas adaptativas, alvos proximos e prioridade para limpar a montanha. Nao garante limpeza instantanea.")
-    toggle(op,"opAutoFinish","OP Alto Zerar","Inclui resfriamento, compras, corte e saida com a chave. Ignora o filtro de raridade; com equipamento completo e bolsa infinita, coleta ate esvaziar a pilha antes de descarregar. PAUSAR interrompe tudo.")
+    toggle(op,"opAutoFinish","OP Alto Zerar","Compra a primeira faca, bolsa pequena, pa e dinamite antes das facas caras. Comeca a limpeza assim que tiver dinamite ou sugador. Bolsa finita entrega ao encher; infinita fica na montanha. Inclui resfriamento e saida. PAUSAR interrompe tudo.")
     local logPage=newPage("Registros",8)
     local l=card(logPage,"Atividade recente")
     local logText=text(l,"Pronto.",11,palette.muted,false)
@@ -2476,6 +2499,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local masteryAt,mastered=0,false
     local dynamiteMax=false
     local productionReady=false
+    local pileBaseline=nil
     local autoFeedRetryAt=0
     local nextBlurCheck=0
     local placement=Chapter.placementTiming(modules["Shared.PotatoTableShared"])
@@ -2803,7 +2827,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if not balance or not data then return nil end
         local shared=modules["Shared.ToolUpgradeShared"] or {}
         phaseGoal=nil phaseNeedsIncome=false
-        if (config.clearPileFirst or config.opAutoFinish) and Chapter.maxed(shared,data,"Dynamite") then
+        if not config.opAutoFinish and config.clearPileFirst and Chapter.maxed(shared,data,"Dynamite") then
             local goal=machineOffer(data,balance,true)
             if not goal and data.HasAutoPeeler and Core.effective(config,"autoBuyUpgrades") then
                 for _,offer in ipairs(upgradeOffers(data,balance,true)) do if offer.tool=="AutoPeeler" then goal=offer break end end
@@ -2855,9 +2879,13 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             end
         end
         local _,capacity=inventory()
+        if config.opAutoFinish then
+            local machine=machineOffer(data,balance,true)
+            if machine then table.insert(options,machine) end
+        end
         if Core.effective(config,"autoBuyStorage") and not config.infiniteBag and capacity~=math.huge and type(data.CarryLevel)=="number" then
             local level=carryShared.Levels and carryShared.Levels[data.CarryLevel+1]
-            if type(level)=="table" and level.ItemName then local offer=shopItem("Storage",level.ItemName,"storage",90) if offer then table.insert(options,offer) end end
+            if type(level)=="table" and level.ItemName then local offer=shopItem("Storage",level.ItemName,"storage",90) if offer then offer.capacity=level.Capacity table.insert(options,offer) end end
         end
         local goal,affordable=Chapter.selectPurchase(Core,config,balance,options)
         progressGoal=goal
@@ -2917,8 +2945,15 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
         local removedOk,removed=safeCall(pileController,"GetRemovedFraction")
         last.mountainEmpty=removedOk and type(removed)=="number" and removed>=1
-        last.focusClear=Core.effective(config,"autoFarm") and (config.clearPileFirst or config.opAutoFinish) and productionReady and removedOk and type(removed)=="number" and removed<1
+        local clearReady=Chapter.clearReady(config,modules["Shared.ToolUpgradeShared"] or {},data)
+        last.focusClear=Core.effective(config,"autoFarm") and (config.clearPileFirst or config.opAutoFinish) and clearReady and removedOk and type(removed)=="number" and removed<1
+        if config.opAutoFinish and removedOk and type(removed)=="number" and removed==removed and removed>=0 and removed<=1 then
+            if not pileBaseline then pileBaseline={time=os.clock(),fraction=removed} end
+            last.pileProgress={source="native GetRemovedFraction",removed_fraction=removed,
+                delta_fraction=math.max(0,removed-pileBaseline.fraction),elapsed=os.clock()-pileBaseline.time}
+        end
         last.phase=dynamiteMax and (phaseGoal and "equipment: "..phaseGoal.name or "clear pile") or "fund dynamite"
+        if config.opAutoFinish then last.phase=last.focusClear and "OP: clear with acquired explosives/vacuum" or last.mountainEmpty and "OP: process remainder" or "OP: fund shovel and dynamite" end
         last.productionReady=productionReady
         last.deliveryGoal=last.focusClear and Core.productionGoal(config,capacity) or nil
         last.opBurst=burst.stats
@@ -3216,7 +3251,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             interactionTool()
             local machines=get(world,{"Map","PeelingMachines"})
             local prompt
-            local target=Core.progress(config) and (last.focusClear and "Auto" or "Crate") or config.deliveryTarget
+            local target=Core.progress(config) and (last.focusClear and productionReady and "Auto" or "Crate") or config.deliveryTarget
             if target=="Table" then prompt=selectedTable(true)
             elseif target=="Manual" then prompt=machines and get(machines,{"PeelingMachine","Cube.033","Load"})
             elseif target=="Auto" then prompt=machines and get(machines,{"AutoPeelingMachine","Cube.042","Load"})
@@ -3669,7 +3704,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                     end
                 end
             end
-            return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,
+            return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,pile_progress=snap.pileProgress,
                 upgrade_audit=upgradeAudit,upgrade_levels=levels,state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
                     heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,production_ready=productionReady,sucker_overheated=vacuumHot,sucker_retry_at=vacuumRetryAt,inventory_source=exactBagBound and "replicated Potatoes" or "UI",phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,op_burst=burst.stats,cut_engine=cutEngine.stats,placement_timing=placement.stats,action_timings=actionTimings,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
         end,
@@ -3683,7 +3718,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.15.0"
+local VERSION="0.16.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}

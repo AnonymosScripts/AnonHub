@@ -1,29 +1,29 @@
-# Evolvy / Anonymous 0.15.0 — OP Alto Zerar (experimental)
+# Evolvy / Anonymous 0.16.0 — iniciar a limpeza cedo
 
 Chave: Anonymous. Capitulo 2, PlaceId 116701845804918.
 
-Ative **Ajustes → ultimo cartao → OP Alto Zerar**. O modo inicia o ciclo completo; nao precisa ativar Auto Progress junto. PAUSAR desliga os dois. As ativacoes ficam desligadas ao carregar ou renascer.
+**Ajustes → ultimo cartao → OP Alto Zerar**. Inicia o ciclo completo. PAUSAR interrompe as rotinas. Ativacoes ficam desligadas ao carregar/renascer.
 
-Esta e uma tentativa de acelerar a limpeza, sem tempo de conclusao demonstrado. Nao existe nesta versao um comando comprovado que apague a montanha em segundos ou conceda a chave. A saida so e marcada como concluida apos o evento real Escaped.
+## Falha encontrada no teste anterior
 
-## O que muda no modo OP
+O registro da v0.15 mostrou 137,59 segundos de sessao, 702 batatas vendidas, somente 9 coletadas e zero ondas OP enviadas. A rotina ficou cortando e comprando facas, com Mezzaluna como proxima meta. A janela OP nao foi exercitada nesse teste. Nao houve evidencia de limpeza instantanea.
 
-- Coleta qualquer raridade e prefere os alvos proximos. Evita a varredura completa de tipos e desvios por especiais. A preferencia de aboboras continua configuravel.
-- Depois de confirmar o mapeamento dos indices e obter o contador replicado de inventario, usa ondas de 2 ate 16 IDs unicos, somente de pecas expostas e dentro do raio configurado (maximo 18 studs).
-- Uma onda fica pendente por ate 0,35 s. O agendador continua livre para outras etapas. Ganhos reais aumentam gradualmente a janela; ausencia de progresso reduz a janela e introduz recuo. Pedidos repetidos ao mesmo ID aguardam 1 s. Nao interpreta envio como coleta aceita.
-- A dinamite aproveita o alvo da propria rodada, sem depender de ele sobreviver ate a proxima passagem pelo agendador. Mantem uma tentativa pendente, confirmacao do jogo, recuo quando recusada e troca para a melhor ferramenta adquirida. Reduz a espera local; nao remove o cooldown do servidor.
-- Antes de todos os equipamentos completos, continua cortando, vendendo e comprando para gerar renda. Depois de dinamite, pa, automatico e sugador no maximo, prioriza esvaziar a montanha.
-- No modo OP, a capacidade vem do estado/contador real; a marcacao manual de bolsa infinita nao substitui essa leitura. Com bolsa infinita confirmada, nao volta a cada 500 durante essa limpeza: guarda ate terminar a pilha. Com bolsa finita, entrega ao encher. Ao final, descarrega e processa o restante; uma chave confirmada interrompe essa etapa e prioriza a saida.
-- Resfriamento, orcamento e melhorias continuam ativos, com prioridade para a chave real e para o calor. Sorte permanece liberada somente depois do sugador no maximo. Nao altera dinheiro, capacidade ou propriedade.
+## Mudanca da v0.16
 
-## Comparar sem esperar outra partida inteira
+O OP usa uma ordem de compras propria: valor de venda ate nivel 3, primeira faca adicional, bolsa de ate 50 se necessaria, pa, dinamite, melhorias da dinamite, sugador/melhorias, drone adquirido, melhorias da pa, maquinas e demais equipamentos. Ofertas indisponiveis nao sao inventadas. Preco, saldo, reserva, propriedade e maximos continuam sendo verificados. A progressao normal mantem a ordem anterior.
 
-O rodape mostra ganhos de inventario por segundo, pedidos e ondas sem resposta. Depois de aproximadamente 60 segundos com o OP ativo, use **Registros → EXPORTAR DIAGNOSTICO**. Compare `op_burst.inventory_gain`, `requests`, `timeouts`, `limit`, `gain_per_second`, `action_timings` e `session_elapsed_seconds`. Ganhos de uma onda nao provam que todos os IDs foram aceitos e podem incluir a dinamite. Se muitos pedidos nao produzirem ganhos, a janela recua; aumentar pedidos cegamente nao e tratado como sucesso.
+Assim que tiver dinamite ou sugador, o OP prioriza a montanha; nao exige todos os equipamentos no maximo. Vendas de estoque existente e compras confirmadas ainda tem prioridade quando disponiveis. A limpeza pode continuar com equipamento basico enquanto junta dinheiro. Com bolsa finita, entrega ao encher na caixa; o automatico vira destino apos os equipamentos completos. Com bolsa infinita detectada, permanece na montanha ate a pilha terminar. Uma chave real tem prioridade sobre as outras etapas. Depois da limpeza, processa o estoque restante.
 
-No inicio, o mapeamento ainda precisa de confirmacoes; nesse periodo, usa a coleta anterior. O servidor pode manter limites que este cliente nao consegue reduzir. A entrega nativa e a animacao/controlador do jogo ainda podem limitar o tempo total.
+Mantidas as ondas adaptativas da v0.15: 2 ate 16 IDs unicos de pecas expostas dentro do raio local (maximo 18 studs), com confirmacao pelo inventario replicado, janela pendente de ate 0,35 s, recuo em ausencia de progresso e protecao contra repeticao imediata do mesmo ID. A ativacao requer mapeamento previamente confirmado; antes disso, usa a coleta anterior. A dinamite aproveita o alvo da rodada e volta para a melhor ferramenta adquirida. Cooldowns impostos pelo servidor continuam podendo limitar o ritmo.
+
+## Medir a limpeza real
+
+`op_burst` registra pedidos, ondas, ganhos de inventario e ondas sem resposta. Ganhos de inventario podem incluir a dinamite e nao comprovam aceitacao de todos os IDs enviados. `pile_progress` registra a fracao removida lida do contador nativo, a diferenca desde o inicio do OP e o tempo observado. Esse contador da partida pode incluir outros jogadores. `action_timings` mostra o tempo gasto em cada etapa.
+
+Teste por aproximadamente 60 segundos e exporte em **Registros → EXPORTAR DIAGNOSTICO**. O resultado esperado desta correcao e adquirir dinamite antes das ultimas facas e entrar na fase de limpeza cedo. Nao ha tempo de 1 minuto demonstrado. Pecas nao sao apagadas apenas no cliente; o contador do jogo e a chave dependem das acoes aceitas pelo jogo. A conclusao somente e marcada pelo evento real Escaped.
 
 ## Validacao e publicacao
 
-Compilacao oficial Luau 0.745 e 14 suites locais, incluindo limites, duplicacao de IDs, cancelamento, falta de resposta, bolsas finitas/infinitas e prioridade da chave/resfriamento/compras. Sem teste real pelo agente no Delta/iPhone. Os testes locais nao demonstram desempenho no servidor.
+Compilacao oficial Luau 0.745 e 14 suites locais. Casos novos cobrem compras OP antes de facas caras, bolsa pequena antes da dinamite, bolsas maiores sem bloquear explosivos e entrada na limpeza sem exigir equipamento maximo. Sem execucao real pelo agente no Delta/iPhone. Testes locais nao demonstram desempenho no servidor.
 
-Para publicar, execute PUBLICAR_V015.cmd no seu Windows. O publicador verifica repositorio e commit preparados, faz push normal e compara chapter2.lua e loader.lua com as URLs publicas. O pacote local e independente da publicacao.
+Execute PUBLICAR_V016.cmd no seu Windows para publicar o commit preparado e verificar os arquivos publicos. O plugin GitHub desta sessao esta conectado a Lucasxshttp, com permissao de leitura e sem permissao de push neste repositorio. O publicador solicita a conta AnonymosScripts, conforme as publicacoes anteriores.
