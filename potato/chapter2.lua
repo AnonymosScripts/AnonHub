@@ -1,5 +1,93 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.12.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.13.0. Chapter 2 only. No paid purchases.
+
+local Exit = (function()
+-- Luau · potato_exit.luau · observed key and native vehicle prompts · Roblox · Luau 0.745
+local Exit={}
+function Exit.create(services,modules,nav,log)
+    local player=services.Players.LocalPlayer
+    local shared=modules["Shared.PlayerStateShared"] or {}
+    local packets=modules["Modules.Resources.Packets"] or {}
+    local target,scanAt=nil,0
+    local started,finished=false,false
+    local attempts,lastError=0,nil
+    local connections={}
+    local candidates={}
+    local function keyTool()
+        for _,parent in ipairs({player:FindFirstChild("Backpack") or false,player.Character or false}) do
+            if parent then for _,tool in ipairs(parent:GetChildren()) do
+                local name=string.lower(tool.Name)
+                if tool:IsA("Tool") and (name=="key" or name:find("chave",1,true) or name:find("crane",1,true) and name:find("key",1,true)) then return tool end
+            end end
+        end
+    end
+    local function hasKey()
+        if type(shared.TryGetPlayerState)=="function" then
+            local ok,data=pcall(shared.TryGetPlayerState,player)
+            if ok and type(data)=="table" and data.HasKey==true then return true end
+        end
+        return keyTool()~=nil
+    end
+    local function scan()
+        if os.clock()<scanAt then return target end
+        scanAt=os.clock()+2 target=nil candidates={}
+        local map=services.Workspace:FindFirstChild("Map")
+        local root=nav.actor()
+        local best=-math.huge
+        for _,prompt in ipairs(map and map:GetDescendants() or {}) do
+            if prompt:IsA("ProximityPrompt") and prompt.Enabled then
+                local path=string.upper(prompt:GetFullName())
+                local action=string.upper(prompt.ActionText.." "..prompt.ObjectText)
+                local vehicle=path:find("TRUCK",1,true) or path:find("CRANE",1,true) or path:find("GUINDASTE",1,true) or path:find("CAMINH",1,true) or path:find("WRECK",1,true)
+                local key=action:find("KEY",1,true) or action:find("CHAVE",1,true)
+                local use=action:find("UNLOCK",1,true) or action:find("USE",1,true) or action:find("ENTER",1,true) or action:find("DRIVE",1,true) or action:find("ESCAPE",1,true)
+                local buy=action:find("BUY",1,true) or action:find("LOCKED",1,true) or action:find("SOLD",1,true)
+                local shop=path:find("STOREITEMS",1,true) or path:find("PEELINGMACHINES",1,true)
+                if not shop and not buy and (key or vehicle and use) then
+                    local position=nav.promptPosition(prompt)
+                    local distance=root and position and (root.Position-position).Magnitude or 0
+                    local score=(vehicle and 10000 or 0)+(key and 1000 or 0)-distance
+                    table.insert(candidates,{path=prompt:GetFullName(),action=prompt.ActionText,object=prompt.ObjectText})
+                    if score>best then best=score target=prompt end
+                end
+            end
+        end
+        return target
+    end
+    local escaped=packets.Escaped and packets.Escaped.OnClientEvent
+    if escaped and type(escaped.Connect)=="function" then
+        local ok,connection=pcall(escaped.Connect,escaped,function(first)
+            if first==nil or first==player or first==player.UserId then finished=true end
+        end)
+        if ok then table.insert(connections,connection) end
+    end
+    return {
+        ready=function() return not finished and (started or hasKey()) end,
+        step=function(valid)
+            local prompt=scan()
+            if not prompt then lastError="Nenhum prompt de chave/saida verificavel esta habilitado." return false,lastError end
+            local tool=keyTool()
+            local character=player.Character
+            local humanoid=character and character:FindFirstChildOfClass("Humanoid")
+            if tool and humanoid then pcall(humanoid.EquipTool,humanoid,tool) end
+            nav.aim(prompt,true)
+            local ok,success,message=pcall(nav.trigger,prompt,valid)
+            nav.clearAim()
+            attempts+=1 scanAt=0
+            if not ok then lastError=tostring(success) return false,lastError end
+            if not success then lastError=message return false,message end
+            started=true lastError=nil
+            log("Interacao de saida acionada: "..prompt:GetFullName())
+            nav.waitFor(0.4,valid)
+            return true
+        end,
+        diagnostic=function() return {has_key=hasKey(),started=started,finished=finished,attempts=attempts,last_error=lastError,candidates=candidates} end,
+        close=function() for _,connection in ipairs(connections) do connection:Disconnect() end end,
+    }
+end
+return Exit
+
+end)()
 
 local Recovery = (function()
 -- Luau · potato_recovery.luau · explicit native UI recovery · Roblox / CLI · Luau 0.745
@@ -72,7 +160,7 @@ local Core = (function()
 local Core = {}
 
 Core.defaults = {
-    autoRepairGui=true,
+    autoRepairGui=true,aimTable=true,autoEscape=false,productionBatch=500,
     autoProgress = false, autoCut = false, autoFarm = false, autoDeliver = false,
     autoCool = false, autoSell = false, autoDynamite = false, autoCrank = false, autoBuyTools = false, autoBuyUpgrades = false,
     autoBuyStorage = false, collectPumpkins = false, pumpkinPriority = true, priorityValue = true,
@@ -107,6 +195,7 @@ local ranges = {
     teleportSettle={0.05,1}, uiWidth={300,1100}, uiHeight={340,900}, uiScale={65,150},
     uiX={0,1},uiY={0,1},buttonX={0,1},buttonY={0,1},buttonSize={44,88},
     pickBatch={1,16},cutBurst={1,6},
+    productionBatch={50,10000},
     auraRadius={5,18},
     cutBuffer={1,10000},
     worthEarlyLimit={1,10},cameraDistance={8,100},
@@ -123,7 +212,7 @@ local choices = {
     tableChoice = {Nearest=true,PeelingTable1=true,PeelingTable2=true,PeelingTable3=true,PeelingTable4=true},
 }
 local automation = {"autoProgress","autoCut","autoFarm","autoDeliver","autoCool","autoCrank","autoSell","autoDynamite",
-    "autoBuyTools","autoBuyUpgrades","autoBuyStorage","collectPumpkins"}
+    "autoBuyTools","autoBuyUpgrades","autoBuyStorage","collectPumpkins","autoEscape"}
 
 function Core.clone(value)
     if type(value) ~= "table" then return value end
@@ -171,7 +260,7 @@ function Core.effective(config, name)
     if name=="autoCrank" and config.autoProgress and config.deliveryTarget=="Manual" then return true end
     if name == "autoFarm" and config.collectPumpkins then return true end
     if name == "autoCool" or name == "autoFarm" or name == "autoDeliver"
-        or name == "autoBuyTools" or name == "autoBuyUpgrades" or name == "autoBuyStorage" or name=="autoSell" or name=="autoDynamite" then
+        or name == "autoBuyTools" or name == "autoBuyUpgrades" or name == "autoBuyStorage" or name=="autoSell" or name=="autoDynamite" or name=="autoEscape" then
         if config.autoProgress then return true end
     end
     if name == "autoCut" then return config.autoProgress or config.autoCut end
@@ -182,7 +271,7 @@ end
 function Core.acceptVariant(config, kind, isPumpkin,isGem)
     if isPumpkin then return config.collectPumpkins end
     if isGem and config.collectGems then return true end
-    if not config.autoProgress and not config.autoFarm then return false end
+    if not config.autoProgress and not config.autoFarm and not config.autoDynamite then return false end
     if config.rarity == "Any" then return true end
     return kind ~= nil and string.lower(tostring(kind)) == string.lower(config.rarity)
 end
@@ -276,6 +365,7 @@ end
 
 function Core.choose(config, state, now)
     local function ready(action) return now>=((state.retryAt or {})[action] or 0) end
+    if Core.effective(config,"autoEscape") and state.hasKey and ready("escape") then return "escape" end
     if Core.effective(config,"autoCool") and state.needCooling and now >= (state.coolingRetryAt or 0) and ready("cool") then return "cool" end
     if state.droneReady and ready("drone") then return "drone" end
     if state.deliveryPending and (Core.effective(config,"autoDeliver") or Core.effective(config,"autoCut")) and ready("deliver") then return "deliver" end
@@ -289,14 +379,15 @@ function Core.choose(config, state, now)
     if state.returnToTable and ready("returnTable") then return "returnTable" end
     if Core.effective(config,"autoDynamite") and state.dynamiteReady and not state.cutting and ready("dynamite") then return "dynamite" end
     if Core.effective(config,"autoCrank") and state.crankReady and ready("crank") then return "crank" end
-    if Core.effective(config,"autoCut") and state.cutting and not state.focusClear and not state.needBuffer and ready("cut") then return "cut" end
+    local soloCut=config.autoCut and not Core.effective(config,"autoFarm")
+    if Core.effective(config,"autoCut") and state.cutting and (soloCut or not state.focusClear and not state.needBuffer) and ready("cut") then return "cut" end
     if Core.effective(config,"autoCut") and not Core.effective(config,"autoFarm") and state.carried and state.carried>0 and state.canStageCut and not state.tableReady and ready("stageCut") then return "stageCut" end
     if Core.effective(config,"autoDeliver") and state.carried and state.carried > 0 then
-        local goal=Core.deliveryGoal(config,state.capacity)
+        local goal=state.deliveryGoal or Core.deliveryGoal(config,state.capacity)
         local full=goal and state.carried>=goal
         if (full or state.noCandidate or not Core.effective(config,"autoFarm")) and ready("deliver") then return "deliver" end
     end
-    if Core.effective(config,"autoCut") and state.tableReady and not state.focusClear and not state.needBuffer and ready("enterCut") then return "enterCut" end
+    if Core.effective(config,"autoCut") and state.tableReady and (soloCut or not state.focusClear and not state.needBuffer) and ready("enterCut") then return "enterCut" end
     if Core.effective(config,"autoFarm") and state.hasCandidate
         and type(state.capacity)=="number" and type(state.carried)=="number"
         and state.capacity>0 and (state.carried < state.capacity or state.candidatePumpkin) and ready("collect") then return "collect" end
@@ -587,6 +678,10 @@ function Chapter.maxed(shared,data,tool)
         if not good or type(maximum)~="number" or maximum<=0 or current==nil or current<maximum then return false end
     end
     return true
+end
+function Chapter.productionReady(shared,data)
+    return Chapter.maxed(shared,data,"Dynamite") and Chapter.maxed(shared,data,"Shovel")
+        and Chapter.maxed(shared,data,"AutoPeeler") and Chapter.maxed(shared,data,"PotatoSucker")
 end
 function Chapter.purchasePriority(offer)
     if offer.upgrade=="PotatoWorth" then return 1 end
@@ -962,10 +1057,10 @@ function UI.create(services, config, callbacks, Layout)
     local connections, bindings, pages, navButtons = {}, {}, {}, {}
     local closed, activePage, isOpen = false,"Inicio",true
     local palette = {
-        background=Color3.fromRGB(9,16,25), sidebar=Color3.fromRGB(13,24,34),
-        card=Color3.fromRGB(18,33,45), line=Color3.fromRGB(38,66,77),
-        text=Color3.fromRGB(244,240,255), muted=Color3.fromRGB(164,187,198),
-        accent=Color3.fromRGB(87,228,196), mint=Color3.fromRGB(95,230,192),
+        background=Color3.fromRGB(11,12,19), sidebar=Color3.fromRGB(14,16,26),
+        card=Color3.fromRGB(21,24,37), line=Color3.fromRGB(39,44,63),
+        text=Color3.fromRGB(244,240,255), muted=Color3.fromRGB(164,176,199),
+        accent=Color3.fromRGB(135,146,255), mint=Color3.fromRGB(95,230,192),
     }
     local function make(class, properties, parent)
         local result = Instance.new(class)
@@ -1002,7 +1097,7 @@ function UI.create(services, config, callbacks, Layout)
     local panel=make("Frame",{Name="Panel",Position=UDim2.fromOffset(8,8),
         Size=UDim2.fromOffset(760,580),Visible=false,BackgroundColor3=palette.background,BorderSizePixel=0,ClipsDescendants=true},canvas)
     local panelScale=make("UIScale",{Scale=1},panel)
-    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(13,39,49),palette.background),Rotation=90},panel)
+    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(28,31,51),palette.background),Rotation=90},panel)
     corner(panel,15) stroke(panel)
     local sidebar=make("Frame",{Size=UDim2.new(0,174,1,0),BackgroundColor3=palette.sidebar,BorderSizePixel=0},panel)
     local brand=text(sidebar,"EVOLVY",20,palette.text,true)
@@ -1085,10 +1180,11 @@ function UI.create(services, config, callbacks, Layout)
     table.insert(connections,save.Activated:Connect(function() if callbacks.save then callbacks.save() end end))
     table.insert(connections,pause.Activated:Connect(function() callbacks.pause() end))
     local function page(name)
-        activePage=name heading.Text=name
+        activePage=name heading.Text=({Inicio="Visao geral",Coleta="Coleta e alvos",Corte="Mesa de corte",Vendas="Vendas",Resfriar="Controle de calor",Compras="Equipamentos",Ajustes="Preferencias",Registros="Diagnostico"})[name] or name
         for key,frame in pairs(pages) do frame.Visible=key==name end
         for key,item in pairs(navButtons) do
-            item.BackgroundColor3=key==name and Color3.fromRGB(21,66,68) or palette.sidebar
+            local marker=item:FindFirstChild("SelectedMark") if marker then marker.Visible=key==name end
+            item.BackgroundColor3=key==name and Color3.fromRGB(43,48,84) or palette.sidebar
             item.TextColor3=key==name and palette.accent or palette.muted
         end
     end
@@ -1102,6 +1198,7 @@ function UI.create(services, config, callbacks, Layout)
         local b=button(nav,string.format("%02d   %s",index,name))
         b.Size=UDim2.new(1,0,0,39) b.LayoutOrder=index b.TextXAlignment=Enum.TextXAlignment.Left
         make("UIPadding",{PaddingLeft=UDim.new(0,10)},b)
+        local mark=make("Frame",{Name="SelectedMark",BackgroundColor3=palette.accent,BorderSizePixel=0,Position=UDim2.new(0,0,0.2,0),Size=UDim2.new(0,3,0.6,0),Visible=false},b) corner(mark,2)
         navButtons[name]=b
         table.insert(connections,b.Activated:Connect(function() page(name) end))
         return area,list
@@ -1216,17 +1313,23 @@ function UI.create(services, config, callbacks, Layout)
     end
 
     local home=newPage("Inicio",1)
-    local recovery=card(home,"INTERFACE E CONTROLES","Se a mao, as ferramentas ou os prompts sumirem, recupere por aqui. O botao RESTAURAR GUI fora do painel funciona desde a abertura.")
-    recovery.LayoutOrder=-10
-    local recover=button(recovery,"RESTAURAR GUI E CONTROLES")
+    local recovery=card(home,"BARRA DE FERRAMENTAS DO JOGO","Use somente se sumirem a mao, a pa, a dinamite ou os prompts do jogo.")
+    recovery.LayoutOrder=20
+    local recover=button(recovery,"RECUPERAR MAO, PA E FERRAMENTAS")
     recover.Size=UDim2.new(1,0,0,48) recover.BackgroundColor3=Color3.fromRGB(18,113,100) recover.LayoutOrder=3
     table.insert(connections,recover.Activated:Connect(function() if callbacks.restore then callbacks.restore() end end))
     toggle(recovery,"autoRepairGui","Recuperar ao iniciar e renascer","A interface e restaurada; as rotinas continuam pausadas depois de morrer.")
     local hero=card(home,"PROGRESSO / CAPITULO II","RENDA  /  FERRAMENTAS  /  LIMPEZA  /  FINALIZACAO")
-    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(20,65,69),palette.card),Rotation=20},hero)
+    hero.LayoutOrder=-10
+    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(35,43,84),palette.card),Rotation=25},hero)
+    local start=button(hero,"INICIAR AUTO PROGRESS") start.Size=UDim2.new(1,0,0,52) start.LayoutOrder=2
+    start.BackgroundColor3=palette.accent start.TextColor3=palette.background start.TextSize=15
+    bindField("autoProgress",function(value) start.Text=value and "PAUSAR AUTO PROGRESS" or "INICIAR AUTO PROGRESS" end)
+    table.insert(connections,start.Activated:Connect(function() callbacks.change("autoProgress",not config.autoProgress) end))
     toggle(hero,"autoProgress","Auto Progress","Inclui renda, compras, dinamite, cortador automatico, pa e P0T4T0-3000, conforme propriedade e saldo.")
     toggle(hero,"autoCut","Auto Cut","Somente mesa de corte, com compra de ferramentas opcional.")
-    local counters=card(home,"Sessao")
+    toggle(hero,"autoEscape","Usar chave e procurar saida","No Auto Progress, prioriza a chave real e os prompts nativos de caminhao ou guindaste.")
+    local counters=card(home,"ESTADO DA PARTIDA") counters.LayoutOrder=5
     local summary=text(counters,"Dinheiro: —\nBolsa: —\nCalor: —\nEstado: aguardando",12,palette.muted,false)
     summary.Size=UDim2.new(1,0,0,145) summary.LayoutOrder=3 summary.TextYAlignment=Enum.TextYAlignment.Top summary.TextWrapped=true
     local farm=newPage("Coleta",2)
@@ -1256,6 +1359,7 @@ function UI.create(services, config, callbacks, Layout)
     local cut=newPage("Corte",3)
     local c=card(cut,"Mesa e ferramentas")
     toggle(c,"autoCut","Auto Cut")
+    toggle(c,"aimTable","Alinhar a camera ao entrar na mesa")
     choice(c,"cutMode","Modo de corte",{{"Fast","Rapido"},{"Native","Nativo"}})
     number(c,"cutTargetRate","Meta de tentativas por segundo",1,40,1,"/s")
     number(c,"cutToolMultiplier","Multiplicador com ferramentas",1,4,0.5,"x")
@@ -1283,13 +1387,12 @@ function UI.create(services, config, callbacks, Layout)
     toggle(p,"autoBuyStorage","Bolsas e capacidade")
     toggle(p,"infiniteBag","Tenho mochila infinita","Impede compras de mochilas e usa o limite de entrega por quantidade.")
     toggle(p,"buyMachines","Comprar cortadores manual e automatico","Depois de maximizar as duas melhorias de dinamite. O manual nao recebe melhorias.")
-    toggle(p,"maintainCutBuffer","Manter reserva para cortar","Somente antes da dinamite maxima. Na fase de limpeza esta reserva fica desativada.")
-    number(p,"cutBuffer","Reserva minima para corte",1,10000,1," batatas")
+    number(p,"productionBatch","Lote para o automatico no maximo",50,10000,50," batatas")
     toggle(p,"fixMenuBlur","Corrigir desfoque ao fechar menus")
     toggle(p,"saveForNextTool","Guardar para a proxima arma")
     toggle(p,"autoBuyDrone","Oferecer compra do drone a cada partida","Solicita confirmacao de 80 gemas; a oferta real tambem precisa confirmar esse valor.")
     toggle(p,"upgradeDrone","Melhorar drone comprado")
-    toggle(p,"clearPileFirst","Limpar antes de cortar","Quando pa e dinamite estiverem no maximo confirmado, coleta e entrega primeiro; corta o restante no fim.")
+    toggle(p,"clearPileFirst","Limpar antes de cortar","Somente com dinamite, pa, automatico e sugador no maximo. Antes disso, continua usando a faca para gerar renda.")
     toggle(p,"upgradeMachines","Melhorar maquinas compradas")
     toggle(p,"upgradeGeneral","Melhorias gerais do capitulo 2")
     number(p,"reserveCash","Reserva de dinheiro",0,100000,0.01," $")
@@ -1383,8 +1486,8 @@ function UI.create(services, config, callbacks, Layout)
         for name,b in pairs(navButtons) do
             local index=({Inicio=1,Coleta=2,Corte=3,Vendas=4,Resfriar=5,Compras=6,Ajustes=7,Registros=8})[name]
             b.Text=compact and ({Inicio="INICIO",Coleta="COLETA",Corte="CORTE",Vendas="VENDER",Resfriar="AGUA",Compras="LOJA",Ajustes="AJUSTE",Registros="LOG"})[name] or string.format("%02d   %s",index,name)
-            b.TextSize=compact and 9 or 12
-            b.Size=compact and UDim2.fromOffset(52,39) or UDim2.new(1,0,0,43)
+            b.TextSize=compact and 11 or 12
+            b.Size=compact and UDim2.fromOffset(76,42) or UDim2.new(1,0,0,43)
             b.TextXAlignment=compact and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
             local padding=b:FindFirstChildOfClass("UIPadding")
             if padding then padding.PaddingLeft=UDim.new(0,compact and 0 or 10) end
@@ -2194,6 +2297,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local droneConsent,droneAsked,droneRound=false,false,nil
     local masteryAt,mastered=0,false
     local dynamiteMax=false
+    local productionReady=false
+    local autoFeedRetryAt=0
     local nextBlurCheck=0
     local cutDriving,closed=false,false
     local equippedTool=nil
@@ -2203,7 +2308,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local rateAt,stockBefore,cutUnits,cutRate=os.clock(),nil,0,0
     local function itemPosition(item) return item.part and item.part.Position or item.position end
     local function itemAlive(item)
-        return item and (item.part and item.part.Parent~=nil or item.logical and resolver.live(item.slot))
+        return item and (item.part and item.part.Parent~=nil and item.part.Transparency<0.99 or item.logical and resolver.live(item.slot))
     end
     local function get(root,path)
         for _,name in ipairs(path) do root=root and root:FindFirstChild(name) end
@@ -2278,6 +2383,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     })
     local function release()
         cutDriving=false
+        equippedTool=nil
         if cutEngine then cutEngine.pause() end
         safeCall(cutting,"SetHeld",false)
         safeCall(cutting,"SetAuto",false)
@@ -2310,9 +2416,28 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         return false,"o jogo nao confirmou a acao no tempo configurado"
     end
     local function equip(tool)
-        if tool==equippedTool or not protocol.matches("ToolEquip",{"String"}) then return end
-        local ok=protocol.fire("ToolEquip",tool)
-        if ok then equippedTool=tool end
+        if tool==equippedTool then return end
+        local activated=false
+        local hotbar=playerGui:FindFirstChild("Hotbar")
+        local aliases={PotatoSucker="P0T4T0-3000",Shovel="Shovel",Dynamite="Dynamite",Hand="Hand"}
+        local wantedIcon=nil
+        for _,definition in ipairs((modules["Shared.ToolUpgradeShared"] or {}).Tools or {}) do if definition.Id==tool then wantedIcon=definition.Icon end end
+        if hotbar then
+            for _,button in ipairs(hotbar:GetDescendants()) do
+                local identified=button.Name==tool or button:GetAttribute("ToolId")==tool
+                if button:IsA("GuiButton") and not identified then
+                    for _,child in ipairs(button:GetDescendants()) do
+                        if child:IsA("TextLabel") and child.Text==aliases[tool] or wantedIcon and (child:IsA("ImageLabel") or child:IsA("ImageButton")) and child.Image==wantedIcon then identified=true break end
+                    end
+                end
+                if button:IsA("GuiButton") and identified then
+                    activated=bridge.activate(button,true)
+                    if activated then break end
+                end
+            end
+        end
+        if not activated and protocol.matches("ToolEquip",{"String"}) then activated=protocol.fire("ToolEquip",tool) end
+        if activated then equippedTool=tool end
     end
     local function interactionTool()
         cancelCut() equip("Hand")
@@ -2500,6 +2625,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 for _,offer in ipairs(upgradeOffers(data,balance,true)) do if offer.tool=="AutoPeeler" then goal=offer break end end
             end
             if not goal and not Chapter.owns(data,"PotatoSucker") then goal=shopItem("Tools","P0T4T0-3000","collect",1) end
+            if not goal and not Chapter.owns(data,"Shovel") then goal=shopItem("Tools","Shovel","collect",40) end
             if not goal and Chapter.owns(data,"PotatoSucker") and Core.effective(config,"autoBuyUpgrades") then
                 for _,offer in ipairs(upgradeOffers(data,balance,true)) do
                     if offer.tool=="PotatoSucker" and (not goal or offer.upgrade=="PickAmount") then goal=offer end
@@ -2597,16 +2723,20 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if os.clock()>=masteryAt then
             local shared=modules["Shared.ToolUpgradeShared"] or {}
             dynamiteMax=Chapter.maxed(shared,data,"Dynamite")
-            mastered=Chapter.maxed(shared,data,"Shovel") and dynamiteMax masteryAt=os.clock()+1
+            mastered=Chapter.maxed(shared,data,"Shovel") and dynamiteMax
+            productionReady=Chapter.productionReady(shared,data)
+            masteryAt=os.clock()+1
         end
         local removedOk,removed=safeCall(pileController,"GetRemovedFraction")
         last.mountainEmpty=removedOk and type(removed)=="number" and removed>=1
-        last.focusClear=config.clearPileFirst and dynamiteMax and not phaseNeedsIncome and removedOk and type(removed)=="number" and removed<1
+        last.focusClear=Core.effective(config,"autoFarm") and config.clearPileFirst and productionReady and removedOk and type(removed)=="number" and removed<1
         last.phase=dynamiteMax and (phaseGoal and "equipment: "..phaseGoal.name or "clear pile") or "fund dynamite"
-        if dynamiteMax and phaseNeedsIncome and data and data.HasAutoPeeler and last.mountainEmpty~=true then last.focusClear=true end
+        last.productionReady=productionReady
+        last.deliveryGoal=last.focusClear and math.min(capacity or config.productionBatch,config.productionBatch) or nil
+        if last.focusClear and os.clock()<autoFeedRetryAt and capacity==math.huge then last.deliveryGoal=math.huge end
         local finalKnife=data and #(cutShared.Tools or {})>1 and bestCutRank(data)>=#cutShared.Tools
         local remaining=math.max(0,config.cutBuffer-crateCount())
-        last.needBuffer=config.maintainCutBuffer and not dynamiteMax and finalKnife and remaining>0 and removedOk and type(removed)=="number" and removed<1
+        last.needBuffer=false
         last.bufferDeliveryGoal=last.needBuffer and math.min(remaining,Core.deliveryGoal(config,capacity) or remaining) or nil
         if os.clock()>=nextBlurCheck then nextBlurCheck=os.clock()+1 clearMenuBlur() end
         last.drone=data and data.HasDrone==true
@@ -2646,7 +2776,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local prepared,prepareError=resolver.prepare(valid)
         if not prepared then return nil,prepareError end
         local held,capacity=inventory()
-        local onlyPumpkins=held~=nil and capacity~=nil and held>=capacity
+        local onlyPumpkins=held~=nil and capacity~=nil and held>=capacity and not Core.effective(config,"autoDynamite")
         if variantEpoch~=resolver.stats.generation then
             variantEpoch=resolver.stats.generation variantCache=setmetatable({},{__mode="k"})
             candidate=nil queue={} queueIndex=1 queueExpires=0
@@ -2778,6 +2908,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             local targets={item}
             local root=nav.actor()
             local limit=Core.pickLimit(config,before,capacity,item.pumpkin)
+            if last.deliveryGoal and last.deliveryGoal<math.huge then limit=math.min(limit,math.max(1,last.deliveryGoal-before)) end
             if last.needBuffer then limit=math.min(limit,math.max(1,(last.bufferDeliveryGoal or 1)-before)) end
             local identity=resolver.stats.identity
             if not identity or math.max(identity.confirmed_geometry or 0,identity.confirmed_permuted or 0)<3 then limit=1 end
@@ -2850,16 +2981,22 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             interactionTool()
             local machines=get(world,{"Map","PeelingMachines"})
             local prompt
-            if config.deliveryTarget=="Table" then prompt=selectedTable(true)
-            elseif config.deliveryTarget=="Manual" then prompt=machines and get(machines,{"PeelingMachine","Cube.033","Load"})
-            elseif config.deliveryTarget=="Auto" then prompt=machines and get(machines,{"AutoPeelingMachine","Cube.042","Load"})
+            local target=config.autoProgress and (last.focusClear and "Auto" or "Crate") or config.deliveryTarget
+            if target=="Table" then prompt=selectedTable(true)
+            elseif target=="Manual" then prompt=machines and get(machines,{"PeelingMachine","Cube.033","Load"})
+            elseif target=="Auto" then prompt=machines and get(machines,{"AutoPeelingMachine","Cube.042","Load"})
             else
                 local data=state()
                 local automatic=machines and get(machines,{"AutoPeelingMachine","Cube.042","Load"})
-                if config.buyMachines and (last.mountainEmpty or last.focusClear) and data and data.HasAutoPeeler and automatic and automatic.Enabled then prompt=automatic
+                if config.buyMachines and (last.mountainEmpty or last.focusClear) and productionReady and data and data.HasAutoPeeler and automatic and automatic.Enabled then prompt=automatic
                 else prompt=machines and get(machines,{"PotatoCrate","PotatoArea","PlacePrompt"}) end
             end
             if not prompt then return false,"Destino selecionado indisponivel." end
+            if target=="Auto" and not prompt.Enabled then
+                autoFeedRetryAt=os.clock()+3 snapshotAt=0
+                if select(2,inventory())==math.huge then return true,"Automatico ocupado; continuando coleta." end
+                prompt=machines and get(machines,{"PotatoCrate","PotatoArea","PlacePrompt"})
+            end
             local ok,message=nav.trigger(prompt,valid)
             if not ok then return false,message end
             deliveryPending={prompt=prompt,last=before,remaining=before,progressAt=os.clock(),began=os.clock(),total=0}
@@ -2886,6 +3023,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                     local ok,message=nav.trigger(prompt,valid)
                     if not ok then return false,message end
                     pending.progressAt=os.clock()
+                elseif pending.total>0 and os.clock()-pending.progressAt>1 then
+                    deliveryPending=nil autoFeedRetryAt=os.clock()+3 snapshotAt=0
+                    return true,"Carga parcial confirmada; retomando coleta."
                 elseif os.clock()-pending.progressAt>math.max(8,config.actionTimeout) then
                     deliveryPending=nil snapshotAt=0
                     return false,"Entrega parou sem progresso; destino sera reavaliado."
@@ -2917,14 +3057,16 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 for _,frame in ipairs(screen:GetChildren()) do if frame:IsA("GuiObject") then cutGuiSnapshot[frame]=frame.Visible end end
             end
         end
+        nav.aim(prompt,config.aimTable)
         local ok,message=nav.trigger(prompt,valid)
-        if not ok then tableRetry[prompt]=os.clock()+3 snapshotAt=0 return false,message end
+        if not ok then nav.clearAim() tableRetry[prompt]=os.clock()+3 snapshotAt=0 return false,message end
         if not ok then return false,message end
         local confirmed,why=waitUntil(isCutting,math.min(3,config.actionTimeout),valid)
         if not confirmed and valid() and prompt.Enabled then
             local tried=nav.trigger(prompt,valid,{method="hold"})
             if tried then confirmed,why=waitUntil(isCutting,math.min(2,config.actionTimeout),valid) end
         end
+        nav.clearAim()
         if confirmed then lastTable=prompt cutDriving=true else tableRetry[prompt]=os.clock()+3 snapshotAt=0 end
         return confirmed,why
     end
@@ -3173,9 +3315,9 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         specialCache={} specialAt=0 equippedTool=nil
     end
     local function recover(action,attempt)
-        retryAt[action]=os.clock()+math.min(12,0.5*2^math.min(attempt or 1,4))
+        retryAt[action]=os.clock()+(action=="collect" and math.min(0.6,0.1*(attempt or 1)) or math.min(12,0.5*2^math.min(attempt or 1,4)))
         snapshotAt=0
-        if action=="collect" or action=="dynamite" then candidate=nil queue={} queueIndex=1 findAt=0 end
+        if action=="collect" or action=="dynamite" then candidate=nil findAt=0 end
         if action=="enterCut" or action=="cut" or action=="returnTable" then cancelCut() end
         if action=="deliver" or action=="stageCut" then
             local count=inventory()
@@ -3239,6 +3381,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         defer=function(action,seconds)
             if action=="buy" then buyRetryAt=os.clock()+seconds end
             if action=="cool" then coolingRetryAt=os.clock()+seconds end
+            if action=="escape" then retryAt.escape=os.clock()+seconds end
         end,
         close=function()
             closed=true
@@ -3262,7 +3405,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             end
             return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,
                 upgrade_audit=upgradeAudit,upgrade_levels=levels,state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
-                    heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,sucker_overheated=vacuumHot,sucker_retry_at=vacuumRetryAt,inventory_source=exactBagBound and "replicated Potatoes" or "UI",phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,cut_engine=cutEngine.stats,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
+                    heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,production_ready=productionReady,sucker_overheated=vacuumHot,sucker_retry_at=vacuumRetryAt,inventory_source=exactBagBound and "replicated Potatoes" or "UI",phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,cut_engine=cutEngine.stats,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
         end,
     }
 end
@@ -3274,7 +3417,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.12.0"
+local VERSION="0.13.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous"}
 local services={}
@@ -3302,6 +3445,7 @@ local store=Session.create(Core,json,{read=type(readfile)=="function" and readfi
 local config,loadMessage=store.load()
 local logger=Session.log(14)
 local ui,adapter,activeAction=nil,nil,nil
+local escapeDriver=nil
 local modules,moduleErrors={},{}
 local lastRecovery=nil
 local failures={}
@@ -3337,19 +3481,6 @@ local function restoreInterface()
     if ui then ui.show() ui.refresh() ui.status("Interface recuperada. Ative Auto Progress se a rotina estiver pausada.") end
     log("Recuperacao de interface: "..lastRecovery.restored.." componentes; "..lastRecovery.errors.." falhas.")
 end
-local rescueParent=player:WaitForChild("PlayerGui")
-if type(gethui)=="function" then local ok,parent=pcall(gethui) if ok and typeof(parent)=="Instance" then rescueParent=parent end end
-local rescue=Instance.new("ScreenGui")
-rescue.Name="AnonymousPotatoRescue" rescue.ResetOnSpawn=false rescue.DisplayOrder=20000 rescue.Parent=rescueParent
-local rescueButton=Instance.new("TextButton")
-rescueButton.Name="RestoreGui" rescueButton.Text="RESTAURAR GUI" rescueButton.TextSize=13
-rescueButton.Font=Enum.Font.GothamBold rescueButton.TextColor3=Color3.fromRGB(233,255,250)
-rescueButton.BackgroundColor3=Color3.fromRGB(14,103,95) rescueButton.BorderSizePixel=0
-rescueButton.Position=UDim2.new(1,-176,0,55) rescueButton.Size=UDim2.fromOffset(164,44) rescueButton.Parent=rescue
-local rescueCorner=Instance.new("UICorner") rescueCorner.CornerRadius=UDim.new(0,12) rescueCorner.Parent=rescueButton
-local rescueClick=rescueButton.Activated:Connect(restoreInterface)
-local rescueEnabled=rescue:GetPropertyChangedSignal("Enabled"):Connect(function() if lifecycle.alive() and not rescue.Enabled then rescue.Enabled=true end end)
-lifecycle.add(function() rescueClick:Disconnect() rescueEnabled:Disconnect() rescue:Destroy() end)
 if config.autoRepairGui then restoreInterface() end
 local gate=Gate.open(services,lifecycle,ACCESS)
 if not gate.wait() then lifecycle.close() return end
@@ -3388,11 +3519,19 @@ while lifecycle.alive() and not resolver.ready() and os.clock()<syncDeadline do 
 if not lifecycle.alive() then resolver.close() return end
 local bridge=Bridge.create(services,Core)
 adapter=Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,CutEngine,Chapter,Protocol,TopK)
+escapeDriver=Exit.create(services,modules,nav,log)
+lifecycle.add(escapeDriver.close)
+adapter.actions.escape=function(valid)
+    adapter.cancelCut()
+    local success,message=escapeDriver.step(valid)
+    adapter.defer("escape",success and 2 or 5)
+    return success,message
+end
 gate.progress(0.95,"Preparando painel e controles por toque...")
 local binding=nil
 local keyActions={keyProgress="autoProgress",keyCut="autoCut",keyFarm="autoFarm",keyCool="autoCool",
     keyBuy="autoBuyTools",keyDeliver="autoDeliver",keyPumpkin="collectPumpkins",keyStorage="autoBuyStorage",keyUpgrades="autoBuyUpgrades",keyCrank="autoCrank",keySell="autoSell",keyDynamite="autoDynamite"}
-local combined={"autoFarm","autoDeliver","autoCut","autoCool","autoBuyTools","autoBuyUpgrades","autoBuyStorage","autoCrank","autoSell","autoDynamite"}
+local combined={"autoFarm","autoDeliver","autoCut","autoCool","autoBuyTools","autoBuyUpgrades","autoBuyStorage","autoCrank","autoSell","autoDynamite","autoEscape"}
 local combinedSet={}
 for _,name in ipairs(combined) do combinedSet[name]=true end
 local function displayed(field)
@@ -3426,6 +3565,7 @@ local function export()
         local report=adapter.diagnostic()
         report.hub_version=VERSION report.module_errors=moduleErrors report.log=logger.records()
         report.config=Core.validate(config,false)
+        report.exit=escapeDriver and escapeDriver.diagnostic()
         report.gui_recovery=lastRecovery
         report.active_action=activeAction report.failures=Core.clone(failures)
         return json.encode(report)
@@ -3509,7 +3649,7 @@ local respawnConnection=player.CharacterAdded:Connect(function()
 end)
 lifecycle.add(function() respawnConnection:Disconnect() end)
 
-local actionNames={drone="Comprando drone",cool="Resfriando",collect="Coletando",deliver="Entregando",cut="Cortando",enterCut="Indo para a mesa",buy="Comprando",crank="Girando cortador",search="Indexando e selecionando",stageCut="Abastecendo a mesa",sell="Vendendo",returnTable="Retornando a mesa",dynamite="Lancando dinamite"}
+local actionNames={escape="Indo para a saida com a chave",drone="Comprando drone",cool="Resfriando",collect="Coletando",deliver="Entregando",cut="Cortando",enterCut="Indo para a mesa",buy="Comprando",crank="Girando cortador",search="Indexando e selecionando",stageCut="Abastecendo a mesa",sell="Vendendo",returnTable="Retornando a mesa",dynamite="Lancando dinamite"}
 local nextUi=0
 local heartbeat=services.RunService.Heartbeat:Connect(function()
     if not lifecycle.alive() or os.clock()<nextUi then return end
@@ -3521,7 +3661,7 @@ local heartbeat=services.RunService.Heartbeat:Connect(function()
         adapter.droneAsked()
         ui.confirmDrone(function(accepted) adapter.droneConfirm(accepted) end)
     end
-    local goal=Core.deliveryGoal(config,snapshot.capacity)
+    local goal=snapshot.deliveryGoal or Core.deliveryGoal(config,snapshot.capacity)
     local money=snapshot.cash and string.format("$%.2f",snapshot.cash) or "indisponivel"
     local capacity=snapshot.capacity==math.huge and "∞" or snapshot.capacity and tostring(snapshot.capacity) or "?"
     local bag=snapshot.carried and tostring(snapshot.carried).."/"..capacity or "indisponivel"
@@ -3543,17 +3683,19 @@ task.spawn(function()
         local function valid() return lifecycle.alive() and cancellation.valid(token) end
         local ok,errorMessage=pcall(function()
             local snapshot=adapter.snapshot()
+            snapshot.hasKey=escapeDriver.ready()
             local hasActor=nav.actor()~=nil
             if not hasActor then return end
             local action=Core.choose(config,snapshot,os.clock())
-            if action=="idle" and Core.effective(config,"autoFarm")
-                and (config.collectPumpkins or snapshot.carried and snapshot.capacity and snapshot.carried<snapshot.capacity) then
+            if action=="idle" and (Core.effective(config,"autoFarm") or Core.effective(config,"autoDynamite"))
+                and (Core.effective(config,"autoDynamite") or config.collectPumpkins or snapshot.carried and snapshot.capacity and snapshot.carried<snapshot.capacity) then
                 activeAction="search"
                 local current,why=adapter.findCandidate(valid)
                 activeAction=nil
                 if why then log(why,"error") end
                 if not valid() then return end
                 snapshot=adapter.snapshot()
+                snapshot.hasKey=escapeDriver.ready()
                 snapshot.hasCandidate=current~=nil
                 action=Core.choose(config,snapshot,os.clock())
             end
