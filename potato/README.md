@@ -1,9 +1,9 @@
-# Evolvy 0.27 · Caixas e classes
+# Evolvy 0.28
 
-Use a key local **Anonymous**. No lobby, os três capítulos agora ficam dentro de **Configurar**. Selecione **Capítulo II · Online** para abrir as opções e entrar em uma rodada ou iniciar o ciclo completo. **Parar** e **Copiar log do lobby** ficam na mesma aba.
+Use a key local **Anonymous**. O lobby usa tons de madeira e creme com botões de contorno escuro, azul para giros, dourado para caixas, verde para entrar e vermelho para parar. Os capítulos ficam em **Configurar**.
 
-- **Caixas** usa o botão nativo da oferta de abóboras identificado no diagnóstico. O lote inteiro precisa caber no saldo. Com 317 abóboras, você pode selecionar até três caixas. Quatro custam 320. Cada abertura espera o débito de 80 e a confirmação do resultado.
-- **Classes** reconhece o botão azul que mostra apenas o preço e a gema. Para testar, deixe a tela nativa de Classes aberta, selecione um alvo no hub, marque **Usar gemas para girar** e toque em **Girar até o alvo**. Cada giro espera a confirmação do resultado e do débito correspondente. [Captura do botão de giro](https://peel-the-potato-wiki.wiki/images/gameplay/classes.png).
-- **Copiar log do lobby** inclui a tentativa e os controles encontrados, inclusive os que estavam desativados, para ajudar a identificar uma falha.
+- **Caixas:** o hub procura a oferta de abóboras mesmo quando vários elementos do menu têm o mesmo nome. Selecione **1 caixa** e toque em **Abrir lote** para conferir o débito de 80 abóboras. O lote inteiro precisa caber no saldo.
+- **Classes:** escolha um alvo, marque **Usar gemas para girar** e toque em **Girar até o alvo**. O hub usa o botão nativo de giro mesmo com a tela fechada e lê o preço indicado pelo jogo. Ele só avança após confirmar o débito e o resultado.
+- **Configurar → Copiar log do lobby** inclui a rota identificada e o resultado da tentativa.
 
-A compilação e os testes locais passaram. Os fluxos de compra e giro precisam de um teste no Delta. Execute **PUBLICAR_V027.cmd** e espere **PUBLICADO E VERIFICADO** antes de usar o loader.
+A compilação e os testes locais passaram. A caixa e o giro ainda precisam ser testados no Delta. Execute **PUBLICAR_V028.cmd** e espere **PUBLICADO E VERIFICADO** antes de usar o loader.

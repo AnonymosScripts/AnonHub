@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.27.0. Chapter 2 and lobby. No paid purchases.
+-- Local test key: Anonymous. Version 0.28.0. Chapter 2 and lobby. No paid purchases.
 
 local BootError = (function()
 -- Luau · potato_boot_error.luau · visible startup errors for mobile
@@ -465,6 +465,22 @@ local function get(root,...)
     return root
 end
 
+function Extras.uniqueButton(root,...)
+    local matches=root and {root} or {}
+    for index=1,select("#",...) do
+        local name=select(index,...)
+        local nextMatches={}
+        for _,parent in ipairs(matches) do
+            for _,child in ipairs(parent:GetChildren()) do
+                if child.Name==name then table.insert(nextMatches,child) end
+            end
+        end
+        matches=nextMatches
+        if #matches==0 then return nil end
+    end
+    if #matches==1 and matches[1]:IsA("GuiButton") and matches[1].Active then return matches[1] end
+end
+
 local function norm(value)
     return type(value)=="string" and value:lower():gsub("[^%w]","") or ""
 end
@@ -512,6 +528,12 @@ end
 function Extras.isGemOffer(label,price,nativeRow,gemMarker)
     return type(price)=="number" and price>0
         and (gemMarker==true or nativeRow==true and price==40 and label:match("^%s*40%s*$")~=nil)
+end
+
+function Extras.nativeRollPrice(text)
+    local plain=text:gsub("<.->","")
+    if not plain:match("^%s*[%d][%d,.]*%s*$") then return nil end
+    return Extras.offerAmount(plain)
 end
 
 function Extras.confirmRoll(before,after,cost,spentGems,resultSeen)
@@ -741,6 +763,18 @@ function Extras.create(services,bridge,nav,lifecycle)
         return price or parse(label)
     end
     local function rollOffer(screen,useGems)
+        local exact=Extras.uniqueButton(screen,"Content","Buttons","Roll")
+        if exact then
+            local label=bridge.visible(exact) and shownText(exact) or bridge.texts(exact)
+            if label=="" then label=bridge.texts(exact) end
+            if not paid(label) then
+                local price=Extras.nativeRollPrice(label)
+                local key=norm(label)
+                if useGems and price or not useGems and (key:find("free",1,true) or key:find("grati",1,true)) then
+                    return {button=exact,price=price,headless=not bridge.visible(exact)}
+                end
+            end
+        end
         local choices,nativeChoices={},{}
         local single=get(screen,"Choice","Single")
         local native=get(screen,"Content","Buttons")
@@ -793,7 +827,7 @@ function Extras.create(services,bridge,nav,lifecycle)
             if useGems and before<offer.price then return true,"Gemas insuficientes para o próximo giro." end
             local seen=classSignal
             lastClassRoute=offer.button:GetFullName()
-            local ok,why=bridge.activate(offer.button,not useGems)
+            local ok,why=bridge.activate(offer.button,offer.headless or not useGems)
             if not ok then return false,why end
             local nextClass=nil
             if not waitFor(valid,12,function()
@@ -884,8 +918,8 @@ function Extras.create(services,bridge,nav,lifecycle)
         return get(services.Workspace,"Map","Zones","HalloweenZone")
     end
     local function exactCrate()
-        local buy=get(gui,"Crates","Menu","Panel","Content","Frame","Frame","Pumpkins","Buy")
-        if not buy or not buy:IsA("GuiButton") or not buy.Active then return nil end
+        local buy=Extras.uniqueButton(gui:FindFirstChild("Crates"),"Menu","Panel","Content","Frame","Frame","Pumpkins","Buy")
+        if not buy then return nil end
         local label=bridge.texts(buy)
         if paid(label) then return nil end
         local price=Extras.crateAmount(label)
@@ -934,7 +968,7 @@ function Extras.create(services,bridge,nav,lifecycle)
         if exact then
             if not valid() then return false,"Abertura cancelada." end
             lastCrateRoute=exact:GetFullName()
-            return bridge.activate(exact,true)
+            return bridge.activate(exact,not bridge.visible(exact))
         end
         local choices=eventButtons()
         if #choices==0 then
@@ -1076,13 +1110,15 @@ local View={}
 function View.create(services,lifecycle,gui,callbacks)
     local input=services.UserInputService
     local tween=services.TweenService
-    local base=Color3.fromRGB(13,19,34)
-    local surface=Color3.fromRGB(26,37,60)
-    local border=Color3.fromRGB(66,86,125)
-    local bright=Color3.fromRGB(234,244,255)
-    local dim=Color3.fromRGB(163,182,213)
-    local mint=Color3.fromRGB(115,235,199)
-    local blue=Color3.fromRGB(142,164,255)
+    local base=Color3.fromRGB(35,31,25)
+    local surface=Color3.fromRGB(65,54,39)
+    local border=Color3.fromRGB(25,21,16)
+    local bright=Color3.fromRGB(252,246,226)
+    local dim=Color3.fromRGB(213,195,163)
+    local green=Color3.fromRGB(128,205,55)
+    local blue=Color3.fromRGB(46,141,236)
+    local gold=Color3.fromRGB(255,202,66)
+    local red=Color3.fromRGB(187,47,39)
     local tabs,buttons,pages={}, {}, {}
     local function make(class,props,parent)
         local item=Instance.new(class)
@@ -1091,56 +1127,54 @@ function View.create(services,lifecycle,gui,callbacks)
         return item
     end
     local function round(item,radius)
-        make("UICorner",{CornerRadius=UDim.new(0,radius or 12)},item)
+        make("UICorner",{CornerRadius=UDim.new(0,radius or 5)},item)
     end
     local function stroke(item,color)
-        return make("UIStroke",{Color=color or border,Thickness=1},item)
+        return make("UIStroke",{Color=color or border,Thickness=2,ApplyStrokeMode=Enum.ApplyStrokeMode.Border},item)
     end
     local function gradient(item,left,right,angle)
         return make("UIGradient",{Color=ColorSequence.new(left,right),Rotation=angle or 0},item)
     end
     local function label(parent,content,size,color,bold)
         return make("TextLabel",{Text=content,TextSize=size,TextColor3=color or bright,
-            BackgroundTransparency=1,Font=bold and Enum.Font.GothamBold or Enum.Font.Gotham,
+            BackgroundTransparency=1,Font=bold and Enum.Font.GothamBlack or Enum.Font.Gotham,
             TextXAlignment=Enum.TextXAlignment.Left,TextWrapped=true},parent)
     end
     local function call(name,...)
         if callbacks[name] then callbacks[name](...) end
     end
     local function button(parent,key,title,primary)
-        local b=make("TextButton",{Text=title,TextSize=15,TextColor3=primary and base or bright,
-            BackgroundColor3=primary and mint or surface,BorderSizePixel=0,
-            Font=Enum.Font.GothamBold,TextWrapped=true},parent)
-        round(b)
+        local b=make("TextButton",{Text=title,TextSize=15,TextColor3=bright,
+            TextStrokeColor3=border,TextStrokeTransparency=0.2,
+            BackgroundColor3=primary and green or surface,BorderSizePixel=0,
+            Font=Enum.Font.GothamBlack,TextWrapped=true},parent)
+        round(b) stroke(b)
+        gradient(b,Color3.new(1,1,1),Color3.fromRGB(183,169,145),90)
         if key then buttons[key]=b b.Activated:Connect(function() call(key) end) end
         return b
     end
     local canvas=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1},gui)
     local panel=make("Frame",{AnchorPoint=Vector2.new(0.5,0),Size=UDim2.fromOffset(760,570),
         Position=UDim2.new(0.5,0,0,8),BackgroundColor3=base,BorderSizePixel=0,ClipsDescendants=true},canvas)
-    round(panel,18) stroke(panel)
-    gradient(panel,Color3.fromRGB(35,46,77),base,108)
+    round(panel,8) stroke(panel,Color3.fromRGB(116,88,49))
     local scaler=make("UIScale",{Scale=0.65},panel)
-    local header=make("Frame",{Size=UDim2.new(1,0,0,74),BackgroundColor3=Color3.fromRGB(35,48,77),
+    local header=make("Frame",{Size=UDim2.new(1,0,0,74),BackgroundColor3=Color3.fromRGB(111,77,44),
         BorderSizePixel=0,ClipsDescendants=true,Active=true},panel)
-    gradient(header,Color3.fromRGB(41,55,86),Color3.fromRGB(22,30,52),12)
-    for index=1,3 do
-        local beam=make("Frame",{Position=UDim2.new(1,-(index*71),0,-34),Size=UDim2.fromOffset(17,145),
-            BackgroundColor3=index%2==0 and mint or blue,BackgroundTransparency=0.72,Rotation=23,BorderSizePixel=0},header)
-        make("UIGradient",{Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,1),
-            NumberSequenceKeypoint.new(0.5,0.12),NumberSequenceKeypoint.new(1,1)}),Rotation=90},beam)
-    end
-    local brand=label(header,"E V O L V Y",25,bright,true)
-    brand.Position,brand.Size=UDim2.fromOffset(16,6),UDim2.new(1,-102,0,31)
-    local tagline=label(header,"LOBBY  /  CENTRAL DE PARTIDAS",13,mint,true)
-    tagline.Position,tagline.Size=UDim2.fromOffset(17,40),UDim2.new(1,-102,0,22)
-    local hide=button(header,nil,"OCULTAR")
-    hide.Position,hide.Size=UDim2.new(1,-86,0,15),UDim2.fromOffset(75,41)
+    gradient(header,Color3.new(1,1,1),Color3.fromRGB(137,107,78),90)
+    make("Frame",{Position=UDim2.new(0,0,1,-3),Size=UDim2.new(1,0,0,3),BackgroundColor3=border,BorderSizePixel=0},header)
+    make("ImageLabel",{Position=UDim2.fromOffset(13,11),Size=UDim2.fromOffset(49,49),BackgroundTransparency=1,
+        Image="rbxassetid://103225914639722",ScaleType=Enum.ScaleType.Fit},header)
+    local brand=label(header,"EVOLVY",28,bright,true)
+    brand.TextStrokeColor3,brand.TextStrokeTransparency=border,0
+    brand.Position,brand.Size=UDim2.fromOffset(73,6),UDim2.new(1,-146,0,34)
+    local tagline=label(header,"CENTRAL DO LOBBY",13,gold,true)
+    tagline.Position,tagline.Size=UDim2.fromOffset(74,40),UDim2.new(1,-147,0,22)
+    local hide=button(header,nil,"X")
+    hide.Position,hide.Size=UDim2.new(1,-54,0,15),UDim2.fromOffset(40,41)
+    hide.BackgroundColor3,hide.TextSize=red,22
     local launcher=button(canvas,nil,"A")
     launcher.Position,launcher.Size=UDim2.new(0,10,1,-64),UDim2.fromOffset(47,47)
     launcher.TextSize=26 launcher.ZIndex=6 launcher.BackgroundColor3=surface
-    gradient(launcher,Color3.fromRGB(62,109,164),Color3.fromRGB(32,48,83),44)
-    stroke(launcher,mint)
 
     local nav=make("ScrollingFrame",{Position=UDim2.fromOffset(9,83),Size=UDim2.new(0,129,1,-139),
         BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.fromOffset(0,0),
@@ -1155,8 +1189,9 @@ function View.create(services,lifecycle,gui,callbacks)
         activePage=key
         for name,page in pairs(pages) do page.Visible=name==key end
         for name,b in pairs(tabs) do
-            b.BackgroundColor3=name==key and Color3.fromRGB(49,68,110) or surface
-            b.TextColor3=name==key and mint or bright
+            b.BackgroundColor3=name==key and gold or surface
+            b.TextColor3=name==key and border or bright
+            b.TextStrokeTransparency=name==key and 1 or 0.2
         end
         local page=pages[key]
         if page then
@@ -1174,7 +1209,7 @@ function View.create(services,lifecycle,gui,callbacks)
         tabs[key]=buttonItem
         local target=make("ScrollingFrame",{Size=UDim2.fromScale(1,1),Visible=false,BackgroundTransparency=1,
             BorderSizePixel=0,CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,
-            ScrollingDirection=Enum.ScrollingDirection.Y,ScrollBarThickness=3,ScrollBarImageColor3=mint},body)
+            ScrollingDirection=Enum.ScrollingDirection.Y,ScrollBarThickness=3,ScrollBarImageColor3=gold},body)
         make("UIPadding",{PaddingTop=UDim.new(0,1),PaddingBottom=UDim.new(0,6),PaddingRight=UDim.new(0,5)},target)
         make("UIListLayout",{Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder},target)
         pages[key]=target
@@ -1207,7 +1242,7 @@ function View.create(services,lifecycle,gui,callbacks)
         item.Size=UDim2.new(1,0,0,43)
         local title=label(item,chapterNames[index],15,bright,true)
         title.Position,title.Size=UDim2.fromOffset(12,0),UDim2.new(1,-130,1,0)
-        local color=index==2 and mint or dim
+        local color=index==2 and green or dim
         local dot=make("Frame",{Size=UDim2.fromOffset(7,7),Position=UDim2.new(1,-108,0.5,-3),
             BackgroundColor3=color,BorderSizePixel=0},item)
         round(dot,5)
@@ -1228,8 +1263,8 @@ function View.create(services,lifecycle,gui,callbacks)
     local function showChapter()
         local online=selectedChapter==2
         chapterLabel.Text=chapterNames[selectedChapter]
-        chapterDot.BackgroundColor3=online and mint or dim
-        chapterBadge.Text,chapterBadge.TextColor3=online and "ONLINE" or "EM BREVE",online and mint or dim
+        chapterDot.BackgroundColor3=online and green or dim
+        chapterBadge.Text,chapterBadge.TextColor3=online and "ONLINE" or "EM BREVE",online and green or dim
         caret.Text=expanded and "⌃" or "⌄"
         choices.Visible=expanded
         chapterOptions.Visible=online
@@ -1254,7 +1289,7 @@ function View.create(services,lifecycle,gui,callbacks)
     rowButton(actions,"repeatRun","REPETIR",0,0.47)
     rowButton(actions,"autoImprove","AUTO MELHORIA",0.48,0.52)
     local queueRow=row(settings)
-    rowButton(queueRow,"stop","PARAR",0,0.34)
+    rowButton(queueRow,"stop","PARAR",0,0.34).BackgroundColor3=red
     rowButton(queueRow,"copyLog","COPIAR LOG DO LOBBY",0.35,0.65)
     local _,balance=block(settings,"Recursos do lobby","Lendo o saldo do jogo…",69)
 
@@ -1263,27 +1298,28 @@ function View.create(services,lifecycle,gui,callbacks)
     local _,eventBalance=block(event,"Saldo de abóboras","Aguardando o jogo…",69)
     local countBox=row(event)
     local track=make("Frame",{Position=UDim2.new(0,11,0.5,-5),Size=UDim2.new(1,-116,0,10),
-        BackgroundColor3=Color3.fromRGB(46,61,91),BorderSizePixel=0},countBox)
+        BackgroundColor3=border,BorderSizePixel=0},countBox)
     round(track)
-    local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=mint,BorderSizePixel=0},track)
+    local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=gold,BorderSizePixel=0},track)
     round(fill)
     local knob=make("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0,0.5),
-        Size=UDim2.fromOffset(26,26),BackgroundColor3=mint,BorderSizePixel=0},track)
+        Size=UDim2.fromOffset(26,26),BackgroundColor3=gold,BorderSizePixel=0},track)
     round(knob,13)
     local hit=make("Frame",{Position=UDim2.fromOffset(0,0),Size=UDim2.new(1,-95,1,0),
         BackgroundTransparency=1,Active=true,ZIndex=5},countBox)
-    local amount=label(countBox,"10",19,mint,true)
+    local amount=label(countBox,"10",19,gold,true)
     amount.Position,amount.Size=UDim2.new(1,-91,0,0),UDim2.fromOffset(86,46)
     amount.TextXAlignment=Enum.TextXAlignment.Center
     local eventButtons=row(event)
     rowButton(eventButtons,"autoCrates","AUTO CAIXAS",0,0.54)
-    rowButton(eventButtons,"openBatch","ABRIR LOTE",0.55,0.45,true)
+    local openBatch= rowButton(eventButtons,"openBatch","ABRIR LOTE",0.55,0.45,true)
+    openBatch.BackgroundColor3,openBatch.TextColor3,openBatch.TextStrokeTransparency=gold,border,1
 
     local classes=page("classes","Classes",3)
     block(classes,"Alvo de classe","Selecione um cartão. A rolagem para quando o jogo confirma a classe.",79)
     local strip=make("ScrollingFrame",{Size=UDim2.new(1,0,0,112),CanvasSize=UDim2.fromOffset(0,0),
         AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum.ScrollingDirection.X,
-        ScrollBarThickness=4,ScrollBarImageColor3=mint,BorderSizePixel=0,BackgroundTransparency=1},classes)
+        ScrollBarThickness=4,ScrollBarImageColor3=gold,BorderSizePixel=0,BackgroundTransparency=1},classes)
     make("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,8),
         SortOrder=Enum.SortOrder.LayoutOrder},strip)
     local empty=label(strip,"Abra Classes no jogo para carregar o catálogo.",14,dim,false)
@@ -1296,10 +1332,11 @@ function View.create(services,lifecycle,gui,callbacks)
         if rollingNow then return end
         useGems=not useGems
         gemCheck.Text=useGems and "✓   USAR GEMAS PARA GIRAR" or "□   USAR GEMAS PARA GIRAR"
-        gemCheck.TextColor3=useGems and mint or bright
+        gemCheck.TextColor3=useGems and green or bright
     end)
     local rollRow=row(classes)
     local rollButton=rowButton(rollRow,nil,"GIRAR ATÉ O ALVO",0,0.60,true)
+    rollButton.BackgroundColor3=blue
     rollButton.Activated:Connect(function() call("roll",useGems) end)
     rowButton(rollRow,"rarest","SELECIONAR MAIS RARA",0.61,0.39)
     local classItems={}
@@ -1345,7 +1382,7 @@ function View.create(services,lifecycle,gui,callbacks)
         open=not open
         if currentTween then currentTween:Cancel() currentTween=nil end
         panel.Visible=open
-        launcher.BackgroundColor3=open and surface or Color3.fromRGB(55,89,135)
+        launcher.BackgroundColor3=open and surface or Color3.fromRGB(154,101,34)
         if open then
             position()
             local target=panel.Position
@@ -1432,6 +1469,7 @@ function View.create(services,lifecycle,gui,callbacks)
             buttons.autoCrates.Text=value.autoCrates and "AUTO CAIXAS  ·  ON" or "AUTO CAIXAS  ·  OFF"
             buttons.cycle.Text=busy and "AGUARDANDO O JOGO" or "CICLO COMPLETO"
             rollButton.Text=rolling and "PARAR GIROS" or "GIRAR ATÉ O ALVO"
+            rollButton.BackgroundColor3=rolling and red or blue
             amount.Text=tostring(value.crateCount)
             local ratio=(value.crateCount-1)/9
             fill.Size=UDim2.fromScale(ratio,1)
@@ -1461,7 +1499,7 @@ function View.create(services,lifecycle,gui,callbacks)
                     local id=tostring(entry.id)
                     local tile=button(strip,nil,"")
                     tile.Size,tile.LayoutOrder=UDim2.fromOffset(105,101),index
-                    local line=stroke(tile)
+                    local line=tile:FindFirstChildOfClass("UIStroke")
                     if type(entry.icon)=="string" and entry.icon~="" then
                         make("ImageLabel",{Position=UDim2.fromOffset(29,6),Size=UDim2.fromOffset(47,47),
                             BackgroundTransparency=1,Image=entry.icon,ScaleType=Enum.ScaleType.Fit,
@@ -1479,8 +1517,8 @@ function View.create(services,lifecycle,gui,callbacks)
                 end
             end
             for id,entry in pairs(classItems) do
-                entry.line.Color=id==selected and mint or border
-                entry.button.BackgroundColor3=id==selected and Color3.fromRGB(45,79,95) or surface
+                entry.line.Color=id==selected and gold or border
+                entry.button.BackgroundColor3=id==selected and Color3.fromRGB(105,74,34) or surface
             end
         end,
         history=function(state,persistent)
@@ -6458,7 +6496,7 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.27.0"
+local BOOT_VERSION="0.28.0"
 local bootPhase="preparar o hub"
 
 local function bootAnonymousPotato()

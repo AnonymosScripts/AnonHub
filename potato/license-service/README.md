@@ -11,7 +11,7 @@ O Worker expõe `POST /v1/license` com JSON. Ele aceita uma key ou uma sessão a
 
 ```lua
 getgenv().EvolvyLicenseEndpoint = "https://evolvy-license.SEU-SUBDOMINIO.workers.dev/v1/license"
-loadstring(game:HttpGet("https://raw.githubusercontent.com/AnonymosScripts/Script-1-Evolvy-Hub/main/potato/loader.lua?v=0.27.0"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/AnonymosScripts/Script-1-Evolvy-Hub/main/potato/loader.lua?v=0.28.0"))()
 ```
 
 O servidor recebe a key no primeiro acesso. Ao transferir de servidor, o hub usa a sessão assinada e exibe apenas o rótulo mascarado. O ID de conta serve para vincular a licença ao valor enviado pelo cliente. O hub publicado é código cliente, portanto essa validação não protege o código público contra cópia.
