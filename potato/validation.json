@@ -1,15 +1,15 @@
 {
-  "hub_version": "0.23.1",
+  "hub_version": "0.24.0",
   "place_id": 116701845804918,
   "reference_place_version": 95,
   "compiler": "official Luau 0.745",
   "syntax_compilation": "passed",
   "core_checks": 80,
   "layout_checks": 50,
-  "test_suites": 19,
+  "test_suites": 20,
   "license_service_tests": 4,
   "suites_status": "passed",
   "runtime_tested_on_phone": false,
   "runtime_tested_in_delta_by_agent": false,
-  "sha256": "d9c2cd61a8e917c40af3052ba70d65d6952d9464509999aad8b7da050bfc2aaa"
+  "sha256": "c24d2a615140d5c7114a4664edbcb049d2451402155bc731663edbfa530a426e"
 }
