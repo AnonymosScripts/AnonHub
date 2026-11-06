@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.28.1. Chapter 2 and lobby. No paid purchases.
+-- Local test key: Anonymous. Version 0.28.2. Chapter 2 and lobby. No paid purchases.
 
 local BootError = (function()
 -- Luau · potato_boot_error.luau · visible startup errors for mobile
@@ -364,7 +364,7 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
                     record("crate_plan",plan)
                     if plan=="ready" then
                         view.status("Abrindo o lote antes de entrar na fila…")
-                        local ok,why=runtime.features.openBatch(valid,selected.crateCount,countCrate,view.status,true)
+                        local ok,why=runtime.features.openBatch(valid,selected.crateCount,countCrate,view.status)
                         if not ok then return false,why end
                     elseif plan=="saving" then
                         view.status(string.format("Juntando abóboras para o lote: %d/%d.",balance,cost))
@@ -815,33 +815,45 @@ function Extras.create(services,bridge,nav,lifecycle)
             if not current or not useGems and free==nil then return false,"O estado dos giros ainda não está disponível." end
             if Extras.matchesTarget(target,current) then return true,"Classe encontrada: "..current.."." end
             if not useGems and free<=0 then return true,"Sem giros gratuitos. Última classe: "..current.."." end
-            local screen=gui:FindFirstChild("Classes")
-            local offer=rollOffer(screen,useGems)
-            if not offer then
+            local offer
+            if not waitFor(valid,18,function()
+                offer=rollOffer(gui:FindFirstChild("Classes"),useGems)
+                return offer~=nil
+            end) then
+                if not valid() then return true,"Rolagem pausada." end
                 return false,useGems and "O giro com preço em gemas não foi identificado. Abra Classes no jogo."
                     or "O giro gratuito não foi identificado. Abra Classes no jogo."
             end
+            current,free=classState()
+            if current and Extras.matchesTarget(target,current) then return true,"Classe encontrada: "..current.."." end
             local before=free
             if useGems then before=gems() end
             if before==nil then return false,"Aguardando o saldo de gemas do jogo." end
+            if not useGems and before<=0 then return true,"Sem giros gratuitos." end
             if useGems and before<offer.price then return true,"Gemas insuficientes para o próximo giro." end
             local seen=classSignal
             lastClassRoute=offer.button:GetFullName()
             local ok,why=bridge.activate(offer.button,offer.headless or not useGems)
             if not ok then return false,why end
             local nextClass=nil
+            local chargedAt=nil
             if not waitFor(valid,12,function()
                 local class,remaining=classState()
                 local after=remaining
                 if useGems then after=gems() end
-                local confirmed=class~=nil and Extras.confirmRoll(before,after,offer.price,useGems,
-                    classSignal>seen or class~=current)
-                if confirmed then nextClass=class end
-                return confirmed
-            end) then return false,"O jogo nao confirmou o resultado. Rolagem parada." end
-            if nextClass==current then
-                task.wait(0.65)
-                nextClass=select(1,classState()) or nextClass
+                if not Extras.confirmRoll(before,after,offer.price,useGems,true) then return false end
+                local now=os.clock()
+                chargedAt=chargedAt or now
+                if class and (classSignal>seen or class~=current or now-chargedAt>=3
+                    and rollOffer(gui:FindFirstChild("Classes"),useGems)) then
+                    nextClass=class
+                    return true
+                end
+                return false
+            end) then
+                if not valid() then return true,"Rolagem pausada." end
+                return false,chargedAt and "O giro foi debitado, mas o próximo ainda não foi liberado."
+                    or "O jogo não confirmou o débito. Rolagem parada."
             end
             index+=1
             report("Giro "..index.." confirmado: "..tostring(nextClass))
@@ -1018,21 +1030,26 @@ function Extras.create(services,bridge,nav,lifecycle)
     local function settleRoll(valid)
         local roll=get(gui,"Crates","Roll")
         if not roll or not bridge.visible(roll) then return true end
-        local skip=roll:FindFirstChild("Skip",true)
-        if skip and skip:IsA("GuiButton") and bridge.visible(skip) then bridge.activate(skip) end
-        local dismissed=false
-        return waitFor(valid,7,function()
+        local lastAttempt=0
+        local attempts=0
+        return waitFor(valid,12,function()
             if not bridge.visible(roll) then return true end
-            if not dismissed then
-                local close=roll:FindFirstChild("Close",true) or roll:FindFirstChild("Continue",true)
-                if close and close:IsA("GuiButton") and close.Active and bridge.visible(close) then
-                    dismissed=bridge.activate(close)
+            local now=os.clock()
+            if attempts<8 and now-lastAttempt>=0.6 then
+                for _,name in ipairs({"Skip","Continue","Close"}) do
+                    local button=roll:FindFirstChild(name,true)
+                    if button and button:IsA("GuiButton") and button.Active and bridge.visible(button) then
+                        lastAttempt=now
+                        attempts+=1
+                        bridge.activate(button)
+                        break
+                    end
                 end
             end
             return false
         end)
     end
-    local function openBatch(valid,count,onOpened,onProgress,settleLast)
+    local function openBatch(valid,count,onOpened,onProgress)
         if type(count)~="number" or count%1~=0 or count<1 or count>10 then return false,"Lote inválido.",0 end
         local balance=pumpkins()
         if balance==nil then return false,"O jogo ainda não informou o saldo de abóboras.",0 end
@@ -1049,16 +1066,29 @@ function Extras.create(services,bridge,nav,lifecycle)
             if onProgress then onProgress(string.format("Abrindo caixa %d/%d…",index,count)) end
             local ok,why=requestEvent(valid)
             if not ok then return false,why,opened end
+            local sawRoll=false
+            local closedRoll=false
+            local rewardAt=nil
             if not waitFor(valid,10,function()
-                local after=pumpkins()
-                local shown=get(gui,"Crates","Roll")
-                return Extras.confirmCrate(before,after,crateSignal>serial or shown~=nil and bridge.visible(shown))
+                local roll=get(gui,"Crates","Roll")
+                sawRoll=roll~=nil and bridge.visible(roll)
+                if sawRoll then return true end
+                if crateSignal>serial then
+                    local now=os.clock()
+                    rewardAt=rewardAt or now
+                    return now-rewardAt>=2
+                end
+                return false
+            end) then return false,"O jogo não mostrou a abertura da caixa. Lote interrompido.",opened end
+            if sawRoll then closedRoll=settleRoll(valid) end
+            if not waitFor(valid,8,function()
+                return Extras.confirmCrate(before,pumpkins(),crateSignal>serial or closedRoll)
             end) then return false,"O jogo não confirmou o débito e o resultado. Lote interrompido.",opened end
             opened+=1
             if onOpened then onOpened() end
+            if sawRoll and not closedRoll then return false,"Caixa registrada, mas a tela da abertura ainda está ativa.",opened end
             if index<count then task.wait(0.45) end
         end
-        if settleLast and not settleRoll(valid) then return false,"Lote aberto, mas a tela da última caixa ainda está ativa.",opened end
         return true,string.format("%d caixa(s) confirmada(s).",opened),opened
     end
     local function diagnostic()
@@ -6490,7 +6520,7 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.28.1"
+local BOOT_VERSION="0.28.2"
 local bootPhase="preparar o hub"
 
 local function bootAnonymousPotato()

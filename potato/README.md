@@ -1,9 +1,9 @@
-# Evolvy 0.28.1
+# Evolvy 0.28.2
 
-Use a key local **Anonymous**. O lobby usa tons de madeira e creme com botões de contorno escuro, azul para giros, dourado para caixas, verde para entrar e vermelho para parar. Em **Configurar**, toque em **Capítulos** para ver as três opções.
+Use a key local **Anonymous**. No lobby, **Configurar → Capítulos** abre o seletor da fila.
 
-- **Caixas:** o hub procura a oferta de abóboras mesmo quando vários elementos do menu têm o mesmo nome. Selecione **1 caixa** e toque em **Abrir lote** para conferir o débito de 80 abóboras. O lote inteiro precisa caber no saldo.
-- **Classes:** escolha um alvo, marque **Usar gemas para girar** e toque em **Girar até o alvo**. O hub usa o botão nativo de giro mesmo com a tela fechada e lê o preço indicado pelo jogo. Ele só avança após confirmar o débito e o resultado.
+- **Caixas** aciona **Pular** durante a abertura assim que o botão fica disponível, inclusive em um lote de uma só caixa. O próximo pedido espera a saída da animação e a confirmação do débito e da recompensa.
+- **Classes** aguarda o botão ficar pronto antes de cada giro. A repetição continua quando um giro debitado devolve a mesma classe. Ela para no alvo escolhido, quando falta saldo ou se o jogo deixa de confirmar uma tentativa.
 - **Configurar → Copiar log do lobby** inclui a rota identificada e o resultado da tentativa.
 
-A compilação e os testes locais passaram. A caixa e o giro ainda precisam ser testados no Delta. Execute **PUBLICAR_V0281.cmd** e espere **PUBLICADO E VERIFICADO** antes de usar o loader.
+Os testes locais simulam duas caixas com **Pular** aparecendo depois da compra e dois giros, com a mesma classe no primeiro. Os fluxos ainda precisam ser confirmados no Delta. Execute **PUBLICAR_V0282.cmd** e espere **PUBLICADO E VERIFICADO** antes de usar o loader.
