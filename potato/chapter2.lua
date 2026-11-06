@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- AnonHub 0.30.0 · Chapter 2 and lobby
+-- AnonHub 0.31.0 · Chapter 2 and lobby
 
 local hub=...
 if type(hub)~="table" or type(hub.access)~="table" then return end
@@ -30,6 +30,8 @@ local strings={
     ["IDIOMA"]="LANGUAGE",
     ["Conta"]="Account",
     ["PAUSAR TUDO"]="PAUSE ALL",
+    ["OCULTAR"]="HIDE",
+    ["RECUPERAR"]="RESTORE",
     ["CAPÍTULO II / ANONHUB"]="CHAPTER II / ANONHUB",
     ["≡   ARRASTE PARA MOVER"]="≡   DRAG TO MOVE",
     ["ENCERRAR HUB"]="CLOSE HUB",
@@ -826,6 +828,13 @@ end
 local function norm(value)
     return type(value)=="string" and value:lower():gsub("[^%w]","") or ""
 end
+local nonClasses={
+    ["2xluck"]=true,["luck2x"]=true,["x2luck"]=true,doubleluck=true,["2xclassluck"]=true,
+    fastclassspin=true,fastclassspins=true,stopat=true,classstopat=true,stopatclass=true,
+}
+function Extras.isClass(value)
+    return not nonClasses[norm(value)]
+end
 function Extras.matchesTarget(target,current)
     local key=norm(current)
     return key~="" and (key==norm(target.name) or key==norm(target.id))
@@ -1020,7 +1029,7 @@ function Extras.create(services,bridge,nav,lifecycle)
         local result,byName={},{}
         local function register(entry)
             local key=norm(entry.name)
-            if key=="" or byName[key] then return end
+            if key=="" or byName[key] or not Extras.isClass(entry.name) or not Extras.isClass(entry.id) then return end
             byName[key]=entry
             table.insert(result,entry)
         end
@@ -1029,6 +1038,10 @@ function Extras.create(services,bridge,nav,lifecycle)
         for _,label in ipairs(screen and screen:GetDescendants() or {}) do
             if not (label:IsA("TextLabel") or label:IsA("TextButton")) then continue end
             local title=label.Text:gsub("<.->","")
+            if not Extras.isClass(title) then continue end
+            local ancestor=label
+            while ancestor and ancestor~=screen and Extras.isClass(ancestor.Name) do ancestor=ancestor.Parent end
+            if ancestor~=screen then continue end
             local entry=byName[norm(title)]
             local row=label.Parent
             local labelName=norm(label.Name)
@@ -3583,10 +3596,10 @@ function UI.create(services, config, callbacks, Layout, Membership)
     local connections, bindings, pages, navButtons = {}, {}, {}, {}
     local closed, activePage, isOpen = false,"Inicio",true
     local palette = {
-        background=Color3.fromRGB(9,14,24), sidebar=Color3.fromRGB(11,18,31),
-        card=Color3.fromRGB(18,28,44), line=Color3.fromRGB(43,61,86),
-        text=Color3.fromRGB(244,240,255), muted=Color3.fromRGB(164,176,199),
-        accent=Color3.fromRGB(135,146,255), mint=Color3.fromRGB(95,230,192),
+        background=Color3.fromRGB(35,31,25), sidebar=Color3.fromRGB(48,39,29),
+        card=Color3.fromRGB(65,54,39), line=Color3.fromRGB(116,88,49),
+        text=Color3.fromRGB(252,246,226), muted=Color3.fromRGB(213,195,163),
+        accent=Color3.fromRGB(255,202,66), mint=Color3.fromRGB(128,205,55),
     }
     local function make(class, properties, parent)
         local result = Instance.new(class)
@@ -3624,8 +3637,8 @@ function UI.create(services, config, callbacks, Layout, Membership)
     local panel=make("Frame",{Name="Panel",Position=UDim2.fromOffset(8,8),
         Size=UDim2.fromOffset(760,580),Visible=false,BackgroundColor3=palette.background,BorderSizePixel=0,ClipsDescendants=true},canvas)
     local panelScale=make("UIScale",{Scale=1},panel)
-    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(28,31,51),palette.background),Rotation=90},panel)
-    corner(panel,15) stroke(panel)
+    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(73,53,35),palette.background),Rotation=90},panel)
+    corner(panel,9) stroke(panel)
     local sidebar=make("Frame",{Size=UDim2.new(0,174,1,0),BackgroundColor3=palette.sidebar,BorderSizePixel=0},panel)
     local brand=text(sidebar,"ANONHUB",20,palette.text,true)
     brand.Position,brand.Size=UDim2.fromOffset(17,21),UDim2.new(1,-32,0,28)
@@ -3734,8 +3747,8 @@ function UI.create(services, config, callbacks, Layout, Membership)
         for key,frame in pairs(pages) do frame.Visible=key==name end
         for key,item in pairs(navButtons) do
             local marker=item:FindFirstChild("SelectedMark") if marker then marker.Visible=key==name end
-            item.BackgroundColor3=key==name and Color3.fromRGB(43,48,84) or palette.sidebar
-            item.TextColor3=key==name and palette.accent or palette.muted
+            item.BackgroundColor3=key==name and palette.accent or palette.sidebar
+            item.TextColor3=key==name and palette.background or palette.text
         end
     end
     local function newPage(name,index)
@@ -3875,7 +3888,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     recoveryResult.Size=UDim2.new(1,0,0,60) recoveryResult.TextWrapped=true recoveryResult.LayoutOrder=999
     local hero=card(home,"MODOS / CAPITULO II","OP: sugador MAX, coleta total, corte e saida. Auto Progress: ciclo normal.")
     hero.LayoutOrder=-40
-    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(35,43,84),palette.card),Rotation=25},hero)
+    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(118,82,45),palette.card),Rotation=25},hero)
     local modeButtons=make("Frame",{Size=UDim2.new(1,0,0,48),BackgroundTransparency=1,LayoutOrder=2},hero)
     local start=button(modeButtons,"AUTO PROGRESS") start.Size=UDim2.new(0.5,-5,1,0)
     start.BackgroundColor3=palette.accent start.TextColor3=palette.background start.TextSize=13
@@ -3924,7 +3937,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     make("UIGridLayout",{CellSize=UDim2.new(0.5,-5,0,90),CellPadding=UDim2.fromOffset(10,10),SortOrder=Enum.SortOrder.LayoutOrder},toolGrid)
     local toolWidgets={}
     for index,id in ipairs({"Dynamite","Shovel","AutoPeeler","PotatoSucker"}) do
-        local tile=make("Frame",{BackgroundColor3=Color3.fromRGB(13,17,29),BorderSizePixel=0,LayoutOrder=index},toolGrid)
+        local tile=make("Frame",{BackgroundColor3=palette.sidebar,BorderSizePixel=0,LayoutOrder=index},toolGrid)
         corner(tile,12) stroke(tile)
         local tint=({Dynamite=Color3.fromRGB(66,40,34),Shovel=Color3.fromRGB(27,48,72),AutoPeeler=Color3.fromRGB(43,37,70),PotatoSucker=Color3.fromRGB(20,57,54)})[id]
         make("UIGradient",{Color=ColorSequence.new(tint,palette.background),Rotation=25},tile)
@@ -4097,7 +4110,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     number(appearance,"buttonSize","Tamanho do botao A",44,88,2," px")
     local resetLayout=button(appearance,"CENTRALIZAR E RESTAURAR TAMANHO") resetLayout.Size=UDim2.new(1,0,0,44) resetLayout.LayoutOrder=1000
     table.insert(connections,resetLayout.Activated:Connect(function()
-        layoutChange({uiX=0.5,uiY=0.5,uiWidth=760,uiHeight=580,uiScale=100,buttonX=0.03,buttonY=0.22,buttonSize=56})
+        layoutChange({uiX=0.5,uiY=0.5,uiWidth=760,uiHeight=580,uiScale=65,buttonX=0.03,buttonY=0.22,buttonSize=56})
     end))
     local cameraCard=card(settings,"Camera")
     toggle(cameraCard,"forceThirdPerson","Forcar terceira pessoa")
@@ -6542,7 +6555,7 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.30.0"
+local BOOT_VERSION="0.31.0"
 
 
 local function bootAnonymousPotato()
@@ -6631,6 +6644,7 @@ local function notify(message)
 end
 
 local deadline=os.clock()+24
+hub.progress(0.5,"Identificando lobby ou partida…","Identifying lobby or match…")
 local expectedPhase=handoff.destination()
 local phase=Lobby.stage(services.Workspace)
 while (not phase or expectedPhase and phase~=expectedPhase) and lifecycle.alive() and os.clock()<deadline do
@@ -6693,6 +6707,7 @@ local function attachIdle(active)
     return idle
 end
 if phase=="lobby" then
+    hub.progress(0.8,"Abrindo a central do lobby…","Opening the lobby panel…")
 
     local lobbyConfig=Core.validate({movement="Walk",travelTimeout=20},true)
     local nav=Navigation.create(services,lobbyConfig,log)
@@ -6706,6 +6721,7 @@ if phase=="lobby" then
             settings=lobbySettings({read=files.read,write=files.write,encode=json.encode,decode=json.decode},player.UserId),
             view=LobbyView.create,rarest=LobbyExtras.rarest,language=hub.chooseLanguage,
         })
+    hub.ready()
     return
 end
 quickStartOP=quickStartOP or resume~=nil
@@ -6747,6 +6763,9 @@ local moduleNames={
 
 for index,path in ipairs(moduleNames) do
     if not lifecycle.alive() then return end
+    if index==1 or index%4==0 then
+        hub.progress(0.5+0.35*(index-1)/#moduleNames,"Carregando funções do jogo…","Loading game features…")
+    end
     local instance=services.ReplicatedStorage
     for name in string.gmatch(path,"[^%.]+") do instance=instance and instance:FindFirstChild(name) end
     if instance and instance:IsA("ModuleScript") then
@@ -6965,6 +6984,7 @@ local function change(field,value)
     if not layoutField then refreshAutomation()
     elseif ui then ui.refresh() end
 end
+hub.progress(0.9,"Montando os controles…","Building the controls…")
 ui=UI.create(services,config,{
     value=displayed,change=change,parseNumber=Core.parseAmount,membership=gate.membership,startProfile=startProfile,
     manualUpgrade=function(tool,id)
@@ -7008,6 +7028,7 @@ lifecycle.add(function() if ui then ui.close() end end)
 antiIdle=attachIdle(function() return Core.anyActive(config) end)
 ui.refresh()
 if lastRecovery then ui.recoveryInfo(lastRecovery) end
+hub.ready()
 if quickStartOP then
     ui.status("Aguardando o personagem para iniciar o OP.")
 else
