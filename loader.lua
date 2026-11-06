@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal entry point
-local version="0.34.0"
+local version="0.35.0"
 local games={
     [10767408330]={name="Peel THE Potato",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }

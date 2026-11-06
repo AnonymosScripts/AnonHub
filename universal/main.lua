@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal tools
-local BOOT_VERSION="0.34.0"
+local BOOT_VERSION="0.35.0"
 local hub=...
 if type(hub)~="table" then return end
 
@@ -15,17 +15,17 @@ local defaults={
     theme="midnight",width=560,height=610,scale=100,launcher=48,opacity=100,
     panelX=0.5,panelY=0.5,buttonX=0,buttonY=1,
     espMode="outline",espColor="theme",espHex="FF7A8D",espRange=850,espThrough=true,
-    espNick="display",espDistance=true,espTeam=true,
+    espNick="display",espDistance=true,espTeam=true,espLabels="screen",espCustomRigs=true,
     aimActivation=Input.TouchEnabled and "toggle" or "hold",aimResponse="smooth",
     aimPriority="center",aimPart="head",aimCircle="enabled",aimCircleColor="theme",
-    aimRadius=135,aimOffsetY=0,aimWidth=1,aimRange=650,aimSpeed=16,cameraFov=80,
-    aimTeam=true,aimVisible=true,aimSticky=true,aimCustomCamera=true,aimLabel=true,
+    aimRadius=175,aimOffsetY=0,aimWidth=1,aimRange=850,aimSpeed=24,cameraFov=80,
+    aimTeam=true,aimObstacles="visible",aimSticky=true,aimCustomCamera=true,aimLabel=true,
 }
 local limits={
     width={300,900},height={340,880},scale={65,140},launcher={40,90},opacity={60,100},
     panelX={0,1},panelY={0,1},buttonX={0,1},buttonY={0,1},espRange={100,1500},
     aimRadius={30,500},aimOffsetY={-130,130},aimWidth={1,4},aimRange={75,1500},
-    aimSpeed={3,40},cameraFov={35,120},
+    aimSpeed={3,70},cameraFov={35,120},
 }
 local modes={
     {"outline","Contorno","Outline"},
@@ -44,7 +44,10 @@ local nickModes={{"display","Nome de exibição","Display name"},{"username","@U
     {"both","Nome + @usuário","Name + @username"},{"off","Ocultar nome","Hide name"}}
 local activationModes={{"hold","Segurar","Hold"},{"toggle","Toque alterna","Tap to toggle"},
     {"always","Contínua","Continuous"}}
-local responses={{"smooth","Suave","Smooth"},{"snap","Direta","Direct"}}
+local responses={{"smooth","Suave","Smooth"},{"snap","Direta","Direct"},{"silent","Silenciosa","Silent"}}
+local obstacles={{"visible","Linha livre","Clear line"},{"effects","Ignorar efeitos","Ignore effects"},
+    {"through","Atrás de obstáculos","Behind obstacles"}}
+local labelModes={{"screen","Na tela (2D)","Screen (2D)"},{"world","No personagem (3D)","On character (3D)"}}
 local priorities={{"center","Perto da mira","Near crosshair"},{"distance","Perto do jogador","Near player"}}
 local aimParts={{"head","Cabeça","Head"},{"body","Tronco","Torso"},{"root","Centro","Root"}}
 local circles={{"enabled","Ao ligar a mira","While enabled"},{"active","Só ao mirar","While aiming"},
@@ -67,11 +70,13 @@ if lookup(ui.themes,saved.theme) then settings.theme=saved.theme end
 if lookup(modes,saved.espMode) then settings.espMode=saved.espMode end
 if lookup(colors,saved.espColor) then settings.espColor=saved.espColor end
 settings.espHex=hex(saved.espHex) or defaults.espHex
-for key,list in pairs({espNick=nickModes,aimActivation=activationModes,aimResponse=responses,
+for key,list in pairs({espNick=nickModes,espLabels=labelModes,aimActivation=activationModes,aimResponse=responses,
+    aimObstacles=obstacles,
     aimPriority=priorities,aimPart=aimParts,aimCircle=circles,aimCircleColor=circleColors}) do
     if lookup(list,saved[key]) then settings[key]=saved[key] end
 end
-for _,key in ipairs({"espThrough","espDistance","espHealth","espTeam","aimTeam","aimVisible",
+if not lookup(obstacles,saved.aimObstacles) and saved.aimVisible==false then settings.aimObstacles="through" end
+for _,key in ipairs({"espThrough","espDistance","espHealth","espTeam","espCustomRigs","aimTeam",
     "aimSticky","aimCustomCamera","aimLabel"}) do
     if type(saved[key])=="boolean" then settings[key]=saved[key] end
 end
@@ -123,6 +128,7 @@ local highlights={}
 local clipParts={}
 local clipCharacter,clipAdded,flight,speedOwner,fovOwner
 local espFolder,espScreen,aimLayer,aimTarget,aimMotion
+local silentSession
 local aimLatched=false
 local held={up=false,down=false,aim=false}
 
@@ -136,6 +142,40 @@ local function characterParts(character)
     local humanoid=character and character:FindFirstChildOfClass("Humanoid")
     local root=character and character:FindFirstChild("HumanoidRootPart")
     if humanoid and humanoid.Health>0 and root and root:IsA("BasePart") then return humanoid,root end
+end
+
+local function partNamed(model,name)
+    local part=model:FindFirstChild(name) or model:FindFirstChild(name,true)
+    if part and part:IsA("BasePart") then return part end
+end
+
+local function modelRig(model)
+    if not model or not model.Parent or not model:IsA("Model") then return end
+    local humanoid=model:FindFirstChildOfClass("Humanoid")
+    local root=partNamed(model,"HumanoidRootPart") or (humanoid and humanoid.RootPart) or model.PrimaryPart or partNamed(model,"UpperTorso")
+        or partNamed(model,"Torso") or partNamed(model,"Head")
+    if root then return model,root,humanoid end
+end
+
+local rigFolders={"Characters","PlayerCharacters","Alive","Players"}
+local rigReferences={"CharacterModel","Character"}
+local function playerRig(other,custom)
+    local model,root,humanoid=modelRig(other.Character)
+    if model or not custom then return model,root,humanoid end
+    for _,name in ipairs(rigReferences) do
+        local reference=other:FindFirstChild(name)
+        if reference and reference:IsA("ObjectValue") then
+            model,root,humanoid=modelRig(reference.Value)
+            if model then return model,root,humanoid end
+        end
+    end
+    for _,name in ipairs(rigFolders) do
+        local folder=world:FindFirstChild(name)
+        if folder then
+            model,root,humanoid=modelRig(folder:FindFirstChild(other.Name) or folder:FindFirstChild(tostring(other.UserId)))
+            if model then return model,root,humanoid end
+        end
+    end
 end
 
 local function enemy(other,ignoreTeam)
@@ -204,6 +244,7 @@ local function reset()
     table.clear(flags)
     held.up,held.down,held.aim=false,false,false
     aimTarget,aimMotion,aimLatched=nil,nil,false
+    if silentSession then table.clear(silentSession) silentSession=nil end
     releaseCharacter()
     clearHighlights()
     restoreProperty(fovOwner)
@@ -397,6 +438,7 @@ connect(Input.WindowFocusReleased,function()
     endDrag()
     held.up,held.down,held.aim=false,false,false
     aimTarget,aimMotion,aimLatched=nil,nil,false
+    if silentSession then silentSession.target=nil end
 end)
 connect(canvas:GetPropertyChangedSignal("AbsoluteSize"),function() if not pointer then applyLayout() end end)
 applyLayout()
@@ -424,7 +466,7 @@ local up=holdButton("up",T("↑  SUBIR","↑  UP"),-165,103)
 local down=holdButton("down",T("↓  DESCER","↓  DOWN"),-112,103)
 local aim=holdButton("aim",T("MIRAR","AIM"),-64,112,function() return settings.aimActivation=="hold" end)
 aimLayer=ui.make("ScreenGui",{Name="AnonHubAimOverlay",ResetOnSpawn=false,IgnoreGuiInset=true,
-    ScreenInsets=Enum.ScreenInsets.DeviceSafeInsets,DisplayOrder=10026},playerGui)
+    ScreenInsets=Enum.ScreenInsets.None,DisplayOrder=10026},playerGui)
 local sight=ui.make("Frame",{AnchorPoint=Vector2.new(0.5,0.5),
     BackgroundTransparency=1,Visible=false,Active=false},aimLayer)
 ui.make("UICorner",{CornerRadius=UDim.new(1,0)},sight)
@@ -433,11 +475,14 @@ local targetLabel=ui.label(aimLayer,"TextLabel","",24,0)
 targetLabel.AnchorPoint,targetLabel.Size=Vector2.new(0.5,0),UDim2.fromOffset(240,24)
 targetLabel.Font,targetLabel.TextSize=Enum.Font.GothamBold,12
 targetLabel.TextStrokeTransparency,targetLabel.Visible=0.25,false
+local function clearTarget()
+    aimTarget,aimMotion=nil,nil
+    if silentSession then silentSession.target=nil end
+end
 local function resetAim()
     held.aim,aimLatched,aimTarget=false,false,nil
-    aimMotion=nil
+    clearTarget()
 end
-local function clearTarget() aimTarget,aimMotion=nil,nil end
 local function aimButtonText()
     local message=settings.aimActivation=="toggle" and (aimLatched and T("PARAR MIRA","STOP AIM") or T("LIGAR MIRA","START AIM"))
         or T("SEGURAR MIRA","HOLD AIM")
@@ -564,15 +609,21 @@ end
 selector(aimPage,activationModes,"aimActivation",3,5,optionCaption,refreshActivation)
 refreshActivation()
 section(aimPage,T("RESPOSTA DA MIRA","AIM RESPONSE"),7)
-selector(aimPage,responses,"aimResponse",2,8,optionCaption)
-adjust(aimPage,settings,"aimSpeed",T("Velocidade da mira suave","Smooth aim speed"),3,40,2,9,save)
+local silentHelp=T("Mira silenciosa: apenas armas compatíveis com o mouse clássico.",
+    "Silent aim: compatible classic mouse weapons only.")
+local silentStatus
+selector(aimPage,responses,"aimResponse",3,8,optionCaption,function()
+    clearTarget()
+    silentStatus.Text=silentHelp
+end)
+adjust(aimPage,settings,"aimSpeed",T("Velocidade da mira suave","Smooth aim speed"),3,70,2,9,save)
 section(aimPage,T("PRIORIDADE DE ALVO","TARGET PRIORITY"),10)
 selector(aimPage,priorities,"aimPriority",2,11,optionCaption,clearTarget)
 section(aimPage,T("PONTO DO ALVO","TARGET PART"),12)
 selector(aimPage,aimParts,"aimPart",3,13,optionCaption,clearTarget)
 adjust(aimPage,settings,"aimRange",T("Alcance da mira","Aim range"),75,1500,50,14,save)
 settingToggle(aimPage,"aimTeam",T("Ignorar aliados na mira","Ignore teammates in aim"),15,clearTarget)
-settingToggle(aimPage,"aimVisible",T("Apenas alvos visíveis","Visible targets only"),16,clearTarget)
+selector(aimPage,obstacles,"aimObstacles",3,16,optionCaption,clearTarget)
 settingToggle(aimPage,"aimSticky",T("Manter o alvo atual","Keep current target"),17)
 settingToggle(aimPage,"aimCustomCamera",T("Aceitar câmera personalizada","Allow custom camera"),18,clearTarget)
 section(aimPage,T("CÍRCULO DE MIRA","AIM CIRCLE"),19)
@@ -583,6 +634,9 @@ adjust(aimPage,settings,"aimWidth",T("Espessura do círculo","Circle thickness")
 selector(aimPage,circleColors,"aimCircleColor",2,24,optionCaption,nil,
     function(option) return option[4] and ui.rgb(option[4]) end)
 settingToggle(aimPage,"aimLabel",T("Mostrar nome do alvo","Show target name"),25)
+silentStatus=ui.label(aimPage,"TextLabel",silentHelp,36,26)
+silentStatus.TextSize=11
+ui.paint(silentStatus,"TextColor3","muted")
 
 section(visionPage,T("DESTAQUE DE JOGADORES","PLAYER HIGHLIGHTING"),1)
 local vision=row(visionPage,2)
@@ -632,6 +686,11 @@ section(visionPage,T("INFORMAÇÕES DO JOGADOR","PLAYER DETAILS"),12)
 selector(visionPage,nickModes,"espNick",2,13,optionCaption,clearHighlights)
 settingToggle(visionPage,"espDistance",T("Mostrar distância","Show distance"),14,clearHighlights)
 refreshHealth=settingToggle(visionPage,"espHealth",T("Mostrar barra de vida","Show health bar"),15,clearHighlights,espHealthEnabled)
+selector(visionPage,labelModes,"espLabels",2,16,optionCaption,clearHighlights)
+settingToggle(visionPage,"espCustomRigs",T("Personagens personalizados (ESP e mira)","Custom characters (ESP and aim)"),17,function()
+    clearHighlights()
+    clearTarget()
+end)
 
 section(settingsPage,T("TEMAS DO HUB","HUB THEMES"),1)
 selector(settingsPage,ui.themes,"theme",2,2,function(option) return option[2] end,ui.setTheme,
@@ -707,26 +766,36 @@ local function removeEntry(entry)
     if entry.glow then entry.glow:Destroy() end
     if entry.billboard then entry.billboard:Destroy() end
     if entry.box then entry.box:Destroy() end
+    if entry.tag then entry.tag:Destroy() end
 end
 
-local function addEntry(candidate,outline,labels,boxes)
+local function addEntry(candidate,outline,labels,boxes,screenLabels)
     local entry={character=candidate.character,root=candidate.root,humanoid=candidate.humanoid}
     if outline then
         entry.glow=ui.make("Highlight",{Adornee=candidate.character,
             DepthMode=settings.espThrough and Enum.HighlightDepthMode.AlwaysOnTop or Enum.HighlightDepthMode.Occluded,
             FillTransparency=0.88,OutlineTransparency=0.06},espFolder)
     end
-    if labels or espHealthEnabled() then
-        entry.billboard=ui.make("BillboardGui",{Adornee=candidate.root,Size=UDim2.fromOffset(164,31),
-            StudsOffsetWorldSpace=Vector3.new(0,3.6,0),AlwaysOnTop=settings.espThrough},espFolder)
+    local health=espHealthEnabled() and candidate.humanoid~=nil
+    if labels or health then
+        local parent
+        if screenLabels then
+            entry.tag=ui.make("Frame",{BackgroundTransparency=1,Size=UDim2.fromOffset(172,31),
+                AnchorPoint=Vector2.new(0.5,1),Visible=false},espScreen)
+            parent=entry.tag
+        else
+            entry.billboard=ui.make("BillboardGui",{Adornee=candidate.root,Size=UDim2.fromOffset(172,31),
+                StudsOffsetWorldSpace=Vector3.new(0,3.6,0),AlwaysOnTop=settings.espThrough},espFolder)
+            parent=entry.billboard
+        end
         if labels then
-            entry.title=ui.label(entry.billboard,"TextLabel","",22,0)
+            entry.title=ui.label(parent,"TextLabel","",22,0)
             entry.title.TextSize,entry.title.TextStrokeTransparency=12,0.2
             entry.title.TextTruncate=Enum.TextTruncate.AtEnd
         end
-        if espHealthEnabled() then
-            local track=ui.make("Frame",{Position=UDim2.fromOffset(52,labels and 24 or 13),Size=UDim2.fromOffset(60,4),
-                BorderSizePixel=0,BackgroundColor3=Color3.fromRGB(24,27,33)},entry.billboard)
+        if health then
+            local track=ui.make("Frame",{Position=UDim2.fromOffset(56,labels and 24 or 23),Size=UDim2.fromOffset(60,4),
+                BorderSizePixel=0,BackgroundColor3=Color3.fromRGB(24,27,33)},parent)
             entry.health=ui.make("Frame",{Size=UDim2.fromScale(1,1),BorderSizePixel=0},track)
         end
     end
@@ -740,9 +809,9 @@ end
 
 local function playerDetails(other,distance)
     local name=""
-    if settings.espNick=="display" then name=other.DisplayName
+    if settings.espNick=="display" then name=other.DisplayName or other.Name
     elseif settings.espNick=="username" then name="@"..other.Name
-    elseif settings.espNick=="both" then name=other.DisplayName.." (@"..other.Name..")" end
+    elseif settings.espNick=="both" then name=(other.DisplayName or other.Name).." (@"..other.Name..")" end
     if settings.espDistance then
         local units=string.format("%.0f studs",distance)
         return name=="" and units or name.."  ·  "..units
@@ -756,22 +825,24 @@ local function showPlayers()
     local full=mode=="full"
     local outline,boxes=mode=="outline" or full,mode=="box" or full
     local labels=settings.espNick~="off" or settings.espDistance
-    if (outline or labels or espHealthEnabled()) and not espFolder then
+    local screenLabels=settings.espLabels=="screen" and (labels or espHealthEnabled())
+    if (outline or (not screenLabels and (labels or espHealthEnabled()))) and not espFolder then
         espFolder=ui.make("Folder",{Name="AnonHubESP"},world)
     end
-    if boxes and not espScreen then
+    if (boxes or screenLabels) and not espScreen then
         espScreen=ui.make("ScreenGui",{Name="AnonHubESPOverlay",ResetOnSpawn=false,
-            IgnoreGuiInset=true,DisplayOrder=10025},playerGui)
+            IgnoreGuiInset=true,ScreenInsets=Enum.ScreenInsets.None,DisplayOrder=10025},playerGui)
     end
-    local _,ownRoot=characterParts(player.Character)
+    local camera=world.CurrentCamera
+    local ownModel,ownRoot=playerRig(player,settings.espCustomRigs)
+    local origin=ownRoot and ownRoot.Position or camera and camera.CFrame.Position
     local candidates={}
-    if ownRoot then
+    if origin then
         for _,other in ipairs(Players:GetPlayers()) do
             if not enemy(other,settings.espTeam) then continue end
-            local character=other.Character
-            local humanoid,root=characterParts(character)
-            if not humanoid then continue end
-            local distance=(root.Position-ownRoot.Position).Magnitude
+            local character,root,humanoid=playerRig(other,settings.espCustomRigs)
+            if not root or character==ownModel or (humanoid and humanoid.Health<=0) then continue end
+            local distance=(root.Position-origin).Magnitude
             if distance<=settings.espRange then
                 table.insert(candidates,{other=other,character=character,root=root,humanoid=humanoid,distance=distance})
             end
@@ -781,9 +852,8 @@ local function showPlayers()
     local paletteEntry=lookup(colors,settings.espColor)
     local shade=settings.espColor=="custom" and ui.rgb(settings.espHex)
         or paletteEntry[4] and ui.rgb(paletteEntry[4]) or color.accent
-    local camera=world.CurrentCamera
-    local checkWalls=boxes and not settings.espThrough and camera
-    if checkWalls then espRay.FilterDescendantsInstances=player.Character and {player.Character} or {} end
+    local checkWalls=(boxes or screenLabels) and not settings.espThrough and camera
+    if checkWalls then espRay.FilterDescendantsInstances=ownModel and {ownModel} or {} end
     local seen={}
     for index=1,math.min(#candidates,32) do
         local candidate=candidates[index]
@@ -794,14 +864,15 @@ local function showPlayers()
             entry=nil
         end
         if not entry then
-            entry=addEntry(candidate,outline,labels,boxes)
+            entry=addEntry(candidate,outline,labels,boxes,screenLabels)
             highlights[other]=entry
         end
         local tint=settings.espColor=="team" and not other.Neutral and other.Team and other.Team.TeamColor.Color or shade
         if entry.glow then entry.glow.OutlineColor,entry.glow.FillColor=tint,tint end
         if entry.billboard then entry.billboard.MaxDistance=settings.espRange end
         if entry.title then
-            entry.title.Text=playerDetails(other,candidate.distance)
+            local details=playerDetails(other,candidate.distance)
+            if entry.title.Text~=details then entry.title.Text=details end
             entry.title.TextColor3=tint
         end
         if entry.health then
@@ -809,12 +880,13 @@ local function showPlayers()
             entry.health.Size=UDim2.fromScale(percent,1)
             entry.health.BackgroundColor3=tint
         end
-        if entry.box then
-            entry.edge.Color=tint
+        if entry.box then entry.edge.Color=tint end
+        if entry.box or entry.tag then
+            entry.head=partNamed(candidate.character,"Head")
             entry.clear=true
             if checkWalls then
-                local origin=camera.CFrame.Position
-                local hit=world:Raycast(origin,candidate.root.Position-origin,espRay)
+                local cameraOrigin=camera.CFrame.Position
+                local hit=world:Raycast(cameraOrigin,candidate.root.Position-cameraOrigin,espRay)
                 entry.clear=not hit or hit.Instance:IsDescendantOf(candidate.character)
             end
         end
@@ -832,23 +904,31 @@ local function drawBoxes(camera,dt)
     if boxElapsed<1/30 then return end
     boxElapsed=0
     for _,entry in pairs(highlights) do
-        local box,root=entry.box,entry.root
-        if not box then continue end
-        if not camera or not entry.clear or not root.Parent or entry.humanoid.Health<=0 then
-            box.Visible=false
+        local box,tag,root=entry.box,entry.tag,entry.root
+        if not box and not tag then continue end
+        if not camera or not entry.clear or not root.Parent or (entry.humanoid and entry.humanoid.Health<=0) then
+            if box then box.Visible=false end
+            if tag then tag.Visible=false end
             continue
         end
-        local head=entry.character:FindFirstChild("Head")
-        local top=head and head:IsA("BasePart") and head.Position+Vector3.new(0,head.Size.Y*0.55,0)
-            or root.Position+Vector3.new(0,2.6,0)
-        local bottom=root.Position-Vector3.new(0,math.max(2.2,entry.humanoid.HipHeight+root.Size.Y*0.5),0)
+        local head=entry.head
+        local top=head and head.Parent and head.Position+Vector3.new(0,head.Size.Y*0.55,0)
+            or root.Position+Vector3.new(0,math.max(2.6,root.Size.Y*0.55),0)
         local upper,upperVisible=camera:WorldToViewportPoint(top)
-        local lower,lowerVisible=camera:WorldToViewportPoint(bottom)
-        local height=math.abs(lower.Y-upper.Y)
-        box.Visible=(upperVisible or lowerVisible) and upper.Z>0 and lower.Z>0 and height>4
-        if box.Visible then
-            box.Size=UDim2.fromOffset(height*0.55,height)
-            box.Position=UDim2.fromOffset((upper.X+lower.X)*0.5,math.min(upper.Y,lower.Y))
+        if tag then
+            tag.Visible=upperVisible and upper.Z>0
+            if tag.Visible then tag.Position=UDim2.fromOffset(upper.X,upper.Y-4) end
+        end
+        if box then
+            local hip=entry.humanoid and entry.humanoid.HipHeight or 0
+            local bottom=root.Position-Vector3.new(0,math.max(2.2,hip+root.Size.Y*0.5),0)
+            local lower,lowerVisible=camera:WorldToViewportPoint(bottom)
+            local height=math.abs(lower.Y-upper.Y)
+            box.Visible=(upperVisible or lowerVisible) and upper.Z>0 and lower.Z>0 and height>4
+            if box.Visible then
+                box.Size=UDim2.fromOffset(height*0.55,height)
+                box.Position=UDim2.fromOffset((upper.X+lower.X)*0.5,math.min(upper.Y,lower.Y))
+            end
         end
     end
 end
@@ -868,22 +948,34 @@ end)
 
 local ray=RaycastParams.new()
 ray.FilterType=Enum.RaycastFilterType.Exclude
-local function targetPart(character)
-    local root=character:FindFirstChild("HumanoidRootPart") or character.PrimaryPart
-    local torso=character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
-    local head=character:FindFirstChild("Head")
-    local preferred=settings.aimPart=="head" and head or settings.aimPart=="body" and torso or root
-    local part=preferred or torso or head
-    return part and part:IsA("BasePart") and part or nil
+local function targetPart(character,root)
+    if settings.aimPart=="root" then return root end
+    if settings.aimPart=="head" then
+        local head=partNamed(character,"Head")
+        if head then return head end
+    end
+    return partNamed(character,"UpperTorso") or partNamed(character,"Torso") or root
 end
-local function visibleTarget(camera,other,anchor,limit,origin,best)
+local function hasSight(eye,direction,character,ownModel)
+    local mode=settings.aimObstacles
+    if mode=="through" then return true end
+    local exclude=ownModel and {ownModel} or {}
+    for attempt=1,(mode=="effects" and 4 or 1) do
+        ray.FilterDescendantsInstances=exclude
+        local hit=world:Raycast(eye,direction,ray)
+        if not hit or hit.Instance:IsDescendantOf(character) then return true end
+        local part=hit.Instance
+        if mode~="effects" or attempt==4 or not part:IsA("BasePart") or part.CanCollide
+            or math.max(part.Transparency,part.LocalTransparencyModifier)<0.95 then return false end
+        table.insert(exclude,part)
+    end
+    return false
+end
+local function visibleTarget(camera,other,anchor,limit,origin,ownModel,best)
     if not enemy(other,settings.aimTeam) then return end
-    local character=other.Character
-    if not character or not character.Parent then return end
-    local humanoid=character:FindFirstChildOfClass("Humanoid")
-    if humanoid and humanoid.Health<=0 then return end
-    local target=targetPart(character)
-    if not target then return end
+    local character,root,humanoid=playerRig(other,settings.espCustomRigs)
+    if not root or character==ownModel or (humanoid and humanoid.Health<=0) then return end
+    local target=targetPart(character,root)
     local point,onScreen=camera:WorldToViewportPoint(target.Position)
     if not onScreen or point.Z<=0 then return end
     local offset=(Vector2.new(point.X,point.Y)-anchor).Magnitude
@@ -893,11 +985,64 @@ local function visibleTarget(camera,other,anchor,limit,origin,best)
     if distance>settings.aimRange or distance<0.01 then return end
     local score=settings.aimPriority=="distance" and (target.Position-origin).Magnitude or offset
     if best and score>=best then return end
-    if settings.aimVisible then
-        local hit=world:Raycast(camera.CFrame.Position,direction,ray)
-        if hit and not hit.Instance:IsDescendantOf(character) then return end
-    end
+    if not hasSight(camera.CFrame.Position,direction,character,ownModel) then return end
     return target,score
+end
+
+-- One dispatcher per client; clearing its session leaves normal mouse reads untouched.
+local mouseHook
+local triedMouseHook=false
+local function installMouseHook()
+    if triedMouseHook then return mouseHook end
+    triedMouseHook=true
+    if type(getgenv)~="function" or type(hookmetamethod)~="function"
+        or type(checkcaller)~="function" or type(getcallingscript)~="function" then return end
+    local ok,hook=pcall(function()
+        local env=getgenv()
+        if type(env.AnonHubSilentMouseHook_v1)=="table" then return env.AnonHubSilentMouseHook_v1 end
+        local state={mouse=player:GetMouse()}
+        local original
+        local function read(object,key)
+            local session=state.session
+            if session and object==state.mouse and (key=="Hit" or key=="Target") and not checkcaller() then
+                local target,tool=session.target,session.tool
+                if target and target.Parent and tool and tool.Parent==session.character
+                    and not Input:GetFocusedTextBox() then
+                    local scriptOk,caller=pcall(getcallingscript)
+                    if scriptOk and typeof(caller)=="Instance" and caller:IsDescendantOf(tool) then
+                        session.used=true
+                        if key=="Hit" then return target.CFrame end
+                        return target
+                    end
+                end
+            end
+            return original(object,key)
+        end
+        original=hookmetamethod(game,"__index",type(newcclosure)=="function" and newcclosure(read) or read)
+        env.AnonHubSilentMouseHook_v1=state
+        return state
+    end)
+    if ok then mouseHook=hook end
+    return mouseHook
+end
+
+local function updateSilent(character,target)
+    local hook=installMouseHook()
+    local tool=hook and character and character:FindFirstChildOfClass("Tool")
+    if not hook or not tool then
+        if silentSession then table.clear(silentSession) end
+    else
+        if not silentSession then silentSession={} end
+        if silentSession.tool~=tool then silentSession.used=false end
+        silentSession.character,silentSession.tool,silentSession.target=character,tool,target
+        hook.session=silentSession
+    end
+    local message
+    if not hook then message=T("Mira silenciosa indisponível neste executor.","Silent aim is unavailable on this executor.")
+    elseif not tool then message=T("Equipe uma arma para usar a mira silenciosa.","Equip a weapon to use silent aim.")
+    elseif silentSession.used then message=T("Leitura de mouse da arma detectada.","Weapon mouse input detected.")
+    else message=T("Aguardando uso do mouse clássico pela arma.","Waiting for the weapon to use classic mouse input.") end
+    if silentStatus.Text~=message then silentStatus.Text=message end
 end
 
 local strokeColors={}
@@ -949,14 +1094,13 @@ Run:BindToRenderStep(renderName,Enum.RenderPriority.Last.Value+1,function(dt)
     if not flags.aim then return end
     aimButtonText()
     local viewport=camera.ViewportSize
-    if viewport.X<=0 or viewport.Y<=0 then sight.Visible=false targetLabel.Visible=false return end
+    if viewport.X<=0 or viewport.Y<=0 then clearTarget() sight.Visible=false targetLabel.Visible=false return end
     local anchor=Vector2.new(viewport.X*0.5,math.clamp(viewport.Y*0.5+settings.aimOffsetY,0,viewport.Y))
     local mode=settings.aimActivation
     local aiming=mode=="always" or (mode=="toggle" and aimLatched)
         or (mode=="hold" and (held.aim or Input:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
             or Input:IsKeyDown(Enum.KeyCode.LeftAlt)))
-    local character=player.Character
-    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
+    local character,ownRoot,humanoid=playerRig(player,settings.espCustomRigs)
     if not aiming or not character or (humanoid and humanoid.Health<=0) or Input:GetFocusedTextBox()
         or (not settings.aimCustomCamera and camera.CameraType==Enum.CameraType.Scriptable) then
         clearTarget()
@@ -964,25 +1108,27 @@ Run:BindToRenderStep(renderName,Enum.RenderPriority.Last.Value+1,function(dt)
         drawAim(viewport,anchor,false,nil)
         return
     end
-    if settings.aimVisible then ray.FilterDescendantsInstances={character} end
-    local ownRoot=character:FindFirstChild("HumanoidRootPart")
-    local origin=ownRoot and ownRoot:IsA("BasePart") and ownRoot.Position or camera.CFrame.Position
+    local origin=ownRoot and ownRoot.Position or camera.CFrame.Position
     local limit=settings.aimRadius
     local target,score
     if aimTarget then
-        target,score=visibleTarget(camera,aimTarget,anchor,settings.aimSticky and limit*1.12 or limit,origin)
+        target,score=visibleTarget(camera,aimTarget,anchor,settings.aimSticky and limit*1.12 or limit,origin,character)
         if not target then clearTarget() end
     end
     if (not target or not settings.aimSticky) and os.clock()>=nextAimSearch then
-        nextAimSearch=os.clock()+0.09
+        nextAimSearch=os.clock()+0.06
         for _,other in ipairs(Players:GetPlayers()) do
             if other~=aimTarget then
-                local candidate,rank=visibleTarget(camera,other,anchor,limit,origin,score)
+                local candidate,rank=visibleTarget(camera,other,anchor,limit,origin,character,score)
                 if candidate then target,score,aimTarget=candidate,rank,other end
             end
         end
     end
-    if target then aimCamera(camera,target,anchor,viewport,dt) end
+    if settings.aimResponse=="silent" then
+        updateSilent(character,target)
+    elseif target then
+        aimCamera(camera,target,anchor,viewport,dt)
+    end
     drawAim(viewport,anchor,true,target)
 end)
 
