@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal tools
-local BOOT_VERSION="0.32.0"
+local BOOT_VERSION="0.33.0"
 local hub=...
 if type(hub)~="table" then return end
 
@@ -15,10 +15,17 @@ local defaults={
     theme="midnight",width=560,height=610,scale=100,launcher=48,opacity=100,
     panelX=0.5,panelY=0.5,buttonX=0,buttonY=1,
     espMode="outline",espColor="theme",espHex="FF7A8D",espRange=850,espThrough=true,
+    espNick="display",espDistance=true,espTeam=true,
+    aimActivation=Input.TouchEnabled and "toggle" or "hold",aimResponse="smooth",
+    aimPriority="center",aimPart="head",aimCircle="enabled",aimCircleColor="theme",
+    aimRadius=135,aimOffsetY=0,aimWidth=1,aimRange=650,aimSpeed=16,cameraFov=80,
+    aimTeam=true,aimVisible=true,aimSticky=true,aimCustomCamera=true,aimLabel=true,
 }
 local limits={
     width={300,900},height={340,880},scale={65,140},launcher={40,90},opacity={60,100},
     panelX={0,1},panelY={0,1},buttonX={0,1},buttonY={0,1},espRange={100,1500},
+    aimRadius={30,500},aimOffsetY={-130,130},aimWidth={1,4},aimRange={75,1500},
+    aimSpeed={3,40},cameraFov={35,120},
 }
 local modes={
     {"outline","Contorno","Outline"},
@@ -33,6 +40,16 @@ local colors={
     {"violet","Violeta","Violet","CE9BFF"}, {"white","Branco","White","F9F8FF"},
     {"custom","Hexadecimal","Custom hex"},
 }
+local nickModes={{"display","Nome de exibição","Display name"},{"username","@Usuário","@Username"},
+    {"both","Nome + @usuário","Name + @username"},{"off","Ocultar nome","Hide name"}}
+local activationModes={{"hold","Segurar","Hold"},{"toggle","Toque alterna","Tap to toggle"},
+    {"always","Contínua","Continuous"}}
+local responses={{"smooth","Suave","Smooth"},{"snap","Direta","Direct"}}
+local priorities={{"center","Perto da mira","Near crosshair"},{"distance","Perto do jogador","Near player"}}
+local aimParts={{"head","Cabeça","Head"},{"body","Tronco","Torso"},{"root","Centro","Root"}}
+local circles={{"enabled","Ao ligar a mira","While enabled"},{"active","Só ao mirar","While aiming"},
+    {"off","Oculto","Hidden"}}
+local circleColors={colors[1],colors[3],colors[4],colors[8]}
 local function lookup(list,id)
     for _,entry in ipairs(list) do if entry[1]==id then return entry end end
 end
@@ -50,8 +67,19 @@ if lookup(ui.themes,saved.theme) then settings.theme=saved.theme end
 if lookup(modes,saved.espMode) then settings.espMode=saved.espMode end
 if lookup(colors,saved.espColor) then settings.espColor=saved.espColor end
 settings.espHex=hex(saved.espHex) or defaults.espHex
-if type(saved.espThrough)=="boolean" then settings.espThrough=saved.espThrough end
+for key,list in pairs({espNick=nickModes,aimActivation=activationModes,aimResponse=responses,
+    aimPriority=priorities,aimPart=aimParts,aimCircle=circles,aimCircleColor=circleColors}) do
+    if lookup(list,saved[key]) then settings[key]=saved[key] end
+end
+for _,key in ipairs({"espThrough","espDistance","espHealth","espTeam","aimTeam","aimVisible",
+    "aimSticky","aimCustomCamera","aimLabel"}) do
+    if type(saved[key])=="boolean" then settings[key]=saved[key] end
+end
 local function save() hub.saveSettings(settings) end
+local function espHealthEnabled()
+    if settings.espHealth~=nil then return settings.espHealth end
+    return settings.espMode=="full"
+end
 ui.setTheme(settings.theme)
 
 local playerGui=player:WaitForChild("PlayerGui")
@@ -88,13 +116,14 @@ local pages={}
 local tabButtons={}
 local connections={}
 local alive=true
-local flags={team=true}
-local values={speed=24,fly=55,fov=80,radius=135}
+local flags={}
+local values={speed=24,fly=55}
 local updates={}
 local highlights={}
 local clipParts={}
 local clipCharacter,clipAdded,flight,speedOwner,fovOwner
-local espFolder,espScreen,aimTarget
+local espFolder,espScreen,aimLayer,aimTarget,aimMotion
+local aimLatched=false
 local held={up=false,down=false,aim=false}
 
 local function connect(signal,callback)
@@ -109,8 +138,8 @@ local function characterParts(character)
     if humanoid and humanoid.Health>0 and root and root:IsA("BasePart") then return humanoid,root end
 end
 
-local function enemy(other)
-    return other~=player and (not flags.team or player.Neutral or other.Neutral or not player.Team
+local function enemy(other,ignoreTeam)
+    return other~=player and (not ignoreTeam or player.Neutral or other.Neutral or not player.Team
         or other.Team~=player.Team)
 end
 
@@ -172,9 +201,9 @@ local function releaseCharacter()
 end
 
 local function reset()
-    for key in pairs(flags) do if key~="team" then flags[key]=false end end
+    table.clear(flags)
     held.up,held.down,held.aim=false,false,false
-    aimTarget=nil
+    aimTarget,aimMotion,aimLatched=nil,nil,false
     releaseCharacter()
     clearHighlights()
     restoreProperty(fovOwner)
@@ -190,6 +219,7 @@ local function close()
     for _,connection in ipairs(connections) do connection:Disconnect() end
     table.clear(connections)
     reset()
+    if aimLayer then aimLayer:Destroy() end
     screen:Destroy()
 end
 hub.attach(close)
@@ -205,7 +235,7 @@ local function showTab(id)
 end
 local function tab(id,caption,index)
     local control=ui.button(nav,caption,0)
-    control.Position,control.Size=UDim2.new((index-1)/3,0,0,0),UDim2.new(1/3,-4,1,0)
+    control.Position,control.Size=UDim2.new((index-1)/4,0,0,0),UDim2.new(1/4,-4,1,0)
     control.TextSize=12
     local page=ui.make("ScrollingFrame",{Name=id,Position=UDim2.fromOffset(10,110),Size=UDim2.new(1,-20,1,-120),
         BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.fromOffset(0,0),
@@ -218,8 +248,9 @@ local function tab(id,caption,index)
     return page
 end
 local controls=tab("controls",T("CONTROLES","CONTROLS"),1)
-local visionPage=tab("vision","ESP",2)
-local settingsPage=tab("settings",T("AJUSTES","SETTINGS"),3)
+local aimPage=tab("aim",T("MIRA","AIM"),2)
+local visionPage=tab("vision","ESP",3)
+local settingsPage=tab("settings",T("AJUSTES","SETTINGS"),4)
 showTab("controls")
 ui.gameCard(controls,hub.identity,T("FERRAMENTAS UNIVERSAIS","UNIVERSAL TOOLS"),1)
 
@@ -364,6 +395,7 @@ connect(Input.InputEnded,function(event) if event==pointer then endDrag() end en
 connect(Input.WindowFocusReleased,function()
     endDrag()
     held.up,held.down,held.aim=false,false,false
+    aimTarget,aimMotion,aimLatched=nil,nil,false
 end)
 connect(canvas:GetPropertyChangedSignal("AbsoluteSize"),function() if not pointer then applyLayout() end end)
 applyLayout()
@@ -371,13 +403,14 @@ connect(Input.InputBegan,function(event,processed)
     if not processed and event.KeyCode==Enum.KeyCode.RightShift then togglePanel() end
 end)
 
-local function holdButton(key,caption,offset,width)
+local function holdButton(key,caption,offset,width,shouldHold)
     local control=ui.button(canvas,caption,0,true)
     control.Position,control.Size=UDim2.new(1,-width-12,1,offset),UDim2.fromOffset(width,46)
-    control.Visible=false
+    control.Visible,control.ZIndex=false,30
     local press
     connect(control.InputBegan,function(event)
-        if event.UserInputType==Enum.UserInputType.Touch or event.UserInputType==Enum.UserInputType.MouseButton1 then
+        if (not shouldHold or shouldHold()) and (not press or not held[key])
+            and (event.UserInputType==Enum.UserInputType.Touch or event.UserInputType==Enum.UserInputType.MouseButton1) then
             press=event held[key]=true
         end
     end)
@@ -388,15 +421,44 @@ local function holdButton(key,caption,offset,width)
 end
 local up=holdButton("up",T("↑  SUBIR","↑  UP"),-165,103)
 local down=holdButton("down",T("↓  DESCER","↓  DOWN"),-112,103)
-local aim=holdButton("aim",T("MIRAR","AIM"),-60,103)
-local sight=ui.make("Frame",{Position=UDim2.fromScale(0.5,0.5),AnchorPoint=Vector2.new(0.5,0.5),
-    BackgroundTransparency=1,Visible=false,Active=false},canvas)
+local aim=holdButton("aim",T("MIRAR","AIM"),-64,112,function() return settings.aimActivation=="hold" end)
+aimLayer=ui.make("ScreenGui",{Name="AnonHubAimOverlay",ResetOnSpawn=false,IgnoreGuiInset=true,
+    ScreenInsets=Enum.ScreenInsets.DeviceSafeInsets,DisplayOrder=10026},playerGui)
+local sight=ui.make("Frame",{AnchorPoint=Vector2.new(0.5,0.5),
+    BackgroundTransparency=1,Visible=false,Active=false},aimLayer)
 ui.make("UICorner",{CornerRadius=UDim.new(1,0)},sight)
-local sightEdge=ui.make("UIStroke",{Color="@accent",Thickness=1,Transparency=0.32},sight)
+local sightEdge=ui.make("UIStroke",{Color="@accent",Thickness=1,Transparency=0.18},sight)
+local targetLabel=ui.label(aimLayer,"TextLabel","",24,0)
+targetLabel.AnchorPoint,targetLabel.Size=Vector2.new(0.5,0),UDim2.fromOffset(240,24)
+targetLabel.Font,targetLabel.TextSize=Enum.Font.GothamBold,12
+targetLabel.TextStrokeTransparency,targetLabel.Visible=0.25,false
+local function resetAim()
+    held.aim,aimLatched,aimTarget=false,false,nil
+    aimMotion=nil
+end
+local function clearTarget() aimTarget,aimMotion=nil,nil end
+local function aimButtonText()
+    local message=settings.aimActivation=="toggle" and (aimLatched and T("PARAR MIRA","STOP AIM") or T("LIGAR MIRA","START AIM"))
+        or T("SEGURAR MIRA","HOLD AIM")
+    if aim.Text~=message then aim.Text=message end
+end
+local function toggleAim()
+    if not flags.aim or settings.aimActivation~="toggle" then return end
+    aimLatched=not aimLatched
+    clearTarget()
+    aimButtonText()
+end
+connect(aim.Activated,toggleAim)
+connect(Input.InputBegan,function(event,processed)
+    if not processed and not Input:GetFocusedTextBox()
+        and (event.UserInputType==Enum.UserInputType.MouseButton2 or event.KeyCode==Enum.KeyCode.LeftAlt) then toggleAim() end
+end)
 local function refreshOverlay()
-    up.Visible,down.Visible,aim.Visible=flags.fly==true,flags.fly==true,flags.aim==true
+    up.Visible,down.Visible=flags.fly==true,flags.fly==true
+    aim.Visible=flags.aim==true and settings.aimActivation~="always"
     if not flags.fly then held.up,held.down=false,false end
-    if not flags.aim then held.aim=false aimTarget=nil sight.Visible=false end
+    if not flags.aim then resetAim() sight.Visible=false targetLabel.Visible=false end
+    aimButtonText()
 end
 table.insert(updates,refreshOverlay)
 
@@ -413,19 +475,18 @@ end)
 toggle(movement2,"jump",T("Salto infinito","Infinite jump"),true)
 adjust(controls,values,"speed",T("Velocidade ao andar","Walk speed"),4,120,4,5)
 adjust(controls,values,"fly",T("Velocidade de voo","Flight speed"),10,180,10,6)
-section(controls,T("CÂMERA","CAMERA"),7)
-local cameraRow=row(controls,8)
+section(aimPage,T("MIRA E CAMPO DE VISÃO","AIM AND FIELD OF VIEW"),1)
+local cameraRow=row(aimPage,2)
 toggle(cameraRow,"aim",T("Mira assistida","Aim assist"),false,refreshOverlay)
-toggle(cameraRow,"fov","FOV",true,function(enabled)
+toggle(cameraRow,"fov",T("FOV da câmera","Camera FOV"),true,function(enabled)
     if not enabled then restoreProperty(fovOwner) fovOwner=nil end
 end)
-adjust(controls,values,"fov",T("Campo de visão","Field of view"),45,110,5,9)
-adjust(controls,values,"radius",T("Raio da mira em pixels","Aim radius in pixels"),45,300,15,10)
-local help=ui.label(controls,"TextLabel",T("No voo, use o direcional e os botões laterais. Segure MIRAR ou o botão direito para acompanhar um alvo visível.",
-    "Use movement controls and the side buttons to fly. Hold AIM or right mouse to track a visible target."),52,11)
+adjust(aimPage,settings,"cameraFov",T("Campo de visão da câmera (°)","Camera field of view (°)"),35,120,5,3,save)
+local help=ui.label(controls,"TextLabel",T("Para voar, use o direcional e os botões laterais.",
+    "Use movement controls and the side buttons to fly."),40,7)
 help.TextSize=12
 ui.paint(help,"TextColor3","muted")
-connect(ui.button(controls,T("RESTAURAR CONTROLES","RESET CONTROLS"),12,true).Activated,reset)
+connect(ui.button(controls,T("RESTAURAR CONTROLES","RESET CONTROLS"),8,true).Activated,reset)
 
 local function selector(parent,options,key,columns,order,caption,onChange,swatch)
     local group=ui.make("Frame",{Size=UDim2.new(1,0,0,math.ceil(#options/columns)*39),LayoutOrder=order,
@@ -463,13 +524,74 @@ local function selector(parent,options,key,columns,order,caption,onChange,swatch
     return refresh
 end
 
+local function settingToggle(parent,key,title,order,onChange,readValue)
+    local button=ui.button(parent,"",order)
+    local function enabled()
+        if readValue then return readValue() end
+        return settings[key]
+    end
+    local function refresh()
+        local on=enabled()
+        button.Text=title.."  ·  "..(on and "ON" or "OFF")
+        ui.paint(button,"BackgroundColor3",on and "active" or "tile")
+        ui.paint(button,"TextColor3",on and "dark" or "text")
+    end
+    refresh()
+    connect(button.Activated,function()
+        settings[key]=not enabled()
+        if onChange then onChange() end
+        refresh()
+        save()
+    end)
+    return refresh
+end
+local function optionCaption(option) return T(option[2],option[3]) end
+
+section(aimPage,T("ATIVAÇÃO","ACTIVATION"),4)
+local activationHint=ui.label(aimPage,"TextLabel","",36,6)
+activationHint.TextSize=11
+ui.paint(activationHint,"TextColor3","muted")
+local function refreshActivation()
+    resetAim()
+    refreshOverlay()
+    activationHint.Text=settings.aimActivation=="always" and T("A mira acompanha alvos enquanto estiver ligada.","Aim tracks targets while enabled.")
+        or settings.aimActivation=="toggle" and T("Toque em LIGAR MIRA. No PC, use botão direito ou Alt esquerdo.",
+            "Tap START AIM. On desktop, use right mouse or Left Alt.")
+        or T("Segure o botão lateral, o botão direito do mouse ou Alt esquerdo.",
+            "Hold the side button, right mouse or Left Alt.")
+end
+selector(aimPage,activationModes,"aimActivation",3,5,optionCaption,refreshActivation)
+refreshActivation()
+section(aimPage,T("RESPOSTA DA MIRA","AIM RESPONSE"),7)
+selector(aimPage,responses,"aimResponse",2,8,optionCaption)
+adjust(aimPage,settings,"aimSpeed",T("Velocidade da mira suave","Smooth aim speed"),3,40,2,9,save)
+section(aimPage,T("PRIORIDADE DE ALVO","TARGET PRIORITY"),10)
+selector(aimPage,priorities,"aimPriority",2,11,optionCaption,clearTarget)
+section(aimPage,T("PONTO DO ALVO","TARGET PART"),12)
+selector(aimPage,aimParts,"aimPart",3,13,optionCaption,clearTarget)
+adjust(aimPage,settings,"aimRange",T("Alcance da mira","Aim range"),75,1500,50,14,save)
+settingToggle(aimPage,"aimTeam",T("Ignorar aliados na mira","Ignore teammates in aim"),15,clearTarget)
+settingToggle(aimPage,"aimVisible",T("Apenas alvos visíveis","Visible targets only"),16,clearTarget)
+settingToggle(aimPage,"aimSticky",T("Manter o alvo atual","Keep current target"),17)
+settingToggle(aimPage,"aimCustomCamera",T("Aceitar câmera personalizada","Allow custom camera"),18,clearTarget)
+section(aimPage,T("CÍRCULO DE MIRA","AIM CIRCLE"),19)
+selector(aimPage,circles,"aimCircle",3,20,optionCaption)
+adjust(aimPage,settings,"aimRadius",T("Raio do círculo (px)","Circle radius (px)"),30,500,15,21,save)
+adjust(aimPage,settings,"aimOffsetY",T("Ajuste vertical (px)","Vertical offset (px)"),-130,130,5,22,save)
+adjust(aimPage,settings,"aimWidth",T("Espessura do círculo","Circle thickness"),1,4,1,23,save)
+selector(aimPage,circleColors,"aimCircleColor",2,24,optionCaption,nil,
+    function(option) return option[4] and ui.rgb(option[4]) end)
+settingToggle(aimPage,"aimLabel",T("Mostrar nome do alvo","Show target name"),25)
+
 section(visionPage,T("DESTAQUE DE JOGADORES","PLAYER HIGHLIGHTING"),1)
 local vision=row(visionPage,2)
 toggle(vision,"esp","ESP",false,function(enabled) if not enabled then clearHighlights() end end)
-toggle(vision,"team",T("Ignorar equipe","Ignore teammates"),true,function() aimTarget=nil end)
 section(visionPage,T("ESTILO","STYLE"),3)
-local function optionCaption(option) return T(option[2],option[3]) end
-selector(visionPage,modes,"espMode",2,4,optionCaption,clearHighlights)
+local refreshHealth
+selector(visionPage,modes,"espMode",2,4,optionCaption,function()
+    clearHighlights()
+    if refreshHealth then refreshHealth() end
+end)
 section(visionPage,T("COR DO ESP","ESP COLOR"),5)
 local refreshColors=selector(visionPage,colors,"espColor",3,6,optionCaption,nil,
     function(option) return option[4] and ui.rgb(option[4]) end)
@@ -502,18 +624,13 @@ local function applyHex()
 end
 connect(useHex.Activated,applyHex)
 connect(hexInput.FocusLost,function(pressed) if pressed then applyHex() end end)
-local walls=ui.button(visionPage,"",9)
-local function refreshWalls()
-    walls.Text=T("ATRAVÉS DE PAREDES","THROUGH WALLS").."  ·  "..(settings.espThrough and "ON" or "OFF")
-end
-refreshWalls()
-connect(walls.Activated,function()
-    settings.espThrough=not settings.espThrough
-    refreshWalls()
-    clearHighlights()
-    save()
-end)
-adjust(visionPage,settings,"espRange",T("Distância máxima do ESP","Maximum ESP range"),100,1500,50,10,save)
+settingToggle(visionPage,"espThrough",T("Através de paredes","Through walls"),9,clearHighlights)
+settingToggle(visionPage,"espTeam",T("Ignorar aliados no ESP","Ignore teammates in ESP"),10,clearHighlights)
+adjust(visionPage,settings,"espRange",T("Distância máxima do ESP","Maximum ESP range"),100,1500,50,11,save)
+section(visionPage,T("INFORMAÇÕES DO JOGADOR","PLAYER DETAILS"),12)
+selector(visionPage,nickModes,"espNick",2,13,optionCaption,clearHighlights)
+settingToggle(visionPage,"espDistance",T("Mostrar distância","Show distance"),14,clearHighlights)
+refreshHealth=settingToggle(visionPage,"espHealth",T("Mostrar barra de vida","Show health bar"),15,clearHighlights,espHealthEnabled)
 
 section(settingsPage,T("TEMAS DO HUB","HUB THEMES"),1)
 selector(settingsPage,ui.themes,"theme",2,2,function(option) return option[2] end,ui.setTheme,
@@ -536,7 +653,10 @@ connect(ui.button(settingsPage,T("IDIOMA","LANGUAGE"),10).Activated,hub.chooseLa
 connect(ui.button(settingsPage,T("ENCERRAR HUB","CLOSE HUB"),11).Activated,hub.unload)
 connect(screen.Destroying,function() if alive then hub.unload() end end)
 
-connect(player.CharacterRemoving,releaseCharacter)
+connect(player.CharacterRemoving,function()
+    releaseCharacter()
+    resetAim()
+end)
 local lastJump=-math.huge
 connect(Input.JumpRequest,function()
     if not flags.jump or flags.fly or os.clock()-lastJump<0.12 then return end
@@ -588,21 +708,23 @@ local function removeEntry(entry)
     if entry.box then entry.box:Destroy() end
 end
 
-local function addEntry(candidate,outline,names,boxes)
+local function addEntry(candidate,outline,labels,boxes)
     local entry={character=candidate.character,root=candidate.root,humanoid=candidate.humanoid}
     if outline then
         entry.glow=ui.make("Highlight",{Adornee=candidate.character,
             DepthMode=settings.espThrough and Enum.HighlightDepthMode.AlwaysOnTop or Enum.HighlightDepthMode.Occluded,
             FillTransparency=0.88,OutlineTransparency=0.06},espFolder)
     end
-    if names then
+    if labels or espHealthEnabled() then
         entry.billboard=ui.make("BillboardGui",{Adornee=candidate.root,Size=UDim2.fromOffset(164,31),
             StudsOffsetWorldSpace=Vector3.new(0,3.6,0),AlwaysOnTop=settings.espThrough},espFolder)
-        entry.title=ui.label(entry.billboard,"TextLabel","",22,0)
-        entry.title.TextSize,entry.title.TextStrokeTransparency=12,0.2
-        entry.title.TextTruncate=Enum.TextTruncate.AtEnd
-        if settings.espMode=="full" then
-            local track=ui.make("Frame",{Position=UDim2.fromOffset(52,24),Size=UDim2.fromOffset(60,3),
+        if labels then
+            entry.title=ui.label(entry.billboard,"TextLabel","",22,0)
+            entry.title.TextSize,entry.title.TextStrokeTransparency=12,0.2
+            entry.title.TextTruncate=Enum.TextTruncate.AtEnd
+        end
+        if espHealthEnabled() then
+            local track=ui.make("Frame",{Position=UDim2.fromOffset(52,labels and 24 or 13),Size=UDim2.fromOffset(60,4),
                 BorderSizePixel=0,BackgroundColor3=Color3.fromRGB(24,27,33)},entry.billboard)
             entry.health=ui.make("Frame",{Size=UDim2.fromScale(1,1),BorderSizePixel=0},track)
         end
@@ -615,12 +737,27 @@ local function addEntry(candidate,outline,names,boxes)
     return entry
 end
 
+local function playerDetails(other,distance)
+    local name=""
+    if settings.espNick=="display" then name=other.DisplayName
+    elseif settings.espNick=="username" then name="@"..other.Name
+    elseif settings.espNick=="both" then name=other.DisplayName.." (@"..other.Name..")" end
+    if settings.espDistance then
+        local units=string.format("%.0f studs",distance)
+        return name=="" and units or name.."  ·  "..units
+    end
+    return name
+end
+
 local function showPlayers()
     if (espFolder and not espFolder.Parent) or (espScreen and not espScreen.Parent) then clearHighlights() end
     local mode=settings.espMode
     local full=mode=="full"
-    local outline,names,boxes=mode=="outline" or full,mode=="names" or full,mode=="box" or full
-    if (outline or names) and not espFolder then espFolder=ui.make("Folder",{Name="AnonHubESP"},world) end
+    local outline,boxes=mode=="outline" or full,mode=="box" or full
+    local labels=settings.espNick~="off" or settings.espDistance
+    if (outline or labels or espHealthEnabled()) and not espFolder then
+        espFolder=ui.make("Folder",{Name="AnonHubESP"},world)
+    end
     if boxes and not espScreen then
         espScreen=ui.make("ScreenGui",{Name="AnonHubESPOverlay",ResetOnSpawn=false,
             IgnoreGuiInset=true,DisplayOrder=10025},playerGui)
@@ -629,7 +766,7 @@ local function showPlayers()
     local candidates={}
     if ownRoot then
         for _,other in ipairs(Players:GetPlayers()) do
-            if not enemy(other) then continue end
+            if not enemy(other,settings.espTeam) then continue end
             local character=other.Character
             local humanoid,root=characterParts(character)
             if not humanoid then continue end
@@ -656,14 +793,14 @@ local function showPlayers()
             entry=nil
         end
         if not entry then
-            entry=addEntry(candidate,outline,names,boxes)
+            entry=addEntry(candidate,outline,labels,boxes)
             highlights[other]=entry
         end
         local tint=settings.espColor=="team" and not other.Neutral and other.Team and other.Team.TeamColor.Color or shade
         if entry.glow then entry.glow.OutlineColor,entry.glow.FillColor=tint,tint end
+        if entry.billboard then entry.billboard.MaxDistance=settings.espRange end
         if entry.title then
-            entry.billboard.MaxDistance=settings.espRange
-            entry.title.Text=string.format("%s  ·  %.0f",other.DisplayName,candidate.distance)
+            entry.title.Text=playerDetails(other,candidate.distance)
             entry.title.TextColor3=tint
         end
         if entry.health then
@@ -730,58 +867,122 @@ end)
 
 local ray=RaycastParams.new()
 ray.FilterType=Enum.RaycastFilterType.Exclude
-local function visibleTarget(camera,other,limit)
-    if not enemy(other) then return end
+local function targetPart(character)
+    local root=character:FindFirstChild("HumanoidRootPart") or character.PrimaryPart
+    local torso=character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
+    local head=character:FindFirstChild("Head")
+    local preferred=settings.aimPart=="head" and head or settings.aimPart=="body" and torso or root
+    local part=preferred or torso or head
+    return part and part:IsA("BasePart") and part or nil
+end
+local function visibleTarget(camera,other,anchor,limit,origin,best)
+    if not enemy(other,settings.aimTeam) then return end
     local character=other.Character
-    local humanoid,root=characterParts(character)
-    if not humanoid then return end
-    local target=character:FindFirstChild("Head") or root
-    if not target:IsA("BasePart") then return end
+    if not character or not character.Parent then return end
+    local humanoid=character:FindFirstChildOfClass("Humanoid")
+    if humanoid and humanoid.Health<=0 then return end
+    local target=targetPart(character)
+    if not target then return end
     local point,onScreen=camera:WorldToViewportPoint(target.Position)
     if not onScreen or point.Z<=0 then return end
-    local center=camera.ViewportSize*0.5
-    local delta=Vector2.new(point.X,point.Y)-center
-    if delta.Magnitude>limit then return end
-    local origin=camera.CFrame.Position
-    local direction=target.Position-origin
-    if direction.Magnitude>650 or direction.Magnitude<0.01 then return end
-    local collision=world:Raycast(origin,direction,ray)
-    if collision and not collision.Instance:IsDescendantOf(character) then return end
-    return target,delta.Magnitude
+    local offset=(Vector2.new(point.X,point.Y)-anchor).Magnitude
+    if offset>limit then return end
+    local direction=target.Position-camera.CFrame.Position
+    local distance=direction.Magnitude
+    if distance>settings.aimRange or distance<0.01 then return end
+    local score=settings.aimPriority=="distance" and (target.Position-origin).Magnitude or offset
+    if best and score>=best then return end
+    if settings.aimVisible then
+        local hit=world:Raycast(camera.CFrame.Position,direction,ray)
+        if hit and not hit.Instance:IsDescendantOf(character) then return end
+    end
+    return target,score
+end
+
+local strokeColors={}
+for _,option in ipairs(circleColors) do if option[4] then strokeColors[option[1]]=ui.rgb(option[4]) end end
+local function drawAim(viewport,anchor,aiming,target)
+    local radius=settings.aimRadius
+    sight.Visible=settings.aimCircle=="enabled" or (settings.aimCircle=="active" and aiming)
+    if sight.Visible then
+        sight.Position,sight.Size=UDim2.fromOffset(anchor.X,anchor.Y),UDim2.fromOffset(radius*2,radius*2)
+        sightEdge.Thickness=settings.aimWidth
+        sightEdge.Color=target and color.active or strokeColors[settings.aimCircleColor] or color.accent
+    end
+    targetLabel.Visible=settings.aimLabel and aiming
+    if targetLabel.Visible then
+        targetLabel.Position=UDim2.fromOffset(anchor.X,math.min(viewport.Y-24,anchor.Y+(sight.Visible and radius or 12)+5))
+        local text=target and aimTarget.DisplayName or T("Sem alvo no círculo","No target inside the circle")
+        if targetLabel.Text~=text then targetLabel.Text=text end
+    end
+end
+
+local function aimCamera(camera,target,anchor,viewport,dt)
+    local current=camera.CFrame
+    local goal=CFrame.lookAt(current.Position,target.Position,current.UpVector)
+    if anchor.Y~=viewport.Y*0.5 then
+        local direction=camera:ViewportPointToRay(anchor.X,anchor.Y).Direction
+        local relative=current:VectorToObjectSpace(direction)
+        local offCenter=CFrame.lookAt(Vector3.zero,relative)
+        goal=goal*offCenter:Inverse()
+    end
+    if settings.aimResponse=="smooth" then
+        local from=current
+        if aimMotion and aimMotion.camera==camera and aimMotion.target==target then
+            local previous=aimMotion.frame
+            from=previous+(current.Position-previous.Position)
+        end
+        goal=from:Lerp(goal,1-math.exp(-settings.aimSpeed*dt))
+    end
+    camera.CFrame=goal
+    aimMotion={camera=camera,target=target,frame=goal}
 end
 
 local nextAimSearch=0
-Run:BindToRenderStep(renderName,Enum.RenderPriority.Camera.Value+1,function(dt)
+Run:BindToRenderStep(renderName,Enum.RenderPriority.Last.Value+1,function(dt)
     if not flags.aim and not flags.fov and not espScreen then return end
     local camera=world.CurrentCamera
     drawBoxes(camera,dt)
-    if not camera then sight.Visible=false return end
-    if flags.fov then fovOwner=applyProperty(fovOwner,camera,"FieldOfView",values.fov) end
-    local aiming=flags.aim and (held.aim or Input:IsMouseButtonPressed(Enum.UserInputType.MouseButton2))
-    if not aiming or not characterParts(player.Character) or Input:GetFocusedTextBox()
-        or camera.CameraType==Enum.CameraType.Scriptable then
-        sight.Visible=false
-        aimTarget=nil nextAimSearch=0 return
+    if not camera then clearTarget() sight.Visible=false targetLabel.Visible=false return end
+    if flags.fov then fovOwner=applyProperty(fovOwner,camera,"FieldOfView",settings.cameraFov) end
+    if not flags.aim then return end
+    aimButtonText()
+    local viewport=camera.ViewportSize
+    if viewport.X<=0 or viewport.Y<=0 then sight.Visible=false targetLabel.Visible=false return end
+    local anchor=Vector2.new(viewport.X*0.5,math.clamp(viewport.Y*0.5+settings.aimOffsetY,0,viewport.Y))
+    local mode=settings.aimActivation
+    local aiming=mode=="always" or (mode=="toggle" and aimLatched)
+        or (mode=="hold" and (held.aim or Input:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+            or Input:IsKeyDown(Enum.KeyCode.LeftAlt)))
+    local character=player.Character
+    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
+    if not aiming or not character or (humanoid and humanoid.Health<=0) or Input:GetFocusedTextBox()
+        or (not settings.aimCustomCamera and camera.CameraType==Enum.CameraType.Scriptable) then
+        clearTarget()
+        nextAimSearch=0
+        drawAim(viewport,anchor,false,nil)
+        return
     end
-    local diameter=values.radius*2
-    sight.Size=UDim2.fromOffset(diameter,diameter)
-    sight.Visible=true
-    ray.FilterDescendantsInstances=player.Character and {player.Character} or {}
-    local target=aimTarget and visibleTarget(camera,aimTarget,values.radius*1.2)
-    if not target and os.clock()>=nextAimSearch then
+    if settings.aimVisible then ray.FilterDescendantsInstances={character} end
+    local ownRoot=character:FindFirstChild("HumanoidRootPart")
+    local origin=ownRoot and ownRoot:IsA("BasePart") and ownRoot.Position or camera.CFrame.Position
+    local limit=settings.aimRadius
+    local target,score
+    if aimTarget then
+        target,score=visibleTarget(camera,aimTarget,anchor,settings.aimSticky and limit*1.12 or limit,origin)
+        if not target then clearTarget() end
+    end
+    if (not target or not settings.aimSticky) and os.clock()>=nextAimSearch then
         nextAimSearch=os.clock()+0.09
-        aimTarget=nil
-        local distance=values.radius
         for _,other in ipairs(Players:GetPlayers()) do
-            local candidate,offset=visibleTarget(camera,other,distance)
-            if candidate then target,distance,aimTarget=candidate,offset,other end
+            if other~=aimTarget then
+                local candidate,rank=visibleTarget(camera,other,anchor,limit,origin,score)
+                if candidate then target,score,aimTarget=candidate,rank,other end
+            end
         end
     end
-    if target then
-        local goal=CFrame.lookAt(camera.CFrame.Position,target.Position)
-        camera.CFrame=camera.CFrame:Lerp(goal,1-math.exp(-16*dt))
-    end
-    sightEdge.Color=target and color.active or color.accent
+    if target then aimCamera(camera,target,anchor,viewport,dt) end
+    drawAim(viewport,anchor,true,target)
 end)
 
 hub.ready()
