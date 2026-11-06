@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.26.0. Chapter 2 and lobby. No paid purchases.
+-- Local test key: Anonymous. Version 0.27.0. Chapter 2 and lobby. No paid purchases.
 
 local BootError = (function()
 -- Luau · potato_boot_error.luau · visible startup errors for mobile
@@ -194,11 +194,13 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
             return
         end
         featureToken+=1 feature=kind refresh()
+        record(kind,"started")
         local current=featureToken
         task.spawn(function()
             local function valid() return lifecycle.alive() and current==featureToken and not gate.expired() and not busy end
             local ok,success,message=pcall(fn,valid)
             if not valid() then return end
+            record(kind,ok and tostring(message or success) or "runtime error")
             stopFeature()
             view.status(ok and tostring(message or success) or "O jogo interrompeu a rotina do lobby.")
         end)
@@ -495,6 +497,23 @@ function Extras.offerAmount(text)
     return value and value>0 and value or nil
 end
 
+function Extras.crateAmount(text)
+    local plain=text:gsub("<.->",""):upper()
+    local quoted=plain:match("^%s*(%d+)%s+FREE%s+0%s*[X×]%s*$")
+    return tonumber(quoted) or Extras.offerAmount(plain)
+end
+
+function Extras.singleSpinPrice(text)
+    local plain=text:gsub("<.->",""):upper()
+    if plain:match("%f[%d][2-9]%s+CLASS%s+SPINS?") or plain:match("%f[%d]%d%d+%s+CLASS%s+SPINS?") then return nil end
+    return Extras.offerAmount((plain:gsub("%f[%d]1%s+CLASS%s+SPINS?","",1)))
+end
+
+function Extras.isGemOffer(label,price,nativeRow,gemMarker)
+    return type(price)=="number" and price>0
+        and (gemMarker==true or nativeRow==true and price==40 and label:match("^%s*40%s*$")~=nil)
+end
+
 function Extras.confirmRoll(before,after,cost,spentGems,resultSeen)
     return type(before)=="number" and type(after)=="number" and resultSeen==true
         and (spentGems and type(cost)=="number" and cost>0 and after==before-cost
@@ -511,6 +530,7 @@ function Extras.create(services,bridge,nav,lifecycle)
     local crateSignal=0
     local moduleCatalog={}
     local lastCrateRoute=nil
+    local lastClassRoute=nil
     local function imageId(value)
         if type(value)=="number" and value>0 then return "rbxassetid://"..string.format("%.0f",value) end
         if type(value)~="string" or value=="" then return nil end
@@ -592,6 +612,20 @@ function Extras.create(services,bridge,nav,lifecycle)
         local upper=tostring(text):upper()
         return upper:find("ROBUX",1,true) or upper:find("R$",1,true) or upper:find("PREMIUM",1,true)
             or upper:find("PRODUCT",1,true) or upper:find("GAMEPASS",1,true)
+    end
+    local function shownText(control)
+        local result,seen={},{}
+        local function add(text)
+            if text~="" and not seen[text] then
+                seen[text]=true
+                table.insert(result,text)
+            end
+        end
+        if control:IsA("TextButton") then add(control.Text) end
+        for _,item in ipairs(control:GetDescendants()) do
+            if item:IsA("TextLabel") and bridge.visible(item) then add(item.Text) end
+        end
+        return table.concat(result," "):gsub("<.->","")
     end
     local function buttons(root,filter,visibleOnly)
         local result={}
@@ -692,33 +726,45 @@ function Extras.create(services,bridge,nav,lifecycle)
         end
         return false
     end
-    local function controlPrice(button,label)
+    local function controlPrice(button,label,parse)
+        parse=parse or Extras.offerAmount
         local price=nil
         for _,item in ipairs(button:GetDescendants()) do
             local key=norm(item.Name)
             if item:IsA("TextLabel") and bridge.visible(item)
                 and (key=="price" or key=="cost" or key=="amount") then
-                local value=Extras.offerAmount(item.Text)
+                local value=parse(item.Text)
                 if price and value and value~=price then return nil end
                 price=value or price
             end
         end
-        return price or Extras.offerAmount(label)
+        return price or parse(label)
     end
     local function rollOffer(screen,useGems)
-        local choices={}
-        for _,button in ipairs(buttons(screen,function() return true end,useGems)) do
-            local label=bridge.texts(button)
+        local choices,nativeChoices={},{}
+        local single=get(screen,"Choice","Single")
+        local native=get(screen,"Content","Buttons")
+        for _,button in ipairs(screen and screen:GetDescendants() or {}) do
+            if not button:IsA("GuiButton") or not button.Active or useGems and not bridge.visible(button) then continue end
+            local label=useGems and shownText(button) or bridge.texts(button)
+            if paid(label.." "..button.Name) then continue end
             local key=norm(button.Name.." "..label)
-            local action=key:find("roll",1,true) or key:find("girar",1,true) or key:find("rolar",1,true)
+            local inNative=native and button:IsDescendantOf(native)
+            local action=key:find("roll",1,true) or key:find("spin",1,true)
+                or key:find("girar",1,true) or key:find("rolar",1,true)
+            local multiple=button.Name=="Bundle" or key:find("rollx",1,true) or key:find("spinbundle",1,true)
             local withGems=currency(button,{"gem","diamond","gema","diamante"},"Diamonds")
                 or currency(button,{},"Gems")
             local free=key:find("free",1,true) or key:find("grati",1,true)
-            local price=controlPrice(button,label)
-            if action and (useGems and withGems and not free and price or not useGems and not withGems) then
-                table.insert(choices,{button=button,price=price,free=free})
+            local price=controlPrice(button,label,button==single and Extras.singleSpinPrice or nil)
+            if not multiple and (action or inNative or button==single)
+                and (useGems and not free and Extras.isGemOffer(label,price,inNative,withGems)
+                    or not useGems and not withGems and (free or inNative and action and not price)) then
+                local offers=inNative and nativeChoices or choices
+                table.insert(offers,{button=button,price=price,free=free})
             end
         end
+        if #nativeChoices>0 then choices=nativeChoices end
         if not useGems and #choices>1 then
             local freeChoices={}
             for _,choice in ipairs(choices) do if choice.free then table.insert(freeChoices,choice) end end
@@ -727,6 +773,7 @@ function Extras.create(services,bridge,nav,lifecycle)
         if #choices==1 then return choices[1] end
     end
     local function roll(valid,target,useGems,report,onResult)
+        lastClassRoute=nil
         if type(target)~="table" or norm(target.name)=="" then return false,"Escolha uma classe na barra." end
         local index=0
         while valid() do
@@ -745,6 +792,7 @@ function Extras.create(services,bridge,nav,lifecycle)
             if before==nil then return false,"Aguardando o saldo de gemas do jogo." end
             if useGems and before<offer.price then return true,"Gemas insuficientes para o próximo giro." end
             local seen=classSignal
+            lastClassRoute=offer.button:GetFullName()
             local ok,why=bridge.activate(offer.button,not useGems)
             if not ok then return false,why end
             local nextClass=nil
@@ -757,6 +805,10 @@ function Extras.create(services,bridge,nav,lifecycle)
                 if confirmed then nextClass=class end
                 return confirmed
             end) then return false,"O jogo nao confirmou o resultado. Rolagem parada." end
+            if nextClass==current then
+                task.wait(0.65)
+                nextClass=select(1,classState()) or nextClass
+            end
             index+=1
             report("Giro "..index.." confirmado: "..tostring(nextClass))
             if onResult then onResult(nextClass,useGems and offer.price or nil) end
@@ -831,6 +883,15 @@ function Extras.create(services,bridge,nav,lifecycle)
     local function eventZone()
         return get(services.Workspace,"Map","Zones","HalloweenZone")
     end
+    local function exactCrate()
+        local buy=get(gui,"Crates","Menu","Panel","Content","Frame","Frame","Pumpkins","Buy")
+        if not buy or not buy:IsA("GuiButton") or not buy.Active then return nil end
+        local label=bridge.texts(buy)
+        if paid(label) then return nil end
+        local price=Extras.crateAmount(label)
+        if not price and bridge.visible(buy) then price=controlPrice(buy,shownText(buy)) end
+        return price==Extras.CRATE_COST and buy or nil
+    end
     local function eventPrompt(zone)
         local matches,fallback={},{}
         for _,item in ipairs(zone and zone:GetDescendants() or {}) do
@@ -869,6 +930,12 @@ function Extras.create(services,bridge,nav,lifecycle)
     end
     local function requestEvent(valid)
         lastCrateRoute=nil
+        local exact=exactCrate()
+        if exact then
+            if not valid() then return false,"Abertura cancelada." end
+            lastCrateRoute=exact:GetFullName()
+            return bridge.activate(exact,true)
+        end
         local choices=eventButtons()
         if #choices==0 then
             local zone=eventZone()
@@ -968,7 +1035,8 @@ function Extras.create(services,bridge,nav,lifecycle)
         local packet=nativePackets and nativePackets.CrateOpenPumpkins
         info.eventCrateFields=type(packet)=="table" and type(packet.Writes)=="table" and #packet.Writes or nil
         info.crateRoute=lastCrateRoute
-        info.eventOffers=#eventButtons()
+        info.classRoute=lastClassRoute
+        info.eventOffers=exactCrate() and 1 or #eventButtons()
         info.eventPrompts={}
         local zone=eventZone()
         for _,item in ipairs(zone and zone:GetDescendants() or {}) do
@@ -979,11 +1047,16 @@ function Extras.create(services,bridge,nav,lifecycle)
             end
         end
         for _,name in ipairs({"Classes","Crates","LobbyUpgrades"}) do
-            local controls=buttons(gui:FindFirstChild(name),function() return true end,false)
-            for index=1,math.min(#controls,16) do
-                local control=controls[index]
-                table.insert(info.buttons,{screen=name,path=control:GetFullName(),name=control.Name,
-                    label=bridge.texts(control):sub(1,140),visible=bridge.visible(control)})
+            local screen=gui:FindFirstChild(name)
+            local count=0
+            for _,control in ipairs(screen and screen:GetDescendants() or {}) do
+                if control:IsA("GuiButton") then
+                    table.insert(info.buttons,{screen=name,path=control:GetFullName(),name=control.Name,
+                        label=bridge.texts(control):sub(1,140),shown=shownText(control):sub(1,140),
+                        active=control.Active,visible=bridge.visible(control)})
+                    count+=1
+                    if count>=28 then break end
+                end
             end
         end
         return info
@@ -1077,7 +1150,7 @@ function View.create(services,lifecycle,gui,callbacks)
         BackgroundTransparency=1,ClipsDescendants=true},panel)
     local footer=label(panel,"Pronto para configurar a fila.",14,dim,false)
     footer.Position,footer.Size=UDim2.new(0,13,1,-47),UDim2.new(1,-26,0,40)
-    local activePage="chapter2"
+    local activePage="config"
     local function showPage(key)
         activePage=key
         for name,page in pairs(pages) do page.Visible=name==key end
@@ -1125,20 +1198,7 @@ function View.create(services,lifecycle,gui,callbacks)
         item.Position,item.Size=UDim2.new(x,0,0,0),UDim2.new(width,-5,1,0)
         return item
     end
-    local one=page("chapter1","Cap. 1\nEm breve",1)
-    block(one,"Capítulo I","Em breve no Evolvy.")
-    local two=page("chapter2","Cap. 2",2)
-    block(two,"Capítulo II","Entre numa rodada solo ou deixe o ciclo retomar o OP e voltar ao lobby.",84)
-    local launch=row(two)
-    rowButton(launch,"launch","ENTRAR + OP",0,0.42,true)
-    rowButton(launch,"cycle","CICLO COMPLETO",0.43,0.57)
-    local queueRow=row(two)
-    rowButton(queueRow,"stop","PARAR",0,0.34)
-    rowButton(queueRow,"copyLog","COPIAR LOG DO LOBBY",0.35,0.65)
-    local _,balance=block(two,"Recursos do lobby","Lendo o saldo do jogo…",69)
-    local three=page("chapter3","Cap. 3\nEm breve",3)
-    block(three,"Capítulo III","Em breve no Evolvy.")
-    local settings=page("config","Configurar",4)
+    local settings=page("config","Configurar",1)
     block(settings,"Configurar capítulo","Escolha um capítulo para ver as opções da fila.",73)
     local chapterNames={"Capítulo I","Capítulo II","Capítulo III"}
     local expanded,selectedChapter=false,1
@@ -1181,6 +1241,9 @@ function View.create(services,lifecycle,gui,callbacks)
         item.Activated:Connect(function() selectedChapter=index expanded=false showChapter() end)
     end
     block(chapterOptions,"Fila do Capítulo II","As escolhas são reaplicadas na próxima rodada.",69)
+    local launch=row(chapterOptions)
+    rowButton(launch,"launch","ENTRAR + OP",0,0.42,true)
+    rowButton(launch,"cycle","CICLO COMPLETO",0.43,0.57)
     local first=row(chapterOptions)
     rowButton(first,"size","JOGADORES",0,0.47)
     rowButton(first,"friends","AMIGOS",0.48,0.52)
@@ -1190,8 +1253,12 @@ function View.create(services,lifecycle,gui,callbacks)
     local actions=row(chapterOptions)
     rowButton(actions,"repeatRun","REPETIR",0,0.47)
     rowButton(actions,"autoImprove","AUTO MELHORIA",0.48,0.52)
+    local queueRow=row(settings)
+    rowButton(queueRow,"stop","PARAR",0,0.34)
+    rowButton(queueRow,"copyLog","COPIAR LOG DO LOBBY",0.35,0.65)
+    local _,balance=block(settings,"Recursos do lobby","Lendo o saldo do jogo…",69)
 
-    local event=page("event","Caixas",5)
+    local event=page("event","Caixas",2)
     block(event,"Caixa do evento","O custo é de 80 abóboras por caixa. Escolha o tamanho do lote.",78)
     local _,eventBalance=block(event,"Saldo de abóboras","Aguardando o jogo…",69)
     local countBox=row(event)
@@ -1212,7 +1279,7 @@ function View.create(services,lifecycle,gui,callbacks)
     rowButton(eventButtons,"autoCrates","AUTO CAIXAS",0,0.54)
     rowButton(eventButtons,"openBatch","ABRIR LOTE",0.55,0.45,true)
 
-    local classes=page("classes","Classes",6)
+    local classes=page("classes","Classes",3)
     block(classes,"Alvo de classe","Selecione um cartão. A rolagem para quando o jogo confirma a classe.",79)
     local strip=make("ScrollingFrame",{Size=UDim2.new(1,0,0,112),CanvasSize=UDim2.fromOffset(0,0),
         AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum.ScrollingDirection.X,
@@ -1238,7 +1305,7 @@ function View.create(services,lifecycle,gui,callbacks)
     local classItems={}
     local classKey=""
 
-    local history=page("history","Histórico",7)
+    local history=page("history","Histórico",4)
     local _,totals=block(history,"Atividade desta conta","Aguardando registros…",104)
     local historyRow=row(history)
     rowButton(historyRow,"lastRun","COPIAR ÚLTIMA PARTIDA",0,0.56)
@@ -1345,7 +1412,7 @@ function View.create(services,lifecycle,gui,callbacks)
     local resized=canvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(position)
     lifecycle.add(function() moved:Disconnect() ended:Disconnect() resized:Disconnect() end)
     task.defer(position)
-    showPage("chapter2")
+    showPage("config")
 
     return {
         status=function(message) footer.Text=tostring(message) end,
@@ -6391,7 +6458,7 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.26.0"
+local BOOT_VERSION="0.27.0"
 local bootPhase="preparar o hub"
 
 local function bootAnonymousPotato()
