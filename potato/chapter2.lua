@@ -1,71 +1,449 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.28.4. Chapter 2 and lobby. No paid purchases.
+-- AnonHub 0.30.0 · Chapter 2 and lobby
 
-local BootError = (function()
--- Luau · potato_boot_error.luau · visible startup errors for mobile
-local BootError={}
-
-function BootError.clear(gui)
-    local old=gui and gui:FindFirstChild("EvolvyBootError")
-    if old then old:Destroy() end
+local hub=...
+if type(hub)~="table" or type(hub.access)~="table" then return end
+local strings={
+    ["Inicio"]="Home",
+    ["Coleta"]="Collect",
+    ["Corte"]="Cut",
+    ["Vendas"]="Sales",
+    ["Resfriar"]="Cooling",
+    ["Compras"]="Shop",
+    ["Missoes"]="Quests",
+    ["Ajustes"]="Settings",
+    ["Visao geral"]="Overview",
+    ["Coleta e alvos"]="Collection and targets",
+    ["Mesa de corte"]="Cutting table",
+    ["Controle de calor"]="Heat control",
+    ["Equipamentos"]="Equipment",
+    ["Preferencias"]="Preferences",
+    ["Missoes e passe"]="Quests and pass",
+    ["INICIO"]="HOME",
+    ["COLETA"]="COLLECT",
+    ["CORTE"]="CUT",
+    ["VENDER"]="SELL",
+    ["AGUA"]="COOL",
+    ["LOJA"]="SHOP",
+    ["MISSOES"]="QUESTS",
+    ["AJUSTE"]="SETTINGS",
+    ["IDIOMA"]="LANGUAGE",
+    ["Conta"]="Account",
+    ["PAUSAR TUDO"]="PAUSE ALL",
+    ["CAPÍTULO II / ANONHUB"]="CHAPTER II / ANONHUB",
+    ["≡   ARRASTE PARA MOVER"]="≡   DRAG TO MOVE",
+    ["ENCERRAR HUB"]="CLOSE HUB",
+    ["SALVAR"]="SAVE",
+    ["PAUSAR"]="PAUSE",
+    ["Salvar"]="Save",
+    ["Pausar"]="Pause",
+    ["Inicializando..."]="Starting…",
+    ["Pronto."]="Ready.",
+    ["≡   ANONHUB / POTATO   ·   ARRASTE"]="≡   ANONHUB / POTATO   ·   DRAG",
+    ["BARRA DE FERRAMENTAS DO JOGO"]="GAME TOOLBAR",
+    ["Use somente se sumirem a mao, a pa, a dinamite ou os prompts do jogo."]="Use if the game's tools or interaction prompts disappear.",
+    ["RECUPERAR MAO, PA E FERRAMENTAS"]="RESTORE TOOLS",
+    ["Recuperar ao iniciar e renascer"]="Restore on launch and respawn",
+    ["A interface e restaurada; as rotinas continuam pausadas depois de morrer."]="Restores the interface and keeps routines paused after a respawn.",
+    ["Nenhuma recuperacao solicitada nesta sessao."]="No restoration requested in this session.",
+    ["Alguns controles ainda não estão disponíveis."]="Some controls are still unavailable.",
+    ["Controles restaurados."]="Controls restored.",
+    ["MODOS / CAPITULO II"]="MODES / CHAPTER II",
+    ["OP: sugador MAX, coleta total, corte e saida. Auto Progress: ciclo normal."]="OP uses a maxed vacuum to clear the pile, cut and exit. Auto Progress runs the standard cycle.",
+    ["PAUSAR PROGRESS"]="PAUSE AUTO PROGRESS",
+    ["ATIVAR OP"]="START OP",
+    ["PAUSAR OP"]="PAUSE OP",
+    ["MODO  •  PAUSADO"]="MODE  •  PAUSED",
+    ["MODO  •  CONCLUIDO"]="MODE  •  COMPLETE",
+    ["MODO  •  OP ATIVO  /  "]="MODE  •  OP ACTIVE  /  ",
+    ["MODO  •  AUTO PROGRESS"]="MODE  •  AUTO PROGRESS",
+    ["MODO  •  PAUSADO / ROTINAS MANUAIS"]="MODE  •  PAUSED / MANUAL ROUTINES",
+    ["PERFIL DA PARTIDA"]="MATCH PROFILE",
+    ["Tipo de grupo"]="Group type",
+    ["Com o hub"]="Hub team",
+    ["Grupo misto"]="Mixed group",
+    ["Contas com o hub"]="Accounts using the hub",
+    ["2 contas"]="2 accounts",
+    ["3 contas"]="3 accounts",
+    ["4 contas"]="4 accounts",
+    ["Seu papel"]="Your role",
+    ["Lider OP"]="OP leader",
+    ["Coletar"]="Collect",
+    ["Cortar e vender"]="Cut and sell",
+    ["Sua mesa"]="Your table",
+    ["Mesa"]="Table",
+    ["Mesa 1"]="Table 1",
+    ["Mesa 2"]="Table 2",
+    ["Mesa 3"]="Table 3",
+    ["Mesa 4"]="Table 4",
+    ["INICIAR PERFIL"]="START PROFILE",
+    ["1 lider OP e 1 no corte/venda."]="1 OP leader and 1 player cutting and selling.",
+    ["1 lider OP, 1 na coleta e 1 no corte/venda."]="1 OP leader, 1 collector and 1 player cutting and selling.",
+    ["1 lider OP, 1 na coleta e 2 no corte/venda."]="1 OP leader, 1 collector and 2 players cutting and selling.",
+    [" Usem mesas diferentes. Venda paga a equipe. Corte e equipamentos sao individuais."]=" Use different tables. The team shares sales. Cutting and equipment are individual.",
+    ["Apoio com corte nativo, vendas e caminhada. Compra facas e ate dois niveis do upgrade de velocidade do jogo."]="Supports the team by cutting, selling and walking. Buys knives and up to two speed upgrades.",
+    ["Recomendado: OP. Uma conta financia as ferramentas, limpa a montanha, corta o estoque e usa a chave."]="Recommended: OP. One account funds tools, clears the pile, cuts the stock and uses the key.",
+    ["SEU EQUIPAMENTO"]="YOUR EQUIPMENT",
+    ["Niveis lidos do jogo. MAX aparece somente com todos os niveis confirmados."]="Equipment levels come from the game. MAX appears once all levels are confirmed.",
+    ["Aguardando dados"]="Waiting for data",
+    ["RENDA"]="FUND",
+    ["EQUIPAR"]="EQUIP",
+    ["LIMPAR"]="CLEAR",
+    ["SAIR"]="EXIT",
+    ["00:00  /  SORTE 0"]="00:00  /  LUCK 0",
+    ["VER MELHORIAS"]="VIEW UPGRADES",
+    ["ESTADO DA PARTIDA"]="MATCH STATUS",
+    ["Dinheiro: —\nBolsa: —\nCalor: —\nEstado: aguardando"]="Cash: —\nBag: —\nHeat: —\nStatus: waiting",
+    ["Filtro e selecao"]="Filters and selection",
+    ["Coletar automaticamente"]="Auto collect",
+    ["Entregar automaticamente"]="Auto deliver",
+    ["Batatas"]="Potatoes",
+    ["Qualquer"]="Any",
+    ["Diamante"]="Diamond",
+    ["Dourada"]="Golden",
+    ["Escolha"]="Selection",
+    ["Mais perto"]="Nearest",
+    ["Aleatoria"]="Random",
+    ["Coletar aboboras"]="Collect pumpkins",
+    ["Incluir gemas da pilha"]="Collect gems from the pile",
+    ["Priorizar gemas"]="Prioritize gems",
+    ["Priorizar aboboras"]="Prioritize pumpkins",
+    ["Priorizar maior valor"]="Prioritize higher value",
+    ["Na selecao por proximidade, procura variantes valiosas quando sua identidade estiver disponivel."]="With Nearest selected, looks for valuable variants when the game identifies them.",
+    ["Entregar por"]="Deliver by",
+    ["Quantidade"]="Amount",
+    ["Porcentagem"]="Percentage",
+    ["Destino"]="Destination",
+    ["Caixa"]="Crate",
+    ["Automatica"]="Automatic",
+    ["Entregar com a bolsa em"]="Deliver at bag capacity",
+    ["Quantidade por entrega"]="Amount per delivery",
+    ["Tenho bolsa infinita"]="I have an unlimited bag",
+    ["Usa o lote configurado no planejamento. Esta opcao nao concede a mochila no jogo."]="Uses your configured delivery amount for planning.",
+    ["Alcance de busca"]="Search range",
+    ["Mesa e ferramentas"]="Table and tools",
+    ["Alinhar a camera ao entrar na mesa"]="Align camera when entering the table",
+    ["Modo de corte"]="Cutting mode",
+    ["Rapido"]="Fast",
+    ["Nativo"]="Native",
+    ["Meta de tentativas por segundo"]="Target attempts per second",
+    ["Multiplicador com ferramentas"]="Tool multiplier",
+    ["Comprar no Auto Cut"]="Buy during Auto Cut",
+    ["Compra ferramentas de corte usando o orcamento configurado."]="Buys cutting tools within your budget.",
+    ["Girar cortador manual"]="Crank the manual cutter",
+    ["Aciona a maquina quando estiver carregada e liberada pelo jogo."]="Runs the machine when it is loaded and ready.",
+    ["Venda e retorno"]="Sell and return",
+    ["Vende o estoque cortado e retoma a rotina. A proxima ferramenta tem prioridade apos a venda."]="Sells cut stock and resumes. Prioritizes the next tool after a sale.",
+    ["Vender a partir de"]="Sell when stock reaches",
+    [" batatas"]=" potatoes",
+    ["Comprar ferramenta apos vender"]="Buy a tool after selling",
+    ["Voltar para a mesa"]="Return to the table",
+    ["Vender o restante no fim"]="Sell remaining stock at the end",
+    ["Valvula de agua"]="Water valve",
+    ["Confirma o resfriamento pela agua fluindo ou pela queda do calor."]="Confirms cooling when water flows or heat drops.",
+    ["Tempo segurando a valvula"]="Valve hold time",
+    ["Repetir duracao original se necessario"]="Retry with the original hold time if needed",
+    ["Se o toque curto nao resfriar, permite uma tentativa com o tempo original do jogo."]="Retries with the default game duration if a short hold fails.",
+    ["Comecar a resfriar em"]="Start cooling at",
+    ["Considerar frio em"]="Stop cooling at",
+    ["Espera entre tentativas"]="Retry delay",
+    ["Voltar ao ponto anterior"]="Return to the previous position",
+    ["MELHORIAS EM TEMPO REAL"]="LIVE UPGRADES",
+    ["Niveis confirmados pelo jogo. Consultar esta lista mantem a rotina em execucao."]="The game confirms these levels. Routines continue while you view this list.",
+    ["Aguardando niveis..."]="Waiting for upgrade levels…",
+    ["Velocidade"]="Speed",
+    ["Coleta continua"]="Continuous collection",
+    ["Carga"]="Charge",
+    ["Resfriamento"]="Cooling",
+    ["Valor da batata"]="Potato value",
+    ["Velocidade a pe"]="Walk speed",
+    ["Sorte"]="Luck",
+    ["Capacidade"]="Capacity",
+    ["Garra"]="Grip",
+    ["Voo"]="Flight",
+    ["MELHORAR"]="UPGRADE",
+    ["Orcamento"]="Budget",
+    ["Compras automaticas usam somente dinheiro comum do jogo. Reserva e limite por compra sao aplicados antes de cada acao."]="Automatic purchases use regular game cash and respect your reserve and spending cap.",
+    ["Ferramentas"]="Tools",
+    ["Melhorias"]="Upgrades",
+    ["Bolsas e capacidade"]="Bags and capacity",
+    ["Tenho mochila infinita"]="I have an unlimited bag",
+    ["Impede compras de mochilas e usa o limite de entrega por quantidade."]="Skips bag purchases and uses the delivery amount.",
+    ["Comprar cortadores manual e automatico"]="Buy manual and automatic cutters",
+    ["Depois de maximizar as duas melhorias de dinamite. O manual nao recebe melhorias."]="Buys after both dynamite upgrades are maxed. Upgrades apply to the automatic cutter.",
+    ["Lote para o automatico no maximo"]="Batch size for the maxed automatic cutter",
+    ["Corrigir desfoque ao fechar menus"]="Fix blur after closing menus",
+    ["Guardar para a proxima arma"]="Save for the next tool",
+    ["Oferecer compra do drone a cada partida"]="Offer a drone purchase each match",
+    ["Solicita confirmacao de 80 gemas; a oferta real tambem precisa confirmar esse valor."]="Asks you to confirm when the game offers the drone for 80 gems.",
+    ["Melhorar drone comprado"]="Upgrade an owned drone",
+    ["Limpar antes de cortar"]="Clear the pile before cutting",
+    ["Somente com dinamite, pa, automatico e sugador no maximo. Antes disso, continua usando a faca para gerar renda."]="Requires maxed dynamite, shovel, automatic cutter and vacuum. Cuts with a knife for income until then.",
+    ["Melhorar maquinas compradas"]="Upgrade owned machines",
+    ["Melhorias gerais do capitulo 2"]="General Chapter II upgrades",
+    ["Reserva de dinheiro"]="Cash reserve",
+    ["Limite por compra (0 = livre)"]="Spending cap per purchase (0 = unlimited)",
+    ["Escolha uma missao com progresso do jogo. O Auto Progress prioriza a tarefa e volta ao ciclo normal apos a confirmacao."]="Select a quest with game progress. Auto Progress prioritizes it and returns to the usual cycle after completion.",
+    ["Abra a tela de missoes ou do passe do jogo para carregar a lista."]="Open the game's quests or pass screen to load the list.",
+    ["Tela e toque"]="Display and touch",
+    ["Arraste o topo para mover o painel. O botao A tambem pode ser arrastado. Use o canto inferior para redimensionar."]="Drag the top to move the panel or drag the A button. Use the bottom corner to resize.",
+    ["Escala da interface"]="Interface scale",
+    ["Largura do painel"]="Panel width",
+    ["Altura do painel"]="Panel height",
+    ["Tamanho do botao A"]="A button size",
+    ["CENTRALIZAR E RESTAURAR TAMANHO"]="CENTER AND RESET SIZE",
+    ["Camera"]="Camera",
+    ["Forcar terceira pessoa"]="Force third person",
+    ["Distancia maxima da camera"]="Maximum camera distance",
+    ["Apontar automaticamente para a valvula"]="Aim at the valve automatically",
+    ["Alinha a camera durante a interacao e restaura a visao ao terminar."]="Aligns the camera during interaction and restores the view afterward.",
+    ["Execucao"]="Routines",
+    ["Atua por evento de inatividade enquanto alguma rotina estiver ativa; pausa junto das rotinas."]="Responds to idle events while a routine is running.",
+    ["Saida automatica manual"]="Auto exit",
+    ["Usa a chave real para procurar a saida. O OP e o Auto Progress ja coordenam sua propria saida."]="Uses the key to find the exit. OP and Auto Progress handle the exit automatically.",
+    ["Pular cena final"]="Skip ending scene",
+    ["Usa o botao Pular quando disponivel. Apos a fuga confirmada, tambem tenta a funcao Cancel da cena."]="Uses the Skip button if available and attempts to end the scene after escape is confirmed.",
+    ["Liberar camera apos vitoria"]="Restore camera after winning",
+    ["Se a cena nao oferecer um botao, tenta devolver a visao ao personagem depois da confirmacao da fuga."]="Returns the view to your character after escape when the scene has no skip button.",
+    ["Ritmo de limpeza"]="Pile clearing pace",
+    ["Com equipamentos no maximo, prefere alvos proximos e evita desvios por raridades."]="With maxed equipment, favors nearby targets and avoids detours for rare ones.",
+    ["Reduzir intervalo local da entrega"]="Reduce delivery interval",
+    ["Acelera entregas e restaura o intervalo normal se a entrega falhar."]="Speeds up deliveries when supported and restores normal timing if delivery fails.",
+    ["Intervalo local por colocacao"]="Interval per placement",
+    ["Deslocamento"]="Movement",
+    ["Teleporte"]="Teleport",
+    ["Caminhar"]="Walk",
+    ["Ritmo"]="Pace",
+    ["Coletas por rodada"]="Picks per cycle",
+    ["Coletar ao redor sem mirar"]="Collect nearby without aiming",
+    ["Usa IDs dos alvos proximos; teleporta quando necessario. O servidor ainda valida o alcance."]="Collects nearby targets within the game's reach.",
+    ["Raio local da coleta"]="Collection radius",
+    ["Ferramenta de coleta"]="Collection tool",
+    ["Melhor adquirida"]="Best owned tool",
+    ["Mao"]="Hand",
+    ["Pa"]="Shovel",
+    ["Especiais sem modelo visivel"]="Special targets outside view",
+    ["Usa os IDs e as posicoes atuais do jogo. Tentativas recusadas recebem uma pausa; recompensas dependem do servidor."]="Uses current game positions and waits before retrying a rejected target.",
+    ["Recuperar etapas automaticamente"]="Recover routines automatically",
+    ["Falhas de coleta e entrega adiam somente a etapa afetada."]="Delays only the step that failed to collect or deliver.",
+    ["RESTAURAR CONTROLES DO JOGO"]="RESTORE GAME CONTROLS",
+    ["Intervalo entre acoes"]="Action interval",
+    ["Tempo limite de acao"]="Action timeout",
+    ["Tempo limite de trajeto"]="Travel timeout",
+    ["Dinamite automatica"]="Auto dynamite",
+    ["Atua quando a ferramenta foi adquirida e o protocolo de lancamento foi identificado."]="Runs when the tool is owned and ready to throw.",
+    ["Intervalo acelerado"]="Faster interval",
+    ["Reduz a espera local; tentativas sem confirmacao recebem um intervalo maior."]="Shortens the local wait and backs off when a throw is unconfirmed.",
+    ["Intervalo da dinamite"]="Dynamite interval",
+    ["Pausar com movimento manual"]="Pause on manual movement",
+    ["Notificacoes"]="Notifications",
+    ["Atalhos"]="Shortcuts",
+    ["Entregar"]="Deliver",
+    ["Aboboras"]="Pumpkins",
+    ["Bolsas"]="Bags",
+    ["Cortador manual"]="Manual cutter",
+    ["Vender"]="Sell",
+    ["Dinamite"]="Dynamite",
+    ["Painel"]="Panel",
+    ["OP Alto Zerar"]="OP Fast Finish",
+    ["Giro %d confirmado: %s"]="Roll %d confirmed: %s",
+    ["Conexão perdida (%s). Tentando voltar ao lobby…"]="Connection lost (%s). Rejoining the lobby…",
+    ["Essa tecla ja esta em uso por %s."]="That key is already assigned to %s.",
+    ["Rotinas pausadas apos tres falhas em %s."]="Routines paused after three failures while %s.",
+    ["Ciclo completo com prioridade para limpar a montanha."]="Complete run that prioritizes clearing the pile.",
+    ["Sugador MAX inicia coleta continua ate acabar a montanha. Entrega ao encher se a bolsa for finita. O OP coordena seus servicos sem ligar os interruptores das rotinas manuais."]="A maxed vacuum collects continuously until the pile is clear. Finite bags are delivered when full.",
+    ["Vender lotes maiores no OP"]="Sell larger OP batches",
+    ["Usa lotes de 50, 90 ou 150 conforme o saldo que falta para a proxima compra, respeitando o limite de venda."]="Uses batches of 50, 90 or 150 based on the cash needed for the next purchase.",
+    ["Retentar mesa e venda mais cedo"]="Retry tables and sales sooner",
+    ["Quando o prompt e instantaneo, tenta outra forma de interacao mais cedo. O resultado ainda depende da confirmacao do jogo."]="Retries an instant interaction sooner if the game has yet to confirm it.",
+    ["Deseja mesmo comprar o drone?\nPreco: 80 gemas"]="Buy the drone?\nPrice: 80 gems",
+    ["COMPRAR: 80 GEMAS"]="BUY: 80 GEMS",
+    ["AGORA NAO"]="NOT NOW",
+    ["NAO ADQUIRIDO"]="NOT OWNED",
+    ["MAX  /  PRONTO"]="MAX  /  READY",
+    ["CONCLUIDA"]="DONE",
+    ["PRIORIZANDO"]="PRIORITIZED",
+    ["SELECIONAR"]="SELECT",
+    ["Validade nao informada"]="Expiry unknown",
+    ["Expirada"]="Expired",
+    ["CENTRAL DO LOBBY"]="LOBBY CENTER",
+    ["Pronto para configurar a fila."]="Ready to configure the queue.",
+    ["Configurar"]="Setup",
+    ["Configurar capítulo"]="Set up a chapter",
+    ["Escolha um capítulo para ver as opções da fila."]="Choose a chapter to view its queue settings.",
+    ["Capítulos"]="Chapters",
+    ["Capítulo I"]="Chapter I",
+    ["Capítulo II"]="Chapter II",
+    ["Capítulo III"]="Chapter III",
+    ["EM BREVE"]="COMING SOON",
+    ["Fila do Capítulo II"]="Chapter II queue",
+    ["As escolhas são reaplicadas na próxima rodada."]="Settings carry over to the next round.",
+    ["ENTRAR + OP"]="JOIN + OP",
+    ["CICLO COMPLETO"]="FULL LOOP",
+    ["JOGADORES"]="PLAYERS",
+    ["AMIGOS"]="FRIENDS",
+    ["INTRODUÇÃO"]="INTRO",
+    ["CENA FINAL"]="ENDING",
+    ["REPETIR"]="REPEAT",
+    ["AUTO MELHORIA"]="AUTO UPGRADE",
+    ["PARAR"]="STOP",
+    ["Recursos do lobby"]="Lobby resources",
+    ["Lendo o saldo do jogo…"]="Reading your game balance…",
+    ["Caixas"]="Crates",
+    ["Caixa do evento"]="Event crate",
+    ["O custo é de 80 abóboras por caixa. Escolha o tamanho do lote."]="Each crate costs 80 pumpkins. Choose your batch size.",
+    ["Saldo de abóboras"]="Pumpkin balance",
+    ["Aguardando o jogo…"]="Waiting for the game…",
+    ["AUTO CAIXAS"]="AUTO CRATES",
+    ["ABRIR LOTE"]="OPEN BATCH",
+    ["Alvo de classe"]="Class target",
+    ["Selecione um cartão. A rolagem para quando o jogo confirma a classe."]="Select a card. Rolls stop when the game confirms that class.",
+    ["Abra Classes no jogo para carregar o catálogo."]="Open Classes in the game to load the catalog.",
+    ["Classe atual"]="Current class",
+    ["□   USAR GEMAS PARA GIRAR"]="□   USE GEMS TO ROLL",
+    ["✓   USAR GEMAS PARA GIRAR"]="✓   USE GEMS TO ROLL",
+    ["GIRAR ATÉ O ALVO"]="ROLL UNTIL TARGET",
+    ["SELECIONAR MAIS RARA"]="SELECT RAREST",
+    ["JOGADORES  ·  "]="PLAYERS  ·  ",
+    ["SÓ AMIGOS  ·  SIM"]="FRIENDS ONLY  ·  YES",
+    ["SÓ AMIGOS  ·  NÃO"]="FRIENDS ONLY  ·  NO",
+    ["INTRO  ·  PULAR"]="INTRO  ·  SKIP",
+    ["INTRO  ·  VER"]="INTRO  ·  WATCH",
+    ["FINAL  ·  PULAR"]="ENDING  ·  SKIP",
+    ["FINAL  ·  VER"]="ENDING  ·  WATCH",
+    ["REPETIR  ·  SIM"]="REPEAT  ·  YES",
+    ["REPETIR  ·  NÃO"]="REPEAT  ·  NO",
+    ["MELHORIAS  ·  ON"]="UPGRADES  ·  ON",
+    ["MELHORIAS  ·  OFF"]="UPGRADES  ·  OFF",
+    ["AUTO CAIXAS  ·  ON"]="AUTO CRATES  ·  ON",
+    ["AUTO CAIXAS  ·  OFF"]="AUTO CRATES  ·  OFF",
+    ["AGUARDANDO O JOGO"]="WAITING FOR THE GAME",
+    ["PARAR GIROS"]="STOP ROLLING",
+    ["Abóboras  %s   ·   Gemas  %s"]="Pumpkins  %s   ·   Gems  %s",
+    ["%s no saldo   ·   %d caixa(s) = %d abóboras"]="%s available   ·   %d crate(s) = %d pumpkins",
+    ["%s   ·   Giros grátis: %s"]="%s   ·   Free rolls: %s",
+    ["%02d:%02d  /  SORTE %d%s"]="%02d:%02d  /  LUCK %d%s",
+    ["  /  CONCLUIDO"]="  /  COMPLETE",
+    ["indisponivel"]="unavailable",
+    ["somente aviso do jogo"]="game alert only",
+    ["coletar e cortar"]="collect and cut",
+    ["limpeza"]="clearing",
+    ["Aguardando rotina ou recurso disponivel"]="Waiting for a routine or resource",
+    ["EQUIPE  /  LIDER OP"]="TEAM  /  OP LEADER",
+    ["EQUIPE  /  COLETA E ENTREGA"]="TEAM  /  COLLECT AND DELIVER",
+    ["EQUIPE  /  CORTE E VENDA"]="TEAM  /  CUT AND SELL",
+    ["GRUPO MISTO  /  APOIO"]="MIXED GROUP  /  SUPPORT",
+    ["CAPITULO II CONCLUIDO  /  ROTINAS PAUSADAS"]="CHAPTER II COMPLETE  /  ROUTINES PAUSED",
+    ["LICENCA EXPIRADA  /  ROTINAS PAUSADAS"]="ACCESS EXPIRED  /  ROUTINES PAUSED",
+    ["VITORIA CONFIRMADA / AGUARDANDO RESULTADO PARA VOLTAR"]="VICTORY CONFIRMED / WAITING FOR RESULTS",
+    ["VITORIA CONFIRMADA / VOLTANDO AO LOBBY"]="VICTORY CONFIRMED / RETURNING TO LOBBY",
+    ["%s  |  Bolsa: %s\nEntrega: %s  |  Cortadas: %s/%d\nMeta: %s\nCalor: %s  |  Gemas: %d\n%.1f cortadas/s | %s | vendas: %d"]="%s  |  Bag: %s\nDelivery: %s  |  Cut: %s/%d\nGoal: %s\nHeat: %s  |  Gems: %d\n%.1f cut/s | %s | sales: %d",
+    ["Resfriando"]="Cooling",
+    ["Coletando"]="Collecting",
+    ["Entregando"]="Delivering",
+    ["Cortando"]="Cutting",
+    ["Indo para a mesa"]="Heading to the table",
+    ["Comprando"]="Buying",
+    ["Girando cortador"]="Cranking cutter",
+    ["Indexando e selecionando"]="Finding targets",
+    ["Abastecendo a mesa"]="Restocking the table",
+    ["Vendendo"]="Selling",
+    ["Retornando a mesa"]="Returning to the table",
+    ["Lancando dinamite"]="Throwing dynamite",
+    ["Indo para a saida com a chave"]="Heading to the exit with the key",
+    ["Comprando drone"]="Buying drone",
+    ["Rotina pausada."]="Routine paused.",
+    ["Rotinas pausadas."]="Routines paused.",
+    ["Já há uma rotina de lobby em andamento."]="A lobby routine is already running.",
+    ["O jogo interrompeu a rotina do lobby."]="The game interrupted the lobby routine.",
+    ["Ciclo do lobby parado."]="Lobby loop stopped.",
+    ["Retomada cancelada. O jogo já solicitou o teleporte."]="Resume canceled. The game has already requested teleport.",
+    ["As chances ainda não foram carregadas pelo jogo."]="The game has not loaded the odds yet.",
+    ["Escolha uma classe na barra."]="Choose a class from the list.",
+    ["O Roblox recusou o teleporte. Saia da fila atual e tente novamente."]="Roblox declined teleport. Leave the current queue and try again.",
+    ["Pare a rotina de lobby antes de entrar na fila."]="Stop the lobby routine before joining a queue.",
+    ["Abrindo o lote antes de entrar na fila…"]="Opening the batch before joining the queue…",
+    ["Juntando abóboras para o lote: %d/%d."]="Saving pumpkins for the batch: %d/%d.",
+    ["Localizando a fila do Capítulo II…"]="Finding the Chapter II queue…",
+    ["Nenhuma área de fila livre. Entre em uma área vazia manualmente."]="No open queue area. Enter an empty area manually.",
+    ["DEPLOY acionado. Aguardando o jogo…"]="Deploy requested. Waiting for the game…",
+    ["Falha no lobby. Tente novamente."]="The lobby routine failed. Try again.",
+    ["O Roblox não confirmou a reconexão."]="Roblox did not confirm the reconnect.",
+    ["O estado dos giros ainda não está disponível."]="Roll state is not available yet.",
+    ["Rolagem pausada."]="Rolling paused.",
+    ["O giro com preço em gemas não foi identificado. Abra Classes no jogo."]="The gem roll offer is unavailable. Open Classes in the game.",
+    ["O giro gratuito não foi identificado. Abra Classes no jogo."]="The free roll is unavailable. Open Classes in the game.",
+    ["Aguardando o saldo de gemas do jogo."]="Waiting for the game to report your gem balance.",
+    ["Sem giros gratuitos."]="No free rolls left.",
+    ["Gemas insuficientes para o próximo giro."]="You do not have enough gems for the next roll.",
+    ["O giro foi debitado, mas o próximo ainda não foi liberado."]="The last roll was charged. Waiting for the next roll to become available.",
+    ["O jogo não confirmou o débito. Rolagem parada."]="The game did not confirm the charge. Rolling stopped.",
+    ["Abra as melhorias do lobby uma vez para carregar precos e gemas."]="Open lobby upgrades once to load prices and your gem balance.",
+    ["Sem melhoria acessivel com as gemas atuais."]="No upgrades are affordable with your current gems.",
+    ["O jogo nao confirmou a melhoria de lobby."]="The game did not confirm the lobby upgrade.",
+    ["Abertura cancelada."]="Opening canceled.",
+    ["Falha ao enviar a abertura de evento."]="Could not request the event crate opening.",
+    ["A oferta de 80 abóboras não pôde ser confirmada."]="The offer for 80 pumpkins could not be confirmed.",
+    ["Lote inválido."]="Invalid batch.",
+    ["O jogo ainda não informou o saldo de abóboras."]="The game has yet to report your pumpkin balance.",
+    ["Saldo insuficiente para o lote. %d de %d abóboras."]="Not enough pumpkins for the batch. %d of %d pumpkins.",
+    ["Lote pausado."]="Batch paused.",
+    ["A caixa anterior ainda está aberta."]="The previous crate is still open.",
+    ["Saldo mudou durante o lote."]="Your balance changed during the batch.",
+    ["Abrindo caixa %d/%d…"]="Opening crate %d/%d…",
+    ["O jogo não mostrou a abertura da caixa. Lote interrompido."]="The game did not show the crate opening. Batch stopped.",
+    ["O jogo não confirmou o débito e o resultado. Lote interrompido."]="The game did not confirm the charge and result. Batch stopped.",
+    ["Caixa registrada, mas a tela da abertura ainda está ativa."]="The crate was confirmed, but its opening screen is still visible.",
+    ["%d caixa(s) confirmada(s)."]="%d crate(s) confirmed.",
+    ["Saia da fila atual para selecionar o Capitulo II."]="Leave the current queue to select Chapter II.",
+    ["O jogo nao abriu o seletor do capitulo."]="The game did not open the chapter selector.",
+    ["O jogo nao abriu a configuracao da fila."]="The game did not open queue settings.",
+    ["O botao DEPLOY nao esta disponivel."]="The Deploy button is unavailable.",
+    ["DEPLOY acionado. O jogo nao confirmou o teleporte."]="Deploy requested. The game did not confirm teleport.",
+    ["Transferencia confirmada. Carregando OP no destino."]="Transfer confirmed. OP will start on arrival.",
+    ["Transferencia confirmada. Abra o hub ao chegar. "]="Transfer confirmed. Open the hub on arrival. ",
+    ["Cancelado."]="Canceled.",
+    ["A licenca expirou."]="Your access expired.",
+    ["Licenca expirada. Valide uma key ativa para continuar."]="Access expired. Enter a valid key to continue.",
+    ["Licenca expirada; rotinas pausadas."]="Access expired. Routines paused.",
+    ["Capitulo 2 concluido; rotinas pausadas."]="Chapter II complete. Routines paused.",
+    ["Rotina pausada. Reative para tentar novamente."]="Routine paused. Turn it back on to retry.",
+    ["Atalho cancelado."]="Shortcut canceled.",
+    ["Atalho atualizado."]="Shortcut updated.",
+    ["Pressione uma tecla para o atalho; Esc cancela e Backspace remove."]="Press a key to bind. Esc cancels and Backspace clears.",
+    ["Use os controles por toque; atalhos sao opcionais para teclado."]="Use touch controls. Keyboard shortcuts are optional.",
+    ["Edicao de atalho cancelada."]="Shortcut editing canceled.",
+    ["Pausado pelo painel."]="Paused from the panel.",
+    ["Pausado pelo atalho."]="Paused by shortcut.",
+    ["Pausado por entrada manual de movimento."]="Paused by manual movement.",
+    ["Personagem recarregado; rotinas pausadas."]="Character respawned. Routines paused.",
+    ["O resfriamento faz parte do Auto Progress. Pause o ciclo para desliga-lo."]="Cooling is part of Auto Progress. Pause the cycle to turn it off.",
+    ["Uma melhoria ja esta na fila."]="An upgrade is already queued.",
+    ["Prioridade de missao removida."]="Quest priority cleared.",
+    ["O jogo ja confirmou essa missao."]="The game has already confirmed this quest.",
+    ["Objetivo sem rota automatica confirmada."]="This objective requires manual play.",
+    ["Missao concluida. Voltando ao Auto Progress normal."]="Quest complete. Resuming normal Auto Progress.",
+    ["Melhoria confirmada."]="Upgrade confirmed.",
+    ["Melhoria nao confirmada."]="Upgrade unconfirmed.",
+    ["O Roblox recusou a volta ao lobby. Retorne manualmente."]="Roblox declined the return to the lobby. Return manually.",
+    ["O relatorio final nao chegou. Volte ao lobby manualmente."]="The game did not show the results. Return to the lobby manually.",
+    ["A volta automatica falhou. Retorne ao lobby pelo jogo."]="The automatic return failed. Use the game's controls to return.",
+    ["O Roblox nao confirmou a volta ao lobby."]="Roblox did not confirm the return to the lobby.",
+    ["O Roblox nao confirmou a reconexao."]="Roblox did not confirm the reconnect.",
+    ["O hub nao encontrou o lobby nem a area de partida. Aguarde o mapa e execute novamente."]="The hub could not find the lobby or match. Wait for the map and launch it again.",
+    ["Falha de execucao; controles restaurados."]="The routine failed. Controls restored.",
+    ["Alvo selecionado: "]="Target selected: ",
+    ["Classe encontrada: "]="Class found: ",
+    ["Sem giros gratuitos. Última classe: "]="No free rolls left. Last class: ",
+    ["Melhoria de lobby confirmada: "]="Lobby upgrade confirmed: ",
+    ["Prioridade: "]="Priority: ",
+    ["Solicitada melhoria "]="Upgrade requested for ",
+    ["O Roblox recusou a reconexao."]="Roblox declined the reconnect.",
+    ["Limite de reconexoes atingido. Abra o jogo novamente."]="Reconnect limit reached. Reopen the game.",
+}
+local function T(value)
+    return hub.language=="en" and type(value)=="string" and strings[value] or value
 end
-
-function BootError.show(phase,reason,version)
-    local detail=tostring(reason)
-    local valid,endAt=pcall(utf8.offset,detail,2201)
-    if valid and endAt then detail=detail:sub(1,endAt-1)
-    elseif not valid then detail=detail:sub(1,2200) end
-    local message="AnonHub "..version.."\nEtapa: "..phase.."\n\n"..detail
-    local shown=pcall(function()
-        local player=game:GetService("Players").LocalPlayer
-        local gui=player and player:FindFirstChildOfClass("PlayerGui")
-        if not gui then error("PlayerGui indisponivel.") end
-        BootError.clear(gui)
-        local function make(class,props,parent)
-            local object=Instance.new(class)
-            for key,value in pairs(props) do object[key]=value end
-            object.Parent=parent
-            return object
-        end
-        local screen=make("ScreenGui",{Name="EvolvyBootError",ResetOnSpawn=false,DisplayOrder=10020},gui)
-        local panel=make("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),
-            Size=UDim2.fromScale(0.92,0.72),BackgroundColor3=Color3.fromRGB(20,28,46),BorderSizePixel=0},screen)
-        make("UISizeConstraint",{MaxSize=Vector2.new(580,400)},panel)
-        make("UICorner",{CornerRadius=UDim.new(0,13)},panel)
-        local title=make("TextLabel",{Position=UDim2.fromOffset(12,6),Size=UDim2.new(1,-24,0,31),
-            Text="FALHA AO CARREGAR O ANONHUB",BackgroundTransparency=1,Font=Enum.Font.GothamBold,
-            TextSize=14,TextColor3=Color3.fromRGB(255,180,171),TextXAlignment=Enum.TextXAlignment.Left},panel)
-        local area=make("ScrollingFrame",{Position=UDim2.fromOffset(12,42),Size=UDim2.new(1,-24,1,-96),
-            CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=4,
-            BackgroundColor3=Color3.fromRGB(10,16,28),BorderSizePixel=0},panel)
-        make("TextBox",{Size=UDim2.new(1,-10,0,0),AutomaticSize=Enum.AutomaticSize.Y,Text=message,
-            TextEditable=false,ClearTextOnFocus=false,MultiLine=true,TextWrapped=true,
-            TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,
-            TextColor3=Color3.fromRGB(232,240,255),TextSize=12,Font=Enum.Font.Code,BackgroundTransparency=1},area)
-        local function button(text,x)
-            return make("TextButton",{Position=UDim2.new(x,12,1,-43),Size=UDim2.new(0.5,-18,0,33),
-                Text=text,Font=Enum.Font.GothamBold,TextSize=12,TextColor3=Color3.fromRGB(232,240,255),
-                BackgroundColor3=Color3.fromRGB(41,60,85),BorderSizePixel=0},panel)
-        end
-        local copy=button("COPIAR ERRO",0)
-        button("FECHAR",0.5).Activated:Connect(function() screen:Destroy() end)
-        copy.Activated:Connect(function()
-            local clipboard=type(setclipboard)=="function" and setclipboard or type(toclipboard)=="function" and toclipboard
-            if clipboard and pcall(clipboard,message) then copy.Text="COPIADO"
-            else title.Text="Selecione o texto do erro acima." end
-        end)
-    end)
-    if not shown then
-        pcall(function()
-            local first=detail:match("[^\r\n]+") or "Erro sem detalhes."
-            game:GetService("StarterGui"):SetCore("SendNotification",{
-                Title="AnonHub "..version.." / "..phase,Text=first:sub(1,140),Duration=12})
-        end)
-    end
-end
-return BootError
-
-end)()
 
 local Lobby = (function()
 -- Luau · potato_lobby.luau · Chapter II native lobby entry
@@ -160,12 +538,10 @@ end
 function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,autoStart,runtime)
     local player=services.Players.LocalPlayer
     local playerGui=player:WaitForChild("PlayerGui")
-    local history=runtime.history
-    local options=normalize(resume or history.state.settings)
+    local options=normalize(resume or runtime.settings.settings)
     local transferred,busy=false,false
     local token,featureToken=0,0
     local feature=nil
-    local trace={}
     local old=playerGui:FindFirstChild("EvolvyChapter2Lobby")
     if old then old:Destroy() end
     local gui=Instance.new("ScreenGui")
@@ -174,15 +550,7 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
     local callbacks={}
     local view=runtime.view(services,lifecycle,gui,callbacks)
     local function refresh() view.options(options,busy,feature=="upgrade",feature=="roll") end
-    local function persist() history.settings(normalize(options)) end
-    local function record(action,result)
-        if #trace>=45 then table.remove(trace,1) end
-        table.insert(trace,{action=action,result=result})
-    end
-    local function clipboard(value)
-        local copy=type(setclipboard)=="function" and setclipboard or type(toclipboard)=="function" and toclipboard
-        return value and copy and pcall(copy,value)
-    end
+    local function persist() runtime.settings.save(normalize(options)) end
     local function stopFeature()
         featureToken+=1 feature=nil refresh()
     end
@@ -194,44 +562,26 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
             return
         end
         featureToken+=1 feature=kind refresh()
-        record(kind,"started")
+
         local current=featureToken
         task.spawn(function()
             local function valid() return lifecycle.alive() and current==featureToken and not gate.expired() and not busy end
             local ok,success,message=pcall(fn,valid)
             if not valid() then return end
-            record(kind,ok and tostring(message or success) or "runtime error")
+
             stopFeature()
             view.status(ok and tostring(message or success) or "O jogo interrompeu a rotina do lobby.")
         end)
     end
-    local function countCrate()
-        history.lobby("crates","Caixa do evento aberta","80 abóboras · abertura confirmada")
-        record("crate",true)
-    end
     local function stop()
         stopFeature()
         token+=1 busy=false nav.stop() handoff.clear()
-        record("stop",true)
+
         refresh()
         view.status(transferred and "Retomada cancelada. O jogo já solicitou o teleporte." or "Ciclo do lobby parado.")
     end
     callbacks.stop=stop
-    callbacks.copyLog=function()
-        local ok,details=pcall(runtime.features.diagnostic)
-        local payload={phase="lobby",options=options,transfer=transferred,events=trace,features=ok and details or nil}
-        view.status(clipboard(services.HttpService:JSONEncode(payload)) and "Diagnóstico do lobby copiado."
-            or "O executor não liberou a cópia.")
-    end
-    callbacks.lastRun=function()
-        view.status(clipboard(runtime.lastRun()) and "Diagnóstico da última partida copiado."
-            or "Nenhuma partida salva ou cópia indisponível.")
-    end
-    callbacks.copyHistory=function()
-        local data=history.state
-        view.status(clipboard(services.HttpService:JSONEncode({totals=data.totals,events=data.events})) and "Histórico copiado."
-            or "O executor não liberou a cópia.")
-    end
+    callbacks.language=runtime.language
     callbacks.size=function()
         if not busy then options.size=options.size%4+1 persist() refresh() end
     end
@@ -254,14 +604,13 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
     callbacks.openBatch=function()
         local count=options.crateCount
         startFeature("crate",function(valid)
-            return runtime.features.openBatch(valid,count,countCrate,view.status)
+            return runtime.features.openBatch(valid,count,view.status)
         end)
     end
     callbacks.autoImprove=function()
         startFeature("upgrade",function(valid)
             while valid() do
-                local ok,message,name=runtime.features.upgrade(valid)
-                if ok then history.lobby("upgrades","Melhoria do lobby",name or message) end
+                local ok,message=runtime.features.upgrade(valid)
                 view.status(message)
                 task.wait(ok and 1 or 4)
             end
@@ -273,7 +622,7 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
             if tostring(entry.id)==id then
                 options.classTarget=id
                 persist()
-                view.status("Alvo selecionado: "..entry.name..".")
+                view.status(T("Alvo selecionado: ")..entry.name..".")
                 return entry
             end
         end
@@ -291,17 +640,13 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
                 if tostring(entry.id)==options.classTarget then selected=entry break end
             end
             if not selected then return false,"Escolha uma classe na barra." end
-            return runtime.features.roll(valid,selected,useGems,view.status,function(result,spent)
-                local detail=result or "Resultado confirmado"
-                if spent then detail=detail..string.format(" · %d gemas",spent) end
-                history.lobby("rolls","Giro de classe",detail)
-            end)
+            return runtime.features.roll(valid,selected,useGems,view.status)
         end)
     end
     local transferConnection=player.OnTeleport:Connect(function(state,place)
         if place==game.PlaceId and (state.Name=="RequestedFromServer" or state.Name=="Started" or state.Name=="InProgress") then
             transferred=true
-            record("teleport",state.Name)
+
         end
     end)
     lifecycle.add(function() transferConnection:Disconnect() end)
@@ -319,8 +664,7 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
         busy=true token+=1 refresh()
         local run=token
         local selected=normalize(options)
-        table.clear(trace)
-        record("start",selected.repeatRun and "cycle" or "once")
+
         local function valid() return lifecycle.alive() and token==run and not gate.expired() end
         local function control(id)
             local queue=playerGui:FindFirstChild("Queue")
@@ -361,13 +705,13 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
                         balance=runtime.features.pumpkins()
                     end
                     local plan,cost=Lobby.cratePlan(selected,balance)
-                    record("crate_plan",plan)
+
                     if plan=="ready" then
                         view.status("Abrindo o lote antes de entrar na fila…")
-                        local ok,why=runtime.features.openBatch(valid,selected.crateCount,countCrate,view.status)
+                        local ok,why=runtime.features.openBatch(valid,selected.crateCount,view.status)
                         if not ok then return false,why end
                     elseif plan=="saving" then
-                        view.status(string.format("Juntando abóboras para o lote: %d/%d.",balance,cost))
+                        view.status(string.format(T("Juntando abóboras para o lote: %d/%d."),balance,cost))
                     end
                 end
                 if not valid() then return false,"Cancelado." end
@@ -377,7 +721,7 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
                     approach=function()
                         local pad=freePad(services,player)
                         if not pad then return false,"Nenhuma área de fila livre. Entre em uma área vazia manualmente." end
-                        record("queue_zone",pad.Parent.Name)
+
                         local floor=pad.Position-Vector3.new(0,pad.Size.Y/2,0)
                         local moved,why=nav.goTo(floor,function() return valid() and not ready("chapter") end)
                         if ready("chapter") then return true end
@@ -387,24 +731,24 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
                         if not valid() then return false,"Cancelado." end
                         if id=="deploy" then view.status("DEPLOY acionado. Aguardando o jogo…") end
                         local ok,why=bridge.activate(control(id))
-                        record(id,ok and "activated" or tostring(why))
+
                         return ok,why
                     end,
                     arm=function(settings)
                         if not valid() then return false,"Cancelado." end
-                        local ok,why=handoff.arm("chapter",settings,gate.transfer())
-                        record("handoff",ok and "queued" or tostring(why))
+                        local ok,why=handoff.arm("chapter",settings)
+
                         return ok,why
                     end,
                 },selected)
             end)
             if not valid() then return end
             if not ran or not success then
-                record("failure",ran and tostring(message) or "lobby error")
+
                 handoff.clear()
                 busy=false refresh()
             end
-            view.status(ran and tostring(message) or "Falha no lobby. Copie o log para verificar.")
+            view.status(ran and tostring(message) or "Falha no lobby. Tente novamente.")
         end)
     end
     callbacks.launch=start
@@ -418,9 +762,9 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
     end
     runtime.watch(function() return busy and options.repeatRun and not transferred end,function(code)
         token+=1
-        record("connection_error",code)
+
         nav.stop()
-        view.status("Conexão perdida ("..code.."). Tentando voltar ao lobby…")
+        view.status(string.format(T("Conexão perdida (%s). Tentando voltar ao lobby…"),code))
         local ok,why=runtime.reconnect(options)
         if not ok then busy=false refresh() view.status(why) return end
         local pending=token
@@ -440,11 +784,9 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
                 local current,free=runtime.features.classState()
                 view.classes(runtime.features.catalog(),options.classTarget,current,free)
             end
-            view.history(history.state,history.persistent)
             task.wait(1.2)
         end
     end)
-    gate.close()
     if autoStart then task.defer(start) end
 end
 return Lobby
@@ -806,15 +1148,15 @@ function Extras.create(services,bridge,nav,lifecycle)
         end
         if #choices==1 then return choices[1] end
     end
-    local function roll(valid,target,useGems,report,onResult)
+    local function roll(valid,target,useGems,report)
         lastClassRoute=nil
         if type(target)~="table" or norm(target.name)=="" then return false,"Escolha uma classe na barra." end
         local index=0
         while valid() do
             local current,free=classState()
             if not current or not useGems and free==nil then return false,"O estado dos giros ainda não está disponível." end
-            if Extras.matchesTarget(target,current) then return true,"Classe encontrada: "..current.."." end
-            if not useGems and free<=0 then return true,"Sem giros gratuitos. Última classe: "..current.."." end
+            if Extras.matchesTarget(target,current) then return true,T("Classe encontrada: ")..current.."." end
+            if not useGems and free<=0 then return true,T("Sem giros gratuitos. Última classe: ")..current.."." end
             local offer
             if not waitFor(valid,18,function()
                 offer=rollOffer(gui:FindFirstChild("Classes"),useGems)
@@ -825,7 +1167,7 @@ function Extras.create(services,bridge,nav,lifecycle)
                     or "O giro gratuito não foi identificado. Abra Classes no jogo."
             end
             current,free=classState()
-            if current and Extras.matchesTarget(target,current) then return true,"Classe encontrada: "..current.."." end
+            if current and Extras.matchesTarget(target,current) then return true,T("Classe encontrada: ")..current.."." end
             local before=free
             if useGems then before=gems() end
             if before==nil then return false,"Aguardando o saldo de gemas do jogo." end
@@ -856,9 +1198,8 @@ function Extras.create(services,bridge,nav,lifecycle)
                     or "O jogo não confirmou o débito. Rolagem parada."
             end
             index+=1
-            report("Giro "..index.." confirmado: "..tostring(nextClass))
-            if onResult then onResult(nextClass,useGems and offer.price or nil) end
-            if Extras.matchesTarget(target,nextClass) then return true,"Classe encontrada: "..nextClass.."." end
+            report(string.format(T("Giro %d confirmado: %s"),index,tostring(nextClass)))
+            if Extras.matchesTarget(target,nextClass) then return true,T("Classe encontrada: ")..nextClass.."." end
             task.wait(0.7)
         end
         return true,"Rolagem pausada."
@@ -892,7 +1233,7 @@ function Extras.create(services,bridge,nav,lifecycle)
             local after=gems()
             return after and after<balance or best.button.Parent and bridge.texts(best.button)~=best.text
         end) then return false,"O jogo nao confirmou a melhoria de lobby." end
-        return true,"Melhoria de lobby confirmada: "..best.name..".",best.name
+        return true,T("Melhoria de lobby confirmada: ")..best.name..".",best.name
     end
     local function eventContext(text)
         local key=norm(text)
@@ -1022,7 +1363,7 @@ function Extras.create(services,bridge,nav,lifecycle)
                 if ok~=nil then return ok,why end
             end
         end
-        if #choices~=1 then return false,"A oferta de 80 abóboras não pôde ser confirmada. Copie o log do lobby." end
+        if #choices~=1 then return false,"A oferta de 80 abóboras não pôde ser confirmada." end
         if not valid() then return false,"Abertura cancelada." end
         lastCrateRoute=choices[1]:GetFullName()
         return bridge.activate(choices[1])
@@ -1049,12 +1390,12 @@ function Extras.create(services,bridge,nav,lifecycle)
             return false
         end)
     end
-    local function openBatch(valid,count,onOpened,onProgress)
+    local function openBatch(valid,count,onProgress)
         if type(count)~="number" or count%1~=0 or count<1 or count>10 then return false,"Lote inválido.",0 end
         local balance=pumpkins()
         if balance==nil then return false,"O jogo ainda não informou o saldo de abóboras.",0 end
         if balance<count*Extras.CRATE_COST then
-            return false,string.format("Saldo insuficiente para o lote. %d de %d abóboras.",balance,count*Extras.CRATE_COST),0
+            return false,string.format(T("Saldo insuficiente para o lote. %d de %d abóboras."),balance,count*Extras.CRATE_COST),0
         end
         local opened=0
         for index=1,count do
@@ -1063,7 +1404,7 @@ function Extras.create(services,bridge,nav,lifecycle)
             local before=pumpkins()
             if before==nil or before<Extras.CRATE_COST then return false,"Saldo mudou durante o lote.",opened end
             local serial=crateSignal
-            if onProgress then onProgress(string.format("Abrindo caixa %d/%d…",index,count)) end
+            if onProgress then onProgress(string.format(T("Abrindo caixa %d/%d…"),index,count)) end
             local ok,why=requestEvent(valid)
             if not ok then return false,why,opened end
             local sawRoll=false
@@ -1085,11 +1426,10 @@ function Extras.create(services,bridge,nav,lifecycle)
                 return Extras.confirmCrate(before,pumpkins(),crateSignal>serial or closedRoll)
             end) then return false,"O jogo não confirmou o débito e o resultado. Lote interrompido.",opened end
             opened+=1
-            if onOpened then onOpened() end
             if sawRoll and not closedRoll then return false,"Caixa registrada, mas a tela da abertura ainda está ativa.",opened end
             if index<count then task.wait(0.45) end
         end
-        return true,string.format("%d caixa(s) confirmada(s).",opened),opened
+        return true,string.format(T("%d caixa(s) confirmada(s)."),opened),opened
     end
     local function diagnostic()
         local info={buttons={}}
@@ -1152,7 +1492,8 @@ function View.create(services,lifecycle,gui,callbacks)
     local tabs,buttons,pages={}, {}, {}
     local function make(class,props,parent)
         local item=Instance.new(class)
-        for key,value in pairs(props) do item[key]=value end
+        for key,value in pairs(props) do item[key]=key=="Text" and T(value) or value end
+        if props.Text~=nil then item.AutoLocalize=false end
         item.Parent=parent
         return item
     end
@@ -1314,7 +1655,7 @@ function View.create(services,lifecycle,gui,callbacks)
     rowButton(actions,"autoImprove","AUTO MELHORIA",0.48,0.52)
     local queueRow=row(settings)
     rowButton(queueRow,"stop","PARAR",0,0.34).BackgroundColor3=red
-    rowButton(queueRow,"copyLog","COPIAR LOG DO LOBBY",0.35,0.65)
+    rowButton(queueRow,"language","IDIOMA",0.35,0.65)
     local _,balance=block(settings,"Recursos do lobby","Lendo o saldo do jogo…",69)
 
     local event=page("event","Caixas",2)
@@ -1355,7 +1696,7 @@ function View.create(services,lifecycle,gui,callbacks)
     gemCheck.Activated:Connect(function()
         if rollingNow then return end
         useGems=not useGems
-        gemCheck.Text=useGems and "✓   USAR GEMAS PARA GIRAR" or "□   USAR GEMAS PARA GIRAR"
+        gemCheck.Text=T(useGems and "✓   USAR GEMAS PARA GIRAR" or "□   USAR GEMAS PARA GIRAR")
         gemCheck.TextColor3=useGems and green or bright
     end)
     local rollRow=row(classes)
@@ -1365,17 +1706,6 @@ function View.create(services,lifecycle,gui,callbacks)
     rowButton(rollRow,"rarest","SELECIONAR MAIS RARA",0.61,0.39)
     local classItems={}
     local classKey=""
-
-    local history=page("history","Histórico",4)
-    local _,totals=block(history,"Atividade desta conta","Aguardando registros…",104)
-    local historyRow=row(history)
-    rowButton(historyRow,"lastRun","COPIAR ÚLTIMA PARTIDA",0,0.56)
-    rowButton(historyRow,"copyHistory","COPIAR HISTÓRICO",0.57,0.43)
-    local journal=make("Frame",{Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,
-        BackgroundTransparency=1},history)
-    make("UIListLayout",{Padding=UDim.new(0,7),SortOrder=Enum.SortOrder.LayoutOrder},journal)
-    local entries={}
-    local journalKey=""
 
     local open=true
     local offset=Vector2.zero
@@ -1476,7 +1806,7 @@ function View.create(services,lifecycle,gui,callbacks)
     showPage("config")
 
     return {
-        status=function(message) footer.Text=tostring(message) end,
+        status=function(message) footer.Text=T(tostring(message)) end,
         showingClasses=function() return open and activePage=="classes" end,
         options=function(value,busy,improving,rolling)
             rollingNow=rolling
@@ -1484,15 +1814,15 @@ function View.create(services,lifecycle,gui,callbacks)
                 launcherFraction=Vector2.new(value.launcherX,value.launcherY)
                 placeLauncher()
             end
-            buttons.size.Text="JOGADORES  ·  "..value.size
-            buttons.friends.Text=value.friends and "SÓ AMIGOS  ·  SIM" or "SÓ AMIGOS  ·  NÃO"
-            buttons.skip.Text=value.skip and "INTRO  ·  PULAR" or "INTRO  ·  VER"
-            buttons.skipOutro.Text=value.skipOutro and "FINAL  ·  PULAR" or "FINAL  ·  VER"
-            buttons.repeatRun.Text=value.repeatRun and "REPETIR  ·  SIM" or "REPETIR  ·  NÃO"
-            buttons.autoImprove.Text=improving and "MELHORIAS  ·  ON" or "MELHORIAS  ·  OFF"
-            buttons.autoCrates.Text=value.autoCrates and "AUTO CAIXAS  ·  ON" or "AUTO CAIXAS  ·  OFF"
-            buttons.cycle.Text=busy and "AGUARDANDO O JOGO" or "CICLO COMPLETO"
-            rollButton.Text=rolling and "PARAR GIROS" or "GIRAR ATÉ O ALVO"
+            buttons.size.Text=T("JOGADORES  ·  ")..value.size
+            buttons.friends.Text=T(value.friends and "SÓ AMIGOS  ·  SIM" or "SÓ AMIGOS  ·  NÃO")
+            buttons.skip.Text=T(value.skip and "INTRO  ·  PULAR" or "INTRO  ·  VER")
+            buttons.skipOutro.Text=T(value.skipOutro and "FINAL  ·  PULAR" or "FINAL  ·  VER")
+            buttons.repeatRun.Text=T(value.repeatRun and "REPETIR  ·  SIM" or "REPETIR  ·  NÃO")
+            buttons.autoImprove.Text=T(improving and "MELHORIAS  ·  ON" or "MELHORIAS  ·  OFF")
+            buttons.autoCrates.Text=T(value.autoCrates and "AUTO CAIXAS  ·  ON" or "AUTO CAIXAS  ·  OFF")
+            buttons.cycle.Text=T(busy and "AGUARDANDO O JOGO" or "CICLO COMPLETO")
+            rollButton.Text=T(rolling and "PARAR GIROS" or "GIRAR ATÉ O ALVO")
             rollButton.BackgroundColor3=rolling and red or blue
             amount.Text=tostring(value.crateCount)
             local ratio=(value.crateCount-1)/9
@@ -1500,11 +1830,11 @@ function View.create(services,lifecycle,gui,callbacks)
             knob.Position=UDim2.fromScale(ratio,0.5)
         end,
         resources=function(value,count,gems)
-            balance.Text=string.format("Abóboras  %s   ·   Gemas  %s",tostring(value or "—"),tostring(gems or "—"))
-            eventBalance.Text=string.format("%s no saldo   ·   %d caixa(s) = %d abóboras",tostring(value or "—"),count,count*80)
+            balance.Text=string.format(T("Abóboras  %s   ·   Gemas  %s"),tostring(value or "—"),tostring(gems or "—"))
+            eventBalance.Text=string.format(T("%s no saldo   ·   %d caixa(s) = %d abóboras"),tostring(value or "—"),count,count*80)
         end,
         classes=function(list,selected,current,free)
-            classStatus.Text=string.format("%s   ·   Giros grátis: %s",current or "—",tostring(free or "—"))
+            classStatus.Text=string.format(T("%s   ·   Giros grátis: %s"),current or "—",tostring(free or "—"))
             if activePage~="classes" or not open then return end
             local signature={}
             for index=1,math.min(#list,30) do
@@ -1545,26 +1875,6 @@ function View.create(services,lifecycle,gui,callbacks)
                 entry.button.BackgroundColor3=id==selected and Color3.fromRGB(105,74,34) or surface
             end
         end,
-        history=function(state,persistent)
-            if activePage~="history" or not open then return end
-            local n=state.totals
-            totals.Text=string.format("Rodadas  %d   ·   Abóboras  %d   ·   Gemas  %d\nCaixas  %d   ·   Melhorias  %d   ·   Giros  %d\n%s",
-                n.rounds or 0,n.pumpkins or 0,n.gems or 0,n.crates or 0,n.upgrades or 0,n.rolls or 0,
-                persistent and "Histórico salvo neste dispositivo" or "Histórico da sessão")
-            local last=state.events[#state.events]
-            local signature=tostring(last)
-            if signature==journalKey then return end
-            journalKey=signature
-            for _,item in ipairs(entries) do item:Destroy() end
-            table.clear(entries)
-            for index=#state.events,math.max(1,#state.events-24),-1 do
-                local entry=state.events[index]
-                local detail=tostring(entry.detail or "")
-                local frame=block(journal,entry.title,detail,#detail>180 and 113 or 67)
-                frame.LayoutOrder=#state.events-index
-                table.insert(entries,frame)
-            end
-        end,
     }
 end
 
@@ -1572,92 +1882,25 @@ return View
 
 end)()
 
-local History = (function()
--- Luau · potato_history.luau · confirmed totals and a bounded local journal
-local History={}
-local counters={"rounds","pumpkins","gems","crates","upgrades","rolls"}
-
-local function amount(value)
-    if type(value)~="number" or value~=value or value<0 or value>1000000000 then return 0 end
-    return math.floor(value)
-end
-
-function History.create(io,account)
-    local path="Evolvy_History_"..tostring(account)..".json"
-    local persistent=type(io.read)=="function" and type(io.write)=="function"
-    local state={schema=1,totals={},events={},roundIds={},settings={}}
-    if persistent then
+local function lobbySettings(io,account)
+    local path="AnonHub_Lobby_"..tostring(account)..".json"
+    local function read(name)
+        if type(io.read)~="function" then return end
         local ok,value=pcall(function()
-            local raw=io.read(path)
+            local raw=io.read(name)
             if type(raw)=="string" and #raw<=180000 then return io.decode(raw) end
         end)
-        if ok and type(value)=="table" and value.schema==1 then
-            for _,key in ipairs(counters) do
-                state.totals[key]=amount(type(value.totals)=="table" and value.totals[key])
-            end
-            if type(value.events)=="table" then
-                for index=math.max(1,#value.events-59),#value.events do
-                    local entry=value.events[index]
-                    if type(entry)=="table" and type(entry.title)=="string" then table.insert(state.events,entry) end
-                end
-            end
-            if type(value.roundIds)=="table" then
-                for index=math.max(1,#value.roundIds-59),#value.roundIds do
-                    if type(value.roundIds[index])=="string" then table.insert(state.roundIds,value.roundIds[index]) end
-                end
-            end
-            if type(value.settings)=="table" then state.settings=value.settings end
+        if ok and type(value)=="table" and value.schema==1 and type(value.settings)=="table" then
+            return value.settings
         end
     end
-    local function save()
-        if not persistent then return false end
-        local ok,result=pcall(function() return io.write(path,io.encode(state)) end)
-        return ok and result~=false
-    end
-    local function add(key,value)
-        state.totals[key]=math.min(1000000000,amount(state.totals[key])+amount(value))
-    end
-    local function event(kind,title,detail)
-        table.insert(state.events,{kind=kind,title=title,detail=detail,at=io.clock()})
-        if #state.events>60 then table.remove(state.events,1) end
-    end
-    local function lobby(kind,title,detail)
-        if kind~="crates" and kind~="upgrades" and kind~="rolls" then return end
-        add(kind,1)
-        event(kind,title,detail)
-        save()
-    end
-    local function round(id,counts,elapsed,purchases)
-        if type(id)~="string" or id=="" or table.find(state.roundIds,id) then return false end
-        table.insert(state.roundIds,id)
-        if #state.roundIds>60 then table.remove(state.roundIds,1) end
-        add("rounds",1)
-        add("pumpkins",counts.pumpkins)
-        add("gems",counts.gems)
-        local names={}
-        local upgrades=0
-        for _,item in ipairs(purchases or {}) do
-            if item.group=="upgrade" then
-                upgrades+=1
-                if #names<35 then table.insert(names,item.name) end
-            end
-        end
-        add("upgrades",upgrades)
-        local time=amount(elapsed)
-        local summary=string.format("%02d:%02d  ·  %d abóboras  ·  %d gemas  ·  %d melhorias",
-            math.floor(time/60),time%60,amount(counts.pumpkins),amount(counts.gems),upgrades)
-        if #names>0 then summary=summary.."\n"..table.concat(names,", ") end
-        event("rounds","Capítulo II concluído",summary)
-        save()
-        return true
-    end
-    return {lobby=lobby,round=round,state=state,persistent=persistent,
-        settings=function(value) state.settings=value save() end}
+    return {
+        settings=read(path) or read("Evolvy_History_"..tostring(account)..".json"),
+        save=function(settings)
+            if type(io.write)=="function" then pcall(function() io.write(path,io.encode({schema=1,settings=settings})) end) end
+        end,
+    }
 end
-
-return History
-
-end)()
 
 local Quests = (function()
 -- Luau · potato_quests.luau · native quest progress and supported objectives
@@ -1839,51 +2082,6 @@ function Handoff.create(io,identity,bootstrap,checkLicense)
     end}
 end
 return Handoff
-
-end)()
-
-local License = (function()
--- Luau · potato_license.luau · HTTPS licence validation and resume
-local License={}
-
-function License.endpoint(value)
-    if type(value)=="string" and #value<=180 and value:match("^https://[%w][%w.-]+/v1/license$") then return value end
-end
-
-function License.transfer(value)
-    if type(value)~="table" then return nil end
-    local endpoint=License.endpoint(value.endpoint)
-    local token=value.token
-    if not endpoint or type(token)~="string" or #token<40 or #token>500 or not token:match("^[%w_.-]+$") then return nil end
-    return {endpoint=endpoint,token=token}
-end
-
-function License.client(endpoint,account,io)
-    local function validate(key,token)
-        if type(io.request)~="function" then return false,"O Delta nao disponibilizou pedidos HTTPS." end
-        local resume=type(token)=="string"
-        if not resume and (type(key)~="string" or #key<16 or #key>120) then return false,"Key invalida." end
-        local body={account=tostring(account)}
-        if resume then body.session=token else body.key=key end
-        local ok,response=pcall(function()
-            return io.request({Url=endpoint,Method="POST",Headers={["Content-Type"]="application/json"},
-                Body=io.encode(body),Timeout=8})
-        end)
-        if not ok or type(response)~="table" then return false,"Servidor de keys indisponivel. Tente novamente." end
-        local status=tonumber(response.StatusCode or response.Status)
-        if status==403 then return false,"Key invalida, expirada ou vinculada a outra conta." end
-        if status~=200 or type(response.Body)~="string" or #response.Body>4096 then return false,"Falha ao validar com o servidor de keys." end
-        local decoded,data=pcall(io.decode,response.Body)
-        if not decoded or type(data)~="table" or data.ok~=true
-            or not (data.lifetime==true or type(data.expiresAt)=="number") then return false,"Resposta do servidor de keys invalida." end
-        local transfer=License.transfer({endpoint=endpoint,token=data.session})
-        if not transfer then return false,"Sessao de acesso invalida." end
-        return true,nil,{plan=data.plan,expiresAt=data.expiresAt,lifetime=data.lifetime,keyLabel=data.keyLabel,transfer=transfer}
-    end
-    return validate
-end
-
-return License
 
 end)()
 
@@ -3353,21 +3551,6 @@ function Session.create(Core, json, files)
     return {load=load,save=save,filename=filename,available=available}
 end
 
-function Session.log(capacity)
-    local lines,records={},{}
-    return {
-        add=function(message,level)
-            local stamp=os.date("%H:%M:%S")
-            table.insert(lines,1,stamp.."  "..tostring(message))
-            table.insert(records,{time=stamp,level=level or "info",message=tostring(message)})
-            while #lines>(capacity or 14) do table.remove(lines) end
-            while #records>100 do table.remove(records,1) end
-        end,
-        lines=function() return table.clone(lines) end,
-        records=function() return table.clone(records) end,
-    }
-end
-
 function Session.lifecycle()
     local alive=true
     local disposables={}
@@ -3389,163 +3572,6 @@ return Session
 
 end)()
 
-local Gate = (function()
--- Luau · potato_gate.luau · member access and provider expiry presentation · Roblox · Luau 0.745
-local Gate={}
-function Gate.open(services,lifecycle,options,Membership,Layout)
-    local player=services.Players.LocalPlayer
-    local connections={}
-    local approved,checking=options.enabled==false or options.resumeLocal==true and type(options.validate)~="function",false
-    local startOP=false
-    local validatedTransfer=nil
-    local license=approved and Membership.normalize(options,options.key) or nil
-    local function make(class,props,parent)
-        local instance=Instance.new(class)
-        for key,value in pairs(props) do instance[key]=value end
-        instance.Parent=parent return instance
-    end
-    local function corner(parent,radius) make("UICorner",{CornerRadius=UDim.new(0,radius)},parent) end
-    local ink=Color3.fromRGB(246,235,206)
-    local muted=Color3.fromRGB(192,175,147)
-    local green=Color3.fromRGB(145,209,95)
-    local edge=Color3.fromRGB(115,89,57)
-    local function gradient(parent,top,bottom)
-        return make("UIGradient",{Color=ColorSequence.new(top,bottom),Rotation=90},parent)
-    end
-    local old=player.PlayerGui:FindFirstChild("AnonymousPotatoAccess") if old then old:Destroy() end
-    local gui=make("ScreenGui",{Name="AnonymousPotatoAccess",ResetOnSpawn=false,DisplayOrder=10001,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},player.PlayerGui)
-    local backdrop=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.fromRGB(17,14,11),BackgroundTransparency=0.27,BorderSizePixel=0},gui)
-    local panel=make("Frame",{BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=0},backdrop)
-    corner(panel,14)
-    make("UIStroke",{Color=edge,Thickness=2},panel)
-    gradient(panel,Color3.fromRGB(71,52,33),Color3.fromRGB(31,25,20))
-    local close=make("TextButton",{Text="×",BackgroundColor3=Color3.fromRGB(78,47,37),TextColor3=ink,Position=UDim2.new(1,-40,0,8),Size=UDim2.fromOffset(30,30),TextSize=24,Font=Enum.Font.GothamBold,ZIndex=4,BorderSizePixel=0},panel)
-    corner(close,7)
-    local body=make("ScrollingFrame",{BackgroundTransparency=1,BorderSizePixel=0,Position=UDim2.fromOffset(24,24),Size=UDim2.new(1,-48,1,-94),CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=3,ScrollBarImageColor3=green},panel)
-    local bodyLayout=make("UIListLayout",{Padding=UDim.new(0,12),SortOrder=Enum.SortOrder.LayoutOrder},body)
-    local function label(content,height,size,color,order,parent)
-        return make("TextLabel",{BackgroundTransparency=1,Text=content,Size=UDim2.new(1,0,0,height),Font=Enum.Font.Gotham,TextSize=size,TextColor3=color or ink,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,LayoutOrder=order},parent or body)
-    end
-    local hero=make("Frame",{Size=UDim2.new(1,0,0,60),BackgroundTransparency=1,LayoutOrder=1},body)
-    local icon=make("ImageLabel",{Size=UDim2.fromOffset(50,50),Position=UDim2.fromOffset(0,4),
-        BackgroundColor3=Color3.fromRGB(91,69,43),BorderSizePixel=0,Image="rbxassetid://103225914639722",ScaleType=Enum.ScaleType.Fit},hero)
-    corner(icon,10)
-    local title=label("KEY DE ACESSO",34,27,nil,1,hero)
-    title.Position,title.Size=UDim2.fromOffset(61,1),UDim2.new(1,-91,0,34)
-    title.Font=Enum.Font.GothamBlack
-    local subtitle=label("ANONHUB  /  CAPÍTULO II",16,11,green,2,hero)
-    subtitle.Position,subtitle.Size=UDim2.fromOffset(62,36),UDim2.new(1,-92,0,16)
-    local profile=make("Frame",{BackgroundColor3=Color3.fromRGB(39,31,24),BorderSizePixel=0,Size=UDim2.new(1,0,0,67),LayoutOrder=3},body) corner(profile,9)
-    make("UIStroke",{Color=edge,Thickness=1},profile)
-    local avatar=make("ImageLabel",{BackgroundColor3=Color3.fromRGB(76,58,39),BorderSizePixel=0,
-        Position=UDim2.fromOffset(9,8),Size=UDim2.fromOffset(50,50),Image=""},profile) corner(avatar,25)
-    local initial=label(string.upper(string.sub(player.Name,1,1)),50,21,green,0,avatar)
-    initial.TextXAlignment=Enum.TextXAlignment.Center
-    local name=label(player.DisplayName or player.Name,24,16,nil,1,profile)
-    name.Position,name.Size=UDim2.fromOffset(70,6),UDim2.new(1,-80,0,24)
-    name.Font=Enum.Font.GothamBold name.TextTruncate=Enum.TextTruncate.AtEnd name.TextWrapped=false
-    local handle=label("@"..player.Name,15,10,muted,2,profile)
-    handle.Position,handle.Size=UDim2.fromOffset(70,30),UDim2.new(1,-80,0,15)
-    local member=label("MEMBER",15,10,green,3,profile)
-    member.Position,member.Size=UDim2.fromOffset(70,47),UDim2.new(1,-80,0,15)
-    local localKey=type(options.validate)~="function"
-    local hint=label(localKey and ("Acesso local  ·  "..tostring(options.key or "Anonymous").."  ·  Life time") or "Informe sua key de acesso.",20,12,muted,4)
-    local entry=make("TextBox",{Size=UDim2.new(1,0,0,46),BackgroundColor3=Color3.fromRGB(29,24,19),BorderSizePixel=0,ClearTextOnFocus=false,Text="",PlaceholderText="Digite ou cole sua key",PlaceholderColor3=muted,TextColor3=ink,TextSize=16,Font=Enum.Font.GothamBold,LayoutOrder=5},body) corner(entry,8)
-    local entryStroke=make("UIStroke",{Color=edge,Thickness=1},entry)
-    local actions=make("Frame",{Position=UDim2.new(0,24,1,-105),Size=UDim2.new(1,-48,0,44),
-        BackgroundTransparency=1},panel)
-    local submit=make("TextButton",{Size=UDim2.new(0.45,-4,1,0),BackgroundColor3=Color3.fromRGB(85,66,44),BorderSizePixel=0,
-        Text="ABRIR HUB",TextColor3=ink,TextSize=13,Font=Enum.Font.GothamBlack},actions)
-    corner(submit,8)
-    local quickLabel=options.lobby and "VALIDAR E ENTRAR" or "VALIDAR E INICIAR OP"
-    local quick=make("TextButton",{Position=UDim2.new(0.45,4,0,0),Size=UDim2.new(0.55,-4,1,0),
-        BackgroundColor3=green,BorderSizePixel=0,Text=quickLabel,
-        TextColor3=Color3.fromRGB(25,43,15),TextSize=12,Font=Enum.Font.GothamBlack},actions)
-    corner(quick,8)
-    local details=label("",42,12,muted,7)
-    details.Visible=approved
-    local status=make("TextLabel",{BackgroundTransparency=1,Text="PRONTO PARA VALIDAR",Position=UDim2.new(0,24,1,-58),Size=UDim2.new(1,-48,0,28),TextColor3=muted,Font=Enum.Font.Gotham,TextSize=12,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left},panel)
-    local track=make("Frame",{Position=UDim2.new(0,24,1,-20),Size=UDim2.new(1,-48,0,4),BackgroundColor3=edge,BorderSizePixel=0},panel) corner(track,4)
-    local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=green,BorderSizePixel=0},track) corner(fill,4)
-    Membership.requestAvatar(services.Players,player.UserId,function(image) if gui.Parent then avatar.Image=image initial.Visible=false end end)
-    local function refreshMember()
-        if not license then return end
-        local view=Membership.describe(license,os.time())
-        member.Text=view.plan.."  /  "..view.source
-        details.Text="KEY  •  "..view.keyLabel.."\nVALIDADE  •  "..view.validity
-    end
-    local function applyLayout()
-        local bounds=Layout.access(backdrop.AbsoluteSize.X,backdrop.AbsoluteSize.Y)
-        panel.Size=UDim2.fromOffset(bounds.width,bounds.height) panel.Position=UDim2.fromOffset(bounds.x,bounds.y)
-        local top=bounds.compact and 16 or 24
-        body.Position=UDim2.fromOffset(24,top)
-        body.Size=UDim2.new(1,-48,0,math.max(1,bounds.height-top-(approved and 70 or 112)))
-        profile.Visible=bounds.height>=310
-        bodyLayout.Padding=UDim.new(0,bounds.compact and 8 or 12)
-    end
-    table.insert(connections,backdrop:GetPropertyChangedSignal("AbsoluteSize"):Connect(applyLayout)) task.defer(applyLayout)
-    local function enter(startNow,session)
-        if approved or checking or not lifecycle.alive() then return end
-        local value=nil
-        if not session then value=string.match(entry.Text,"^%s*(.-)%s*$") end
-        if not session and value=="" then status.Text="Digite sua key para continuar." entry:CaptureFocus() return end
-        local selected=startNow and quick or submit
-        checking=true selected.Text="VALIDANDO..."
-        entryStroke.Color=green
-        task.spawn(function()
-            local ok,accepted,message,metadata
-            if type(options.validate)=="function" then ok,accepted,message,metadata=pcall(options.validate,value,session)
-            else ok,accepted=true,value==(options.key or "Anonymous") end
-            if not lifecycle.alive() or not gui.Parent then return end
-            checking=false
-            if ok and accepted==true then
-                local candidate=Membership.normalize(options,value,metadata)
-                if Membership.describe(candidate,os.time()).expired then accepted=false message="A validade desta key terminou ou nao e valida."
-                else
-                    license=candidate
-                    validatedTransfer=type(metadata)=="table" and metadata.transfer or nil
-                end
-            end
-            if ok and accepted==true then
-                startOP=startNow==true
-                approved=true entry.Visible=false actions.Visible=false details.Visible=true
-                applyLayout()
-                hint.Text=startOP and "O OP iniciará quando o Capítulo II estiver pronto." or "Acesso liberado. Preparando seu painel."
-                refreshMember() status.Text="CARREGANDO COMPONENTES"
-            else
-                entryStroke.Color=Color3.fromRGB(255,155,146)
-                submit.Text="ABRIR HUB" quick.Text=quickLabel
-                status.Text=ok and (type(message)=="string" and message or "Key incorreta.") or "Falha de validacao. Tente novamente."
-            end
-        end)
-    end
-    table.insert(connections,submit.Activated:Connect(function() enter(false) end))
-    table.insert(connections,quick.Activated:Connect(function() enter(true) end))
-    table.insert(connections,entry.FocusLost:Connect(function(pressed) if pressed then enter(false) end end))
-    table.insert(connections,close.Activated:Connect(lifecycle.close))
-    local function dispose()
-        for _,connection in ipairs(connections) do connection:Disconnect() end table.clear(connections)
-        if gui.Parent then gui:Destroy() end
-    end
-    lifecycle.add(dispose)
-    if approved then entry.Visible=false actions.Visible=false refreshMember()
-    elseif options.resumeSession and type(options.validate)=="function" then
-        task.defer(function() enter(true,options.resumeSession) end)
-    end
-    return {wait=function()
-            while lifecycle.alive() and gui.Parent and not approved do task.wait(0.1) end
-            return lifecycle.alive() and gui.Parent~=nil and approved,startOP
-        end,
-        membership=function() return Membership.describe(license,os.time()) end,
-        transfer=function() return validatedTransfer end,
-        expired=function() return Membership.expired(license,os.time()) end,
-        progress=function(fraction,message) if gui.Parent then fill.Size=UDim2.fromScale(math.clamp(fraction,0,1),1) status.Text=tostring(message) refreshMember() end end,
-        close=dispose}
-end
-return Gate
-
-end)()
-
 local UI = (function()
 -- Luau · potato_ui.luau · Anonymous native control panel · Roblox client · Luau 0.745
 local UI = {}
@@ -3564,7 +3590,8 @@ function UI.create(services, config, callbacks, Layout, Membership)
     }
     local function make(class, properties, parent)
         local result = Instance.new(class)
-        for k,v in pairs(properties or {}) do result[k]=v end
+        for k,v in pairs(properties or {}) do result[k]=k=="Text" and T(v) or v end
+        if properties and properties.Text~=nil then result.AutoLocalize=false end
         result.Parent=parent
         return result
     end
@@ -3603,7 +3630,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     local brand=text(sidebar,"ANONHUB",20,palette.text,true)
     brand.Position,brand.Size=UDim2.fromOffset(17,21),UDim2.new(1,-32,0,28)
     local edition=text(sidebar,"POTATO / CONTROL",10,palette.accent,true)
-    edition.Position,edition.Size=UDim2.fromOffset(18,51),UDim2.new(1,-32,0,16) edition.Text="CHAPTER II / ANONHUB"
+    edition.Position,edition.Size=UDim2.fromOffset(18,51),UDim2.new(1,-32,0,16) edition.Text=T("CAPÍTULO II / ANONHUB")
     local nav=make("ScrollingFrame",{BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=2,
         AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.fromOffset(0,0),
         Position=UDim2.fromOffset(12,90),Size=UDim2.new(1,-24,1,-165)},sidebar)
@@ -3636,7 +3663,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     memberLine.Position,memberLine.Size=UDim2.fromOffset(51,23),UDim2.new(1,-61,0,18)
     memberLine.TextTruncate=Enum.TextTruncate.AtEnd
     local function showMembership(info)
-        memberLine.Text=info.plan.."  ·  "..info.keyLabel.."  ·  "..info.validity
+        memberLine.Text=info.plan.."  ·  "..info.keyLabel.."  ·  "..T(info.validity)
         memberLine.TextColor3=info.expired and Color3.fromRGB(255,160,150) or palette.mint
     end
     showMembership(access)
@@ -3654,7 +3681,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     mini.Position,mini.Size=UDim2.fromOffset(13,72),UDim2.fromOffset(56,56)
     mini.BackgroundColor3=palette.accent mini.TextColor3=palette.background mini.TextSize=27 mini.Visible=true mini.ZIndex=20
     local dragBar=make("Frame",{Name="MoveHandle",Size=UDim2.new(1,-18,0,33),BackgroundTransparency=1,Active=true},panel)
-    local dragHint=text(dragBar,"≡   ANONYMOUS / POTATO   ·   ARRASTE",10,palette.muted,true)
+    local dragHint=text(dragBar,"≡   ANONHUB / POTATO   ·   ARRASTE",10,palette.muted,true)
     dragHint.Position,dragHint.Size=UDim2.fromOffset(15,3),UDim2.new(1,-30,1,-6)
     local grip=button(panel,"↘") grip.Position,grip.Size=UDim2.new(1,-25,1,-25),UDim2.fromOffset(23,23)
     grip.BackgroundTransparency=1 grip.TextColor3=palette.accent grip.TextSize=20 grip.ZIndex=10
@@ -3703,7 +3730,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     table.insert(connections,save.Activated:Connect(function() if callbacks.save then callbacks.save() end end))
     table.insert(connections,pause.Activated:Connect(function() callbacks.pause() end))
     local function page(name)
-        activePage=name heading.Text=({Inicio="Visao geral",Coleta="Coleta e alvos",Corte="Mesa de corte",Vendas="Vendas",Resfriar="Controle de calor",Compras="Equipamentos",Ajustes="Preferencias",Registros="Diagnostico",Missoes="Missoes e passe"})[name] or name
+        activePage=name heading.Text=T(({Inicio="Visao geral",Coleta="Coleta e alvos",Corte="Mesa de corte",Vendas="Vendas",Resfriar="Controle de calor",Compras="Equipamentos",Ajustes="Preferencias",Missoes="Missoes e passe"})[name] or name)
         for key,frame in pairs(pages) do frame.Visible=key==name end
         for key,item in pairs(navButtons) do
             local marker=item:FindFirstChild("SelectedMark") if marker then marker.Visible=key==name end
@@ -3718,7 +3745,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
         local list=make("UIListLayout",{Padding=UDim.new(0,13),SortOrder=Enum.SortOrder.LayoutOrder},area)
         make("UIPadding",{PaddingRight=UDim.new(0,9),PaddingBottom=UDim.new(0,12)},area)
         pages[name]=area
-        local b=button(nav,string.format("%02d   %s",index,name))
+        local b=button(nav,string.format("%02d   %s",index,T(name)))
         b.Size=UDim2.new(1,0,0,39) b.LayoutOrder=index b.TextXAlignment=Enum.TextXAlignment.Left
         make("UIPadding",{PaddingLeft=UDim.new(0,10)},b)
         local mark=make("Frame",{Name="SelectedMark",BackgroundColor3=palette.accent,BorderSizePixel=0,Position=UDim2.new(0,0,0.2,0),Size=UDim2.new(0,3,0.6,0),Visible=false},b) corner(mark,2)
@@ -3781,7 +3808,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
         local control=button(r,"")
         control.Size,control.Position=UDim2.fromOffset(112,36),UDim2.new(1,-112,0,0)
         bindField(field,function(value)
-            for _, option in ipairs(options) do if option[1]==value then control.Text=option[2].." >" return end end
+            for _, option in ipairs(options) do if option[1]==value then control.Text=T(option[2]).." >" return end end
         end)
         table.insert(connections,control.Activated:Connect(function()
             local current=1
@@ -3791,6 +3818,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
         return r
     end
     local function number(parent,field,title,low,high,step,suffix)
+        suffix=T(suffix)
         local r=row(parent,title,nil,80)
         local input=make("TextBox",{Size=UDim2.fromOffset(100,34),Position=UDim2.new(1,-100,0,0),
             BackgroundColor3=palette.background,TextColor3=palette.accent,BorderSizePixel=0,
@@ -3851,10 +3879,10 @@ function UI.create(services, config, callbacks, Layout, Membership)
     local modeButtons=make("Frame",{Size=UDim2.new(1,0,0,48),BackgroundTransparency=1,LayoutOrder=2},hero)
     local start=button(modeButtons,"AUTO PROGRESS") start.Size=UDim2.new(0.5,-5,1,0)
     start.BackgroundColor3=palette.accent start.TextColor3=palette.background start.TextSize=13
-    bindField("autoProgress",function(value) start.Text=value and "PAUSAR PROGRESS" or "AUTO PROGRESS" end)
+    bindField("autoProgress",function(value) start.Text=T(value and "PAUSAR PROGRESS" or "AUTO PROGRESS") end)
     table.insert(connections,start.Activated:Connect(function() callbacks.change("autoProgress",not callbacks.value("autoProgress")) end))
     local opStart=button(modeButtons,"ATIVAR OP") opStart.Position=UDim2.new(0.5,5,0,0) opStart.Size=UDim2.new(0.5,-5,1,0) opStart.BackgroundColor3=palette.mint opStart.TextColor3=palette.background opStart.TextSize=13
-    bindField("opAutoFinish",function(value) opStart.Text=value and "PAUSAR OP" or "ATIVAR OP" end)
+    bindField("opAutoFinish",function(value) opStart.Text=T(value and "PAUSAR OP" or "ATIVAR OP") end)
     table.insert(connections,opStart.Activated:Connect(function() callbacks.change("opAutoFinish",not callbacks.value("opAutoFinish")) end))
     local modeLine=text(hero,"MODO  •  PAUSADO",11,palette.mint,true) modeLine.Size=UDim2.new(1,0,0,0) modeLine.AutomaticSize=Enum.AutomaticSize.Y modeLine.LayoutOrder=3 modeLine.TextWrapped=true
     local party=card(home,"PERFIL DA PARTIDA")
@@ -3880,11 +3908,11 @@ function UI.create(services, config, callbacks, Layout, Membership)
         if team then
             local split=({[2]="1 lider OP e 1 no corte/venda.",[3]="1 lider OP, 1 na coleta e 1 no corte/venda.",
                 [4]="1 lider OP, 1 na coleta e 2 no corte/venda."})[config.partySize]
-            recommendation.Text=split.." Usem mesas diferentes. Venda paga a equipe. Corte e equipamentos sao individuais."
+            recommendation.Text=T(split)..T(" Usem mesas diferentes. Venda paga a equipe. Corte e equipamentos sao individuais.")
         elseif config.partyProfile=="Mixed" then
-            recommendation.Text="Apoio com corte nativo, vendas e caminhada. Compra facas e ate dois niveis do upgrade de velocidade do jogo."
+            recommendation.Text=T("Apoio com corte nativo, vendas e caminhada. Compra facas e ate dois niveis do upgrade de velocidade do jogo.")
         else
-            recommendation.Text="Recomendado: OP. Uma conta financia as ferramentas, limpa a montanha, corta o estoque e usa a chave."
+            recommendation.Text=T("Recomendado: OP. Uma conta financia as ferramentas, limpa a montanha, corta o estoque e usa a chave.")
         end
     end
     bindField("partyProfile",showRecommendation)
@@ -4053,6 +4081,15 @@ function UI.create(services, config, callbacks, Layout, Membership)
         return control
     end
     local settings=newPage("Ajustes",8)
+    local account=card(settings,"Conta")
+    local language=button(account,"IDIOMA")
+    language.Size=UDim2.new(1,0,0,40)
+    language.LayoutOrder=3
+    table.insert(connections,language.Activated:Connect(callbacks.language))
+    local unload=button(account,"ENCERRAR HUB")
+    unload.Size=UDim2.new(1,0,0,40)
+    unload.LayoutOrder=4
+    table.insert(connections,unload.Activated:Connect(function() gui:Destroy() end))
     local appearance=card(settings,"Tela e toque","Arraste o topo para mover o painel. O botao A tambem pode ser arrastado. Use o canto inferior para redimensionar.")
     number(appearance,"uiScale","Escala da interface",65,150,5,"%")
     number(appearance,"uiWidth","Largura do painel",300,1100,10," px")
@@ -4072,7 +4109,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     toggle(s,"skipEndingScene","Pular cena final","Usa o botao Pular quando disponivel. Apos a fuga confirmada, tambem tenta a funcao Cancel da cena.")
     toggle(s,"releaseEndingCamera","Liberar camera apos vitoria","Se a cena nao oferecer um botao, tenta devolver a visao ao personagem depois da confirmacao da fuga.")
     toggle(s,"throughputMode","Ritmo de limpeza","Com equipamentos no maximo, prefere alvos proximos e evita desvios por raridades.")
-    toggle(s,"fastDelivery","Reduzir intervalo local da entrega","Ajusta PLACEMENT_STAGGER quando o modulo disponibiliza a constante. Recua se a entrega falhar.")
+    toggle(s,"fastDelivery","Reduzir intervalo local da entrega","Acelera entregas e restaura o intervalo normal se a entrega falhar.")
     number(s,"placementDelay","Intervalo local por colocacao",0.005,0.08,0.005," s")
     choice(s,"movement","Deslocamento",{{"Teleport","Teleporte"},{"Walk","Caminhar"}})
     choice(s,"speedMode","Ritmo",{{"Turbo","Turbo"},{"Standard","Normal"}})
@@ -4105,22 +4142,10 @@ function UI.create(services, config, callbacks, Layout, Membership)
         bindField(field,function(value) b.Text=value end)
         table.insert(connections,b.Activated:Connect(function() callbacks.bind(field) end))
     end
-    local op=card(settings,"OP Alto Zerar","EXPERIMENTAL | Ciclo completo com rajadas adaptativas, alvos proximos e prioridade para limpar a montanha. Nao garante limpeza instantanea.")
+    local op=card(settings,"OP Alto Zerar","Ciclo completo com prioridade para limpar a montanha.")
     toggle(op,"opAutoFinish","OP Alto Zerar","Sugador MAX inicia coleta continua ate acabar a montanha. Entrega ao encher se a bolsa for finita. O OP coordena seus servicos sem ligar os interruptores das rotinas manuais.")
     toggle(op,"opBatchFunding","Vender lotes maiores no OP","Usa lotes de 50, 90 ou 150 conforme o saldo que falta para a proxima compra, respeitando o limite de venda.")
     toggle(op,"opFastPrompts","Retentar mesa e venda mais cedo","Quando o prompt e instantaneo, tenta outra forma de interacao mais cedo. O resultado ainda depende da confirmacao do jogo.")
-    toggle(op,"opKeyShortcut","Testar chave antecipada","Experimental: usa somente um ID de chave recebido do jogo. Confirma HasKey antes de ir para a saida. Se o jogo nao divulgar ou recusar, continua a limpeza.")
-    local logPage=newPage("Registros",9)
-    local l=card(logPage,"Atividade recente")
-    local logText=text(l,"Pronto.",11,palette.muted,false)
-    logText.Size=UDim2.new(1,0,0,230) logText.TextWrapped=true logText.TextYAlignment=Enum.TextYAlignment.Top logText.LayoutOrder=3
-    local export=button(l,"EXPORTAR DIAGNOSTICO") export.Size=UDim2.new(1,0,0,34) export.LayoutOrder=5
-    table.insert(connections,export.Activated:Connect(function() if callbacks.export then callbacks.export() end end))
-    local loader=button(l,"COPIAR LOADER CURTO") loader.Size=UDim2.new(1,0,0,38) loader.LayoutOrder=6
-    table.insert(connections,loader.Activated:Connect(function() if callbacks.copyLoader then callbacks.copyLoader() end end))
-    local unload=button(l,"ENCERRAR HUB") unload.Size=UDim2.new(1,0,0,38) unload.LayoutOrder=7
-    table.insert(connections,unload.Activated:Connect(function() gui:Destroy() end))
-
     applyLayout=function()
         if closed then return end
         if canvas.AbsoluteSize.X<100 or canvas.AbsoluteSize.Y<100 then return end
@@ -4145,14 +4170,14 @@ function UI.create(services, config, callbacks, Layout, Membership)
         nav.AutomaticCanvasSize=compact and Enum.AutomaticSize.X or Enum.AutomaticSize.Y
         nav.ScrollingDirection=compact and Enum.ScrollingDirection.X or Enum.ScrollingDirection.Y
         navLayout.FillDirection=compact and Enum.FillDirection.Horizontal or Enum.FillDirection.Vertical
-        dragHint.Text=compact and "≡   ANONYMOUS / POTATO   ·   ARRASTE" or "≡   ARRASTE PARA MOVER"
+        dragHint.Text=T(compact and "≡   ANONHUB / POTATO   ·   ARRASTE" or "≡   ARRASTE PARA MOVER")
         dragHint.TextXAlignment=compact and Enum.TextXAlignment.Left or Enum.TextXAlignment.Right
         brand.Text=compact and "A" or "ANONHUB"
         brand.TextSize=compact and 27 or 20
         edition.Visible=not compact
         for name,b in pairs(navButtons) do
-            local index=({Inicio=1,Coleta=2,Corte=3,Vendas=4,Resfriar=5,Compras=6,Missoes=7,Ajustes=8,Registros=9})[name]
-            b.Text=compact and ({Inicio="INICIO",Coleta="COLETA",Corte="CORTE",Vendas="VENDER",Resfriar="AGUA",Compras="LOJA",Missoes="MISSOES",Ajustes="AJUSTE",Registros="LOG"})[name] or string.format("%02d   %s",index,name)
+            local index=({Inicio=1,Coleta=2,Corte=3,Vendas=4,Resfriar=5,Compras=6,Missoes=7,Ajustes=8})[name]
+            b.Text=compact and T(({Inicio="INICIO",Coleta="COLETA",Corte="CORTE",Vendas="VENDER",Resfriar="AGUA",Compras="LOJA",Missoes="MISSOES",Ajustes="AJUSTE"})[name]) or string.format("%02d   %s",index,T(name))
             b.TextSize=compact and 11 or 12
             b.Size=compact and UDim2.fromOffset(76,38) or UDim2.new(1,0,0,43)
             b.TextXAlignment=compact and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
@@ -4202,9 +4227,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
         end,
         recoveryInfo=function(report)
             if closed or not report then return end
-            local recreated=#(report.cloned or {})>0 and table.concat(report.cloned,", ") or "nenhuma"
-            local missing=#(report.missing or {})>0 and table.concat(report.missing,", ") or "nenhum"
-            recoveryResult.Text="Componentes tratados: "..report.restored.."\nTelas recriadas: "..recreated.."\nAinda ausentes: "..missing
+            recoveryResult.Text=T(#(report.missing or {})>0 and "Alguns controles ainda não estão disponíveis." or "Controles restaurados.")
             recoveryResult.TextColor3=#(report.missing or {})>0 and Color3.fromRGB(255,192,110) or palette.mint
         end,
         dashboard=function(data,elapsed)
@@ -4220,7 +4243,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
                     local known=type(entry.level)=="number" and type(entry.maximum)=="number"
                     local maxed=known and entry.level>=entry.maximum
                     widget.buy.Active=known and not maxed
-                    widget.buy.Text=maxed and "MAX" or type(entry.price)=="number" and string.format("$%.2f",entry.price) or "MELHORAR"
+                    widget.buy.Text=maxed and "MAX" or type(entry.price)=="number" and string.format("$%.2f",entry.price) or T("MELHORAR")
                     widget.buy.BackgroundColor3=widget.buy.Active and palette.line or palette.background
                 end
                 for _,widget in pairs(upgradeWidgets) do if not seen[widget] then widget.frame.Visible=false end end
@@ -4230,8 +4253,8 @@ function UI.create(services, config, callbacks, Layout, Membership)
                 local widget=toolWidgets[tool.id]
                 if widget then
                     local ratio=tool.total>0 and math.clamp(tool.current/tool.total,0,1) or 0
-                    widget.title.Text=tool.title
-                    widget.level.Text=not tool.owned and "NAO ADQUIRIDO" or ratio==1 and "MAX  /  PRONTO" or tostring(tool.current).." / "..tostring(tool.total)
+                    widget.title.Text=T(tool.title)
+                    widget.level.Text=not tool.owned and T("NAO ADQUIRIDO") or ratio==1 and T("MAX  /  PRONTO") or tostring(tool.current).." / "..tostring(tool.total)
                     widget.level.TextColor3=ratio==1 and palette.mint or palette.muted
                     widget.fill.Size=UDim2.fromScale(tool.owned and ratio or 0,1)
                     widget.fill.BackgroundColor3=ratio==1 and palette.mint or palette.accent
@@ -4241,11 +4264,11 @@ function UI.create(services, config, callbacks, Layout, Membership)
                 end
             end
             local active=data.finished and 4 or data.hasKey and 4 or data.production and 3 or (data.cash or 0)>0 and 2 or 1
-            modeLine.Text=data.finished and "MODO  •  CONCLUIDO" or data.role
-                or data.op and "MODO  •  OP ATIVO  /  "..tostring(data.phase or "limpeza")
-                or data.progress and "MODO  •  AUTO PROGRESS" or "MODO  •  PAUSADO / ROTINAS MANUAIS"
+            modeLine.Text=data.finished and T("MODO  •  CONCLUIDO") or T(data.role)
+                or data.op and T("MODO  •  OP ATIVO  /  ")..tostring(T(data.phase or "limpeza"))
+                or data.progress and T("MODO  •  AUTO PROGRESS") or T("MODO  •  PAUSADO / ROTINAS MANUAIS")
             for index,chip in ipairs(phaseLabels) do chip.BackgroundColor3=index==active and palette.accent or palette.background chip.TextColor3=index==active and palette.background or palette.muted end
-            runBadge.Text=string.format("%02d:%02d  /  SORTE %d%s",math.floor(elapsed/60),math.floor(elapsed%60),data.gemLuck,data.finished and "  /  CONCLUIDO" or "")
+            runBadge.Text=string.format(T("%02d:%02d  /  SORTE %d%s"),math.floor(elapsed/60),math.floor(elapsed%60),data.gemLuck,data.finished and T("  /  CONCLUIDO") or "")
         end,
         membership=function(info)
             if closed or not info then return end
@@ -4261,16 +4284,15 @@ function UI.create(services, config, callbacks, Layout, Membership)
                 control.Visible=true
                 local active=row.id==selected
                 local state=row.done and "CONCLUIDA" or active and "PRIORIZANDO" or row.action and "SELECIONAR" or "MANUAL"
-                control.Text=string.format("%s  ·  %s   [%d/%d]\n%s",row.source,row.title,row.current,row.goal,state)
+                control.Text=string.format("%s  ·  %s   [%d/%d]\n%s",row.source,row.title,row.current,row.goal,T(state))
                 control.BackgroundColor3=active and palette.line or palette.background
                 control.TextColor3=active and palette.mint or palette.text
             end
             for _,control in pairs(questWidgets) do if not seen[control] then control.Visible=false end end
             questHint.Visible=#rows==0
         end,
-        status=function(message) if not closed then status.Text=message end end,
+        status=function(message) if not closed then status.Text=T(message) end end,
         summary=function(message) if not closed then summary.Text=message end end,
-        logs=function(lines) if not closed then logText.Text=table.concat(lines,"\n") end end,
         show=function() setOpen(true) end,
         toggle=function() setOpen(not isOpen) end,
         close=function() if gui.Parent then gui:Destroy() end end,
@@ -6520,8 +6542,8 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.28.4"
-local bootPhase="preparar o hub"
+local BOOT_VERSION="0.30.0"
+
 
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
@@ -6530,7 +6552,7 @@ local VERSION=BOOT_VERSION
 local EXPECTED_PLACE=116701845804918
 local EXPECTED_GAME=10767408330
 local loaderRoot="https://raw.githubusercontent.com/AnonymosScripts/"
-local loaderPath="/main/potato/loader.lua?v="..VERSION
+local loaderPath="/main/loader.lua?v="..VERSION
 local fetchLoader=string.format([[
     local run
     for _,url in ipairs({%q,%q}) do
@@ -6542,8 +6564,7 @@ local fetchLoader=string.format([[
     end
 ]],loaderRoot.."AnonHub"..loaderPath,loaderRoot.."Script-1-Evolvy-Hub"..loaderPath,
     'local version="'..VERSION..'"')
-local ACCESS={enabled=true,key="Anonymous",plan="Member",lifetime=true}
-bootPhase="servicos do Roblox"
+
 local services={}
 for _,name in ipairs({"Players","Workspace","ReplicatedStorage","HttpService","RunService",
     "Lighting","ProximityPromptService","UserInputService","TweenService","PathfindingService","StarterGui","TeleportService"}) do services[name]=game:GetService(name) end
@@ -6553,7 +6574,6 @@ local coreOk,coreGui=pcall(game.GetService,game,"CoreGui")
 if coreOk then services.CoreGui=coreGui end
 local player=services.Players.LocalPlayer
 assert(player,"Execute o hub no cliente Roblox dentro da experiencia.")
-BootError.clear(player:FindFirstChildOfClass("PlayerGui"))
 if game.PlaceId~=EXPECTED_PLACE or game.GameId~=EXPECTED_GAME then
     pcall(services.StarterGui.SetCore,services.StarterGui,"SendNotification",{
         Title="AnonHub",Text="Este arquivo e para Descasque a Batata, PlaceId "..EXPECTED_PLACE,Duration=8})
@@ -6566,13 +6586,11 @@ local lifecycle=Session.lifecycle()
 local cancellation=Core.newCancellation()
 local registry={close=lifecycle.close,version=VERSION}
 environment.AnonymousPotatoSession=registry
+hub.attach(lifecycle.close)
 lifecycle.add(function() if environment.AnonymousPotatoSession==registry then environment.AnonymousPotatoSession=nil end end)
 local json={encode=function(value) return services.HttpService:JSONEncode(value) end,
     decode=function(value) return services.HttpService:JSONDecode(value) end}
 local files={read=type(readfile)=="function" and readfile or nil,write=type(writefile)=="function" and writefile or nil}
-local history=History.create({read=files.read,write=files.write,encode=json.encode,decode=json.decode,clock=os.time},player.UserId)
-local lastRunFile="Evolvy_Last_Chapter2_Diagnostic.json"
-local saveLastRun=nil
 local queueTransfer=type(queue_on_teleport)=="function" and queue_on_teleport
     or type(queueonteleport)=="function" and queueonteleport
     or type(syn)=="table" and type(syn.queue_on_teleport)=="function" and syn.queue_on_teleport or nil
@@ -6588,42 +6606,30 @@ local transferBootstrap=string.format([[
     if not ok or type(data)~="table" or data.account~=player.UserId or data.game~=game.GameId
         or data.from==game.JobId or type(data.untilTime)~="number" or os.time()>data.untilTime then return end
     %s
-    if not run then
-        local cached,body=pcall(readfile,"Evolvy_Chapter2_Main.luau")
-        if cached and type(body)=="string" and string.find(body,%q,1,true) then run=loadstring(body) end
-    end
     if run then run() end
-]],EXPECTED_PLACE,EXPECTED_GAME,fetchLoader,'local BOOT_VERSION="'..VERSION..'"')
+]],EXPECTED_PLACE,EXPECTED_GAME,fetchLoader)
 local handoff=Handoff.create({read=files.read,write=files.write,queue=queueTransfer,encode=json.encode,decode=json.decode,clock=os.time},
-    {account=player.UserId,game=game.GameId,job=game.JobId},transferBootstrap,License.transfer)
+    {account=player.UserId,game=game.GameId,job=game.JobId},transferBootstrap)
 local store=Session.create(Core,json,files)
-local config,loadMessage=store.load()
-local logger=Session.log(14)
+local config=store.load()
 local ui,adapter,activeAction=nil,nil,nil
 local escapeDriver=nil
 local endingSkipper=nil
 local antiIdle=nil
 local completionHandled,expiryHandled=false,false
-local finishSeconds,readyAt,automationStartedAt=nil,nil,nil
-local modules,moduleErrors={},{}
+local finishSeconds=nil
+local modules={}
 local lastRecovery=nil
 local sessionStartedAt=os.clock()
 local failures={}
-local recent={}
-local function log(message,level)
-    local now=os.clock()
-    if recent[message] and now-recent[message]<12 then return end
-    recent[message]=now
-    logger.add(message,level)
-    if ui then ui.logs(logger.lines()) end
-end
+local function log() end
 local function notify(message)
     if config.notifications then
         pcall(services.StarterGui.SetCore,services.StarterGui,"SendNotification",{
-            Title="AnonHub",Text=tostring(message),Duration=5})
+            Title="AnonHub",Text=T(tostring(message)),Duration=5})
     end
 end
-bootPhase="identificar lobby ou partida"
+
 local deadline=os.clock()+24
 local expectedPhase=handoff.destination()
 local phase=Lobby.stage(services.Workspace)
@@ -6636,24 +6642,6 @@ if not phase or not lifecycle.alive() then
     lifecycle.close()
     return
 end
-bootPhase="validar acesso"
-local resume,resumeLicense=handoff.take(phase)
-local configured=environment.EvolvyLicenseEndpoint
-local endpoint=License.endpoint(configured) or resumeLicense and resumeLicense.endpoint
-if configured~=nil and not License.endpoint(configured) then
-    notify("O endereco do validador precisa usar HTTPS e terminar em /v1/license.")
-    lifecycle.close()
-    return
-end
-if endpoint then
-    local requester=type(request)=="function" and request or type(http_request)=="function" and http_request
-        or type(syn)=="table" and type(syn.request)=="function" and syn.request or nil
-    ACCESS.validate=License.client(endpoint,player.UserId,{request=requester,encode=json.encode,decode=json.decode})
-    ACCESS.resumeSession=resumeLicense and resumeLicense.endpoint==endpoint and resumeLicense.token or nil
-    environment.EvolvyLicenseEndpoint=endpoint
-end
-ACCESS.resumeLocal=resume~=nil and not endpoint
-ACCESS.lobby=phase=="lobby"
 local function pause(message)
     Core.pause(config) cancellation.cancel()
     if adapter then adapter.stop() end
@@ -6669,23 +6657,27 @@ local function restoreInterface()
     if adapter then adapter.restoreGame() end
     lastRecovery=Recovery.restore(services,modules)
     table.clear(failures)
-    if ui then ui.show() ui.refresh() ui.recoveryInfo(lastRecovery) ui.status("Recuperacao solicitada. Veja o resultado no cartao da barra do jogo.") end
+    if ui then ui.show() ui.refresh() ui.recoveryInfo(lastRecovery) end
     log("Recuperacao de interface: "..lastRecovery.restored.." componentes; "..#lastRecovery.cloned.." telas recriadas; "..lastRecovery.errors.." falhas.")
     if #lastRecovery.missing>0 then
         local message="O jogo ainda nao disponibilizou: "..table.concat(lastRecovery.missing,", ")..". Nenhum modelo recuperavel foi encontrado."
-        log(message,"error") if ui then ui.status(message) end
+        log(message,"error")
     end
 end
 if phase=="chapter" and config.autoRepairGui then restoreInterface() end
-local gate=Gate.open(services,lifecycle,ACCESS,Membership,Layout)
-local accessGranted,quickStartOP=gate.wait()
-if not accessGranted then lifecycle.close() return end
+local resume=handoff.take(phase)
+local memberAccess={plan=hub.access.plan or "Member",keyLabel=hub.access.keyLabel or "••••",expiresAt=hub.access.expiresAt}
+local gate={
+    membership=function() return Membership.describe(memberAccess,os.time()) end,
+    expired=function() return Membership.expired(memberAccess,os.time()) end,
+}
+local quickStartOP=hub.startNow==true
 local function reconnect(settings)
     if gate.expired() then return false,"A licenca expirou." end
     local nextOptions=Handoff.options(settings)
     if nextOptions.reconnectCount>=2 then return false,"Limite de reconexoes atingido. Abra o jogo novamente." end
     nextOptions.reconnectCount+=1
-    local armed,why=handoff.arm("lobby",nextOptions,gate.transfer())
+    local armed,why=handoff.arm("lobby",nextOptions)
     if not armed then handoff.clear() return false,why end
     local ok=pcall(services.TeleportService.Teleport,services.TeleportService,EXPECTED_PLACE,player)
     if not ok then handoff.clear() return false,"O Roblox recusou a reconexao." end
@@ -6701,7 +6693,7 @@ local function attachIdle(active)
     return idle
 end
 if phase=="lobby" then
-    bootPhase="abrir o painel do lobby"
+
     local lobbyConfig=Core.validate({movement="Walk",travelTimeout=20},true)
     local nav=Navigation.create(services,lobbyConfig,log)
     lifecycle.add(nav.close)
@@ -6711,12 +6703,8 @@ if phase=="lobby" then
             idle=attachIdle,reconnect=reconnect,
             watch=function(active,onError) Reconnect.watch(services,lifecycle,active,onError) end,
             features=LobbyExtras.create(services,bridge,nav,lifecycle),
-            history=history,view=LobbyView.create,rarest=LobbyExtras.rarest,
-            lastRun=function()
-                if not files.read then return nil end
-                local ok,value=pcall(files.read,lastRunFile)
-                return ok and type(value)=="string" and value or nil
-            end,
+            settings=lobbySettings({read=files.read,write=files.write,encode=json.encode,decode=json.decode},player.UserId),
+            view=LobbyView.create,rarest=LobbyExtras.rarest,language=hub.chooseLanguage,
         })
     return
 end
@@ -6756,11 +6744,9 @@ local moduleNames={
     "Controllers.Chapter2OutroController",
     "ModifiedPackages.Packet._Types",
 }
-bootPhase="carregar modulos da partida"
-modules,moduleErrors={},{}
+
 for index,path in ipairs(moduleNames) do
     if not lifecycle.alive() then return end
-    gate.progress((index-1)/(#moduleNames+2),"Lendo "..path)
     local instance=services.ReplicatedStorage
     for name in string.gmatch(path,"[^%.]+") do instance=instance and instance:FindFirstChild(name) end
     if instance and instance:IsA("ModuleScript") then
@@ -6768,9 +6754,8 @@ for index,path in ipairs(moduleNames) do
         task.spawn(function() ok,value=pcall(require,instance) completed=true end)
         local deadline=os.clock()+6
         while not completed and lifecycle.alive() and os.clock()<deadline do task.wait(0.05) end
-        if completed and ok and type(value)=="table" then modules[path]=value
-        else moduleErrors[path]=completed and tostring(value) or "tempo limite de leitura" end
-    else moduleErrors[path]="modulo ausente" end
+        if completed and ok and type(value)=="table" then modules[path]=value end
+    end
 end
 if not lifecycle.alive() then return end
 local nav=Navigation.create(services,config,log)
@@ -6778,13 +6763,12 @@ local resolver=Resolver.create(modules,services,log,Observer,Spatial,nil,NativeM
 lifecycle.add(resolver.close)
 local nativeOk,nativeError=pcall(resolver.discover)
 if not nativeOk then log("Leitura do mapa nativo indisponivel: "..tostring(nativeError),"error") end
-gate.progress(0.9,"Sincronizando os indices e as variantes da pilha...")
 resolver.requestSync()
 local syncDeadline=os.clock()+1.2
 while lifecycle.alive() and not resolver.ready() and os.clock()<syncDeadline do task.wait(0.05) end
 if not lifecycle.alive() then resolver.close() return end
 local bridge=Bridge.create(services,Core)
-bootPhase="iniciar controles da partida"
+
 adapter=Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,CutEngine,Chapter,Protocol,TopK,Burst)
 escapeDriver=Exit.create(services,modules,nav,log)
 endingSkipper=Exit.endingSkipper(player.PlayerGui,bridge,os.clock,function()
@@ -6878,9 +6862,8 @@ local function repeatAfterReport()
     loopStatus="VITORIA CONFIRMADA / VOLTANDO AO LOBBY"
     local nextOptions=Handoff.options(resume)
     nextOptions.reconnectCount=0
-    local armed,why=handoff.arm("lobby",nextOptions,gate.transfer())
+    local armed,why=handoff.arm("lobby",nextOptions)
     if not armed then stopLoop() loopStatus=why log(why,"error") return end
-    if saveLastRun then saveLastRun() end
     local native=nativeReturn()
     task.delay(native and 5 or 2,function()
         if not lifecycle.alive() or not loopEnabled or returning or gate.expired() then return end
@@ -6921,7 +6904,6 @@ adapter.actions.escape=function(valid)
     adapter.defer("escape",success and 2 or 5)
     return success,message
 end
-gate.progress(0.95,"Preparando painel e controles por toque...")
 local binding=nil
 local keyActions={keyProgress="autoProgress",keyCut="autoCut",keyFarm="autoFarm",keyCool="autoCool",
     keyBuy="autoBuyTools",keyDeliver="autoDeliver",keyPumpkin="collectPumpkins",keyStorage="autoBuyStorage",keyUpgrades="autoBuyUpgrades",keyCrank="autoCrank",keySell="autoSell",keyDynamite="autoDynamite"}
@@ -6936,7 +6918,6 @@ local function refreshAutomation()
     adapter.stop()
     adapter.reset()
     table.clear(failures)
-    if not automationStartedAt and Core.anyActive(config) then automationStartedAt=os.clock() end
     if ui then ui.refresh() end
 end
 local function startProfile()
@@ -6984,51 +6965,13 @@ local function change(field,value)
     if not layoutField then refreshAutomation()
     elseif ui then ui.refresh() end
 end
-local function diagnostic()
-        local report=adapter.diagnostic()
-        report.hub_version=VERSION report.module_errors=moduleErrors report.log=logger.records()
-        report.config=Core.validate(config,false)
-        report.exit=escapeDriver and escapeDriver.diagnostic()
-        report.ending_scene=endingSkipper and endingSkipper.stats
-        report.session_elapsed_seconds=os.clock()-sessionStartedAt
-        report.finish_seconds=finishSeconds
-        report.run_timing={startup_seconds=readyAt and readyAt-sessionStartedAt,
-            wait_to_activate_seconds=readyAt and automationStartedAt and math.max(0,automationStartedAt-readyAt),
-            since_activation_to_finish=finishSeconds and automationStartedAt and math.max(0,sessionStartedAt+finishSeconds-automationStartedAt)}
-        report.lobby_cycle={enabled=loopEnabled,report_received=reportAt~=nil,return_attempted=loopAttempted,status=loopStatus}
-        report.op_start={expected_phase=expectedPhase,resumed=resume~=nil,waiting_for_character=pendingOP,
-            character_confirmed=autoStartedCharacter~=nil}
-        report.collection_plan={auto_crates=resume and resume.autoCrates or false,collect_pumpkins=config.collectPumpkins}
-        report.quests={selected=selectedQuest,action=questAction,rows=questRows}
-        report.gui_recovery=lastRecovery
-        local member=gate.membership()
-        report.membership={plan=member.plan,validity=member.validity,expiresAt=member.expiresAt,source=member.source}
-        report.anti_afk=antiIdle and antiIdle.stats
-        report.active_action=activeAction report.failures=Core.clone(failures)
-        return json.encode(report)
-end
-saveLastRun=function()
-    if not files.write then return end
-    local ok,result=pcall(diagnostic)
-    if ok then pcall(files.write,lastRunFile,result) end
-end
-local function export()
-    local ok,result=pcall(diagnostic)
-    if not ok then log("Falha ao criar diagnostico: "..tostring(result),"error") return end
-    local copied,saved=false,false
-    local clipboard=type(setclipboard)=="function" and setclipboard or (type(toclipboard)=="function" and toclipboard or nil)
-    if clipboard then copied=pcall(clipboard,result) end
-    if type(writefile)=="function" then saved=pcall(writefile,"Anonymous_Potato_Diagnostic.json",result) end
-    log(copied and "Diagnostico copiado." or saved and "Diagnostico salvo: Anonymous_Potato_Diagnostic.json"
-        or "O executor nao disponibilizou clipboard nem escrita de arquivos.")
-end
 ui=UI.create(services,config,{
     value=displayed,change=change,parseNumber=Core.parseAmount,membership=gate.membership,startProfile=startProfile,
     manualUpgrade=function(tool,id)
         if gate.expired() or completionHandled then return end
         if pendingUpgrade then notify("Uma melhoria ja esta na fila.") return end
         pendingUpgrade={tool,id}
-        notify("Solicitada melhoria "..tool.." / "..id..".")
+        notify(T("Solicitada melhoria ")..tool.." / "..id..".")
     end,
     selectQuest=function(id)
         if gate.expired() or completionHandled then return end
@@ -7039,7 +6982,7 @@ ui=UI.create(services,config,{
                 if not row.action then notify("Objetivo sem rota automatica confirmada.") return end
                 change("autoProgress",true)
                 selectedQuest=id questAction=row.action adapter.questMode(row.action)
-                notify("Prioridade: "..row.title)
+                notify(T("Prioridade: ")..row.title)
                 return
             end
         end
@@ -7051,14 +6994,8 @@ ui=UI.create(services,config,{
         if binding==field then binding=nil ui.status("Edicao de atalho cancelada.") return end
         binding=field ui.status("Pressione uma tecla para o atalho; Esc cancela e Backspace remove.")
     end,
-    export=export,close=function() stopLoop() lifecycle.close() end,
+    language=hub.chooseLanguage,close=function() stopLoop() hub.unload() end,
     restore=restoreInterface,
-    copyLoader=function()
-        local code=fetchLoader..'if run then run() else warn("AnonHub: falha ao baixar o loader.") end'
-        local clipboard=type(setclipboard)=="function" and setclipboard or (type(toclipboard)=="function" and toclipboard or nil)
-        if clipboard then pcall(clipboard,code) log("Loader copiado.") end
-        if type(writefile)=="function" then pcall(writefile,"Evolvy_Chapter2_Loader.lua",code) end
-    end,
     layout=function(values)
         local nextConfig=Core.clone(config)
         for key,value in pairs(values) do nextConfig[key]=value end
@@ -7071,13 +7008,6 @@ lifecycle.add(function() if ui then ui.close() end end)
 antiIdle=attachIdle(function() return Core.anyActive(config) end)
 ui.refresh()
 if lastRecovery then ui.recoveryInfo(lastRecovery) end
-log("AnonHub "..VERSION.." / Place version "..game.PlaceVersion)
-log(loadMessage)
-for name,why in pairs(moduleErrors) do log(name..": "..why,"error") end
-if not bridge.available then log("A ativacao de botoes nao esta disponivel; compras diretas por prompt ainda podem funcionar.") end
-gate.progress(1,"Componentes carregados.")
-readyAt=os.clock()
-gate.close()
 if quickStartOP then
     ui.status("Aguardando o personagem para iniciar o OP.")
 else
@@ -7093,7 +7023,7 @@ local inputConnection=services.UserInputService.InputBegan:Connect(function(inpu
         local value=input.KeyCode==Enum.KeyCode.Backspace and "None" or input.KeyCode.Name
         for key,existing in pairs(config) do
             if key~=field and string.sub(key,1,3)=="key" and value~="None" and existing==value then
-                ui.status("Essa tecla ja esta em uso por "..key..".") return
+                ui.status(string.format(T("Essa tecla ja esta em uso por %s."),key)) return
             end
         end
         change(field,value) ui.status("Atalho atualizado.") return
@@ -7167,8 +7097,8 @@ local heartbeat=services.RunService.Heartbeat:Connect(function()
     local message=activeAction and actionNames[activeAction] or "Aguardando rotina ou recurso disponivel"
     local stock=snapshot.stock and tostring(snapshot.stock) or "?"
     local target=snapshot.goal and snapshot.goal.name or "coletar e cortar"
-    ui.summary(string.format("%s  |  Bolsa: %s\nEntrega: %s  |  Cortadas: %s/%d\nMeta: %s\nCalor: %s  |  Gemas: %d\n%.1f cortadas/s | %s | vendas: %d",
-        money,bag,goal and tostring(goal) or "?",stock,config.sellThreshold,target,heat,adapter.counts.gems,snapshot.cutRate or 0,message,adapter.counts.sales))
+    ui.summary(string.format(T("%s  |  Bolsa: %s\nEntrega: %s  |  Cortadas: %s/%d\nMeta: %s\nCalor: %s  |  Gemas: %d\n%.1f cortadas/s | %s | vendas: %d"),
+        T(money),T(bag),goal and tostring(goal) or "?",stock,config.sellThreshold,T(target),T(heat),adapter.counts.gems,snapshot.cutRate or 0,T(message),adapter.counts.sales))
     if ui.dashboard then
         local panelData=adapter.dashboard()
         local exitState=escapeDriver.diagnostic()
@@ -7178,9 +7108,7 @@ local heartbeat=services.RunService.Heartbeat:Connect(function()
         if exitState.finished and not completionHandled then
             completionHandled=true
             finishSeconds=(escapeDriver.finishTime() or os.clock())-sessionStartedAt
-            history.round(game.JobId,adapter.counts,finishSeconds,adapter.purchases)
             pause("Capitulo 2 concluido; rotinas pausadas.")
-            saveLastRun()
         end
         if exitState.finished and not member.expired then repeatAfterReport() end
         panelData.hasKey=exitState.has_key panelData.finished=exitState.finished
@@ -7194,9 +7122,7 @@ local heartbeat=services.RunService.Heartbeat:Connect(function()
     end
     if completionHandled or loopStatus then message=loopStatus or "CAPITULO II CONCLUIDO  /  ROTINAS PAUSADAS"
     elseif member.expired then message="LICENCA EXPIRADA  /  ROTINAS PAUSADAS"
-    elseif config.opAutoFinish then
-        local stats=snapshot.opBurst or {}
-        message=string.format("OP | %.1f ganhos/s | %d pedidos | %d sem resposta | %s",stats.gain_per_second or 0,stats.requests or 0,stats.timeouts or 0,message)
+
     end
     if not binding then ui.status(message) end
     if activeAction and activeAction~="cool" and snapshot.needCooling and Core.effective(config,"autoCool")
@@ -7256,8 +7182,8 @@ task.spawn(function()
                     adapter.recover(action,failures[action])
                     if failures[action]==3 then log("Recuperacao automatica de "..(actionNames[action] or action).."; outras etapas continuam.") end
                 elseif failures[action]>=3 and action~="buy" and action~="enterCut" and action~="sell" and action~="dynamite" then
-                    pause("Rotinas pausadas apos tres falhas em "..(actionNames[action] or action)..". Veja Registros.")
-                    notify("Rotina pausada; veja Registros e exporte o diagnostico se necessario.")
+                    pause(string.format(T("Rotinas pausadas apos tres falhas em %s."),T(actionNames[action] or action)))
+                    notify("Rotina pausada. Reative para tentar novamente.")
                 end
                 if failures[action]>=3 and (action=="buy" or action=="enterCut" or action=="sell" or action=="dynamite") then
                     failures[action]=0 log("A etapa foi adiada; as outras rotinas continuam.")
@@ -7278,11 +7204,4 @@ end)
 
 end
 
-local started,startError=xpcall(bootAnonymousPotato,debug.traceback)
-if not started then
-    local env=type(getgenv)=="function" and getgenv() or _G
-    local session=env.AnonymousPotatoSession
-    if type(session)=="table" and type(session.close)=="function" then pcall(session.close) end
-    warn("AnonHub: "..tostring(startError))
-    BootError.show(bootPhase,startError,BOOT_VERSION)
-end
+bootAnonymousPotato()
