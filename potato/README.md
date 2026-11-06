@@ -1,29 +1,19 @@
-# Evolvy 0.20 · Capítulo II
+# Evolvy 0.21 · Capítulo II
 
-PlaceId `116701845804918`. A key local continua sendo **Anonymous**. O rodapé mostra o avatar, o nome, a key e a validade da conta. Licenças de um provedor usam a validade recebida na validação.
+PlaceId `116701845804918`. Key local **Anonymous**. Na tela de acesso, **Abrir hub** abre o painel com as rotinas pausadas. **Validar e iniciar OP** começa a partida assim que os componentes estiverem prontos. O rodapé mantém o avatar, o nome, a key e a validade. A integração com um provedor de licenças fica para a próxima etapa.
 
-## Perfis de partida
+## Durante o teste
 
-Em **Início → Perfil da partida**, escolha o tipo de grupo e toque em **Iniciar perfil** para aplicar. Escolha o papel em cada conta. A seleção não altera as rotinas até tocar em Iniciar.
+- Consulte **Início → Ver melhorias** ou **Compras → Melhorias em tempo real**. A lista lê os níveis das ferramentas do jogo. O hub não precisa abrir a aba de melhorias do Roblox para exibi-los.
+- **Retentar mesa e venda mais cedo**, ligado no OP, troca o acionamento mais cedo quando um prompt instantâneo demora a responder. Venda e entrada na mesa continuam dependendo da confirmação do jogo. Em caso de regressão, desligue o ajuste para voltar à espera anterior.
+- Os perfis Solo, Com o hub e Grupo misto continuam no Início. A divisão de papéis é feita em cada conta. Para quatro, use um líder OP, um coletor e dois cortadores em mesas diferentes.
 
-| Grupo | Recomendações |
-| --- | --- |
-| Solo | OP completo, desde as compras até a fuga. |
-| Com o hub, 2 contas | Uma no OP e outra cortando e vendendo. |
-| Com o hub, 3 contas | Um líder OP, um coletor e um cortador. |
-| Com o hub, 4 contas | Um líder OP, um coletor e dois cortadores. Use uma mesa diferente para cada conta que corta. |
-| Grupo misto | Corte nativo, venda, caminhada e compra de facas. Compra até dois níveis de velocidade pelo upgrade do jogo. |
+O usuário mediu **14:07 na v0.20**. O diagnóstico marcou **14:03,7 desde a inicialização do hub até a vitória** e cerca de **6min43s** na limpeza com o sugador no máximo. A versão atual registra `run_timing` com o tempo de preparação, a espera antes de ativar e o tempo entre ativação e vitória. O campo `native_upgrade_menu` mede a abertura da aba do jogo. A duração da aba aberta não representa, por si só, tempo de automação perdido.
 
-O coletor usa o dinheiro das vendas da equipe para melhorar a coleta e entrega em lotes de até 100. Quando o contador nativo indicar montanha vazia, descarrega a bolsa restante. O líder OP também repõe a caixa quando ela estiver com menos de 100 durante a limpeza. Cortadores usam a mesa escolhida e quem encontrar a chave pode acionar a saída. O perfil atribui funções localmente em cada cliente.
+## Fim da partida
 
-## Tempo e final
+**Pular cena final** procura um botão nativo visível também nas telas de resultado. Depois da confirmação de fuga, **Liberar câmera após vitória** pode devolver a câmera ao personagem e fazer uma segunda tentativa caso o jogo a tome de volta. O diagnóstico `ending_scene` registra telas, câmera e eventos de conclusão. Devolver a câmera não encerra uma transição controlada pelo servidor. [Documentação da câmera do Roblox](https://create.roblox.com/docs/reference/engine/classes/Camera)
 
-O usuário registrou **15:07 na v0.19**. O diagnóstico marcou cerca de 6min35s de limpeza contínua com o sugador no máximo e 57 vendas confirmadas. Nesta versão, o OP tenta agrupar de 50 a 150 batatas conforme o valor que falta para a próxima compra e o limite de venda. Se o estoque de corte acabar antes do lote, vende o que já está pronto. Depois que a montanha esvazia, a rotina para de buscar alvos na pilha.
+O lobby, a entrada automática em nova partida e a integração da validação ficam para depois deste teste. Compilei o hub com Luau 0.745 e executei 17 suítes locais. O novo tempo e a cena final ainda precisam de uma partida no Delta.
 
-O painel fixa o tempo ao receber a confirmação da fuga. **Ajustes → Pular cena final** usa o botão do jogo quando disponível. Sem botão, **Liberar câmera após vitória** tenta devolver a câmera ao personagem, somente depois de receber a fuga e enquanto a câmera estiver em modo Scriptable. A cena e a transição do servidor podem continuar. O diagnóstico exporta `finish_seconds` e `ending_scene`. [Câmera do Roblox](https://create.roblox.com/docs/reference/engine/classes/Camera)
-
-## Teste e publicação
-
-Compilado com Luau 0.745 e verificado por 17 suítes locais. Teste de grupo, aspecto no celular, câmera final e novo tempo de conclusão dependem de uma partida no Delta. Lobby, reconexão e repetição automática serão trabalhados após esta validação do Capítulo II.
-
-Execute **PUBLICAR_V020.cmd** no PowerShell, autorize com a conta **AnonymosScripts** se solicitado e use o loader quando aparecer **PUBLICADO E VERIFICADO**.
+Para publicar, execute **PUBLICAR_V021.cmd** no PowerShell com a conta **AnonymosScripts**. O publicador verifica o commit e imprime o loader.

@@ -1,5 +1,5 @@
 -- Luau · loader.lua · Evolvy / Anonymous chapter 2 · Roblox / Delta · Luau 0.745
-local url="https://raw.githubusercontent.com/AnonymosScripts/Script-1-Evolvy-Hub/main/potato/chapter2.lua?v=0.20.0"
+local url="https://raw.githubusercontent.com/AnonymosScripts/Script-1-Evolvy-Hub/main/potato/chapter2.lua?v=0.21.0"
 local cache="Evolvy_Chapter2_Main.luau"
 local ok,source=pcall(function() return game:HttpGet(url) end)
 local function compile(value)

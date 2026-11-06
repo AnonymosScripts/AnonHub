@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.20.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.21.0. Chapter 2 only. No paid purchases.
 
 local Membership = (function()
 -- Luau · potato_membership.luau · display metadata from the access provider · Roblox / CLI · Luau 0.745
@@ -205,6 +205,7 @@ function Exit.create(services,modules,nav,log)
     local packets=modules["Modules.Resources.Packets"] or {}
     local target,scanAt=nil,0
     local started,finished=false,false
+    local finishedAt=nil
     local attempts,lastError=0,nil
     local connections={}
     local candidates={}
@@ -252,7 +253,9 @@ function Exit.create(services,modules,nav,log)
     local escaped=packets.Escaped and packets.Escaped.OnClientEvent
     if escaped and type(escaped.Connect)=="function" then
         local ok,connection=pcall(escaped.Connect,escaped,function(first)
-            if first==nil or first==player or first==player.UserId then finished=true end
+            if not finished and (first==nil or first==player or first==player.UserId) then
+                finished=true finishedAt=os.clock() lastError=nil
+            end
         end)
         if ok then table.insert(connections,connection) end
     end
@@ -269,6 +272,7 @@ function Exit.create(services,modules,nav,log)
             local ok,success,message=pcall(nav.trigger,prompt,valid)
             nav.clearAim()
             attempts+=1 scanAt=0
+            if finished then return true end
             if not ok then lastError=tostring(success) return false,lastError end
             if not success then lastError=message return false,message end
             started=true lastError=nil
@@ -276,32 +280,64 @@ function Exit.create(services,modules,nav,log)
             nav.waitFor(0.4,valid)
             return true
         end,
+        finishTime=function() return finishedAt end,
         diagnostic=function() return {has_key=hasKey(),started=started,finished=finished,attempts=attempts,last_error=lastError,candidates=candidates} end,
         close=function() for _,connection in ipairs(connections) do connection:Disconnect() end end,
     }
 end
-function Exit.endingSkipper(gui,bridge,clock,cameraFallback)
+function Exit.endingSkipper(gui,bridge,clock,cameraFallback,cameraMode)
     clock=clock or os.clock
     local started,nextAt,pressed=nil,0,nil
-    local victoryAt=nil
-    local stats={attempts=0,sent=false,button_gone=false}
-    local roots={escape=true,outro=true,outrocutscene=true,endcutscene=true,endingcutscene=true,victory=true,escapecutscene=true}
-    local actions={skip=true,skipscene=true,skipcutscene=true,skipoutro=true,skipending=true,pular=true,pularcena=true}
+    local victoryAt,nextRelease,lastCameraMode=nil,0,nil
+    local stats={attempts=0,sent=false,button_gone=false,camera_attempts=0,events={},screens={}}
+    local seenScreens={}
+    local roots={escape=true,outro=true,outrocutscene=true,endcutscene=true,endingcutscene=true,
+        victory=true,escapecutscene=true,cutscene=true,runreport=true,runresults=true,escapereport=true}
+    local actions={skip=true,skipscene=true,skipcutscene=true,skipoutro=true,skipending=true,
+        skipoutrocutscene=true,skipanimation=true,pular=true,pularcena=true}
     local function normalized(value) return string.lower((tostring(value):gsub("[^%w]",""))) end
+    local function inEnding(button,screen)
+        local current=button
+        local recognized=false
+        while current do
+            local name=normalized(current.Name)
+            if name:find("intro",1,true) or name:find("tutorial",1,true) then return false end
+            recognized=recognized or roots[name]==true
+            if current==screen then return recognized end
+            current=current.Parent
+        end
+        return false
+    end
+    local function event(name)
+        if not started or #stats.events>=20 or clock()-started>60 then return end
+        table.insert(stats.events,{name=name,seconds=math.floor((clock()-started)*100)/100})
+    end
     local function poll(armed,enabled)
         if not armed or not enabled then return end
         local now=clock()
         started=started or now
+        if now-started<=60 and cameraMode then
+            local mode=cameraMode()
+            if mode and mode~=lastCameraMode then lastCameraMode=mode event("camera:"..mode) end
+        end
         if pressed then stats.button_gone=pressed.Parent==nil or not bridge.visible(pressed) return end
-        if now-started>15 then stats.reason=stats.reason or "no visible native skip control" return end
+        if now-started>math.max(20,victoryAt and victoryAt-started+20 or 0) then
+            stats.reason=stats.reason or "no visible native skip control" return
+        end
         if now<nextAt or stats.attempts>=2 then return end
         nextAt=now+0.5
         local choices={}
         for _,screen in ipairs(gui:GetChildren()) do
-            if screen:IsA("ScreenGui") and screen.Enabled and roots[normalized(screen.Name)] then
+            if screen:IsA("ScreenGui") and screen.Enabled then
+                if not seenScreens[screen.Name] and #stats.screens<24 then
+                    seenScreens[screen.Name]=true table.insert(stats.screens,screen.Name)
+                end
                 for _,button in ipairs(screen:GetDescendants()) do
-                    if button:IsA("GuiButton") and button.Active and bridge.visible(button) and button.AbsoluteSize.X>0 and button.AbsoluteSize.Y>0
-                        and (actions[normalized(button.Name)] or actions[normalized(bridge.texts(button))]) then table.insert(choices,button) end
+                    if button:IsA("GuiButton") and button.Active and inEnding(button,screen)
+                        and bridge.visible(button) and button.AbsoluteSize.X>0 and button.AbsoluteSize.Y>0
+                        and (actions[normalized(button.Name)] or actions[normalized(bridge.texts(button))]) then
+                        table.insert(choices,button)
+                    end
                 end
             end
         end
@@ -313,16 +349,22 @@ function Exit.endingSkipper(gui,bridge,clock,cameraFallback)
         if ok then pressed=choices[1] else nextAt=now+2 end
     end
     local function afterVictory(confirmed,enabled)
-        if not confirmed or not enabled or not cameraFallback or stats.sent or stats.camera_released then return end
+        if not confirmed then return end
         local now=clock()
-        victoryAt=victoryAt or now
-        if now-victoryAt<2 or now-victoryAt>12 then return end
+        if not victoryAt then victoryAt=now event("escape_confirmed") end
+        if not enabled or not cameraFallback or stats.sent or stats.camera_attempts>=2 then return end
+        if now-victoryAt<1 or now-victoryAt>12 or now<nextRelease then return end
+        if cameraMode and cameraMode()~="Scriptable" then return end
+        if stats.camera_released and not cameraMode then return end
+        nextRelease=now+1.5
+        stats.camera_attempts+=1
         local ok,released=pcall(cameraFallback)
-        stats.camera_released=ok and released==true
-        stats.camera_result=stats.camera_released and "local camera returned after confirmed escape"
+        stats.camera_released=stats.camera_released or ok and released==true
+        stats.camera_result=ok and released==true and "local camera returned after confirmed escape"
             or ok and "no scriptable camera with active character" or "camera reset failed"
+        if ok and released then event("camera_released") end
     end
-    return {poll=poll,afterVictory=afterVictory,stats=stats}
+    return {poll=poll,afterVictory=afterVictory,event=event,stats=stats}
 end
 return Exit
 
@@ -422,7 +464,7 @@ local Core = {}
 
 Core.defaults = {
     opAutoFinish=false,opKeyShortcut=true,antiAfk=true,coolHoldSeconds=5,coolHoldFallback=true,skipEndingScene=true,
-    releaseEndingCamera=true,opBatchFunding=true,partyProfile="Solo",partyRole="Leader",partySize=4,partySlot=1,
+    releaseEndingCamera=true,opBatchFunding=true,opFastPrompts=true,partyProfile="Solo",partyRole="Leader",partySize=4,partySlot=1,
     teamFunding=false,teamLead=false,supportCut=false,
     nativeWalkUpgrade=false,
     fastDelivery=true,placementDelay=0.01,throughputMode=true,
@@ -1408,6 +1450,7 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
     local player=services.Players.LocalPlayer
     local connections={}
     local approved,checking=options.enabled==false,false
+    local startOP=false
     local license=approved and Membership.normalize(options,options.key) or nil
     local function make(class,props,parent)
         local instance=Instance.new(class)
@@ -1426,23 +1469,44 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
         BackgroundColor3=Color3.fromRGB(113,231,201),BorderSizePixel=0},panel) corner(accent,4)
     local close=make("TextButton",{Text="×",BackgroundTransparency=1,TextColor3=Color3.fromRGB(178,193,220),Position=UDim2.new(1,-38,0,6),Size=UDim2.fromOffset(32,32),TextSize=24,Font=Enum.Font.Gotham,ZIndex=4},panel)
     local body=make("ScrollingFrame",{BackgroundTransparency=1,BorderSizePixel=0,Position=UDim2.fromOffset(24,24),Size=UDim2.new(1,-48,1,-94),CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=3,ScrollBarImageColor3=Color3.fromRGB(104,231,196)},panel)
-    make("UIListLayout",{Padding=UDim.new(0,12),SortOrder=Enum.SortOrder.LayoutOrder},body)
+    local bodyLayout=make("UIListLayout",{Padding=UDim.new(0,12),SortOrder=Enum.SortOrder.LayoutOrder},body)
     local function label(content,height,size,color,order,parent)
         return make("TextLabel",{BackgroundTransparency=1,Text=content,Size=UDim2.new(1,0,0,height),Font=Enum.Font.Gotham,TextSize=size,TextColor3=color or Color3.fromRGB(239,246,255),TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,LayoutOrder=order},parent or body)
     end
-    local title=label("EVOLVY  /  CAPÍTULO II",31,23,nil,1) title.Font=Enum.Font.GothamBold
-    label("A C E S S O   D E   M E M B R O",15,10,Color3.fromRGB(113,231,201),2)
-    local profile=make("Frame",{BackgroundColor3=Color3.fromRGB(12,18,31),BorderSizePixel=0,Size=UDim2.new(1,0,0,86),LayoutOrder=3},body) corner(profile,12)
-    local avatar=make("ImageLabel",{BackgroundTransparency=1,Position=UDim2.fromOffset(10,11),Size=UDim2.fromOffset(64,64),Image=""},profile) corner(avatar,32)
-    local initial=label(string.upper(string.sub(player.Name,1,1)),64,24,Color3.fromRGB(113,231,201),0,avatar) initial.TextXAlignment=Enum.TextXAlignment.Center
-    local name=label(player.DisplayName or player.Name,24,17,nil,1,profile) name.Position=UDim2.fromOffset(86,10) name.Size=UDim2.new(1,-96,0,24) name.Font=Enum.Font.GothamBold name.TextTruncate=Enum.TextTruncate.AtEnd name.TextWrapped=false
-    local handle=label("@"..player.Name,18,11,Color3.fromRGB(160,179,210),2,profile) handle.Position=UDim2.fromOffset(86,36) handle.Size=UDim2.new(1,-96,0,18)
-    local member=label("Member",18,11,Color3.fromRGB(113,231,201),3,profile) member.Position=UDim2.fromOffset(86,57) member.Size=UDim2.new(1,-96,0,18)
+    local hero=make("Frame",{Size=UDim2.new(1,0,0,60),BackgroundTransparency=1,LayoutOrder=1},body)
+    local icon=make("ImageLabel",{Size=UDim2.fromOffset(52,52),Position=UDim2.new(1,-58,0,4),
+        BackgroundColor3=Color3.fromRGB(32,53,68),BorderSizePixel=0,Image="rbxassetid://103225914639722",ScaleType=Enum.ScaleType.Fit},hero)
+    corner(icon,13)
+    local title=label("EVOLVY",34,31,nil,1,hero)
+    title.Size=UDim2.new(1,-64,0,34) title.Font=Enum.Font.GothamBold
+    local subtitle=label("CAPÍTULO II   /   ÁREA DE MEMBRO",16,10,Color3.fromRGB(113,231,201),2,hero)
+    subtitle.Position,subtitle.Size=UDim2.fromOffset(1,36),UDim2.new(1,-64,0,16)
+    local profile=make("Frame",{BackgroundColor3=Color3.fromRGB(12,18,31),BorderSizePixel=0,Size=UDim2.new(1,0,0,67),LayoutOrder=3},body) corner(profile,12)
+    make("UIStroke",{Color=Color3.fromRGB(49,75,103),Thickness=1},profile)
+    local avatar=make("ImageLabel",{BackgroundColor3=Color3.fromRGB(26,41,62),BorderSizePixel=0,
+        Position=UDim2.fromOffset(9,8),Size=UDim2.fromOffset(50,50),Image=""},profile) corner(avatar,25)
+    local initial=label(string.upper(string.sub(player.Name,1,1)),50,21,Color3.fromRGB(113,231,201),0,avatar)
+    initial.TextXAlignment=Enum.TextXAlignment.Center
+    local name=label(player.DisplayName or player.Name,24,16,nil,1,profile)
+    name.Position,name.Size=UDim2.fromOffset(70,6),UDim2.new(1,-80,0,24)
+    name.Font=Enum.Font.GothamBold name.TextTruncate=Enum.TextTruncate.AtEnd name.TextWrapped=false
+    local handle=label("@"..player.Name,15,10,Color3.fromRGB(160,179,210),2,profile)
+    handle.Position,handle.Size=UDim2.fromOffset(70,30),UDim2.new(1,-80,0,15)
+    local member=label("MEMBER",15,10,Color3.fromRGB(113,231,201),3,profile)
+    member.Position,member.Size=UDim2.fromOffset(70,47),UDim2.new(1,-80,0,15)
     local localKey=type(options.validate)~="function"
-    local hint=label(localKey and ("Key local: "..tostring(options.key or "Anonymous").."  ·  Life time") or "Digite sua key para verificar a validade.",26,12,Color3.fromRGB(166,185,216),4)
+    local hint=label(localKey and ("ACESSO LOCAL   ·   "..tostring(options.key or "Anonymous").."   ·   Life time") or "Informe sua key de acesso.",20,11,Color3.fromRGB(166,185,216),4)
     local entry=make("TextBox",{Size=UDim2.new(1,0,0,46),BackgroundColor3=Color3.fromRGB(8,14,25),BorderSizePixel=0,ClearTextOnFocus=false,Text="",PlaceholderText="Sua key de acesso",PlaceholderColor3=Color3.fromRGB(109,130,166),TextColor3=Color3.fromRGB(237,246,255),TextSize=15,Font=Enum.Font.Gotham,LayoutOrder=5},body) corner(entry,10)
     local entryStroke=make("UIStroke",{Color=Color3.fromRGB(53,75,113),Thickness=1},entry)
-    local submit=make("TextButton",{Size=UDim2.new(1,0,0,46),BackgroundColor3=Color3.fromRGB(113,231,201),BorderSizePixel=0,Text="ENTRAR NO HUB   →",TextColor3=Color3.fromRGB(9,23,28),TextSize=14,Font=Enum.Font.GothamBold,LayoutOrder=6},body) corner(submit,10)
+    local actions=make("Frame",{Position=UDim2.new(0,24,1,-105),Size=UDim2.new(1,-48,0,44),
+        BackgroundTransparency=1},panel)
+    local submit=make("TextButton",{Size=UDim2.new(0.45,-4,1,0),BackgroundColor3=Color3.fromRGB(42,56,83),BorderSizePixel=0,
+        Text="ABRIR HUB",TextColor3=Color3.fromRGB(233,242,255),TextSize=12,Font=Enum.Font.GothamBold},actions)
+    corner(submit,10)
+    local quick=make("TextButton",{Position=UDim2.new(0.45,4,0,0),Size=UDim2.new(0.55,-4,1,0),
+        BackgroundColor3=Color3.fromRGB(113,231,201),BorderSizePixel=0,Text="VALIDAR E INICIAR OP",
+        TextColor3=Color3.fromRGB(9,23,28),TextSize=11,Font=Enum.Font.GothamBold},actions)
+    corner(quick,10)
     local details=label("",42,12,Color3.fromRGB(166,185,216),7)
     details.Visible=approved
     local status=make("TextLabel",{BackgroundTransparency=1,Text="PRONTO PARA VALIDAR",Position=UDim2.new(0,24,1,-58),Size=UDim2.new(1,-48,0,28),TextColor3=Color3.fromRGB(166,185,216),Font=Enum.Font.Gotham,TextSize=11,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left},panel)
@@ -1458,14 +1522,19 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
     local function applyLayout()
         local bounds=Layout.access(backdrop.AbsoluteSize.X,backdrop.AbsoluteSize.Y)
         panel.Size=UDim2.fromOffset(bounds.width,bounds.height) panel.Position=UDim2.fromOffset(bounds.x,bounds.y)
-        body.Position=UDim2.fromOffset(24,bounds.compact and 16 or 24)
+        local top=bounds.compact and 16 or 24
+        body.Position=UDim2.fromOffset(24,top)
+        body.Size=UDim2.new(1,-48,0,math.max(1,bounds.height-top-(approved and 70 or 112)))
+        profile.Visible=bounds.height>=310
+        bodyLayout.Padding=UDim.new(0,bounds.compact and 8 or 12)
     end
     table.insert(connections,backdrop:GetPropertyChangedSignal("AbsoluteSize"):Connect(applyLayout)) task.defer(applyLayout)
-    local function enter()
+    local function enter(startNow)
         if approved or checking or not lifecycle.alive() then return end
         local value=string.match(entry.Text,"^%s*(.-)%s*$")
         if value=="" then status.Text="Digite sua key para continuar." entry:CaptureFocus() return end
-        checking=true submit.Text="VALIDANDO..."
+        local selected=startNow and quick or submit
+        checking=true selected.Text="VALIDANDO..."
         entryStroke.Color=Color3.fromRGB(113,231,201)
         task.spawn(function()
             local ok,accepted,message,metadata
@@ -1479,25 +1548,32 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
                 else license=candidate end
             end
             if ok and accepted==true then
-                approved=true entry.Visible=false submit.Visible=false details.Visible=true
-                hint.Text="Acesso liberado. Preparando seu painel..." refreshMember() status.Text="CARREGANDO COMPONENTES"
+                startOP=startNow==true
+                approved=true entry.Visible=false actions.Visible=false details.Visible=true
+                applyLayout()
+                hint.Text=startOP and "O OP iniciará quando o Capítulo II estiver pronto." or "Acesso liberado. Preparando seu painel."
+                refreshMember() status.Text="CARREGANDO COMPONENTES"
             else
                 entryStroke.Color=Color3.fromRGB(255,155,146)
-                submit.Text="ENTRAR NO HUB   →"
+                submit.Text="ABRIR HUB" quick.Text="VALIDAR E INICIAR OP"
                 status.Text=ok and (type(message)=="string" and message or "Key incorreta.") or "Falha de validacao. Tente novamente."
             end
         end)
     end
-    table.insert(connections,submit.Activated:Connect(enter))
-    table.insert(connections,entry.FocusLost:Connect(function(pressed) if pressed then enter() end end))
+    table.insert(connections,submit.Activated:Connect(function() enter(false) end))
+    table.insert(connections,quick.Activated:Connect(function() enter(true) end))
+    table.insert(connections,entry.FocusLost:Connect(function(pressed) if pressed then enter(false) end end))
     table.insert(connections,close.Activated:Connect(lifecycle.close))
     local function dispose()
         for _,connection in ipairs(connections) do connection:Disconnect() end table.clear(connections)
         if gui.Parent then gui:Destroy() end
     end
     lifecycle.add(dispose)
-    if approved then entry.Visible=false submit.Visible=false refreshMember() end
-    return {wait=function() while lifecycle.alive() and gui.Parent and not approved do task.wait(0.1) end return lifecycle.alive() and gui.Parent~=nil and approved end,
+    if approved then entry.Visible=false actions.Visible=false refreshMember() end
+    return {wait=function()
+            while lifecycle.alive() and gui.Parent and not approved do task.wait(0.1) end
+            return lifecycle.alive() and gui.Parent~=nil and approved,startOP
+        end,
         membership=function() return Membership.describe(license,os.time()) end,
         expired=function() return Membership.expired(license,os.time()) end,
         progress=function(fraction,message) if gui.Parent then fill.Size=UDim2.fromScale(math.clamp(fraction,0,1),1) status.Text=tostring(message) refreshMember() end end,
@@ -1879,6 +1955,13 @@ function UI.create(services, config, callbacks, Layout, Membership)
     end
     local runBadge=text(equipment,"00:00  /  SORTE 0",11,palette.muted,true)
     runBadge.Size=UDim2.new(1,0,0,24) runBadge.LayoutOrder=5
+    local upgradesLink=button(equipment,"VER MELHORIAS")
+    upgradesLink.Size=UDim2.new(1,0,0,38) upgradesLink.LayoutOrder=6
+    upgradesLink.BackgroundColor3=palette.line
+    table.insert(connections,upgradesLink.Activated:Connect(function()
+        page("Compras")
+        pages.Compras.CanvasPosition=Vector2.zero
+    end))
     local counters=card(home,"ESTADO DA PARTIDA") counters.LayoutOrder=5
     local summary=text(counters,"Dinheiro: —\nBolsa: —\nCalor: —\nEstado: aguardando",12,palette.muted,false)
     summary.Size=UDim2.new(1,0,0,145) summary.LayoutOrder=3 summary.TextYAlignment=Enum.TextYAlignment.Top summary.TextWrapped=true
@@ -1933,6 +2016,14 @@ function UI.create(services, config, callbacks, Layout, Membership)
     number(t,"coolingRetry","Espera entre tentativas",5,120,1," s")
     toggle(t,"returnAfterCooling","Voltar ao ponto anterior")
     local purchases=newPage("Compras",6)
+    local levelsCard=card(purchases,"MELHORIAS EM TEMPO REAL","Niveis confirmados pelo jogo. Consultar esta lista mantem a rotina em execucao.")
+    levelsCard.LayoutOrder=-10
+    local levelDetails=text(levelsCard,"Aguardando niveis...",12,palette.text,false)
+    levelDetails.Size=UDim2.new(1,0,0,0) levelDetails.AutomaticSize=Enum.AutomaticSize.Y
+    levelDetails.TextWrapped=true levelDetails.TextYAlignment=Enum.TextYAlignment.Top levelDetails.LayoutOrder=2
+    local upgradeNames={PickAmount="Quantidade",PickSpeed="Velocidade",HoldPick="Coleta continua",
+        Charge="Carga",Cooling="Resfriamento",PeelAmount="Quantidade",PeelSpeed="Velocidade",
+        PotatoWorth="Valor da batata",WalkSpeed="Velocidade a pe",Luck="Sorte",Capacity="Capacidade",Grasp="Garra",FlySpeed="Voo"}
     local p=card(purchases,"Orcamento","Compras automaticas usam somente dinheiro comum do jogo. Reserva e limite por compra sao aplicados antes de cada acao.")
     toggle(p,"autoBuyTools","Ferramentas")
     toggle(p,"autoBuyUpgrades","Melhorias")
@@ -2005,6 +2096,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     local op=card(settings,"OP Alto Zerar","EXPERIMENTAL | Ciclo completo com rajadas adaptativas, alvos proximos e prioridade para limpar a montanha. Nao garante limpeza instantanea.")
     toggle(op,"opAutoFinish","OP Alto Zerar","Sugador MAX inicia coleta continua ate acabar a montanha. Entrega ao encher se a bolsa for finita. O OP coordena seus servicos sem ligar os interruptores das rotinas manuais.")
     toggle(op,"opBatchFunding","Vender lotes maiores no OP","Usa lotes de 50, 90 ou 150 conforme o saldo que falta para a proxima compra, respeitando o limite de venda.")
+    toggle(op,"opFastPrompts","Retentar mesa e venda mais cedo","Quando o prompt e instantaneo, tenta outra forma de interacao mais cedo. O resultado ainda depende da confirmacao do jogo.")
     toggle(op,"opKeyShortcut","Testar chave antecipada","Experimental: usa somente um ID de chave recebido do jogo. Confirma HasKey antes de ir para a saida. Se o jogo nao divulgar ou recusar, continua a limpeza.")
     local logPage=newPage("Registros",8)
     local l=card(logPage,"Atividade recente")
@@ -2105,6 +2197,19 @@ function UI.create(services, config, callbacks, Layout, Membership)
         end,
         dashboard=function(data,elapsed)
             if closed or not data then return end
+            if activePage=="Compras" and data.details then
+                local lines={}
+                local previous=nil
+                for _,entry in ipairs(data.details) do
+                    if entry.tool~=previous then
+                        table.insert(lines,(previous and "\n" or "")..entry.tool)
+                        previous=entry.tool
+                    end
+                    table.insert(lines,string.format("  %s   %s/%s",upgradeNames[entry.id] or entry.id,
+                        tostring(entry.level or "—"),tostring(entry.maximum or "—")))
+                end
+                levelDetails.Text=#lines>0 and table.concat(lines,"\n") or "Aguardando niveis..."
+            end
             for _,tool in ipairs(data.tools) do
                 local widget=toolWidgets[tool.id]
                 if widget then
@@ -3031,6 +3136,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local actionTimings={}
     local burst=Burst.new()
     local dashboardAt,dashboardCache=0,nil
+    local upgradeMenuAt=nil
+    local upgradeMenuStats={opens=0,closed_seconds=0}
     local cutDriving,closed=false,false
     local equippedTool=nil
     local specialCache,specialAt={},0
@@ -3929,11 +4036,13 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         nav.aim(prompt,config.aimTable)
         local ok,message=nav.trigger(prompt,valid)
         if not ok then nav.clearAim() tableRetry[prompt]=os.clock()+3 snapshotAt=0 return false,message end
-        if not ok then return false,message end
-        local confirmed,why=waitUntil(isCutting,math.min(3,config.actionTimeout),valid)
+        local fast=config.opAutoFinish and config.opFastPrompts and prompt.HoldDuration==0
+        local confirmed,why=waitUntil(isCutting,math.min(fast and 1.25 or 3,config.actionTimeout),valid)
         if not confirmed and valid() and prompt.Enabled then
             local tried=nav.trigger(prompt,valid,{method="hold"})
             if tried then confirmed,why=waitUntil(isCutting,math.min(2,config.actionTimeout),valid) end
+        elseif not confirmed and fast and valid() then
+            confirmed,why=waitUntil(isCutting,0.75,valid)
         end
         nav.clearAim()
         if confirmed then lastTable=prompt cutDriving=true else tableRetry[prompt]=os.clock()+3 snapshotAt=0 end
@@ -4087,7 +4196,18 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         sellRetryAt=os.clock()+3
         local ok,message=nav.trigger(prompt,valid)
         if not ok then return false,message end
-        local confirmed,why=waitUntil(function() local amount=stockCount() return amount~=nil and amount<before end,math.min(4,config.actionTimeout),valid)
+        local function stockDecreased()
+            local amount=stockCount()
+            return amount~=nil and amount<before
+        end
+        local fast=config.opAutoFinish and config.opFastPrompts and prompt.HoldDuration==0
+        local confirmed,why=waitUntil(stockDecreased,math.min(fast and 1.25 or 4,config.actionTimeout),valid)
+        if not confirmed and fast and valid() then
+            if prompt.Parent and prompt.Enabled and not stockDecreased() then
+                nav.trigger(prompt,valid,{method="hold"})
+            end
+            confirmed,why=waitUntil(stockDecreased,math.min(1.75,config.actionTimeout),valid)
+        end
         if confirmed then
             counts.sales+=1 counts.sold+=math.max(0,before-(stockCount() or before))
             afterSale=true postSaleWeaponBought=false
@@ -4246,6 +4366,14 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         clearMenuBlur()
         table.clear(retryAt) table.clear(tableRetry) reset()
     end
+    local function upgradeLevels(shared,data,tool)
+        local levels={}
+        for _,id in ipairs(Chapter.allowed[tool]) do
+            levels[id]={level=Chapter.level(shared,data,tool,id),
+                maximum=Chapter.maximum(shared,Chapter.definition(shared,tool,id))}
+        end
+        return levels
+    end
     return {
         recordAction=function(name,seconds,success)
             local entry=actionTimings[name] or {calls=0,seconds=0,failures=0,max=0}
@@ -4256,23 +4384,34 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         dashboard=function()
             if os.clock()<dashboardAt then return dashboardCache end
             dashboardAt=os.clock()+1
+            local known,open=safeCall(upgradeController,"IsOpen")
+            if known and open and not upgradeMenuAt then
+                upgradeMenuAt=os.clock() upgradeMenuStats.opens+=1
+            elseif known and not open and upgradeMenuAt then
+                upgradeMenuStats.closed_seconds+=os.clock()-upgradeMenuAt upgradeMenuAt=nil
+            end
             local data=state()
             local shared=modules["Shared.ToolUpgradeShared"] or {}
-            local cards={}
-            local specs={{"Dynamite","DINAMITE"},{"Shovel","PA"},{"AutoPeeler","AUTOMATICO"},{"PotatoSucker","P0T4T0-3000"}}
+            local cards,details={},{}
+            local specs={{"Dynamite","DINAMITE"},{"Shovel","PA"},{"AutoPeeler","AUTOMATICO"},{"PotatoSucker","P0T4T0-3000"},
+                {"Body","GERAL"},{"Hand","MAO"},{"Drone","DRONE"}}
             for _,spec in ipairs(specs) do
+                local tool=spec[1]
+                local owned=Chapter.owns(data,tool)
                 local current,total=0,0
-                for _,id in ipairs(Chapter.allowed[spec[1]]) do
-                    local level=Chapter.level(shared,data,spec[1],id)
-                    local definition=Chapter.definition(shared,spec[1],id)
-                    local maximum=Chapter.maximum(shared,definition)
-                    current+=level or 0 total+=maximum or 0
+                if owned then
+                    local levels=upgradeLevels(shared,data,tool)
+                    for _,id in ipairs(Chapter.allowed[tool]) do
+                        local entry=levels[id]
+                        current+=entry.level or 0 total+=entry.maximum or 0
+                        table.insert(details,{tool=spec[2],id=id,level=entry.level,maximum=entry.maximum})
+                    end
                 end
                 local icon=nil
-                for _,definition in ipairs(shared.Tools or {}) do if definition.Id==spec[1] then icon=definition.Icon end end
-                table.insert(cards,{id=spec[1],title=spec[2],owned=Chapter.owns(data,spec[1]),current=current,total=total,icon=icon})
+                for _,definition in ipairs(shared.Tools or {}) do if definition.Id==tool then icon=definition.Icon end end
+                table.insert(cards,{id=tool,title=spec[2],owned=owned,current=current,total=total,icon=icon})
             end
-            dashboardCache={tools=cards,production=config.opAutoFinish and opBulkReady or productionReady,phase=last.phase,cash=cash(),gemLuck=Chapter.level(shared,data,"Body","Luck") or 0,op=config.opAutoFinish,progress=config.autoProgress}
+            dashboardCache={tools=cards,details=details,production=config.opAutoFinish and opBulkReady or productionReady,phase=last.phase,cash=cash(),gemLuck=Chapter.level(shared,data,"Body","Luck") or 0,op=config.opAutoFinish,progress=config.autoProgress}
             return dashboardCache
         end,
         droneAsked=function() droneAsked=true end,droneConfirm=function(value) droneConsent=value==true snapshotAt=0 end,
@@ -4300,17 +4439,15 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             local levels={}
             local data=state()
             local shared=modules["Shared.ToolUpgradeShared"] or {}
-            for tool,ids in pairs(Chapter.allowed) do
+            for tool in pairs(Chapter.allowed) do
                 if Chapter.owns(data,tool) then
-                    for _,id in ipairs(ids) do
-                        local definition=Chapter.definition(shared,tool,id)
-                    local ok=definition~=nil
-                        levels[tool.."/"..id]={level=Chapter.level(shared,data,tool,id),maximum=ok and Chapter.maximum(shared,definition) or nil}
-                    end
+                    for id,entry in pairs(upgradeLevels(shared,data,tool)) do levels[tool.."/"..id]=entry end
                 end
             end
             return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,pile_progress=snap.pileProgress,op_funding=snap.opFunding,op_bulk=bulkStats,dynamite_timing=bombTiming,key_shortcut={results=keyProbeStats,guard=keyProbeGuard.records},
-                upgrade_audit=upgradeAudit,upgrade_levels=levels,state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
+                upgrade_audit=upgradeAudit,upgrade_levels=levels,native_upgrade_menu={opens=upgradeMenuStats.opens,
+                    seconds_open=upgradeMenuStats.closed_seconds+(upgradeMenuAt and os.clock()-upgradeMenuAt or 0)},
+                state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
                     heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,production_ready=productionReady,sucker_overheated=vacuumHot,sucker_retry_at=vacuumRetryAt,inventory_source=exactBagBound and "replicated Potatoes" or "UI",phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,op_burst=burst.stats,cut_engine=cutEngine.stats,placement_timing=placement.stats,action_timings=actionTimings,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
         end,
     }
@@ -4323,7 +4460,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.20.0"
+local VERSION="0.21.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous",plan="Member",lifetime=true}
 local services={}
@@ -4357,7 +4494,7 @@ local escapeDriver=nil
 local endingSkipper=nil
 local antiIdle=nil
 local completionHandled,expiryHandled=false,false
-local finishSeconds=nil
+local finishSeconds,readyAt,automationStartedAt=nil,nil,nil
 local modules,moduleErrors={},{}
 local lastRecovery=nil
 local sessionStartedAt=os.clock()
@@ -4400,7 +4537,8 @@ local function restoreInterface()
 end
 if config.autoRepairGui then restoreInterface() end
 local gate=Gate.open(services,lifecycle,ACCESS,Membership,Layout)
-if not gate.wait() then lifecycle.close() return end
+local accessGranted,quickStartOP=gate.wait()
+if not accessGranted then lifecycle.close() return end
 
 local moduleNames={
     "Shared.PlayerStateShared","Shared.PotatoPileShared","Shared.PotatoKindShared","Shared.PotatoHoldShared",
@@ -4447,7 +4585,20 @@ endingSkipper=Exit.endingSkipper(player.PlayerGui,bridge,os.clock,function()
     camera.CameraSubject=humanoid
     camera.CameraType=Enum.CameraType.Custom
     return true
+end,function()
+    local camera=services.Workspace.CurrentCamera
+    return camera and camera.CameraType.Name
 end)
+local endingPackets=modules["Modules.Resources.Packets"] or {}
+for _,name in ipairs({"CinematicBarsEnabled","CinematicBarsDisabled","RunReportShown","EscapeFailed"}) do
+    local packet=endingPackets[name]
+    local signal=packet and packet.OnClientEvent
+    if signal and type(signal.Connect)=="function" then
+        local eventName=name
+        local ok,connection=pcall(signal.Connect,signal,function() endingSkipper.event(eventName) end)
+        if ok and connection then lifecycle.add(function() connection:Disconnect() end) end
+    end
+end
 lifecycle.add(escapeDriver.close)
 adapter.actions.escape=function(valid)
     adapter.cancelCut()
@@ -4470,6 +4621,7 @@ local function refreshAutomation()
     adapter.stop()
     adapter.reset()
     table.clear(failures)
+    if not automationStartedAt and Core.anyActive(config) then automationStartedAt=os.clock() end
     if ui then ui.refresh() end
 end
 local function startProfile()
@@ -4524,6 +4676,9 @@ local function export()
         report.ending_scene=endingSkipper and endingSkipper.stats
         report.session_elapsed_seconds=os.clock()-sessionStartedAt
         report.finish_seconds=finishSeconds
+        report.run_timing={startup_seconds=readyAt and readyAt-sessionStartedAt,
+            wait_to_activate_seconds=readyAt and automationStartedAt and math.max(0,automationStartedAt-readyAt),
+            since_activation_to_finish=finishSeconds and automationStartedAt and math.max(0,sessionStartedAt+finishSeconds-automationStartedAt)}
         report.gui_recovery=lastRecovery
         local member=gate.membership()
         report.membership={plan=member.plan,validity=member.validity,expiresAt=member.expiresAt,source=member.source}
@@ -4576,9 +4731,16 @@ log("Anonymous Potato "..VERSION.." / Place version "..game.PlaceVersion)
 log(loadMessage)
 for name,why in pairs(moduleErrors) do log(name..": "..why,"error") end
 if not bridge.available then log("A ativacao de botoes nao esta disponivel; compras diretas por prompt ainda podem funcionar.") end
-gate.progress(1,"Componentes carregados. Rotinas pausadas.")
+gate.progress(1,"Componentes carregados.")
+readyAt=os.clock()
 gate.close()
-ui.status("Pronto. Configure um modo e ative a rotina desejada.")
+if quickStartOP then
+    change("opAutoFinish",true)
+    log("OP iniciado pela tela da key.")
+    ui.status("OP ativo.")
+else
+    ui.status("Pronto. Configure um modo e ative a rotina desejada.")
+end
 
 local inputConnection=services.UserInputService.InputBegan:Connect(function(input,processed)
     if not lifecycle.alive() then return end
@@ -4648,7 +4810,7 @@ local heartbeat=services.RunService.Heartbeat:Connect(function()
         endingSkipper.afterVictory(exitState.finished,config.skipEndingScene and config.releaseEndingCamera and not member.expired)
         if exitState.finished and not completionHandled then
             completionHandled=true
-            finishSeconds=os.clock()-sessionStartedAt
+            finishSeconds=(escapeDriver.finishTime() or os.clock())-sessionStartedAt
             pause("Capitulo 2 concluido; rotinas pausadas.")
         end
         panelData.hasKey=exitState.has_key panelData.finished=exitState.finished
@@ -4677,7 +4839,7 @@ task.spawn(function()
         local token=cancellation.current()
         local function valid() return lifecycle.alive() and cancellation.valid(token) and not gate.expired() end
         local ok,errorMessage=pcall(function()
-            if completionHandled or gate.expired() then return end
+            if completionHandled or escapeDriver.finishTime() or gate.expired() then return end
             local snapshot=adapter.snapshot()
             snapshot.hasKey=escapeDriver.ready()
             local hasActor=nav.actor()~=nil
