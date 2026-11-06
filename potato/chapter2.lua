@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.22.0. Chapter 2 and lobby. No paid purchases.
+-- Local test key: Anonymous. Version 0.23.0. Chapter 2 and lobby. No paid purchases.
 
 local Lobby = (function()
 -- Luau · potato_lobby.luau · Chapter II native lobby entry
@@ -83,12 +83,17 @@ local function freePad(services,player)
     return best
 end
 
-function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,autoStart)
+function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,autoStart,runtime)
     local player=services.Players.LocalPlayer
     local playerGui=player:WaitForChild("PlayerGui")
     local options=normalize(resume)
     local transferred=false
     local token,busy=0,false
+    local trace={}
+    local function record(action,result)
+        if #trace>=32 then table.remove(trace,1) end
+        table.insert(trace,{action=action,result=result})
+    end
     local function make(class,props,parent)
         local object=Instance.new(class)
         for key,value in pairs(props) do object[key]=value end
@@ -100,8 +105,8 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
     local gui=make("ScreenGui",{Name="EvolvyChapter2Lobby",ResetOnSpawn=false,DisplayOrder=10001},playerGui)
     lifecycle.add(function() gui:Destroy() end)
     local panel=make("Frame",{AnchorPoint=Vector2.new(0.5,0),Position=UDim2.new(0.5,0,0,12),
-        Size=UDim2.new(0.94,0,0,222),BackgroundColor3=Color3.fromRGB(15,24,39),BorderSizePixel=0},gui)
-    make("UISizeConstraint",{MaxSize=Vector2.new(470,222)},panel)
+        Size=UDim2.new(0.94,0,0,255),BackgroundColor3=Color3.fromRGB(15,24,39),BorderSizePixel=0},gui)
+    make("UISizeConstraint",{MaxSize=Vector2.new(470,255)},panel)
     local function corner(object) make("UICorner",{CornerRadius=UDim.new(0,9)},object) end
     corner(panel)
     local mint=Color3.fromRGB(111,235,198)
@@ -122,18 +127,21 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
     local size=button("",0,84,1/3)
     local friends=button("",1/3,84,1/3)
     local skip=button("",2/3,84,1/3)
-    local repeatButton=button("",0,124,0.64)
-    local stopButton=button("PARAR",0.64,124,0.36)
-    local launch=button("ENTRAR E INICIAR OP",0,166,1)
+    local repeatButton=button("",0,124,0.53)
+    local stopButton=button("PARAR",0.53,124,0.21)
+    local copyButton=button("COPIAR LOG",0.74,124,0.26)
+    local launch=button("ENTRAR E INICIAR OP",0,164,1)
     launch.BackgroundColor3=mint launch.TextColor3=Color3.fromRGB(10,24,30)
+    local cycle=button("INICIAR CICLO COMPLETO",0,206,1)
     local close=make("TextButton",{Position=UDim2.new(1,-34,0,5),Size=UDim2.fromOffset(28,27),
         BackgroundTransparency=1,Text="×",TextColor3=pale,TextSize=21},panel)
     local function refresh()
         size.Text="JOGADORES "..options.size
         friends.Text=options.friends and "AMIGOS: SIM" or "AMIGOS: NAO"
         skip.Text=options.skip and "INTRO: PULAR" or "INTRO: VER"
-        repeatButton.Text=options.repeatRun and "REPETIR APOS VITORIA: SIM" or "REPETIR APOS VITORIA: NAO"
+        repeatButton.Text=options.repeatRun and "REPETIR: SIM" or "REPETIR: NAO"
         launch.Text=busy and "AGUARDANDO O JOGO…" or "ENTRAR E INICIAR OP"
+        cycle.Text=busy and "CICLO EM ANDAMENTO" or "INICIAR CICLO COMPLETO"
     end
     refresh()
     size.Activated:Connect(function() if not busy then options.size=options.size%4+1 refresh() end end)
@@ -142,14 +150,22 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
     repeatButton.Activated:Connect(function() if not busy then options.repeatRun=not options.repeatRun refresh() end end)
     local function stop()
         token+=1 busy=false nav.stop() handoff.clear()
+        record("stop",true)
         refresh()
         status.Text=transferred and "Retomada cancelada. O teleporte ja foi iniciado pelo jogo." or "Automacao do lobby parada."
     end
     stopButton.Activated:Connect(stop)
+    copyButton.Activated:Connect(function()
+        local copy=type(setclipboard)=="function" and setclipboard or type(toclipboard)=="function" and toclipboard
+        if copy and pcall(copy,services.HttpService:JSONEncode({phase="lobby",options=options,
+            transfer=transferred,events=trace})) then status.Text="Diagnostico do lobby copiado."
+        else status.Text="O executor nao disponibilizou a copia." end
+    end)
     close.Activated:Connect(function() stop() lifecycle.close() end)
     local transferConnection=player.OnTeleport:Connect(function(state,place)
         if place==game.PlaceId and (state.Name=="RequestedFromServer" or state.Name=="Started" or state.Name=="InProgress") then
             transferred=true
+            record("teleport",state.Name)
         end
     end)
     lifecycle.add(function() transferConnection:Disconnect() end)
@@ -166,6 +182,8 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
         busy=true token+=1 refresh()
         local run=token
         local selected=normalize(options)
+        table.clear(trace)
+        record("start",selected.repeatRun and "cycle" or "once")
         local function valid() return lifecycle.alive() and token==run and not gate.expired() end
         local function control(id)
             local queue=playerGui:FindFirstChild("Queue")
@@ -205,6 +223,7 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
                 approach=function()
                     local pad=freePad(services,player)
                     if not pad then return false,"Nenhuma area de fila livre. Entre em uma area vazia manualmente." end
+                    record("queue_zone",pad.Parent.Name)
                     local floor=pad.Position-Vector3.new(0,pad.Size.Y/2,0)
                     local moved,reason=nav.goTo(floor,function() return valid() and not ready("chapter") end)
                     if ready("chapter") then return true end
@@ -213,15 +232,20 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
                 click=function(id)
                     if not valid() then return false,"Cancelado." end
                     if id=="deploy" then status.Text="DEPLOY acionado. Aguardando o jogo…" end
-                    return bridge.activate(control(id))
+                    local ok,why=bridge.activate(control(id))
+                    record(id,ok and "activated" or tostring(why))
+                    return ok,why
                 end,
                 arm=function(settings)
                     if not valid() then return false,"Cancelado." end
-                    return handoff.arm("chapter",settings)
+                    local ok,why=handoff.arm("chapter",settings,gate.transfer())
+                    record("handoff",ok and "queued" or tostring(why))
+                    return ok,why
                 end,
             },selected)
             if not valid() then return end
             if not ran or not success then
+                record("failure",ran and tostring(message) or "lobby error")
                 handoff.clear()
                 busy=false refresh()
             end
@@ -229,6 +253,30 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
         end)
     end
     launch.Activated:Connect(start)
+    cycle.Activated:Connect(function()
+        if busy or transferred then return end
+        options.repeatRun=true
+        options.skip=true
+        options.reconnectCount=0
+        refresh()
+        start()
+    end)
+    runtime.watch(function() return busy and options.repeatRun and not transferred end,function(code)
+        token+=1
+        record("connection_error",code)
+        nav.stop()
+        status.Text="Conexao perdida ("..code.."). Tentando voltar ao lobby…"
+        local ok,why=runtime.reconnect(options)
+        if not ok then busy=false refresh() status.Text=why return end
+        local pending=token
+        task.delay(25,function()
+            if lifecycle.alive() and token==pending and busy and not transferred then
+                stop()
+                status.Text="O Roblox nao confirmou a reconexao."
+            end
+        end)
+    end)
+    runtime.idle(function() return busy end)
     gate.close()
     if autoStart then task.defer(start) end
 end
@@ -244,10 +292,13 @@ function Handoff.options(values)
     if type(values)~="table" then values={} end
     local size=tonumber(values.size)
     if not size or size~=size or size<1 or size>4 or size%1~=0 then size=1 end
-    return {size=size,friends=values.friends==true,skip=values.skip~=false,repeatRun=values.repeatRun==true}
+    local failures=tonumber(values.reconnectCount) or 0
+    if failures~=1 and failures~=2 then failures=0 end
+    return {size=size,friends=values.friends==true,skip=values.skip~=false,repeatRun=values.repeatRun==true,
+        reconnectCount=failures}
 end
 
-function Handoff.create(io,identity,bootstrap)
+function Handoff.create(io,identity,bootstrap,checkLicense)
     local file="Evolvy_Chapter2_Transfer_v1.json"
     local queued=false
     local hasFiles=type(io.read)=="function" and type(io.write)=="function"
@@ -282,13 +333,16 @@ function Handoff.create(io,identity,bootstrap)
             or record.to~=phase or type(record.untilTime)~="number" or record.untilTime<io.clock()
             or record.untilTime>io.clock()+180 then return nil end
         if not clear() then return nil end
-        return Handoff.options(record.options)
+        local license=checkLicense and checkLicense(record.license) or nil
+        if record.license~=nil and not license then return nil end
+        return Handoff.options(record.options),license
     end
-    local function arm(destination,options)
+    local function arm(destination,options,license)
         if not hasFiles or identity.job=="" then return false,"O executor nao disponibilizou retomada entre servidores." end
         if destination~="lobby" and destination~="chapter" then return false,"Destino invalido." end
         local record={schema=1,account=identity.account,game=identity.game,from=identity.job,
-            to=destination,untilTime=io.clock()+150,options=Handoff.options(options)}
+            to=destination,untilTime=io.clock()+150,options=Handoff.options(options),
+            license=checkLicense and checkLicense(license) or nil}
         if not save(record) then return false,"Nao foi possivel salvar a retomada." end
         local saved=load()
         if not saved or saved.from~=record.from or saved.to~=destination or saved.untilTime~=record.untilTime then
@@ -309,6 +363,92 @@ return Handoff
 
 end)()
 
+local License = (function()
+-- Luau · potato_license.luau · HTTPS licence validation and resume
+local License={}
+
+function License.endpoint(value)
+    if type(value)=="string" and #value<=180 and value:match("^https://[%w][%w.-]+/v1/license$") then return value end
+end
+
+function License.transfer(value)
+    if type(value)~="table" then return nil end
+    local endpoint=License.endpoint(value.endpoint)
+    local token=value.token
+    if not endpoint or type(token)~="string" or #token<40 or #token>500 or not token:match("^[%w_.-]+$") then return nil end
+    return {endpoint=endpoint,token=token}
+end
+
+function License.client(endpoint,account,io)
+    local function validate(key,token)
+        if type(io.request)~="function" then return false,"O Delta nao disponibilizou pedidos HTTPS." end
+        local resume=type(token)=="string"
+        if not resume and (type(key)~="string" or #key<16 or #key>120) then return false,"Key invalida." end
+        local body={account=tostring(account)}
+        if resume then body.session=token else body.key=key end
+        local ok,response=pcall(function()
+            return io.request({Url=endpoint,Method="POST",Headers={["Content-Type"]="application/json"},
+                Body=io.encode(body),Timeout=8})
+        end)
+        if not ok or type(response)~="table" then return false,"Servidor de keys indisponivel. Tente novamente." end
+        local status=tonumber(response.StatusCode or response.Status)
+        if status==403 then return false,"Key invalida, expirada ou vinculada a outra conta." end
+        if status~=200 or type(response.Body)~="string" or #response.Body>4096 then return false,"Falha ao validar com o servidor de keys." end
+        local decoded,data=pcall(io.decode,response.Body)
+        if not decoded or type(data)~="table" or data.ok~=true
+            or not (data.lifetime==true or type(data.expiresAt)=="number") then return false,"Resposta do servidor de keys invalida." end
+        local transfer=License.transfer({endpoint=endpoint,token=data.session})
+        if not transfer then return false,"Sessao de acesso invalida." end
+        return true,nil,{plan=data.plan,expiresAt=data.expiresAt,lifetime=data.lifetime,keyLabel=data.keyLabel,transfer=transfer}
+    end
+    return validate
+end
+
+return License
+
+end)()
+
+local Reconnect = (function()
+-- Luau · potato_reconnect.luau · bounded recovery for native connection errors
+local Reconnect={}
+
+function Reconnect.code(text)
+    if type(text)~="string" then return nil end
+    local number=tonumber(text:match("%([^()%c]-:%s*(%d+)%s*%)")
+        or text:lower():match("error%s+code%s*:%s*(%d+)"))
+    if number==266 or number==277 or number==279 then return number end
+end
+
+function Reconnect.watch(services,lifecycle,active,onError)
+    local core=services.CoreGui
+    if not core then return end
+    task.spawn(function()
+        local handled=false
+        while lifecycle.alive() do
+            if active() and not handled then
+                local ok,code=pcall(function()
+                    local prompts=core:FindFirstChild("RobloxPromptGui")
+                    local layer=prompts and prompts:FindFirstChild("promptOverlay")
+                    local prompt=layer and layer:FindFirstChild("ErrorPrompt")
+                    if not prompt or not prompt:IsA("GuiObject") or not prompt.Visible then return nil end
+                    for _,object in ipairs(prompt:GetDescendants()) do
+                        if object:IsA("TextLabel") and object.Visible then
+                            local found=Reconnect.code(object.Text)
+                            if found then return found end
+                        end
+                    end
+                end)
+                if ok and code then handled=true onError(code) end
+            end
+            task.wait(1.5)
+        end
+    end)
+end
+
+return Reconnect
+
+end)()
+
 local Membership = (function()
 -- Luau · potato_membership.luau · display metadata from the access provider · Roblox / CLI · Luau 0.745
 local Membership={}
@@ -322,7 +462,10 @@ function Membership.normalize(options,key,metadata)
     local data=external and (type(metadata)=="table" and metadata or {}) or options
     local expires=data.expiresAt
     local validExpiry=type(expires)=="number" and expires==expires and expires>0 and expires<253402300800 and expires%1==0
-    local label=clean(key or options.key,48) or "—"
+    local label
+    if external then
+        label=clean(data.keyLabel,24) or type(key)=="string" and ("•••• "..string.sub(key,-4)) or "—"
+    else label=clean(key or options.key,48) or "—" end
     if #label>20 then label=string.sub(label,1,4).."…"..string.sub(label,-4) end
     return {plan=clean(data.plan,24) or "Member",keyLabel=label,
         expiresAt=validExpiry and expires or nil,lifetime=expires==nil and data.lifetime==true,
@@ -1759,6 +1902,7 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
     local connections={}
     local approved,checking=options.enabled==false or options.resumeLocal==true and type(options.validate)~="function",false
     local startOP=false
+    local validatedTransfer=nil
     local license=approved and Membership.normalize(options,options.key) or nil
     local function make(class,props,parent)
         local instance=Instance.new(class)
@@ -1838,23 +1982,27 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
         bodyLayout.Padding=UDim.new(0,bounds.compact and 8 or 12)
     end
     table.insert(connections,backdrop:GetPropertyChangedSignal("AbsoluteSize"):Connect(applyLayout)) task.defer(applyLayout)
-    local function enter(startNow)
+    local function enter(startNow,session)
         if approved or checking or not lifecycle.alive() then return end
-        local value=string.match(entry.Text,"^%s*(.-)%s*$")
-        if value=="" then status.Text="Digite sua key para continuar." entry:CaptureFocus() return end
+        local value=nil
+        if not session then value=string.match(entry.Text,"^%s*(.-)%s*$") end
+        if not session and value=="" then status.Text="Digite sua key para continuar." entry:CaptureFocus() return end
         local selected=startNow and quick or submit
         checking=true selected.Text="VALIDANDO..."
         entryStroke.Color=Color3.fromRGB(113,231,201)
         task.spawn(function()
             local ok,accepted,message,metadata
-            if type(options.validate)=="function" then ok,accepted,message,metadata=pcall(options.validate,value)
+            if type(options.validate)=="function" then ok,accepted,message,metadata=pcall(options.validate,value,session)
             else ok,accepted=true,value==(options.key or "Anonymous") end
             if not lifecycle.alive() or not gui.Parent then return end
             checking=false
             if ok and accepted==true then
                 local candidate=Membership.normalize(options,value,metadata)
                 if Membership.describe(candidate,os.time()).expired then accepted=false message="A validade desta key terminou ou nao e valida."
-                else license=candidate end
+                else
+                    license=candidate
+                    validatedTransfer=type(metadata)=="table" and metadata.transfer or nil
+                end
             end
             if ok and accepted==true then
                 startOP=startNow==true
@@ -1878,12 +2026,16 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
         if gui.Parent then gui:Destroy() end
     end
     lifecycle.add(dispose)
-    if approved then entry.Visible=false actions.Visible=false refreshMember() end
+    if approved then entry.Visible=false actions.Visible=false refreshMember()
+    elseif options.resumeSession and type(options.validate)=="function" then
+        task.defer(function() enter(true,options.resumeSession) end)
+    end
     return {wait=function()
             while lifecycle.alive() and gui.Parent and not approved do task.wait(0.1) end
             return lifecycle.alive() and gui.Parent~=nil and approved,startOP
         end,
         membership=function() return Membership.describe(license,os.time()) end,
+        transfer=function() return validatedTransfer end,
         expired=function() return Membership.expired(license,os.time()) end,
         progress=function(fraction,message) if gui.Parent then fill.Size=UDim2.fromScale(math.clamp(fraction,0,1),1) status.Text=tostring(message) refreshMember() end end,
         close=dispose}
@@ -4769,7 +4921,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.22.0"
+local VERSION="0.23.0"
 local EXPECTED_PLACE=116701845804918
 local EXPECTED_GAME=10767408330
 local LOADER_URL="https://raw.githubusercontent.com/AnonymosScripts/Script-1-Evolvy-Hub/main/potato/loader.lua?v="..VERSION
@@ -4779,6 +4931,8 @@ for _,name in ipairs({"Players","Workspace","ReplicatedStorage","HttpService","R
     "Lighting","ProximityPromptService","UserInputService","TweenService","PathfindingService","StarterGui","TeleportService"}) do services[name]=game:GetService(name) end
 local idleServiceOk,idleService=pcall(game.GetService,game,"VirtualUser")
 if idleServiceOk then services.VirtualUser=idleService end
+local coreOk,coreGui=pcall(game.GetService,game,"CoreGui")
+if coreOk then services.CoreGui=coreGui end
 local player=services.Players.LocalPlayer
 assert(player,"Execute o hub no cliente Roblox dentro da experiencia.")
 if game.PlaceId~=EXPECTED_PLACE or game.GameId~=EXPECTED_GAME then
@@ -4819,7 +4973,7 @@ local transferBootstrap=string.format([[
     if run then run() end
 ]],EXPECTED_PLACE,EXPECTED_GAME,LOADER_URL,'local VERSION="'..VERSION..'"')
 local handoff=Handoff.create({read=files.read,write=files.write,queue=queueTransfer,encode=json.encode,decode=json.decode,clock=os.time},
-    {account=player.UserId,game=game.GameId,job=game.JobId},transferBootstrap)
+    {account=player.UserId,game=game.GameId,job=game.JobId},transferBootstrap,License.transfer)
 local store=Session.create(Core,json,files)
 local config,loadMessage=store.load()
 local logger=Session.log(14)
@@ -4858,8 +5012,22 @@ if not phase or not lifecycle.alive() then
     lifecycle.close()
     return
 end
-local resume=handoff.take(phase)
-ACCESS.resumeLocal=resume~=nil
+local resume,resumeLicense=handoff.take(phase)
+local configured=environment.EvolvyLicenseEndpoint
+local endpoint=License.endpoint(configured) or resumeLicense and resumeLicense.endpoint
+if configured~=nil and not License.endpoint(configured) then
+    notify("O endereco do validador precisa usar HTTPS e terminar em /v1/license.")
+    lifecycle.close()
+    return
+end
+if endpoint then
+    local requester=type(request)=="function" and request or type(http_request)=="function" and http_request
+        or type(syn)=="table" and type(syn.request)=="function" and syn.request or nil
+    ACCESS.validate=License.client(endpoint,player.UserId,{request=requester,encode=json.encode,decode=json.decode})
+    ACCESS.resumeSession=resumeLicense and resumeLicense.endpoint==endpoint and resumeLicense.token or nil
+    environment.EvolvyLicenseEndpoint=endpoint
+end
+ACCESS.resumeLocal=resume~=nil and not endpoint
 ACCESS.lobby=phase=="lobby"
 local function pause(message)
     Core.pause(config) cancellation.cancel()
@@ -4887,17 +5055,41 @@ if phase=="chapter" and config.autoRepairGui then restoreInterface() end
 local gate=Gate.open(services,lifecycle,ACCESS,Membership,Layout)
 local accessGranted,quickStartOP=gate.wait()
 if not accessGranted then lifecycle.close() return end
+local function reconnect(settings)
+    if gate.expired() then return false,"A licenca expirou." end
+    local nextOptions=Handoff.options(settings)
+    if nextOptions.reconnectCount>=2 then return false,"Limite de reconexoes atingido. Abra o jogo novamente." end
+    nextOptions.reconnectCount+=1
+    local armed,why=handoff.arm("lobby",nextOptions,gate.transfer())
+    if not armed then handoff.clear() return false,why end
+    local ok=pcall(services.TeleportService.Teleport,services.TeleportService,EXPECTED_PLACE,player)
+    if not ok then handoff.clear() return false,"O Roblox recusou a reconexao." end
+    return true
+end
+local function attachIdle(active)
+    local idle=AntiIdle.create(services.VirtualUser and player.Idled,
+        function() return lifecycle.alive() and config.antiAfk and active() end,function()
+            services.VirtualUser:CaptureController()
+            services.VirtualUser:ClickButton2(Vector2.new(0,0))
+        end,log)
+    lifecycle.add(idle.close)
+    return idle
+end
 if phase=="lobby" then
     local lobbyConfig=Core.validate({movement="Walk",travelTimeout=20},true)
     local nav=Navigation.create(services,lobbyConfig,log)
     lifecycle.add(nav.close)
     local bridge=Bridge.create(services,Core)
     Lobby.open(services,lifecycle,gate,bridge,nav,handoff,Handoff.options,resume,
-        quickStartOP or resume~=nil)
+        quickStartOP or resume~=nil,{
+            idle=attachIdle,reconnect=reconnect,
+            watch=function(active,onError) Reconnect.watch(services,lifecycle,active,onError) end,
+        })
     return
 end
 quickStartOP=quickStartOP or resume~=nil
 local loopEnabled=resume and resume.repeatRun==true or false
+if loopEnabled then config.skipEndingScene=true config.releaseEndingCamera=true end
 local loopAttempted,reportAt=false,nil
 local returning=false
 local loopStatus=nil
@@ -4982,6 +5174,28 @@ local function tryOutro(finishedAt)
     stats.outro_stopped=canceled and checked and stillPlaying==false
     endingSkipper.event(stats.outro_stopped and "outro_cancel_confirmed" or "outro_cancel_unconfirmed")
 end
+local function nativeReturn()
+    local gui=player.PlayerGui
+    local candidate=nil
+    local known={returntolobby=true,backtolobby=true,lobby=true,voltaraolobby=true}
+    for _,screen in ipairs(gui:GetChildren()) do
+        local name=screen.Name:lower()
+        if screen:IsA("ScreenGui") and screen.Enabled and (name=="escape" or name=="victory"
+            or name=="runreport" or name=="runresults" or name=="outro") then
+            for _,item in ipairs(screen:GetDescendants()) do
+                if item:IsA("GuiButton") and item.Active and bridge.visible(item) then
+                    local label=bridge.texts(item):lower():gsub("[^%w]","")
+                    local buttonName=item.Name:lower():gsub("[^%w]","")
+                    if known[label] or known[buttonName] then
+                        if candidate then return false end
+                        candidate=item
+                    end
+                end
+            end
+        end
+    end
+    return candidate and bridge.activate(candidate) or false
+end
 local teleportFailed=services.TeleportService.TeleportInitFailed:Connect(function(who,_,_,place)
     if who==player and place==EXPECTED_PLACE and loopAttempted then
         stopLoop()
@@ -4998,7 +5212,10 @@ lifecycle.add(function() outgoing:Disconnect() end)
 local function repeatAfterReport()
     if not loopEnabled or loopAttempted then return end
     local finishedAt=escapeDriver.finishTime()
-    if not reportAt or reportAt<finishedAt-8 then
+    local age=os.clock()-finishedAt
+    local canCheckScene,scenePlaying=false,true
+    if age>=24 and type(outro.IsPlaying)=="function" then canCheckScene,scenePlaying=pcall(outro.IsPlaying) end
+    if (not reportAt or reportAt<finishedAt-8) and not (canCheckScene and scenePlaying==false) then
         loopStatus="VITORIA CONFIRMADA / AGUARDANDO RESULTADO PARA VOLTAR"
         if finishSeconds and os.clock()-sessionStartedAt-finishSeconds>60 then
             stopLoop()
@@ -5007,10 +5224,13 @@ local function repeatAfterReport()
         return
     end
     loopAttempted=true
-    loopStatus="RESULTADO RECEBIDO / VOLTANDO AO LOBBY"
-    local armed,why=handoff.arm("lobby",resume)
+    loopStatus="VITORIA CONFIRMADA / VOLTANDO AO LOBBY"
+    local nextOptions=Handoff.options(resume)
+    nextOptions.reconnectCount=0
+    local armed,why=handoff.arm("lobby",nextOptions,gate.transfer())
     if not armed then stopLoop() loopStatus=why log(why,"error") return end
-    task.delay(2,function()
+    local native=nativeReturn()
+    task.delay(native and 5 or 2,function()
         if not lifecycle.alive() or not loopEnabled or returning or gate.expired() then return end
         local ok=pcall(services.TeleportService.Teleport,services.TeleportService,EXPECTED_PLACE,player)
         if not ok then
@@ -5027,6 +5247,21 @@ local function repeatAfterReport()
         end
     end)
 end
+Reconnect.watch(services,lifecycle,function()
+    return loopEnabled and not loopAttempted and not completionHandled and not gate.expired()
+end,function(code)
+    loopAttempted=true
+    pause("Conexao perdida ("..code.."); tentando voltar ao lobby.")
+    local ok,why=reconnect(resume)
+    if not ok then stopLoop() loopStatus=why log(why,"error") return end
+    task.delay(25,function()
+        if lifecycle.alive() and loopEnabled and not returning then
+            stopLoop()
+            loopStatus="O Roblox nao confirmou a reconexao."
+            log(loopStatus,"error")
+        end
+    end)
+end)
 lifecycle.add(escapeDriver.close)
 adapter.actions.escape=function(valid)
     adapter.cancelCut()
@@ -5149,11 +5384,7 @@ ui=UI.create(services,config,{
     end,
 },Layout,Membership)
 lifecycle.add(function() if ui then ui.close() end end)
-antiIdle=AntiIdle.create(services.VirtualUser and player.Idled,function() return lifecycle.alive() and config.antiAfk and Core.anyActive(config) end,function()
-    services.VirtualUser:CaptureController()
-    services.VirtualUser:ClickButton2(Vector2.new(0,0))
-end,log)
-lifecycle.add(antiIdle.close)
+antiIdle=attachIdle(function() return Core.anyActive(config) end)
 ui.refresh()
 if lastRecovery then ui.recoveryInfo(lastRecovery) end
 log("Anonymous Potato "..VERSION.." / Place version "..game.PlaceVersion)
@@ -5254,7 +5485,7 @@ local heartbeat=services.RunService.Heartbeat:Connect(function()
         end
         ui.dashboard(panelData,finishSeconds or os.clock()-sessionStartedAt)
     end
-    if completionHandled then message=loopStatus or "CAPITULO II CONCLUIDO  /  ROTINAS PAUSADAS"
+    if completionHandled or loopStatus then message=loopStatus or "CAPITULO II CONCLUIDO  /  ROTINAS PAUSADAS"
     elseif member.expired then message="LICENCA EXPIRADA  /  ROTINAS PAUSADAS"
     elseif config.opAutoFinish then
         local stats=snapshot.opBurst or {}

@@ -1,22 +1,17 @@
-# Evolvy 0.22 · Lobby e Capítulo II
+# Evolvy 0.23 · Ciclo completo
 
-O mesmo loader abre o painel do lobby ou o hub do capítulo. A distinção vem dos objetos carregados no mapa. O lobby e a partida gravados usam o PlaceId `116701845804918`.
+Abra o loader no lobby, use a key local **Anonymous** e toque em **Abrir hub**. Ajuste o tamanho da fila e **Apenas amigos** se precisar. Toque em **Iniciar ciclo completo** para ativar tudo no mesmo teste.
 
-1. Abra o loader no lobby e informe a key local **Anonymous**. Escolha **Abrir hub** para configurar a fila.
-2. No painel do lobby, ajuste de um a quatro jogadores, apenas amigos e a introdução. Para o primeiro teste, use um jogador, introdução pulada e repetição desligada.
-3. Toque em **Entrar e iniciar OP**. A automação vai até uma área de fila livre, abre o Capítulo II, aplica as opções e usa o botão nativo **DEPLOY**. O seletor, a marca da introdução e a solicitação real de teleporte são verificados.
-4. Se o Delta aceitar retomar scripts entre servidores, o OP começa na partida. Se o Delta salvar arquivos mas não aceitar retomar scripts, abra o mesmo loader ao chegar. O pedido de retomada vale por 150 segundos, uma vez, para a mesma conta e a fase esperada. A key não é gravada nesse pedido.
+O ciclo seleciona o Capítulo II, confirma a opção de pular a introdução, aciona o `DEPLOY` nativo e tenta iniciar o OP no servidor da partida. O Anti-AFK acompanha a fila e o OP quando o executor disponibiliza o controle. Depois da fuga confirmada, o hub tenta cancelar a cena final pelo controlador observado e voltar ao lobby. Ele espera o relatório ou, na ausência do relatório, a confirmação do fim da cena com uma margem de 24 segundos após a fuga. Quando encontra um botão de retorno, tenta primeiro o botão do jogo.
 
-Para jogar com amigos, o painel configura a fila do anfitrião. Os amigos podem entrar nessa fila pelo jogo. A seleção do tamanho é enviada ao botão nativo. A gravação atual não expõe um indicador que confirme qual tamanho ficou selecionado.
+Se o cliente mostrar erro de rede 266, 277 ou 279, o ciclo tenta retornar ao lobby. Há um limite de duas tentativas de reconexão por ciclo e ele só se renova quando uma partida é concluída. O progresso da partida desconectada depende do servidor do Roblox. **Parar** no lobby e **Pausar tudo** no capítulo cancelam o ciclo. [Códigos de erro do Roblox](https://en.help.roblox.com/hc/pt-br/articles/36639955031060-C%C3%B3digos-de-Erro-da-Roblox)
 
-## Cena final e repetição
+A passagem automática entre servidores depende de o Delta aceitar o agendamento de scripts na transferência. Se a entrada ocorreu mas o hub não abriu, execute o mesmo loader ao chegar. Se o Delta manteve o arquivo local, o hub reconhece o pedido de retomada da mesma conta por até 150 segundos. Para fila em equipe, os amigos entram pelo fluxo nativo da fila do anfitrião.
 
-Depois da fuga confirmada, **Pular cena final** tenta o `Cancel` do `Chapter2OutroController` uma vez quando o controlador indica que a cena está rodando. O diagnóstico informa se a cena deixou de rodar. A função tem um parâmetro cuja semântica ainda não foi identificada, por isso a chamada usa o valor padrão. O resultado depende do teste no Delta.
+## Serviço de keys
 
-**Repetir após vitória** é opcional. Quando ligado no lobby, espera o relatório da partida e tenta voltar ao lobby para repetir com as mesmas opções. Se a transferência falhar ou faltar o relatório, o fluxo automático para. **Parar** no lobby e **Pausar tudo** no hub cancelam a retomada. O retorno usa a transferência do cliente Roblox e precisa de teste no jogo publicado. [Documentação do Roblox sobre transferências](https://create.roblox.com/docs/projects/teleport)
+O código do validador HTTPS, o emissor de keys e os testes estão em `license-service/`. O serviço aceita validade por prazo ou **Life time**, devolve o rótulo da key e renova a sessão nas trocas de servidor. A interface para o OP quando a validade expira. O serviço precisa ser publicado e conectado a um endereço HTTPS antes de validar keys reais no Delta. O [guia do serviço](license-service/README.md) explica como configurar. A key **Anonymous** continua sendo local para o teste do jogo.
 
-A key atual é local. A integração com um provedor remoto de licenças depende do endereço e do contrato desse provedor.
+O hub compilou com Luau 0.745. As 19 suítes de Luau e os quatro testes do serviço de keys passaram. A execução completa no Delta, o salto da cena e a reconexão dependem do teste no jogo publicado.
 
-Compilado com Luau 0.745. As 18 suítes locais cobrem, entre outros casos, ordem do `DEPLOY`, opção de pular introdução, teleporte sem confirmação, uso único e expiração da retomada. A entrada automática, o retorno, o efeito de `Cancel` e a retomada no Delta ainda aguardam teste em partida.
-
-Execute **PUBLICAR_V022.cmd** no PowerShell com a conta **AnonymosScripts**. O publicador verifica os arquivos públicos e imprime o loader.
+Publique com **PUBLICAR_V023.cmd** no PowerShell e use o loader quando aparecer **PUBLICADO E VERIFICADO**.
