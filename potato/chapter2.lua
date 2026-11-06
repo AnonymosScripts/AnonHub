@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.28.0. Chapter 2 and lobby. No paid purchases.
+-- Local test key: Anonymous. Version 0.28.1. Chapter 2 and lobby. No paid purchases.
 
 local BootError = (function()
 -- Luau · potato_boot_error.luau · visible startup errors for mobile
@@ -1236,43 +1236,37 @@ function View.create(services,lifecycle,gui,callbacks)
     local settings=page("config","Configurar",1)
     block(settings,"Configurar capítulo","Escolha um capítulo para ver as opções da fila.",73)
     local chapterNames={"Capítulo I","Capítulo II","Capítulo III"}
-    local expanded,selectedChapter=false,1
-    local function chapterCard(parent,index,dropdown)
+    local expanded,selectedChapter=false,nil
+    local function chapterRow(parent,text)
         local item=button(parent,nil,"")
         item.Size=UDim2.new(1,0,0,43)
-        local title=label(item,chapterNames[index],15,bright,true)
+        local title=label(item,text,15,bright,true)
         title.Position,title.Size=UDim2.fromOffset(12,0),UDim2.new(1,-130,1,0)
-        local color=index==2 and green or dim
-        local dot=make("Frame",{Size=UDim2.fromOffset(7,7),Position=UDim2.new(1,-108,0.5,-3),
-            BackgroundColor3=color,BorderSizePixel=0},item)
-        round(dot,5)
-        local badge=label(item,index==2 and "ONLINE" or "EM BREVE",11,color,true)
-        badge.Position,badge.Size=UDim2.new(1,-94,0,0),UDim2.fromOffset(73,43)
-        local caret=nil
-        if dropdown then
-            caret=label(item,"⌄",17,dim,true)
-            caret.Position,caret.Size=UDim2.new(1,-23,0,0),UDim2.fromOffset(18,43)
-        end
-        return item,title,dot,badge,caret
+        return item
     end
-    local selector,chapterLabel,chapterDot,chapterBadge,caret=chapterCard(settings,1,true)
+    local selector=chapterRow(settings,"Capítulos")
+    local caret=label(selector,"⌄",17,dim,true)
+    caret.Position,caret.Size=UDim2.new(1,-23,0,0),UDim2.fromOffset(18,43)
     local choices=make("Frame",{BackgroundTransparency=1,Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,Visible=false},settings)
     make("UIListLayout",{Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder},choices)
     local chapterOptions=make("Frame",{BackgroundTransparency=1,Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,Visible=false},settings)
     make("UIListLayout",{Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder},chapterOptions)
     local function showChapter()
-        local online=selectedChapter==2
-        chapterLabel.Text=chapterNames[selectedChapter]
-        chapterDot.BackgroundColor3=online and green or dim
-        chapterBadge.Text,chapterBadge.TextColor3=online and "ONLINE" or "EM BREVE",online and green or dim
         caret.Text=expanded and "⌃" or "⌄"
         choices.Visible=expanded
-        chapterOptions.Visible=online
+        chapterOptions.Visible=selectedChapter==2
     end
     selector.Activated:Connect(function() expanded=not expanded showChapter() end)
-    for index=1,3 do
-        local item=chapterCard(choices,index,false)
+    for index,name in ipairs(chapterNames) do
+        local item=chapterRow(choices,name)
         item.LayoutOrder=index
+        local online=index==2
+        local color=online and green or dim
+        local dot=make("Frame",{Size=UDim2.fromOffset(7,7),Position=UDim2.new(1,-108,0.5,-3),
+            BackgroundColor3=color,BorderSizePixel=0},item)
+        round(dot,5)
+        local badge=label(item,online and "ONLINE" or "EM BREVE",11,color,true)
+        badge.Position,badge.Size=UDim2.new(1,-94,0,0),UDim2.fromOffset(73,43)
         item.Activated:Connect(function() selectedChapter=index expanded=false showChapter() end)
     end
     block(chapterOptions,"Fila do Capítulo II","As escolhas são reaplicadas na próxima rodada.",69)
@@ -6496,7 +6490,7 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.28.0"
+local BOOT_VERSION="0.28.1"
 local bootPhase="preparar o hub"
 
 local function bootAnonymousPotato()
