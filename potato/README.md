@@ -1,31 +1,29 @@
-# Evolvy / Anonymous 0.19.0 — OP, perfil e finalização do capítulo II
+# Evolvy 0.20 · Capítulo II
 
-PlaceId 116701845804918. Key local: **Anonymous**. Na tela inicial, escolha **Ativar OP** ou **Auto Progress**. Os modos são independentes no painel e mutuamente exclusivos; iniciar um troca o outro. O OP coordena seus serviços internos sem marcar como ligadas as rotinas manuais.
+PlaceId `116701845804918`. A key local continua sendo **Anonymous**. O rodapé mostra o avatar, o nome, a key e a validade da conta. Licenças de um provedor usam a validade recebida na validação.
 
-## A mudança com maior impacto no tempo
+## Perfis de partida
 
-O teste informado da v0.18 concluiu em cerca de 24 minutos, com mapa nativo encontrado e 801 ondas de coleta com ganho em 837. O registro mostra a última melhoria do P0T4T0-3000 por volta de 19:35 e melhorias do cortador automático até aproximadamente 19:44. O intervalo de cerca de nove minutos inclui o corte e as vendas feitos para outros equipamentos. Não é uma previsão exata do ganho da v0.19.
+Em **Início → Perfil da partida**, escolha o tipo de grupo e toque em **Iniciar perfil** para aplicar. Escolha o papel em cada conta. A seleção não altera as rotinas até tocar em Iniciar.
 
-Assim que as três linhas do **P0T4T0-3000** estiverem no máximo confirmado, o OP pausa o financiamento de equipamentos adicionais e mantém a coleta até o contador nativo indicar montanha vazia. Compras, vendas, retornos à mesa e manivela aguardam. Resfriamento, dinamite, bolsa finita cheia e a saída com uma chave confirmada continuam sendo atendidos. Com bolsa infinita, não interrompe a coleta para descarregar lotes parciais. Ao esvaziar, entrega inclusive a última bolsa parcial e retoma o corte, priorizando as facas na fila de compra. A rota normal do Auto Progress mantém as metas anteriores.
+| Grupo | Recomendações |
+| --- | --- |
+| Solo | OP completo, desde as compras até a fuga. |
+| Com o hub, 2 contas | Uma no OP e outra cortando e vendendo. |
+| Com o hub, 3 contas | Um líder OP, um coletor e um cortador. |
+| Com o hub, 4 contas | Um líder OP, um coletor e dois cortadores. Use uma mesa diferente para cada conta que corta. |
+| Grupo misto | Corte nativo, venda, caminhada e compra de facas. Compra até dois níveis de velocidade pelo upgrade do jogo. |
 
-`op_bulk` informa entrada, duração e conclusão da fase de coleta contínua. O registro marca quando o sugador chegou a MAX e quando a montanha esvaziou. Use essas marcações, `session_elapsed_seconds`, `action_timings` e `exit.finished` para comparar a próxima partida. Meta: primeiro abaixo de 20 minutos, depois 14–16. Esses tempos ainda não foram medidos nesta versão.
+O coletor usa o dinheiro das vendas da equipe para melhorar a coleta e entrega em lotes de até 100. Quando o contador nativo indicar montanha vazia, descarrega a bolsa restante. O líder OP também repõe a caixa quando ela estiver com menos de 100 durante a limpeza. Cortadores usam a mesa escolhida e quem encontrar a chave pode acionar a saída. O perfil atribui funções localmente em cada cliente.
 
-## Perfil, água e saída
+## Tempo e final
 
-- Nova tela da key, adaptada a telas pequenas. A conta mostra avatar, nome do Roblox, **Member**, key e **Life time** para o acesso local atual. Os cartões de equipamento preservam as imagens do catálogo e ganharam cores por ferramenta.
-- **Resfriar → Tempo segurando a válvula:** 1–5 segundos, padrão 5. O ajuste local só é contado quando há água fluindo ou queda de calor. Se uma duração curta não for aceita, pode tentar o acionamento nativo e repetir com o tempo original. O valor original do botão é restaurado.
-- **Ajustes → Anti-AFK:** atua no evento de inatividade enquanto alguma rotina estiver ativa. Depende da função de entrada disponível no executor; erros aparecem em `anti_afk`. Pausar desativa os pulsos.
-- **Ajustes → Pular cena final:** durante a saída, procura um único botão nativo de pular, visível e ativo, nas telas de finalização. Se não houver esse botão, preserva a cena normal. `ending_scene` registra o botão e o resultado do acionamento. O evento real Escaped continua confirmando a vitória e pausa as rotinas da partida.
-- Rejoin, fila no lobby, seleção automática de capítulo, pular a introdução e repetição ficam para a próxima etapa, após validar o capítulo 2.
+O usuário registrou **15:07 na v0.19**. O diagnóstico marcou cerca de 6min35s de limpeza contínua com o sugador no máximo e 57 vendas confirmadas. Nesta versão, o OP tenta agrupar de 50 a 150 batatas conforme o valor que falta para a próxima compra e o limite de venda. Se o estoque de corte acabar antes do lote, vende o que já está pronto. Depois que a montanha esvazia, a rotina para de buscar alvos na pilha.
 
-## Integração futura da licença
+O painel fixa o tempo ao receber a confirmação da fuga. **Ajustes → Pular cena final** usa o botão do jogo quando disponível. Sem botão, **Liberar câmera após vitória** tenta devolver a câmera ao personagem, somente depois de receber a fuga e enquanto a câmera estiver em modo Scriptable. A cena e a transição do servidor podem continuar. O diagnóstico exporta `finish_seconds` e `ending_scene`. [Câmera do Roblox](https://create.roblox.com/docs/reference/engine/classes/Camera)
 
-A validação atual é local. O contrato preparado para `ACCESS.validate(key)` aceita retorno `accepted, message, metadata`. Em `metadata`, `plan` define o rótulo, `expiresAt` é um timestamp Unix em segundos e `lifetime=true` indica duração ilimitada se não houver expiração. A interface recalcula a duração restante, informa validade ausente quando o provedor não a informa e pausa ao expirar. A integração com um provedor real ainda não está conectada. Chaves não são incluídas no diagnóstico.
+## Teste e publicação
 
-Referências do cliente: [avatar do Roblox](https://create.roblox.com/docs/reference/engine/classes/Players#GetUserThumbnailAsync), [evento de inatividade](https://create.roblox.com/docs/reference/engine/classes/Player#Idled) e [ProximityPrompt](https://create.roblox.com/docs/reference/engine/classes/ProximityPrompt).
+Compilado com Luau 0.745 e verificado por 17 suítes locais. Teste de grupo, aspecto no celular, câmera final e novo tempo de conclusão dependem de uma partida no Delta. Lobby, reconexão e repetição automática serão trabalhados após esta validação do Capítulo II.
 
-## Validação e publicação
-
-Compilação oficial Luau 0.745 e 17 suítes locais, com 73 verificações de coordenação e 50 de layout. Casos novos cobrem mudança para coleta contínua com o sugador no máximo, descarga antes do corte, separação dos modos, restauração do tempo da válvula, expiração, Anti-AFK e seleção de botão da cena final. O agente não executou esta versão no Delta/iPhone; aparência no aparelho, tempo da partida, resfriamento curto e presença do botão de pular ainda precisam de teste real.
-
-Publique com PUBLICAR_V019.cmd usando AnonymosScripts. O publicador verifica o commit preparado e os arquivos públicos antes de mostrar o loader. A conexão atual do plugin GitHub usa uma conta sem permissão de escrita nesse repositório.
+Execute **PUBLICAR_V020.cmd** no PowerShell, autorize com a conta **AnonymosScripts** se solicitado e use o loader quando aparecer **PUBLICADO E VERIFICADO**.

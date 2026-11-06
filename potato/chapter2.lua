@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.19.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.20.0. Chapter 2 only. No paid purchases.
 
 local Membership = (function()
 -- Luau · potato_membership.luau · display metadata from the access provider · Roblox / CLI · Luau 0.745
@@ -280,9 +280,10 @@ function Exit.create(services,modules,nav,log)
         close=function() for _,connection in ipairs(connections) do connection:Disconnect() end end,
     }
 end
-function Exit.endingSkipper(gui,bridge,clock)
+function Exit.endingSkipper(gui,bridge,clock,cameraFallback)
     clock=clock or os.clock
     local started,nextAt,pressed=nil,0,nil
+    local victoryAt=nil
     local stats={attempts=0,sent=false,button_gone=false}
     local roots={escape=true,outro=true,outrocutscene=true,endcutscene=true,endingcutscene=true,victory=true,escapecutscene=true}
     local actions={skip=true,skipscene=true,skipcutscene=true,skipoutro=true,skipending=true,pular=true,pularcena=true}
@@ -311,7 +312,17 @@ function Exit.endingSkipper(gui,bridge,clock)
         stats.sent=ok==true stats.reason=message
         if ok then pressed=choices[1] else nextAt=now+2 end
     end
-    return {poll=poll,stats=stats}
+    local function afterVictory(confirmed,enabled)
+        if not confirmed or not enabled or not cameraFallback or stats.sent or stats.camera_released then return end
+        local now=clock()
+        victoryAt=victoryAt or now
+        if now-victoryAt<2 or now-victoryAt>12 then return end
+        local ok,released=pcall(cameraFallback)
+        stats.camera_released=ok and released==true
+        stats.camera_result=stats.camera_released and "local camera returned after confirmed escape"
+            or ok and "no scriptable camera with active character" or "camera reset failed"
+    end
+    return {poll=poll,afterVictory=afterVictory,stats=stats}
 end
 return Exit
 
@@ -411,6 +422,9 @@ local Core = {}
 
 Core.defaults = {
     opAutoFinish=false,opKeyShortcut=true,antiAfk=true,coolHoldSeconds=5,coolHoldFallback=true,skipEndingScene=true,
+    releaseEndingCamera=true,opBatchFunding=true,partyProfile="Solo",partyRole="Leader",partySize=4,partySlot=1,
+    teamFunding=false,teamLead=false,supportCut=false,
+    nativeWalkUpgrade=false,
     fastDelivery=true,placementDelay=0.01,throughputMode=true,
     autoRepairGui=true,aimTable=true,autoEscape=false,productionBatch=500,
     autoProgress = false, autoCut = false, autoFarm = false, autoDeliver = false,
@@ -441,6 +455,7 @@ Core.defaults = {
 }
 
 local ranges = {
+    partySlot={1,4},partySize={2,4},
     coolHoldSeconds={1,5},
     deliveryFill = {10,100}, deliveryBatch = {1,1000000}, heatStart = {15,100}, heatStop = {0,90},
     coolingRetry = {5,120}, reserveCash = {0,100000000}, maxPurchase = {0,100000000},
@@ -457,6 +472,8 @@ local ranges = {
     sellThreshold={1,1000000},dynamiteInterval={0.1,15},
 }
 local choices = {
+    partyProfile={Solo=true,Team=true,Mixed=true},
+    partyRole={Leader=true,Collect=true,Cut=true},
     rarity = {Any=true,Rainbow=true,Diamond=true,Golden=true},
     selection = {Nearest=true,Random=true},
     deliveryMode = {Amount=true,Percent=true},
@@ -500,6 +517,8 @@ function Core.validate(values, resetActive)
     config.deliveryBatch=math.floor(config.deliveryBatch)
     config.pickBatch=math.floor(config.pickBatch) config.cutBurst=math.floor(config.cutBurst)
     config.sellThreshold=math.floor(config.sellThreshold)
+    config.partySlot=math.floor(config.partySlot)
+    config.partySize=math.floor(config.partySize)
     if config.opAutoFinish then config.autoProgress=false end
     if resetActive then
         for _, key in ipairs(automation) do config[key] = false end
@@ -511,7 +530,51 @@ function Core.pause(config)
     for _, key in ipairs(automation) do config[key] = false end
 end
 
+function Core.applyPartyProfile(config)
+    Core.pause(config)
+    local mixed=config.partyProfile=="Mixed"
+    local team=config.partyProfile=="Team"
+    local collector=team and config.partyRole=="Collect"
+    local cutter=team and config.partyRole=="Cut"
+    config.teamFunding=collector
+    config.teamLead=team and config.partyRole=="Leader"
+    config.supportCut=mixed or cutter
+    config.nativeWalkUpgrade=mixed
+    config.tableChoice=team and "PeelingTable"..config.partySlot or "Nearest"
+    config.movement=mixed and "Walk" or "Teleport"
+    config.cutMode=mixed and "Native" or "Fast"
+    config.speedMode=mixed and "Standard" or "Turbo"
+    config.fastDelivery=not mixed
+    config.aimTable=not mixed
+    config.auraCollect=not mixed
+    config.logicalSpecials=not mixed
+    config.forceThirdPerson=false
+    config.deliveryTarget="Crate"
+    config.cutBuyTools=true
+    if not mixed and not collector and not cutter then
+        config.opAutoFinish=true
+    elseif collector then
+        config.deliveryMode="Amount"
+        config.deliveryBatch=100
+        config.collectTool="Auto"
+        config.rarity="Any"
+        config.autoFarm=true
+        config.autoDeliver=true
+        config.autoDynamite=true
+        config.autoBuyTools=true
+        config.autoBuyStorage=true
+        config.autoBuyUpgrades=true
+    else
+        config.autoCut=true
+        config.autoSell=true
+        config.autoBuyTools=true
+        config.autoBuyUpgrades=true
+        config.autoEscape=cutter
+    end
+end
+
 function Core.progress(config) return config.autoProgress or config.opAutoFinish end
+function Core.batchCollect(config) return config.opAutoFinish or config.teamFunding and config.autoFarm end
 function Core.anyActive(config)
     for _,name in ipairs(automation) do if config[name] then return true end end
     return false
@@ -621,7 +684,10 @@ function Core.deliveryGoal(config,capacity)
     return math.min(capacity,config.deliveryBatch)
 end
 
-function Core.productionGoal(config,capacity)
+function Core.productionGoal(config,capacity,crate)
+    if config.opAutoFinish and config.teamLead and type(crate)=="number" and crate<100 then
+        return math.min(capacity or 100,100)
+    end
     if config.opAutoFinish then return capacity end
     return math.min(capacity or config.productionBatch,config.productionBatch)
 end
@@ -643,6 +709,8 @@ function Core.choose(config, state, now)
     if Core.effective(config,"autoCool") and state.needCooling and now >= (state.coolingRetryAt or 0) and ready("cool") then return "cool" end
     if config.opAutoFinish and config.opKeyShortcut and state.keyProbeReady and ready("keyProbe") then return "keyProbe" end
     if state.postClearUnload and Core.effective(config,"autoDeliver") and ready("deliver") then return "deliver" end
+    if config.teamFunding and state.mountainEmpty and state.carried and state.carried>0
+        and Core.effective(config,"autoDeliver") and ready("deliver") then return "deliver" end
     if not bulkOnly and state.droneReady and ready("drone") then return "drone" end
     if state.deliveryPending and (Core.effective(config,"autoDeliver") or Core.effective(config,"autoCut")) and ready("deliver") then return "deliver" end
     if not bulkOnly and Core.effective(config,"autoSell") and state.sellReady and now>=(state.sellRetryAt or 0) and ready("sell") then return "sell" end
@@ -653,7 +721,7 @@ function Core.choose(config, state, now)
             or Core.effective(config,"autoBuyStorage") or state.afterSale and config.buyAfterSell then return "buy" end
     end
     if not bulkOnly and state.returnToTable and ready("returnTable") then return "returnTable" end
-    if Core.effective(config,"autoDynamite") and state.dynamiteReady and not state.cutting and ready("dynamite") then return "dynamite" end
+    if not state.mountainEmpty and Core.effective(config,"autoDynamite") and state.dynamiteReady and not state.cutting and ready("dynamite") then return "dynamite" end
     if not bulkOnly and Core.effective(config,"autoCrank") and state.crankReady and ready("crank") then return "crank" end
     local soloCut=config.autoCut and not Core.effective(config,"autoFarm")
     if Core.effective(config,"autoCut") and state.cutting and (soloCut or not state.focusClear and not state.needBuffer) and ready("cut") then return "cut" end
@@ -665,7 +733,7 @@ function Core.choose(config, state, now)
         if (full or noTargets or not Core.effective(config,"autoFarm")) and ready("deliver") then return "deliver" end
     end
     if Core.effective(config,"autoCut") and state.tableReady and (soloCut or not state.focusClear and not state.needBuffer) and ready("enterCut") then return "enterCut" end
-    if Core.effective(config,"autoFarm") and state.hasCandidate
+    if not state.mountainEmpty and Core.effective(config,"autoFarm") and state.hasCandidate
         and type(state.capacity)=="number" and type(state.carried)=="number"
         and state.capacity>0 and (state.carried < state.capacity or state.candidatePumpkin) and ready("collect") then return "collect" end
     return "idle"
@@ -867,10 +935,12 @@ end
 function Chapter.canUpgrade(data,tool,id,config)
     local list=Chapter.allowed[tool]
     if not list or not Chapter.owns(data,tool) then return false end
+    if config.teamFunding and (tool=="Body" or tool=="General" or tool=="AutoPeeler" or tool=="Drone") then return false end
+    if config.supportCut and not config.opAutoFinish and not config.autoProgress and tool~="Body" and tool~="General" then return false end
     if tool=="Drone" and not config.upgradeDrone then return false end
     if (tool=="AutoPeeler" or tool=="HandPeeler") and not config.upgradeMachines then return false end
     if (tool=="Body" or tool=="General") and not config.upgradeGeneral then return false end
-    if id=="WalkSpeed" then return false end
+    if id=="WalkSpeed" and not config.nativeWalkUpgrade then return false end
     if tool=="Hand" and Chapter.owns(data,"Shovel") then return false end
     for _,name in ipairs(list) do if name==id then return true end end
     return false
@@ -895,8 +965,8 @@ function Chapter.rank(tool,id)
     local rank=order[tool] or 100
     return rank*10+(id=="PickAmount" and 0 or id=="PickSpeed" and 1 or 2)
 end
-function Chapter.limit(tool,id,cutRank,lastRank,earlyLimit)
-    if id=="WalkSpeed" then return 0 end
+function Chapter.limit(tool,id,cutRank,lastRank,earlyLimit,nativeWalkUpgrade)
+    if id=="WalkSpeed" then return nativeWalkUpgrade and 2 or 0 end
     if (tool=="Body" or tool=="General") and id=="PotatoWorth" then
         return math.huge
     end
@@ -997,8 +1067,12 @@ function Chapter.fundingPlan(Core,config,balance,goal,crate,stock,capacity,compl
     plan.needed=balance<goal.price+config.reserveCash
     if not plan.needed then return plan end
     plan.cut=type(crate)=="number" and crate>0
-    plan.sell=type(stock)=="number" and stock>0 and (stock>=math.min(50,config.sellThreshold) or not plan.cut)
-    plan.deliveryGoal=math.min(type(capacity)=="number" and capacity>0 and capacity or 50,50)
+    local shortfall=goal.price+config.reserveCash-balance
+    local batch=50
+    if config.opBatchFunding then batch=shortfall>=3 and 150 or shortfall>=1 and 90 or 50 end
+    plan.sellTarget=math.min(batch,config.sellThreshold)
+    plan.sell=type(stock)=="number" and stock>0 and (stock>=plan.sellTarget or not plan.cut)
+    plan.deliveryGoal=math.min(type(capacity)=="number" and capacity>0 and capacity or batch,plan.sellTarget)
     return plan
 end
 function Chapter.pickTiming(shared,controller,pileController,data,tool)
@@ -1039,6 +1113,15 @@ function Chapter.keyProbeGuard()
     end}
 end
 function Chapter.purchasePriority(offer,config,processing)
+    if config and config.teamFunding then
+        if offer.id=="Shovel" then return 1 end
+        if offer.group=="storage" and type(offer.capacity)=="number" and offer.capacity<=50 then return 2 end
+        if offer.id=="Dynamite" then return 3 end
+        if offer.tool=="Dynamite" then return 4+(offer.level or 0)/100 end
+        if offer.id=="P0T4T0-3000" then return 5 end
+        if offer.tool=="PotatoSucker" then return 6 end
+        if offer.group=="storage" then return 7 end
+    end
     if config and config.opAutoFinish then
         if processing and offer.group=="cut" then return 0.1+(offer.tier or 0)/100 end
         -- Fund the first useful knife, a small bag and explosives before luxury knives.
@@ -1059,7 +1142,10 @@ function Chapter.purchasePriority(offer,config,processing)
         if offer.upgrade=="Luck" then return 15 end
         return 90
     end
-    if offer.upgrade=="PotatoWorth" then return 1 end
+    if offer.upgrade=="PotatoWorth" then
+        return config and config.nativeWalkUpgrade and (offer.level or 0)>=3 and 12 or 1
+    end
+    if offer.upgrade=="WalkSpeed" then return 10.025 end
     if offer.group=="cut" then return 10+(offer.tier or 0)/100 end
     if offer.id=="Dynamite" or offer.tool=="Dynamite" then return 20 end
     if offer.tool=="Drone" then return 30 end
@@ -1336,25 +1422,29 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
     corner(panel,20)
     make("UIStroke",{Color=Color3.fromRGB(83,103,155),Thickness=1},panel)
     make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(28,38,64),Color3.fromRGB(11,16,28)),Rotation=80},panel)
+    local accent=make("Frame",{Position=UDim2.new(0.5,-28,0,8),Size=UDim2.fromOffset(56,3),
+        BackgroundColor3=Color3.fromRGB(113,231,201),BorderSizePixel=0},panel) corner(accent,4)
     local close=make("TextButton",{Text="×",BackgroundTransparency=1,TextColor3=Color3.fromRGB(178,193,220),Position=UDim2.new(1,-38,0,6),Size=UDim2.fromOffset(32,32),TextSize=24,Font=Enum.Font.Gotham,ZIndex=4},panel)
     local body=make("ScrollingFrame",{BackgroundTransparency=1,BorderSizePixel=0,Position=UDim2.fromOffset(24,24),Size=UDim2.new(1,-48,1,-94),CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=3,ScrollBarImageColor3=Color3.fromRGB(104,231,196)},panel)
     make("UIListLayout",{Padding=UDim.new(0,12),SortOrder=Enum.SortOrder.LayoutOrder},body)
     local function label(content,height,size,color,order,parent)
         return make("TextLabel",{BackgroundTransparency=1,Text=content,Size=UDim2.new(1,0,0,height),Font=Enum.Font.Gotham,TextSize=size,TextColor3=color or Color3.fromRGB(239,246,255),TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,LayoutOrder=order},parent or body)
     end
-    local title=label("EVOLVY",36,30,nil,1) title.Font=Enum.Font.GothamBold
-    label("CHAPTER II  /  MEMBER ACCESS",18,11,Color3.fromRGB(113,231,201),2)
+    local title=label("EVOLVY  /  CAPÍTULO II",31,23,nil,1) title.Font=Enum.Font.GothamBold
+    label("A C E S S O   D E   M E M B R O",15,10,Color3.fromRGB(113,231,201),2)
     local profile=make("Frame",{BackgroundColor3=Color3.fromRGB(12,18,31),BorderSizePixel=0,Size=UDim2.new(1,0,0,86),LayoutOrder=3},body) corner(profile,12)
     local avatar=make("ImageLabel",{BackgroundTransparency=1,Position=UDim2.fromOffset(10,11),Size=UDim2.fromOffset(64,64),Image=""},profile) corner(avatar,32)
     local initial=label(string.upper(string.sub(player.Name,1,1)),64,24,Color3.fromRGB(113,231,201),0,avatar) initial.TextXAlignment=Enum.TextXAlignment.Center
     local name=label(player.DisplayName or player.Name,24,17,nil,1,profile) name.Position=UDim2.fromOffset(86,10) name.Size=UDim2.new(1,-96,0,24) name.Font=Enum.Font.GothamBold name.TextTruncate=Enum.TextTruncate.AtEnd name.TextWrapped=false
     local handle=label("@"..player.Name,18,11,Color3.fromRGB(160,179,210),2,profile) handle.Position=UDim2.fromOffset(86,36) handle.Size=UDim2.new(1,-96,0,18)
     local member=label("Member",18,11,Color3.fromRGB(113,231,201),3,profile) member.Position=UDim2.fromOffset(86,57) member.Size=UDim2.new(1,-96,0,18)
-    local hint=label(type(options.validate)=="function" and "Informe sua key para liberar o painel." or ("Acesso local  •  Key atual: "..tostring(options.key or "Anonymous")),32,12,Color3.fromRGB(166,185,216),4)
+    local localKey=type(options.validate)~="function"
+    local hint=label(localKey and ("Key local: "..tostring(options.key or "Anonymous").."  ·  Life time") or "Digite sua key para verificar a validade.",26,12,Color3.fromRGB(166,185,216),4)
     local entry=make("TextBox",{Size=UDim2.new(1,0,0,46),BackgroundColor3=Color3.fromRGB(8,14,25),BorderSizePixel=0,ClearTextOnFocus=false,Text="",PlaceholderText="Sua key de acesso",PlaceholderColor3=Color3.fromRGB(109,130,166),TextColor3=Color3.fromRGB(237,246,255),TextSize=15,Font=Enum.Font.Gotham,LayoutOrder=5},body) corner(entry,10)
-    make("UIStroke",{Color=Color3.fromRGB(53,75,113),Thickness=1},entry)
+    local entryStroke=make("UIStroke",{Color=Color3.fromRGB(53,75,113),Thickness=1},entry)
     local submit=make("TextButton",{Size=UDim2.new(1,0,0,46),BackgroundColor3=Color3.fromRGB(113,231,201),BorderSizePixel=0,Text="ENTRAR NO HUB   →",TextColor3=Color3.fromRGB(9,23,28),TextSize=14,Font=Enum.Font.GothamBold,LayoutOrder=6},body) corner(submit,10)
-    local details=label("KEY  •  aguardando validacao\nVALIDADE  •  aguardando validacao",48,12,Color3.fromRGB(166,185,216),7)
+    local details=label("",42,12,Color3.fromRGB(166,185,216),7)
+    details.Visible=approved
     local status=make("TextLabel",{BackgroundTransparency=1,Text="PRONTO PARA VALIDAR",Position=UDim2.new(0,24,1,-58),Size=UDim2.new(1,-48,0,28),TextColor3=Color3.fromRGB(166,185,216),Font=Enum.Font.Gotham,TextSize=11,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left},panel)
     local track=make("Frame",{Position=UDim2.new(0,24,1,-20),Size=UDim2.new(1,-48,0,4),BackgroundColor3=Color3.fromRGB(37,51,77),BorderSizePixel=0},panel) corner(track,4)
     local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=Color3.fromRGB(113,231,201),BorderSizePixel=0},track) corner(fill,4)
@@ -1373,9 +1463,11 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
     table.insert(connections,backdrop:GetPropertyChangedSignal("AbsoluteSize"):Connect(applyLayout)) task.defer(applyLayout)
     local function enter()
         if approved or checking or not lifecycle.alive() then return end
+        local value=string.match(entry.Text,"^%s*(.-)%s*$")
+        if value=="" then status.Text="Digite sua key para continuar." entry:CaptureFocus() return end
         checking=true submit.Text="VALIDANDO..."
+        entryStroke.Color=Color3.fromRGB(113,231,201)
         task.spawn(function()
-            local value=string.match(entry.Text,"^%s*(.-)%s*$")
             local ok,accepted,message,metadata
             if type(options.validate)=="function" then ok,accepted,message,metadata=pcall(options.validate,value)
             else ok,accepted=true,value==(options.key or "Anonymous") end
@@ -1387,9 +1479,13 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
                 else license=candidate end
             end
             if ok and accepted==true then
-                approved=true entry.Visible=false submit.Visible=false
+                approved=true entry.Visible=false submit.Visible=false details.Visible=true
                 hint.Text="Acesso liberado. Preparando seu painel..." refreshMember() status.Text="CARREGANDO COMPONENTES"
-            else submit.Text="ENTRAR NO HUB   →" status.Text=ok and (type(message)=="string" and message or "Key incorreta.") or "Falha de validacao. Tente novamente." end
+            else
+                entryStroke.Color=Color3.fromRGB(255,155,146)
+                submit.Text="ENTRAR NO HUB   →"
+                status.Text=ok and (type(message)=="string" and message or "Key incorreta.") or "Falha de validacao. Tente novamente."
+            end
         end)
     end
     table.insert(connections,submit.Activated:Connect(enter))
@@ -1473,8 +1569,6 @@ function UI.create(services, config, callbacks, Layout, Membership)
         AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.fromOffset(0,0),
         Position=UDim2.fromOffset(12,90),Size=UDim2.new(1,-24,1,-165)},sidebar)
     local navLayout=make("UIListLayout",{Padding=UDim.new(0,7),SortOrder=Enum.SortOrder.LayoutOrder},nav)
-    local session=text(sidebar,"MEMBER / LOCAL",10,palette.muted,false)
-    session.Position,session.Size=UDim2.new(0,18,1,-78),UDim2.new(1,-30,0,58) session.TextWrapped=true
     local content=make("Frame",{BackgroundTransparency=1,Position=UDim2.fromOffset(196,22),
         Size=UDim2.new(1,-218,1,-44)},panel)
     local heading=text(content,"Inicio",23,palette.text,true)
@@ -1487,7 +1581,29 @@ function UI.create(services, config, callbacks, Layout, Membership)
     corner(status,8)
     local pageArea=make("Frame",{BackgroundTransparency=1,Position=UDim2.fromOffset(0,87),
         Size=UDim2.new(1,0,1,-146)},content)
-    local footer=make("Frame",{BackgroundTransparency=1,Position=UDim2.new(0,0,1,-43),Size=UDim2.new(1,0,0,38)},content)
+    local footer=make("Frame",{BackgroundTransparency=1,Position=UDim2.new(0,0,1,-91),Size=UDim2.new(1,0,0,38)},content)
+    local profile=make("Frame",{Size=UDim2.new(1,0,0,46),Position=UDim2.new(0,0,1,-50),
+        BackgroundColor3=palette.card,BorderSizePixel=0},content)
+    corner(profile,11) stroke(profile)
+    local portrait=make("ImageLabel",{Size=UDim2.fromOffset(34,34),Position=UDim2.fromOffset(8,6),
+        BackgroundColor3=palette.background,BorderSizePixel=0,Image=""},profile)
+    corner(portrait,17) stroke(portrait,palette.mint)
+    local initial=text(portrait,string.upper(string.sub(player.Name,1,1)),16,palette.mint,true)
+    initial.Size=UDim2.fromScale(1,1) initial.TextXAlignment=Enum.TextXAlignment.Center
+    local display=text(profile,player.DisplayName or player.Name,12,palette.text,true)
+    display.Position,display.Size=UDim2.fromOffset(51,3),UDim2.new(1,-61,0,19)
+    display.TextTruncate=Enum.TextTruncate.AtEnd
+    local memberLine=text(profile,"",10,palette.mint,false)
+    memberLine.Position,memberLine.Size=UDim2.fromOffset(51,23),UDim2.new(1,-61,0,18)
+    memberLine.TextTruncate=Enum.TextTruncate.AtEnd
+    local function showMembership(info)
+        memberLine.Text=info.plan.."  ·  "..info.keyLabel.."  ·  "..info.validity
+        memberLine.TextColor3=info.expired and Color3.fromRGB(255,160,150) or palette.mint
+    end
+    showMembership(access)
+    if Membership then Membership.requestAvatar(Players,player.UserId,function(image)
+        if not closed then portrait.Image=image initial.Visible=false end
+    end) end
     local save=button(footer,"SALVAR")
     save.Size=UDim2.fromOffset(100,35)
     local pause=button(footer,"PAUSAR TUDO")
@@ -1633,6 +1749,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
             for i,option in ipairs(options) do if option[1]==config[field] then current=i break end end
             callbacks.change(field,options[current % #options + 1][1])
         end))
+        return r
     end
     local function number(parent,field,title,low,high,step,suffix)
         local r=row(parent,title,nil,80)
@@ -1681,21 +1798,6 @@ function UI.create(services, config, callbacks, Layout, Membership)
     end
 
     local home=newPage("Inicio",1)
-    local account=card(home,"SUA CONTA",nil) account.LayoutOrder=-30
-    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(27,44,64),palette.card),Rotation=20},account)
-    local profile=make("Frame",{Size=UDim2.new(1,0,0,132),BackgroundTransparency=1,LayoutOrder=1},account)
-    local portrait=make("ImageLabel",{Size=UDim2.fromOffset(64,64),Position=UDim2.fromOffset(0,8),BackgroundColor3=palette.background,BorderSizePixel=0,Image=""},profile) corner(portrait,32) stroke(portrait,palette.mint)
-    local initial=text(portrait,string.upper(string.sub(player.Name,1,1)),24,palette.mint,true) initial.Size=UDim2.fromScale(1,1) initial.TextXAlignment=Enum.TextXAlignment.Center
-    local display=text(profile,player.DisplayName or player.Name,20,palette.text,true)
-    display.Position,display.Size=UDim2.fromOffset(80,4),UDim2.new(1,-82,0,27) display.TextTruncate=Enum.TextTruncate.AtEnd
-    local username=text(profile,"@"..player.Name,11,palette.muted,false)
-    username.Position,username.Size=UDim2.fromOffset(80,32),UDim2.new(1,-82,0,18)
-    local memberName=text(profile,access.plan,12,palette.mint,true)
-    memberName.Position,memberName.Size=UDim2.fromOffset(80,55),UDim2.new(1,-82,0,20)
-    local licenseLine=text(profile,"KEY  •  "..access.keyLabel,11,palette.muted,false) licenseLine.Position=UDim2.fromOffset(0,83) licenseLine.Size=UDim2.new(1,0,0,22) licenseLine.TextTruncate=Enum.TextTruncate.AtEnd
-    local durationLine=text(profile,"VALIDADE  •  "..access.validity,13,palette.mint,true) durationLine.Position=UDim2.fromOffset(0,106) durationLine.Size=UDim2.new(1,0,0,24)
-    local sourceLine=text(account,access.source,10,palette.muted,false) sourceLine.Size=UDim2.new(1,0,0,18) sourceLine.LayoutOrder=4
-    if Membership then Membership.requestAvatar(Players,player.UserId,function(image) if not closed then portrait.Image=image initial.Visible=false end end) end
     local recovery=card(home,"BARRA DE FERRAMENTAS DO JOGO","Use somente se sumirem a mao, a pa, a dinamite ou os prompts do jogo.")
     recovery.LayoutOrder=20
     local recover=button(recovery,"RECUPERAR MAO, PA E FERRAMENTAS")
@@ -1716,6 +1818,39 @@ function UI.create(services, config, callbacks, Layout, Membership)
     bindField("opAutoFinish",function(value) opStart.Text=value and "PAUSAR OP" or "ATIVAR OP" end)
     table.insert(connections,opStart.Activated:Connect(function() callbacks.change("opAutoFinish",not callbacks.value("opAutoFinish")) end))
     local modeLine=text(hero,"MODO  •  PAUSADO",11,palette.mint,true) modeLine.Size=UDim2.new(1,0,0,0) modeLine.AutomaticSize=Enum.AutomaticSize.Y modeLine.LayoutOrder=3 modeLine.TextWrapped=true
+    local party=card(home,"PERFIL DA PARTIDA")
+    party.LayoutOrder=-35
+    choice(party,"partyProfile","Tipo de grupo",{{"Solo","Solo"},{"Team","Com o hub"},{"Mixed","Grupo misto"}})
+    local teamSize=choice(party,"partySize","Contas com o hub",{{2,"2 contas"},{3,"3 contas"},{4,"4 contas"}})
+    local role=choice(party,"partyRole","Seu papel",{{"Leader","Lider OP"},{"Collect","Coletar"},{"Cut","Cortar e vender"}})
+    local station=choice(party,"partySlot","Sua mesa",{{1,"Mesa 1"},{2,"Mesa 2"},{3,"Mesa 3"},{4,"Mesa 4"}})
+    local recommendation=text(party,"",12,palette.muted,false)
+    recommendation.Size=UDim2.new(1,0,0,0)
+    recommendation.AutomaticSize=Enum.AutomaticSize.Y
+    recommendation.TextWrapped=true
+    recommendation.LayoutOrder=90
+    local applyParty=button(party,"INICIAR PERFIL")
+    applyParty.Size=UDim2.new(1,0,0,42) applyParty.LayoutOrder=91
+    applyParty.BackgroundColor3=palette.mint applyParty.TextColor3=palette.background
+    table.insert(connections,applyParty.Activated:Connect(callbacks.startProfile))
+    local function showRecommendation()
+        local team=config.partyProfile=="Team"
+        teamSize.Visible=team
+        role.Visible=team
+        station.Visible=team and config.partyRole~="Collect"
+        if team then
+            local split=({[2]="1 lider OP e 1 no corte/venda.",[3]="1 lider OP, 1 na coleta e 1 no corte/venda.",
+                [4]="1 lider OP, 1 na coleta e 2 no corte/venda."})[config.partySize]
+            recommendation.Text=split.." Usem mesas diferentes. Venda paga a equipe. Corte e equipamentos sao individuais."
+        elseif config.partyProfile=="Mixed" then
+            recommendation.Text="Apoio com corte nativo, vendas e caminhada. Compra facas e ate dois niveis do upgrade de velocidade do jogo."
+        else
+            recommendation.Text="Recomendado: OP. Uma conta financia as ferramentas, limpa a montanha, corta o estoque e usa a chave."
+        end
+    end
+    bindField("partyProfile",showRecommendation)
+    bindField("partyRole",showRecommendation)
+    bindField("partySize",showRecommendation)
     local equipment=card(home,"SEU EQUIPAMENTO","Niveis lidos do jogo. MAX aparece somente com todos os niveis confirmados.")
     equipment.LayoutOrder=1
     local toolGrid=make("Frame",{Size=UDim2.new(1,0,0,192),BackgroundTransparency=1,LayoutOrder=3},equipment)
@@ -1832,6 +1967,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     toggle(s,"antiAfk","Anti-AFK","Atua por evento de inatividade enquanto alguma rotina estiver ativa; pausa junto das rotinas.")
     toggle(s,"autoEscape","Saida automatica manual","Usa a chave real para procurar a saida. O OP e o Auto Progress ja coordenam sua propria saida.")
     toggle(s,"skipEndingScene","Pular cena final","Aciona o botao Pular da cena de saida quando ele aparece. O jogo ainda confirma a conclusao.")
+    toggle(s,"releaseEndingCamera","Liberar camera apos vitoria","Se a cena nao oferecer um botao, tenta devolver a visao ao personagem depois da confirmacao da fuga.")
     toggle(s,"throughputMode","Ritmo de limpeza","Com equipamentos no maximo, prefere alvos proximos e evita desvios por raridades.")
     toggle(s,"fastDelivery","Reduzir intervalo local da entrega","Ajusta PLACEMENT_STAGGER quando o modulo disponibiliza a constante. Recua se a entrega falhar.")
     number(s,"placementDelay","Intervalo local por colocacao",0.005,0.08,0.005," s")
@@ -1868,6 +2004,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     end
     local op=card(settings,"OP Alto Zerar","EXPERIMENTAL | Ciclo completo com rajadas adaptativas, alvos proximos e prioridade para limpar a montanha. Nao garante limpeza instantanea.")
     toggle(op,"opAutoFinish","OP Alto Zerar","Sugador MAX inicia coleta continua ate acabar a montanha. Entrega ao encher se a bolsa for finita. O OP coordena seus servicos sem ligar os interruptores das rotinas manuais.")
+    toggle(op,"opBatchFunding","Vender lotes maiores no OP","Usa lotes de 50, 90 ou 150 conforme o saldo que falta para a proxima compra, respeitando o limite de venda.")
     toggle(op,"opKeyShortcut","Testar chave antecipada","Experimental: usa somente um ID de chave recebido do jogo. Confirma HasKey antes de ir para a saida. Se o jogo nao divulgar ou recusar, continua a limpeza.")
     local logPage=newPage("Registros",8)
     local l=card(logPage,"Atividade recente")
@@ -1897,10 +2034,10 @@ function UI.create(services, config, callbacks, Layout, Membership)
         sidebar.Visible=not compact
         content.Position=UDim2.fromOffset(compact and 16 or width+16,43)
         content.Size=UDim2.new(1,compact and -32 or -width-32,1,-59)
-        pageArea.Size=UDim2.new(1,0,1,compact and -202 or -146)
+        pageArea.Size=UDim2.new(1,0,1,compact and -224 or -185)
         nav.Parent=compact and panel or sidebar
-        nav.Position=compact and UDim2.new(0,12,1,-112) or UDim2.fromOffset(12,90)
-        nav.Size=compact and UDim2.new(1,-24,0,43) or UDim2.new(1,-24,1,-180)
+        nav.Position=compact and UDim2.new(0,12,1,-150) or UDim2.fromOffset(12,90)
+        nav.Size=compact and UDim2.new(1,-24,0,40) or UDim2.new(1,-24,1,-108)
         nav.AutomaticCanvasSize=compact and Enum.AutomaticSize.X or Enum.AutomaticSize.Y
         nav.ScrollingDirection=compact and Enum.ScrollingDirection.X or Enum.ScrollingDirection.Y
         navLayout.FillDirection=compact and Enum.FillDirection.Horizontal or Enum.FillDirection.Vertical
@@ -1908,12 +2045,12 @@ function UI.create(services, config, callbacks, Layout, Membership)
         dragHint.TextXAlignment=compact and Enum.TextXAlignment.Left or Enum.TextXAlignment.Right
         brand.Text=compact and "A" or "EVOLVY"
         brand.TextSize=compact and 27 or 20
-        edition.Visible=not compact session.Visible=not compact
+        edition.Visible=not compact
         for name,b in pairs(navButtons) do
             local index=({Inicio=1,Coleta=2,Corte=3,Vendas=4,Resfriar=5,Compras=6,Ajustes=7,Registros=8})[name]
             b.Text=compact and ({Inicio="INICIO",Coleta="COLETA",Corte="CORTE",Vendas="VENDER",Resfriar="AGUA",Compras="LOJA",Ajustes="AJUSTE",Registros="LOG"})[name] or string.format("%02d   %s",index,name)
             b.TextSize=compact and 11 or 12
-            b.Size=compact and UDim2.fromOffset(76,42) or UDim2.new(1,0,0,43)
+            b.Size=compact and UDim2.fromOffset(76,38) or UDim2.new(1,0,0,43)
             b.TextXAlignment=compact and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
             local padding=b:FindFirstChildOfClass("UIPadding")
             if padding then padding.PaddingLeft=UDim.new(0,compact and 0 or 10) end
@@ -1983,18 +2120,15 @@ function UI.create(services, config, callbacks, Layout, Membership)
                 end
             end
             local active=data.finished and 4 or data.hasKey and 4 or data.production and 3 or (data.cash or 0)>0 and 2 or 1
-            modeLine.Text=data.finished and "MODO  •  CONCLUIDO" or data.op and "MODO  •  OP ATIVO  /  "..tostring(data.phase or "limpeza") or data.progress and "MODO  •  AUTO PROGRESS" or "MODO  •  PAUSADO / ROTINAS MANUAIS"
+            modeLine.Text=data.finished and "MODO  •  CONCLUIDO" or data.role
+                or data.op and "MODO  •  OP ATIVO  /  "..tostring(data.phase or "limpeza")
+                or data.progress and "MODO  •  AUTO PROGRESS" or "MODO  •  PAUSADO / ROTINAS MANUAIS"
             for index,chip in ipairs(phaseLabels) do chip.BackgroundColor3=index==active and palette.accent or palette.background chip.TextColor3=index==active and palette.background or palette.muted end
             runBadge.Text=string.format("%02d:%02d  /  SORTE %d%s",math.floor(elapsed/60),math.floor(elapsed%60),data.gemLuck,data.finished and "  /  CONCLUIDO" or "")
         end,
         membership=function(info)
             if closed or not info then return end
-            memberName.Text=info.plan
-            licenseLine.Text="KEY  •  "..info.keyLabel
-            durationLine.Text="VALIDADE  •  "..info.validity
-            durationLine.TextColor3=info.expired and Color3.fromRGB(255,160,150) or palette.mint
-            sourceLine.Text=info.source
-            session.Text="@"..player.Name.."\n"..info.plan.."  /  "..info.validity
+            showMembership(info)
         end,
         status=function(message) if not closed then status.Text=message end end,
         summary=function(message) if not closed then summary.Text=message end end,
@@ -3173,7 +3307,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                     upgradeAudit[tool.."/"..id]={level=level,maximum=maxLevel,price=price,
                         reason=level==nil and "level unavailable" or maxLevel==nil and "maximum unavailable" or level>=maxLevel and "maximum reached" or price==nil and "price unavailable" or not upgradeGuard.allowed(tool.."/"..id,level) and "refused without progress" or "eligible"}
                     local maxed=button and button:FindFirstChild("Maxed")
-                    if level~=nil and maxLevel~=nil and upgradeGuard.allowed(tool.."/"..id,level) and level<Chapter.limit(tool,id,bestCutRank(data),#(cutShared.Tools or {}),config.worthEarlyLimit) and not (maxLevel and level>=maxLevel)
+                    if level~=nil and maxLevel~=nil and upgradeGuard.allowed(tool.."/"..id,level) and level<Chapter.limit(tool,id,bestCutRank(data),#(cutShared.Tools or {}),config.worthEarlyLimit,config.nativeWalkUpgrade) and not (maxLevel and level>=maxLevel)
                         and (button or protocol.matches("ToolUpgradePurchase",{"String","String"})) then
                         local key=tool.."/"..id
                         if os.clock()>=(offerRetry[key] or 0) and type(price)=="number" and (includeUnaffordable or Core.purchaseReady(config,balance,price,level,deniedOffers[key])) then
@@ -3224,7 +3358,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local shared=modules["Shared.ToolUpgradeShared"] or {}
         phaseGoal=nil phaseNeedsIncome=false
         if config.opAutoFinish and Chapter.opBulkReady(shared,data) and last.mountainEmpty~=true then progressGoal=nil return nil end
-        if not config.opAutoFinish and config.clearPileFirst and Chapter.maxed(shared,data,"Dynamite") then
+        if not config.opAutoFinish and not config.teamFunding and config.clearPileFirst and Chapter.maxed(shared,data,"Dynamite") then
             local goal=machineOffer(data,balance,true)
             if not goal and data.HasAutoPeeler and Core.effective(config,"autoBuyUpgrades") then
                 for _,offer in ipairs(upgradeOffers(data,balance,true)) do if offer.tool=="AutoPeeler" then goal=offer break end end
@@ -3265,8 +3399,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
         if Core.effective(config,"autoBuyTools") or afterSale and config.buyAfterSell then
             local best=bestCutRank(data)
-            for index,tool in ipairs(cutShared.Tools or {}) do
-                if index>best then local offer=shopItem("Knives",tool.Id,"cut",10) if offer then offer.tier=index table.insert(options,offer) end end
+            if not config.teamFunding then
+                for index,tool in ipairs(cutShared.Tools or {}) do
+                    if index>best then local offer=shopItem("Knives",tool.Id,"cut",10) if offer then offer.tier=index table.insert(options,offer) end end
+                end
             end
             if Core.effective(config,"autoFarm") then
                 for _,id in ipairs({"Dynamite","Shovel","P0T4T0-3000"}) do
@@ -3326,8 +3462,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         stockBefore=last.stock
         if os.clock()-rateAt>=1 then cutRate=cutUnits/(os.clock()-rateAt) cutUnits=0 rateAt=os.clock() end
         last.cutRate=cutRate
-        last.sellReady=Chapter.sellReady(config,last.stock,{cutting=last.cutting,crate=crateCount(),carried=count,exhausted=searchEmpty})
-        if progressGoal and progressGoal.price and balance and balance<progressGoal.price+config.reserveCash and last.stock and last.stock>=math.min(50,config.sellThreshold) then last.sellReady=true end
+        local removedOk,removed=safeCall(pileController,"GetRemovedFraction")
+        last.mountainEmpty=removedOk and type(removed)=="number" and removed>=1
+        last.sellReady=Chapter.sellReady(config,last.stock,{cutting=last.cutting,crate=crateCount(),carried=count,exhausted=searchEmpty or last.mountainEmpty})
+        if not config.opAutoFinish and progressGoal and progressGoal.price and balance and balance<progressGoal.price+config.reserveCash and last.stock and last.stock>=math.min(50,config.sellThreshold) then last.sellReady=true end
         last.sellRetryAt=sellRetryAt
         last.afterSale=afterSale
         last.returnToTable=afterSale and resumePosition~=nil
@@ -3342,8 +3480,6 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             opBulkReady=Chapter.opBulkReady(shared,data)
             masteryAt=os.clock()+1
         end
-        local removedOk,removed=safeCall(pileController,"GetRemovedFraction")
-        last.mountainEmpty=removedOk and type(removed)=="number" and removed>=1
         local clearReady=Chapter.clearReady(config,modules["Shared.ToolUpgradeShared"] or {},data)
         last.focusClear=Core.effective(config,"autoFarm") and (config.clearPileFirst or config.opAutoFinish) and clearReady and removedOk and type(removed)=="number" and removed<1
         local funding=Chapter.fundingPlan(Core,config,balance,progressGoal,crateCount(),last.stock,capacity,config.opAutoFinish and opBulkReady or productionReady)
@@ -3370,7 +3506,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         last.phase=dynamiteMax and (phaseGoal and "equipment: "..phaseGoal.name or "clear pile") or "fund dynamite"
         if config.opAutoFinish then last.phase=funding.needed and "OP: renda para "..tostring(progressGoal and progressGoal.name) or opBulkReady and last.focusClear and "OP: coleta continua / sugador MAX" or last.focusClear and "OP: limpeza e melhorias" or last.mountainEmpty and "OP: cortar estoque e buscar chave" or "OP: preparar equipamentos" end
         last.productionReady=productionReady
-        last.deliveryGoal=last.focusClear and Core.productionGoal(config,capacity) or nil
+        last.deliveryGoal=last.focusClear and Core.productionGoal(config,capacity,crateCount()) or nil
         if funding.needed and not funding.cut then last.deliveryGoal=funding.deliveryGoal end
         last.opBurst=burst.stats
         local keyTarget=config.opAutoFinish and config.opKeyShortcut and resolver.keyTarget and resolver.keyTarget() or nil
@@ -3420,7 +3556,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
 
     local function findCandidate(valid)
         snapshotAt=0
-        local bulk=config.opAutoFinish or productionReady and config.throughputMode and config.rarity=="Any"
+        local batch=Core.batchCollect(config)
+        local bulk=batch or productionReady and config.throughputMode and config.rarity=="Any"
         local prepared,prepareError=resolver.prepare(valid)
         if not prepared then return nil,prepareError end
         local held,capacity=inventory()
@@ -3454,7 +3591,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
                 if distance<=config.maxDistance then
                     local pumpkin=part.Name=="Pumpkin"
                     local kind,slot,isGem
-                    local needKind=not config.opAutoFinish
+                    local needKind=not batch
                     if needKind then
                         local cached=variantCache[part]
                         if cached and resolver.slot(part)==cached.slot then kind,pumpkin,slot,isGem=cached.kind,cached.pumpkin,cached.slot,cached.gem
@@ -3554,8 +3691,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         return true
     end
     local function collect(valid)
-        if config.opAutoFinish and burst.stats.pending>0 then return true end
-        if config.opAutoFinish and os.clock()<nextPickAt then return true end
+        local batch=Core.batchCollect(config)
+        if batch and (burst.stats.pending>0 or os.clock()<nextPickAt) then return true end
         if isCutting() then cancelCut() end
         local item,message=findCandidate(valid)
         if not item then
@@ -3564,7 +3701,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         end
         collectTool()
         local pickInterval=nil
-        if config.opAutoFinish then
+        if batch then
             local remaining
             remaining,pickInterval=Chapter.pickTiming(modules["Shared.ToolUpgradeShared"] or {},toolController,pileController,state(),equippedTool or "Hand")
             if remaining>0 then nextPickAt=os.clock()+math.min(remaining,0.25) return true end
@@ -3574,8 +3711,10 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if not before or not capacity or before>=capacity and not item.pumpkin then return false,"bolsa cheia ou capacidade desconhecida" end
         local identity=resolver.stats.identity
         local mapped=resolver.stats.native_map or identity and math.max(identity.confirmed_geometry or 0,identity.confirmed_permuted or 0)>=3
-        if config.opAutoFinish and mapped and exactBagBound and not item.logical then
-            local limit=burst.budget(os.clock(),before,capacity)
+        if batch and mapped and exactBagBound and not item.logical then
+            local deliveryLimit=config.teamFunding and Core.effective(config,"autoDeliver") and Core.deliveryGoal(config,capacity)
+            local batchCapacity=deliveryLimit or capacity
+            local limit=burst.budget(os.clock(),before,batchCapacity)
             if limit==0 then return true end
             local moved,why=approachPart(item,valid)
             if not moved then candidate=nil return false,why end
@@ -4184,7 +4323,7 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.19.0"
+local VERSION="0.20.0"
 local EXPECTED_PLACE=116701845804918
 local ACCESS={enabled=true,key="Anonymous",plan="Member",lifetime=true}
 local services={}
@@ -4218,6 +4357,7 @@ local escapeDriver=nil
 local endingSkipper=nil
 local antiIdle=nil
 local completionHandled,expiryHandled=false,false
+local finishSeconds=nil
 local modules,moduleErrors={},{}
 local lastRecovery=nil
 local sessionStartedAt=os.clock()
@@ -4299,7 +4439,15 @@ if not lifecycle.alive() then resolver.close() return end
 local bridge=Bridge.create(services,Core)
 adapter=Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,CutEngine,Chapter,Protocol,TopK,Burst)
 escapeDriver=Exit.create(services,modules,nav,log)
-endingSkipper=Exit.endingSkipper(player.PlayerGui,bridge)
+endingSkipper=Exit.endingSkipper(player.PlayerGui,bridge,os.clock,function()
+    local camera=services.Workspace.CurrentCamera
+    local character=player.Character
+    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
+    if not camera or camera.CameraType~=Enum.CameraType.Scriptable or not humanoid or humanoid.Health<=0 then return false end
+    camera.CameraSubject=humanoid
+    camera.CameraType=Enum.CameraType.Custom
+    return true
+end)
 lifecycle.add(escapeDriver.close)
 adapter.actions.escape=function(valid)
     adapter.cancelCut()
@@ -4317,8 +4465,29 @@ for _,name in ipairs(combined) do combinedSet[name]=true end
 local function displayed(field)
     return Core.displayed(config,field)
 end
+local function refreshAutomation()
+    cancellation.cancel()
+    adapter.stop()
+    adapter.reset()
+    table.clear(failures)
+    if ui then ui.refresh() end
+end
+local function startProfile()
+    if completionHandled or gate.expired() then
+        ui.status(completionHandled and "Partida concluida." or "Licenca expirada.")
+        return
+    end
+    Core.applyPartyProfile(config)
+    refreshAutomation()
+    log("Perfil iniciado: "..config.partyProfile..(config.partyProfile=="Team" and " / "..config.partyRole or ""))
+end
 local function change(field,value)
     if config[field]==nil then return end
+    if field=="partyProfile" or field=="partyRole" or field=="partySize" or field=="partySlot" then
+        config[field]=Core.validate({[field]=value},false)[field]
+        if ui then ui.refresh() end
+        return
+    end
     if field=="autoBuyDrone" and value==true then adapter.droneConfirm(false) end
     if value==true and (field=="opAutoFinish" or field=="autoProgress" or combinedSet[field] or field=="collectPumpkins") and gate.expired() then
         if ui then ui.status("Licenca expirada. Valide uma key ativa para continuar.") end return
@@ -4337,12 +4506,14 @@ local function change(field,value)
     local nextConfig=Core.clone(config) nextConfig[field]=value
     if value==true and field=="autoProgress" then nextConfig.opAutoFinish=false end
     if value==true and field=="opAutoFinish" then nextConfig.autoProgress=false end
+    if value==true and (field=="opAutoFinish" or field=="autoProgress") then
+        nextConfig.teamFunding=false nextConfig.teamLead=false nextConfig.supportCut=false nextConfig.nativeWalkUpgrade=false
+    end
     local checked=Core.validate(nextConfig,false)
     for key,item in pairs(checked) do config[key]=item end
     local layoutField=string.sub(field,1,2)=="ui" or string.sub(field,1,6)=="button"
-    if not layoutField then cancellation.cancel() adapter.stop() adapter.reset() end
-    table.clear(failures)
-    if ui then ui.refresh() end
+    if not layoutField then refreshAutomation()
+    elseif ui then ui.refresh() end
 end
 local function export()
     local ok,result=pcall(function()
@@ -4352,6 +4523,7 @@ local function export()
         report.exit=escapeDriver and escapeDriver.diagnostic()
         report.ending_scene=endingSkipper and endingSkipper.stats
         report.session_elapsed_seconds=os.clock()-sessionStartedAt
+        report.finish_seconds=finishSeconds
         report.gui_recovery=lastRecovery
         local member=gate.membership()
         report.membership={plan=member.plan,validity=member.validity,expiresAt=member.expiresAt,source=member.source}
@@ -4368,7 +4540,7 @@ local function export()
         or "O executor nao disponibilizou clipboard nem escrita de arquivos.")
 end
 ui=UI.create(services,config,{
-    value=displayed,change=change,parseNumber=Core.parseAmount,membership=gate.membership,
+    value=displayed,change=change,parseNumber=Core.parseAmount,membership=gate.membership,startProfile=startProfile,
     save=function() local ok,message=store.save(config) log(message,ok and "info" or "error") notify(message) end,
     pause=function() pause("Pausado pelo painel.") end,
     bind=function(field)
@@ -4473,9 +4645,20 @@ local heartbeat=services.RunService.Heartbeat:Connect(function()
         local panelData=adapter.dashboard()
         local exitState=escapeDriver.diagnostic()
         endingSkipper.poll(exitState.started or exitState.finished,config.skipEndingScene and not member.expired)
-        if exitState.finished and not completionHandled then completionHandled=true pause("Capitulo 2 concluido; rotinas pausadas.") end
+        endingSkipper.afterVictory(exitState.finished,config.skipEndingScene and config.releaseEndingCamera and not member.expired)
+        if exitState.finished and not completionHandled then
+            completionHandled=true
+            finishSeconds=os.clock()-sessionStartedAt
+            pause("Capitulo 2 concluido; rotinas pausadas.")
+        end
         panelData.hasKey=exitState.has_key panelData.finished=exitState.finished
-        ui.dashboard(panelData,os.clock()-sessionStartedAt)
+        panelData.role=nil
+        if Core.anyActive(config) then
+            if config.teamLead then panelData.role="EQUIPE  /  LIDER OP"
+            elseif config.teamFunding then panelData.role="EQUIPE  /  COLETA E ENTREGA"
+            elseif config.supportCut then panelData.role=config.nativeWalkUpgrade and "GRUPO MISTO  /  APOIO" or "EQUIPE  /  CORTE E VENDA" end
+        end
+        ui.dashboard(panelData,finishSeconds or os.clock()-sessionStartedAt)
     end
     if completionHandled then message="CAPITULO II CONCLUIDO  /  ROTINAS PAUSADAS"
     elseif member.expired then message="LICENCA EXPIRADA  /  ROTINAS PAUSADAS"
@@ -4500,8 +4683,8 @@ task.spawn(function()
             local hasActor=nav.actor()~=nil
             if not hasActor then return end
             local action=Core.choose(config,snapshot,os.clock())
-            if action=="idle" and (Core.effective(config,"autoFarm") or Core.effective(config,"autoDynamite"))
-                and not (config.opAutoFinish and snapshot.opBurst and snapshot.opBurst.pending>0)
+            if action=="idle" and not snapshot.mountainEmpty and (Core.effective(config,"autoFarm") or Core.effective(config,"autoDynamite"))
+                and not (Core.batchCollect(config) and snapshot.opBurst and snapshot.opBurst.pending>0)
                 and (Core.effective(config,"autoDynamite") or config.collectPumpkins or snapshot.carried and snapshot.capacity and snapshot.carried<snapshot.capacity) then
                 activeAction="search"
                 local current,why=adapter.findCandidate(valid)
