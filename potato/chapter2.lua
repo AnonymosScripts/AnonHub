@@ -1,5 +1,313 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.21.0. Chapter 2 only. No paid purchases.
+-- Local test key: Anonymous. Version 0.22.0. Chapter 2 and lobby. No paid purchases.
+
+local Lobby = (function()
+-- Luau · potato_lobby.luau · Chapter II native lobby entry
+local Lobby={}
+
+local function get(root,...)
+    for index=1,select("#",...) do
+        if not root then return nil end
+        root=root:FindFirstChild(select(index,...))
+    end
+    return root
+end
+
+function Lobby.stage(world)
+    local zones=get(world,"Map","Zones","MatchmakingZones")
+    local stations=get(world,"Map","PeelingMachines")
+    if stations or not zones and world:FindFirstChild("PotatoPile") then return "chapter" end
+    if zones then return "lobby" end
+    return nil
+end
+
+function Lobby.deploy(io,options)
+    if not io.waitFor("chapter",1) then
+        if io.ready("setup") then return false,"Saia da fila atual para selecionar o Capitulo II." end
+        local moved,reason=io.approach()
+        if not moved then return false,reason end
+        if not io.waitFor("chapter",5) then return false,"O jogo nao abriu o seletor do capitulo." end
+    end
+    local clicked,reason=io.click("chapter")
+    if not clicked then return false,reason end
+    if not io.waitFor("setup",5) then return false,"O jogo nao abriu a configuracao da fila." end
+    clicked,reason=io.click("size")
+    if not clicked then return false,reason end
+    for _,entry in ipairs({{"friends",options.friends},{"skip",options.skip}}) do
+        local id,desired=entry[1],entry[2]
+        local current=io.flag(id)
+        if current==nil then return false,"O estado da opcao "..id.." nao foi encontrado." end
+        if current~=desired then
+            clicked,reason=io.click(id)
+            if not clicked then return false,reason end
+            if not io.waitFor(id,2,desired) then return false,"O jogo nao confirmou a opcao "..id.."." end
+        end
+    end
+    if not io.ready("deploy") then return false,"O botao DEPLOY nao esta disponivel." end
+    local resumable,resumeReason=io.arm(options)
+    clicked,reason=io.click("deploy")
+    if not clicked then return false,reason end
+    if not io.waitFor("transfer",25) then return false,"DEPLOY acionado. O jogo nao confirmou o teleporte." end
+    return true,resumable and "Transferencia confirmada. Carregando OP no destino."
+        or ("Transferencia confirmada. Abra o hub ao chegar. "..tostring(resumeReason or ""))
+end
+
+local function freePad(services,player)
+    local world=services.Workspace
+    local folder=get(world,"Map","Zones","MatchmakingZones")
+    local root=get(player.Character,"HumanoidRootPart")
+    if not folder or not root then return nil end
+    local best,distance=nil,math.huge
+    for _,zone in ipairs(folder:GetChildren()) do
+        local cube=zone:FindFirstChild("Cube")
+        if not cube or not cube:IsA("BasePart") then continue end
+        local pad=get(zone,"Model","Part")
+        local status=zone:GetAttribute("QueueState") or pad and pad:GetAttribute("QueueState") or cube:GetAttribute("QueueState")
+        local clear=status==nil or status=="Empty"
+        if clear then
+            for _,other in ipairs(services.Players:GetPlayers()) do
+                local otherRoot=other~=player and get(other.Character,"HumanoidRootPart")
+                if otherRoot then
+                    local offset=cube.CFrame:PointToObjectSpace(otherRoot.Position)
+                    local half=cube.Size/2
+                    if math.abs(offset.X)<=half.X and math.abs(offset.Y)<=half.Y+4 and math.abs(offset.Z)<=half.Z then
+                        clear=false
+                        break
+                    end
+                end
+            end
+        end
+        local delta=(cube.Position-root.Position).Magnitude
+        if clear and delta<distance then best,distance=cube,delta end
+    end
+    return best
+end
+
+function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,autoStart)
+    local player=services.Players.LocalPlayer
+    local playerGui=player:WaitForChild("PlayerGui")
+    local options=normalize(resume)
+    local transferred=false
+    local token,busy=0,false
+    local function make(class,props,parent)
+        local object=Instance.new(class)
+        for key,value in pairs(props) do object[key]=value end
+        object.Parent=parent
+        return object
+    end
+    local old=playerGui:FindFirstChild("EvolvyChapter2Lobby")
+    if old then old:Destroy() end
+    local gui=make("ScreenGui",{Name="EvolvyChapter2Lobby",ResetOnSpawn=false,DisplayOrder=10001},playerGui)
+    lifecycle.add(function() gui:Destroy() end)
+    local panel=make("Frame",{AnchorPoint=Vector2.new(0.5,0),Position=UDim2.new(0.5,0,0,12),
+        Size=UDim2.new(0.94,0,0,222),BackgroundColor3=Color3.fromRGB(15,24,39),BorderSizePixel=0},gui)
+    make("UISizeConstraint",{MaxSize=Vector2.new(470,222)},panel)
+    local function corner(object) make("UICorner",{CornerRadius=UDim.new(0,9)},object) end
+    corner(panel)
+    local mint=Color3.fromRGB(111,235,198)
+    local pale=Color3.fromRGB(229,241,255)
+    make("TextLabel",{Position=UDim2.fromOffset(12,5),Size=UDim2.new(1,-46,0,25),
+        BackgroundTransparency=1,Text="EVOLVY  /  LOBBY  /  CAPITULO II",Font=Enum.Font.GothamBold,
+        TextSize=14,TextColor3=mint,TextXAlignment=Enum.TextXAlignment.Left},panel)
+    local status=make("TextLabel",{Position=UDim2.fromOffset(12,32),Size=UDim2.new(1,-24,0,48),
+        BackgroundTransparency=1,Text=handoff.available and "Configure a fila e inicie." or "O Delta pode exigir abrir o loader ao chegar.",
+        Font=Enum.Font.Gotham,TextSize=12,TextColor3=pale,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left},panel)
+    local function button(text,x,y,w)
+        local object=make("TextButton",{Position=UDim2.new(x,7,0,y),Size=UDim2.new(w,-10,0,35),
+            BackgroundColor3=Color3.fromRGB(36,55,77),BorderSizePixel=0,Text=text,TextColor3=pale,
+            TextSize=11,Font=Enum.Font.GothamBold},panel)
+        corner(object)
+        return object
+    end
+    local size=button("",0,84,1/3)
+    local friends=button("",1/3,84,1/3)
+    local skip=button("",2/3,84,1/3)
+    local repeatButton=button("",0,124,0.64)
+    local stopButton=button("PARAR",0.64,124,0.36)
+    local launch=button("ENTRAR E INICIAR OP",0,166,1)
+    launch.BackgroundColor3=mint launch.TextColor3=Color3.fromRGB(10,24,30)
+    local close=make("TextButton",{Position=UDim2.new(1,-34,0,5),Size=UDim2.fromOffset(28,27),
+        BackgroundTransparency=1,Text="×",TextColor3=pale,TextSize=21},panel)
+    local function refresh()
+        size.Text="JOGADORES "..options.size
+        friends.Text=options.friends and "AMIGOS: SIM" or "AMIGOS: NAO"
+        skip.Text=options.skip and "INTRO: PULAR" or "INTRO: VER"
+        repeatButton.Text=options.repeatRun and "REPETIR APOS VITORIA: SIM" or "REPETIR APOS VITORIA: NAO"
+        launch.Text=busy and "AGUARDANDO O JOGO…" or "ENTRAR E INICIAR OP"
+    end
+    refresh()
+    size.Activated:Connect(function() if not busy then options.size=options.size%4+1 refresh() end end)
+    friends.Activated:Connect(function() if not busy then options.friends=not options.friends refresh() end end)
+    skip.Activated:Connect(function() if not busy then options.skip=not options.skip refresh() end end)
+    repeatButton.Activated:Connect(function() if not busy then options.repeatRun=not options.repeatRun refresh() end end)
+    local function stop()
+        token+=1 busy=false nav.stop() handoff.clear()
+        refresh()
+        status.Text=transferred and "Retomada cancelada. O teleporte ja foi iniciado pelo jogo." or "Automacao do lobby parada."
+    end
+    stopButton.Activated:Connect(stop)
+    close.Activated:Connect(function() stop() lifecycle.close() end)
+    local transferConnection=player.OnTeleport:Connect(function(state,place)
+        if place==game.PlaceId and (state.Name=="RequestedFromServer" or state.Name=="Started" or state.Name=="InProgress") then
+            transferred=true
+        end
+    end)
+    lifecycle.add(function() transferConnection:Disconnect() end)
+    local failedConnection=services.TeleportService.TeleportInitFailed:Connect(function(who,_,_,place)
+        if who~=player or place~=game.PlaceId or not busy then return end
+        transferred=false
+        stop()
+        status.Text="O Roblox recusou o teleporte. Saia da fila atual e tente novamente."
+    end)
+    lifecycle.add(function() failedConnection:Disconnect() end)
+
+    local function start()
+        if busy or transferred or gate.expired() then return end
+        busy=true token+=1 refresh()
+        local run=token
+        local selected=normalize(options)
+        local function valid() return lifecycle.alive() and token==run and not gate.expired() end
+        local function control(id)
+            local queue=playerGui:FindFirstChild("Queue")
+            if id=="chapter" then return get(queue,"ChapterSelect","Content","Chapters","CHAPTER 2") end
+            local content=get(queue,"Setup","Content")
+            if id=="size" then return get(content,"Sizes",tostring(selected.size)) end
+            if id=="friends" then return get(content,"Options","FriendsOnly") end
+            if id=="skip" then return get(content,"Options","SkipIntro") end
+            if id=="deploy" or id=="setup" then return get(content,"CreateHolder","Create") end
+            return nil
+        end
+        local function flag(id)
+            local button=control(id)
+            local check=button and button:FindFirstChild("Check",true)
+            if check and check:IsA("GuiObject") then return check.Visible end
+            return nil
+        end
+        local function ready(id)
+            if id=="transfer" then return transferred end
+            local button=control(id)
+            return button and button:IsA("GuiButton") and button.Active and bridge.visible(button)
+        end
+        local function waitFor(id,timeout,expected)
+            local deadline=os.clock()+timeout
+            while valid() and os.clock()<deadline do
+                if expected~=nil then
+                    if flag(id)==expected then return true end
+                elseif ready(id) then return true end
+                task.wait(0.1)
+            end
+            return false
+        end
+        status.Text="Localizando a fila do Capitulo II…"
+        task.spawn(function()
+            local ran,success,message=pcall(Lobby.deploy,{
+                ready=ready,flag=flag,waitFor=waitFor,
+                approach=function()
+                    local pad=freePad(services,player)
+                    if not pad then return false,"Nenhuma area de fila livre. Entre em uma area vazia manualmente." end
+                    local floor=pad.Position-Vector3.new(0,pad.Size.Y/2,0)
+                    local moved,reason=nav.goTo(floor,function() return valid() and not ready("chapter") end)
+                    if ready("chapter") then return true end
+                    return moved,reason
+                end,
+                click=function(id)
+                    if not valid() then return false,"Cancelado." end
+                    if id=="deploy" then status.Text="DEPLOY acionado. Aguardando o jogo…" end
+                    return bridge.activate(control(id))
+                end,
+                arm=function(settings)
+                    if not valid() then return false,"Cancelado." end
+                    return handoff.arm("chapter",settings)
+                end,
+            },selected)
+            if not valid() then return end
+            if not ran or not success then
+                handoff.clear()
+                busy=false refresh()
+            end
+            status.Text=ran and tostring(message) or "Falha ao acionar a fila. Tente novamente em uma area livre."
+        end)
+    end
+    launch.Activated:Connect(start)
+    gate.close()
+    if autoStart then task.defer(start) end
+end
+return Lobby
+
+end)()
+
+local Handoff = (function()
+-- Luau · potato_handoff.luau · one-use handoff between lobby and round
+local Handoff={}
+
+function Handoff.options(values)
+    if type(values)~="table" then values={} end
+    local size=tonumber(values.size)
+    if not size or size~=size or size<1 or size>4 or size%1~=0 then size=1 end
+    return {size=size,friends=values.friends==true,skip=values.skip~=false,repeatRun=values.repeatRun==true}
+end
+
+function Handoff.create(io,identity,bootstrap)
+    local file="Evolvy_Chapter2_Transfer_v1.json"
+    local queued=false
+    local hasFiles=type(io.read)=="function" and type(io.write)=="function"
+    local available=hasFiles and type(io.queue)=="function"
+    local function load()
+        if type(io.read)~="function" then return nil end
+        local ok,result=pcall(function()
+            local content=io.read(file)
+            if type(content)~="string" or #content>3000 then return nil end
+            return io.decode(content)
+        end)
+        return ok and type(result)=="table" and result or nil
+    end
+    local function save(value)
+        if type(io.write)~="function" then return false end
+        local ok,result=pcall(function()
+            return io.write(file,io.encode(value))
+        end)
+        return ok and result~=false
+    end
+    local function clear()
+        local record=load()
+        if record and record.account==identity.account and record.game==identity.game then
+            return save({schema=1})
+        end
+        return false
+    end
+    local function take(phase)
+        local record=load()
+        if not record or record.schema~=1 or record.account~=identity.account or record.game~=identity.game
+            or type(record.from)~="string" or record.from=="" or record.from==identity.job
+            or record.to~=phase or type(record.untilTime)~="number" or record.untilTime<io.clock()
+            or record.untilTime>io.clock()+180 then return nil end
+        if not clear() then return nil end
+        return Handoff.options(record.options)
+    end
+    local function arm(destination,options)
+        if not hasFiles or identity.job=="" then return false,"O executor nao disponibilizou retomada entre servidores." end
+        if destination~="lobby" and destination~="chapter" then return false,"Destino invalido." end
+        local record={schema=1,account=identity.account,game=identity.game,from=identity.job,
+            to=destination,untilTime=io.clock()+150,options=Handoff.options(options)}
+        if not save(record) then return false,"Nao foi possivel salvar a retomada." end
+        local saved=load()
+        if not saved or saved.from~=record.from or saved.to~=destination or saved.untilTime~=record.untilTime then
+            clear()
+            return false,"Nao foi possivel confirmar a retomada."
+        end
+        if not available then return false,"Retomada salva para abrir o loader manualmente." end
+        if not queued then
+            local ok,result=pcall(io.queue,bootstrap)
+            if not ok or result==false then return false,"O executor recusou a abertura automatica; retomada salva." end
+            queued=true
+        end
+        return true
+    end
+    return {available=available,take=take,arm=arm,clear=clear}
+end
+return Handoff
+
+end)()
 
 local Membership = (function()
 -- Luau · potato_membership.luau · display metadata from the access provider · Roblox / CLI · Luau 0.745
@@ -1449,7 +1757,7 @@ local Gate={}
 function Gate.open(services,lifecycle,options,Membership,Layout)
     local player=services.Players.LocalPlayer
     local connections={}
-    local approved,checking=options.enabled==false,false
+    local approved,checking=options.enabled==false or options.resumeLocal==true and type(options.validate)~="function",false
     local startOP=false
     local license=approved and Membership.normalize(options,options.key) or nil
     local function make(class,props,parent)
@@ -1503,8 +1811,9 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
     local submit=make("TextButton",{Size=UDim2.new(0.45,-4,1,0),BackgroundColor3=Color3.fromRGB(42,56,83),BorderSizePixel=0,
         Text="ABRIR HUB",TextColor3=Color3.fromRGB(233,242,255),TextSize=12,Font=Enum.Font.GothamBold},actions)
     corner(submit,10)
+    local quickLabel=options.lobby and "VALIDAR E ENTRAR" or "VALIDAR E INICIAR OP"
     local quick=make("TextButton",{Position=UDim2.new(0.45,4,0,0),Size=UDim2.new(0.55,-4,1,0),
-        BackgroundColor3=Color3.fromRGB(113,231,201),BorderSizePixel=0,Text="VALIDAR E INICIAR OP",
+        BackgroundColor3=Color3.fromRGB(113,231,201),BorderSizePixel=0,Text=quickLabel,
         TextColor3=Color3.fromRGB(9,23,28),TextSize=11,Font=Enum.Font.GothamBold},actions)
     corner(quick,10)
     local details=label("",42,12,Color3.fromRGB(166,185,216),7)
@@ -1555,7 +1864,7 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
                 refreshMember() status.Text="CARREGANDO COMPONENTES"
             else
                 entryStroke.Color=Color3.fromRGB(255,155,146)
-                submit.Text="ABRIR HUB" quick.Text="VALIDAR E INICIAR OP"
+                submit.Text="ABRIR HUB" quick.Text=quickLabel
                 status.Text=ok and (type(message)=="string" and message or "Key incorreta.") or "Falha de validacao. Tente novamente."
             end
         end)
@@ -2057,7 +2366,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     local s=card(settings,"Execucao")
     toggle(s,"antiAfk","Anti-AFK","Atua por evento de inatividade enquanto alguma rotina estiver ativa; pausa junto das rotinas.")
     toggle(s,"autoEscape","Saida automatica manual","Usa a chave real para procurar a saida. O OP e o Auto Progress ja coordenam sua propria saida.")
-    toggle(s,"skipEndingScene","Pular cena final","Aciona o botao Pular da cena de saida quando ele aparece. O jogo ainda confirma a conclusao.")
+    toggle(s,"skipEndingScene","Pular cena final","Usa o botao Pular quando disponivel. Apos a fuga confirmada, tambem tenta a funcao Cancel da cena.")
     toggle(s,"releaseEndingCamera","Liberar camera apos vitoria","Se a cena nao oferecer um botao, tenta devolver a visao ao personagem depois da confirmacao da fuga.")
     toggle(s,"throughputMode","Ritmo de limpeza","Com equipamentos no maximo, prefere alvos proximos e evita desvios por raridades.")
     toggle(s,"fastDelivery","Reduzir intervalo local da entrega","Ajusta PLACEMENT_STAGGER quando o modulo disponibiliza a constante. Recua se a entrega falhar.")
@@ -4460,17 +4769,19 @@ end)()
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.21.0"
+local VERSION="0.22.0"
 local EXPECTED_PLACE=116701845804918
+local EXPECTED_GAME=10767408330
+local LOADER_URL="https://raw.githubusercontent.com/AnonymosScripts/Script-1-Evolvy-Hub/main/potato/loader.lua?v="..VERSION
 local ACCESS={enabled=true,key="Anonymous",plan="Member",lifetime=true}
 local services={}
 for _,name in ipairs({"Players","Workspace","ReplicatedStorage","HttpService","RunService",
-    "Lighting","ProximityPromptService","UserInputService","TweenService","PathfindingService","StarterGui"}) do services[name]=game:GetService(name) end
+    "Lighting","ProximityPromptService","UserInputService","TweenService","PathfindingService","StarterGui","TeleportService"}) do services[name]=game:GetService(name) end
 local idleServiceOk,idleService=pcall(game.GetService,game,"VirtualUser")
 if idleServiceOk then services.VirtualUser=idleService end
 local player=services.Players.LocalPlayer
 assert(player,"Execute o hub no cliente Roblox dentro da experiencia.")
-if game.PlaceId~=EXPECTED_PLACE then
+if game.PlaceId~=EXPECTED_PLACE or game.GameId~=EXPECTED_GAME then
     pcall(services.StarterGui.SetCore,services.StarterGui,"SendNotification",{
         Title="Anonymous Potato",Text="Este arquivo e para Descasque a Batata, PlaceId "..EXPECTED_PLACE,Duration=8})
     return
@@ -4485,8 +4796,31 @@ environment.AnonymousPotatoSession=registry
 lifecycle.add(function() if environment.AnonymousPotatoSession==registry then environment.AnonymousPotatoSession=nil end end)
 local json={encode=function(value) return services.HttpService:JSONEncode(value) end,
     decode=function(value) return services.HttpService:JSONDecode(value) end}
-local store=Session.create(Core,json,{read=type(readfile)=="function" and readfile or nil,
-    write=type(writefile)=="function" and writefile or nil})
+local files={read=type(readfile)=="function" and readfile or nil,write=type(writefile)=="function" and writefile or nil}
+local queueTransfer=type(queue_on_teleport)=="function" and queue_on_teleport
+    or type(queueonteleport)=="function" and queueonteleport
+    or type(syn)=="table" and type(syn.queue_on_teleport)=="function" and syn.queue_on_teleport or nil
+local transferBootstrap=string.format([[
+    local deadline=os.clock()+25
+    while not game:GetService("Players").LocalPlayer and os.clock()<deadline do task.wait(0.2) end
+    local player=game:GetService("Players").LocalPlayer
+    if game.PlaceId~=%d or game.GameId~=%d or not player or type(readfile)~="function" then return end
+    local ok,data=pcall(function()
+        return game:GetService("HttpService"):JSONDecode(readfile("Evolvy_Chapter2_Transfer_v1.json"))
+    end)
+    if not ok or type(data)~="table" or data.account~=player.UserId or data.game~=game.GameId
+        or data.from==game.JobId or type(data.untilTime)~="number" or os.time()>data.untilTime then return end
+    local loaded,source=pcall(game.HttpGet,game,%q)
+    local run=loaded and type(source)=="string" and loadstring(source)
+    if not run then
+        local cached,body=pcall(readfile,"Evolvy_Chapter2_Main.luau")
+        if cached and type(body)=="string" and string.find(body,%q,1,true) then run=loadstring(body) end
+    end
+    if run then run() end
+]],EXPECTED_PLACE,EXPECTED_GAME,LOADER_URL,'local VERSION="'..VERSION..'"')
+local handoff=Handoff.create({read=files.read,write=files.write,queue=queueTransfer,encode=json.encode,decode=json.decode,clock=os.time},
+    {account=player.UserId,game=game.GameId,job=game.JobId},transferBootstrap)
+local store=Session.create(Core,json,files)
 local config,loadMessage=store.load()
 local logger=Session.log(14)
 local ui,adapter,activeAction=nil,nil,nil
@@ -4513,6 +4847,20 @@ local function notify(message)
             Title="Anonymous Potato",Text=tostring(message),Duration=5})
     end
 end
+local deadline=os.clock()+24
+local phase=Lobby.stage(services.Workspace)
+while not phase and lifecycle.alive() and os.clock()<deadline do
+    task.wait(0.2)
+    phase=Lobby.stage(services.Workspace)
+end
+if not phase or not lifecycle.alive() then
+    notify("O hub nao encontrou o lobby nem a area de partida. Aguarde o mapa e execute novamente.")
+    lifecycle.close()
+    return
+end
+local resume=handoff.take(phase)
+ACCESS.resumeLocal=resume~=nil
+ACCESS.lobby=phase=="lobby"
 local function pause(message)
     Core.pause(config) cancellation.cancel()
     if adapter then adapter.stop() end
@@ -4535,10 +4883,28 @@ local function restoreInterface()
         log(message,"error") if ui then ui.status(message) end
     end
 end
-if config.autoRepairGui then restoreInterface() end
+if phase=="chapter" and config.autoRepairGui then restoreInterface() end
 local gate=Gate.open(services,lifecycle,ACCESS,Membership,Layout)
 local accessGranted,quickStartOP=gate.wait()
 if not accessGranted then lifecycle.close() return end
+if phase=="lobby" then
+    local lobbyConfig=Core.validate({movement="Walk",travelTimeout=20},true)
+    local nav=Navigation.create(services,lobbyConfig,log)
+    lifecycle.add(nav.close)
+    local bridge=Bridge.create(services,Core)
+    Lobby.open(services,lifecycle,gate,bridge,nav,handoff,Handoff.options,resume,
+        quickStartOP or resume~=nil)
+    return
+end
+quickStartOP=quickStartOP or resume~=nil
+local loopEnabled=resume and resume.repeatRun==true or false
+local loopAttempted,reportAt=false,nil
+local returning=false
+local loopStatus=nil
+local function stopLoop()
+    loopEnabled=false
+    handoff.clear()
+end
 
 local moduleNames={
     "Shared.PlayerStateShared","Shared.PotatoPileShared","Shared.PotatoKindShared","Shared.PotatoHoldShared",
@@ -4546,6 +4912,7 @@ local moduleNames={
     "Modules.Resources.Prices","Modules.Resources.Packets","Controllers.SyncController","Controllers.PotatoPileController",
     "Controllers.PotatoTableController","Controllers.PeelingController","Controllers.CuttingController",
     "Controllers.FireController","Controllers.StoreViewController","Controllers.ToolUpgradeController","Controllers.ToolEquipController",
+    "Controllers.Chapter2OutroController",
     "ModifiedPackages.Packet._Types",
 }
 modules,moduleErrors={},{}
@@ -4595,9 +4962,70 @@ for _,name in ipairs({"CinematicBarsEnabled","CinematicBarsDisabled","RunReportS
     local signal=packet and packet.OnClientEvent
     if signal and type(signal.Connect)=="function" then
         local eventName=name
-        local ok,connection=pcall(signal.Connect,signal,function() endingSkipper.event(eventName) end)
+        local ok,connection=pcall(signal.Connect,signal,function()
+            if eventName=="RunReportShown" then reportAt=os.clock() end
+            endingSkipper.event(eventName)
+        end)
         if ok and connection then lifecycle.add(function() connection:Disconnect() end) end
     end
+end
+local outro=modules["Controllers.Chapter2OutroController"] or {}
+local function tryOutro(finishedAt)
+    local stats=endingSkipper.stats
+    if not finishedAt or stats.outro_attempted or stats.sent or os.clock()-finishedAt>12
+        or type(outro.IsPlaying)~="function" or type(outro.Cancel)~="function" then return end
+    local ok,playing=pcall(outro.IsPlaying)
+    if not ok or playing~=true then return end
+    stats.outro_attempted=true
+    local canceled=pcall(outro.Cancel,nil)
+    local checked,stillPlaying=pcall(outro.IsPlaying)
+    stats.outro_stopped=canceled and checked and stillPlaying==false
+    endingSkipper.event(stats.outro_stopped and "outro_cancel_confirmed" or "outro_cancel_unconfirmed")
+end
+local teleportFailed=services.TeleportService.TeleportInitFailed:Connect(function(who,_,_,place)
+    if who==player and place==EXPECTED_PLACE and loopAttempted then
+        stopLoop()
+        loopStatus="O Roblox recusou a volta ao lobby. Retorne manualmente."
+        log(loopStatus,"error")
+    end
+end)
+lifecycle.add(function() teleportFailed:Disconnect() end)
+local outgoing=player.OnTeleport:Connect(function(state,place)
+    if loopAttempted and place==EXPECTED_PLACE and (state.Name=="RequestedFromServer"
+        or state.Name=="Started" or state.Name=="InProgress") then returning=true end
+end)
+lifecycle.add(function() outgoing:Disconnect() end)
+local function repeatAfterReport()
+    if not loopEnabled or loopAttempted then return end
+    local finishedAt=escapeDriver.finishTime()
+    if not reportAt or reportAt<finishedAt-8 then
+        loopStatus="VITORIA CONFIRMADA / AGUARDANDO RESULTADO PARA VOLTAR"
+        if finishSeconds and os.clock()-sessionStartedAt-finishSeconds>60 then
+            stopLoop()
+            loopStatus="O relatorio final nao chegou. Volte ao lobby manualmente."
+        end
+        return
+    end
+    loopAttempted=true
+    loopStatus="RESULTADO RECEBIDO / VOLTANDO AO LOBBY"
+    local armed,why=handoff.arm("lobby",resume)
+    if not armed then stopLoop() loopStatus=why log(why,"error") return end
+    task.delay(2,function()
+        if not lifecycle.alive() or not loopEnabled or returning or gate.expired() then return end
+        local ok=pcall(services.TeleportService.Teleport,services.TeleportService,EXPECTED_PLACE,player)
+        if not ok then
+            stopLoop()
+            loopStatus="A volta automatica falhou. Retorne ao lobby pelo jogo."
+            log(loopStatus,"error")
+        end
+    end)
+    task.delay(25,function()
+        if lifecycle.alive() and loopEnabled and not returning then
+            stopLoop()
+            loopStatus="O Roblox nao confirmou a volta ao lobby."
+            log(loopStatus,"error")
+        end
+    end)
 end
 lifecycle.add(escapeDriver.close)
 adapter.actions.escape=function(valid)
@@ -4679,6 +5107,7 @@ local function export()
         report.run_timing={startup_seconds=readyAt and readyAt-sessionStartedAt,
             wait_to_activate_seconds=readyAt and automationStartedAt and math.max(0,automationStartedAt-readyAt),
             since_activation_to_finish=finishSeconds and automationStartedAt and math.max(0,sessionStartedAt+finishSeconds-automationStartedAt)}
+        report.lobby_cycle={enabled=loopEnabled,report_received=reportAt~=nil,return_attempted=loopAttempted,status=loopStatus}
         report.gui_recovery=lastRecovery
         local member=gate.membership()
         report.membership={plan=member.plan,validity=member.validity,expiresAt=member.expiresAt,source=member.source}
@@ -4697,16 +5126,16 @@ end
 ui=UI.create(services,config,{
     value=displayed,change=change,parseNumber=Core.parseAmount,membership=gate.membership,startProfile=startProfile,
     save=function() local ok,message=store.save(config) log(message,ok and "info" or "error") notify(message) end,
-    pause=function() pause("Pausado pelo painel.") end,
+    pause=function() stopLoop() pause("Pausado pelo painel.") end,
     bind=function(field)
         if not services.UserInputService.KeyboardEnabled then ui.status("Use os controles por toque; atalhos sao opcionais para teclado.") return end
         if binding==field then binding=nil ui.status("Edicao de atalho cancelada.") return end
         binding=field ui.status("Pressione uma tecla para o atalho; Esc cancela e Backspace remove.")
     end,
-    export=export,close=lifecycle.close,
+    export=export,close=function() stopLoop() lifecycle.close() end,
     restore=restoreInterface,
     copyLoader=function()
-        local code='loadstring(game:HttpGet("https://raw.githubusercontent.com/AnonymosScripts/Script-1-Evolvy-Hub/main/potato/loader.lua?v='..VERSION..'"))()'
+        local code='loadstring(game:HttpGet("'..LOADER_URL..'"))()'
         local clipboard=type(setclipboard)=="function" and setclipboard or (type(toclipboard)=="function" and toclipboard or nil)
         if clipboard then pcall(clipboard,code) log("Loader copiado.") end
         if type(writefile)=="function" then pcall(writefile,"Evolvy_Chapter2_Loader.lua",code) end
@@ -4758,13 +5187,14 @@ local inputConnection=services.UserInputService.InputBegan:Connect(function(inpu
     end
     if services.UserInputService:GetFocusedTextBox() then return end
     local name=input.KeyCode.Name
-    if name==config.keyPause and name~="None" then pause("Pausado pelo atalho.") return end
+    if name==config.keyPause and name~="None" then stopLoop() pause("Pausado pelo atalho.") return end
     if processed then return end
     if name==config.keyMenu and name~="None" then ui.toggle() return end
     for key,field in pairs(keyActions) do
         if config[key]~="None" and name==config[key] then change(field,not displayed(field)) return end
     end
     if activeAction and config.pauseOnMovement and ({W=true,A=true,S=true,D=true,Space=true,Up=true,Down=true,Left=true,Right=true})[name] then
+        stopLoop()
         pause("Pausado por entrada manual de movimento.")
     end
 end)
@@ -4807,12 +5237,14 @@ local heartbeat=services.RunService.Heartbeat:Connect(function()
         local panelData=adapter.dashboard()
         local exitState=escapeDriver.diagnostic()
         endingSkipper.poll(exitState.started or exitState.finished,config.skipEndingScene and not member.expired)
+        if config.skipEndingScene and not member.expired then tryOutro(escapeDriver.finishTime()) end
         endingSkipper.afterVictory(exitState.finished,config.skipEndingScene and config.releaseEndingCamera and not member.expired)
         if exitState.finished and not completionHandled then
             completionHandled=true
             finishSeconds=(escapeDriver.finishTime() or os.clock())-sessionStartedAt
             pause("Capitulo 2 concluido; rotinas pausadas.")
         end
+        if exitState.finished and not member.expired then repeatAfterReport() end
         panelData.hasKey=exitState.has_key panelData.finished=exitState.finished
         panelData.role=nil
         if Core.anyActive(config) then
@@ -4822,7 +5254,7 @@ local heartbeat=services.RunService.Heartbeat:Connect(function()
         end
         ui.dashboard(panelData,finishSeconds or os.clock()-sessionStartedAt)
     end
-    if completionHandled then message="CAPITULO II CONCLUIDO  /  ROTINAS PAUSADAS"
+    if completionHandled then message=loopStatus or "CAPITULO II CONCLUIDO  /  ROTINAS PAUSADAS"
     elseif member.expired then message="LICENCA EXPIRADA  /  ROTINAS PAUSADAS"
     elseif config.opAutoFinish then
         local stats=snapshot.opBurst or {}
