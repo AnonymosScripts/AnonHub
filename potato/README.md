@@ -1,22 +1,26 @@
-# Evolvy 0.24 · Lobby, coleções e missões
+# Evolvy 0.25 · Lobby do Capítulo II
 
-Use o loader no lobby, informe a key local **Anonymous**, toque em **Abrir hub** e escolha **Iniciar ciclo completo**. A retomada espera a fase esperada e o primeiro personagem da partida. Quando confirma a fuga, o hub salva o diagnóstico antes de voltar ao lobby. Consulte **Última partida** no lobby para copiar esse registro. A retomada automática depende de o Delta aceitar o agendamento de código entre servidores. Se o script não reaparecer, execute o mesmo loader ao chegar para consumir a retomada salva.
+No lobby, execute o loader, informe a key local **Anonymous** e toque em **Abrir hub**. Arraste o cabeçalho para mover o painel. O botão **A** abre e oculta o mesmo painel. A interface usa largura base de 760 px, escala de 65% e rolagem nas telas menores.
 
-## Lobby
+## Capítulos e configuração
 
-O painel abre a 65% com largura base de 760 px e se ajusta a telas menores. Arraste pelo título para mover. As opções de fila e de repetição continuam no mesmo painel.
+- **Cap. 2 → Entrar + OP** prepara a próxima partida. **Ciclo completo** também retorna ao lobby e repete. O OP é retomado quando a partida e o personagem carregam.
+- **Configurar** reúne tamanho da equipe, fila só de amigos, opções de cenas, repetição e melhorias do lobby. O controle da cena final depende da confirmação do jogo. O registro anterior confirmou o retorno ao lobby e a retomada do OP, mas o jogo não confirmou que cancelou a cena final.
+- Os Capítulos I e III ficam marcados como **Em breve**.
 
-- **Auto melhoria** verifica as ofertas nativas do lobby e tenta uma melhoria por vez com as gemas disponíveis. Se a interface ainda não carregou os preços ou o saldo, abra as melhorias do jogo uma vez.
-- **Caixa do evento** usa o controle nativo identificado para a caixa de abóboras. Se o jogo não expuser esse controle, abra a tela da caixa uma vez. A recompensa vem do resultado do jogo.
-- **Classes** aceita uma lista de nomes separados por vírgula. Quando o jogo expõe as classes e chances, o seletor permite adicionar nomes e escolher a mais rara. O giro automático usa apenas giros gratuitos, espera confirmação antes de continuar e para quando a classe ativa corresponde a um dos alvos.
-- **Copiar log** inclui as ações da fila e os controles de classes, caixa e melhorias que estavam disponíveis.
+## Caixas de abóboras
 
-## Capítulo II
+1. Abra **Caixas** e arraste o seletor de **1 a 10**. O painel mostra o saldo e o custo total. Uma caixa custa **80** abóboras. Dez custam **800**.
+2. Ative **Auto Caixas** e inicie o ciclo. Com saldo suficiente, o lobby abre o lote antes de entrar na fila. Enquanto junta o saldo, o ciclo segue para o Capítulo II.
+3. Use **Abrir lote** para testar sem entrar na fila. Cada caixa só entra no histórico quando o jogo informa o débito de 80 e o resultado. Se a confirmação falhar, o lote para. Nesse caso, use **Cap. 2 → Copiar log do lobby**.
 
-Em **Compras**, a lista de níveis mostra imagens, tem rolagem e oferece um botão por melhoria. Um toque solicita uma compra. O hub lê o preço, verifica o saldo e aguarda o novo nível do jogo. A compra manual usa o fluxo do hub sem abrir o Tab.
+## Classes e histórico
 
-Em **Missões**, escolha uma tarefa detectada no passe ou nas missões comuns. O **Auto Quest** ativa o Auto Progress e prioriza objetivos de coleta, gemas, corte, venda, resfriamento, dinamite ou fuga quando a tarefa for reconhecida. Depois que o progresso do jogo confirma a conclusão, o Auto Progress volta à ordem normal. Objetivos cujo requisito não foi identificado ficam marcados como manuais.
+- **Classes** tem uma faixa rolável de cartões e destaca um alvo por vez. Os cartões mostram os ícones disponíveis no jogo. **Girar até o alvo** usa os giros gratuitos e para ao confirmar a classe escolhida.
+- **Histórico** mostra rodadas concluídas, abóboras, gemas, melhorias, caixas, giros e as classes obtidas. Ele começa na v0.25 e é salvo por conta no dispositivo quando o executor permite gravar arquivos. A aba também permite copiar o histórico e o diagnóstico da última partida.
 
-O controle da cena final continua dependendo do controlador do jogo. Devolver a câmera ao personagem pode ocultar a animação local sem encerrar a cena. O novo diagnóstico salvo ajuda a verificar essa diferença no próximo teste.
+O painel segue as referências do Roblox para [animações de interface](https://create.roblox.com/docs/ui/animation) e [áreas com rolagem](https://github.com/Roblox/creator-docs/blob/main/content/en-us/ui/scrolling-frames.md).
 
-As 20 suítes de Luau e os quatro testes do serviço de keys passaram. As rotinas novas e a retomada ainda aguardam teste no Delta. Para publicar, execute **PUBLICAR_V024.cmd** e use o loader quando aparecer **PUBLICADO E VERIFICADO**.
+## Publicar e testar
+
+As 20 suítes de Luau e os quatro testes do serviço de keys passaram. O novo lobby e a abertura em lote ainda precisam ser testados no Delta. Execute **PUBLICAR_V025.cmd** no Windows. Use o loader quando aparecer **PUBLICADO E VERIFICADO**.

@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.24.0. Chapter 2 and lobby. No paid purchases.
+-- Local test key: Anonymous. Version 0.25.0. Chapter 2 and lobby. No paid purchases.
 
 local BootError = (function()
 -- Luau · potato_boot_error.luau · visible startup errors for mobile
@@ -150,193 +150,146 @@ local function freePad(services,player)
     return best
 end
 
+function Lobby.cratePlan(options,balance)
+    if not options.autoCrates then return "disabled",0 end
+    local cost=options.crateCount*80
+    if type(balance)~="number" then return "unknown",cost end
+    return balance>=cost and "ready" or "saving",cost
+end
+
 function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,autoStart,runtime)
     local player=services.Players.LocalPlayer
     local playerGui=player:WaitForChild("PlayerGui")
-    local options=normalize(resume)
-    local transferred=false
-    local token,busy=0,false
+    local history=runtime.history
+    local options=normalize(resume or history.state.settings)
+    local transferred,busy=false,false
+    local token,featureToken=0,0
+    local feature=nil
     local trace={}
-    local function record(action,result)
-        if #trace>=32 then table.remove(trace,1) end
-        table.insert(trace,{action=action,result=result})
-    end
-    local function make(class,props,parent)
-        local object=Instance.new(class)
-        for key,value in pairs(props) do object[key]=value end
-        object.Parent=parent
-        return object
-    end
     local old=playerGui:FindFirstChild("EvolvyChapter2Lobby")
     if old then old:Destroy() end
-    local gui=make("ScreenGui",{Name="EvolvyChapter2Lobby",ResetOnSpawn=false,DisplayOrder=10001},playerGui)
+    local gui=Instance.new("ScreenGui")
+    gui.Name="EvolvyChapter2Lobby" gui.ResetOnSpawn=false gui.DisplayOrder=10001 gui.Parent=playerGui
     lifecycle.add(function() gui:Destroy() end)
-    local canvas=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1},gui)
-    local panel=make("Frame",{AnchorPoint=Vector2.new(0.5,0),Position=UDim2.new(0.5,0,0,12),
-        Size=UDim2.fromOffset(760,460),BackgroundColor3=Color3.fromRGB(15,24,39),BorderSizePixel=0},canvas)
-    local scale=make("UIScale",{Scale=0.65},panel)
-    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(33,47,78),Color3.fromRGB(10,18,30)),Rotation=90},panel)
-    make("UIStroke",{Color=Color3.fromRGB(74,109,146),Thickness=1},panel)
-    local function corner(object) make("UICorner",{CornerRadius=UDim.new(0,9)},object) end
-    corner(panel)
-    local mint=Color3.fromRGB(111,235,198)
-    local pale=Color3.fromRGB(229,241,255)
-    local handle=make("TextLabel",{Position=UDim2.fromOffset(12,5),Size=UDim2.new(1,-46,0,25),Active=true,
-        BackgroundTransparency=1,Text="≡   EVOLVY   /   LOBBY DO CAPITULO II",Font=Enum.Font.GothamBold,
-        TextSize=18,TextColor3=mint,TextXAlignment=Enum.TextXAlignment.Left},panel)
-    local offset=Vector2.zero
-    local function positionPanel()
-        local size=canvas.AbsoluteSize
-        if size.X<80 or size.Y<80 then return end
-        scale.Scale=math.min(0.65,(size.Y-16)/460)
-        panel.Size=UDim2.fromOffset(math.min(760,(size.X-16)/scale.Scale),460)
-        local width=panel.Size.X.Offset*scale.Scale
-        local range=math.max(0,(size.X-width)/2-5)
-        offset=Vector2.new(math.clamp(offset.X,-range,range),
-            math.clamp(offset.Y,0,math.max(0,size.Y-460*scale.Scale-16)))
-        panel.Position=UDim2.new(0.5,offset.X,0,8+offset.Y)
+    local callbacks={}
+    local view=runtime.view(services,lifecycle,gui,callbacks)
+    local function refresh() view.options(options,busy,feature=="upgrade",feature=="roll") end
+    local function persist() history.settings(normalize(options)) end
+    local function record(action,result)
+        if #trace>=45 then table.remove(trace,1) end
+        table.insert(trace,{action=action,result=result})
     end
-    local input=services.UserInputService
-    local drag,pointerStart,offsetStart=nil,nil,nil
-    local dragBegin=handle.InputBegan:Connect(function(event)
-        if event.UserInputType==Enum.UserInputType.Touch or event.UserInputType==Enum.UserInputType.MouseButton1 then
-            drag=event pointerStart=Vector2.new(event.Position.X,event.Position.Y) offsetStart=offset
-        end
-    end)
-    local dragMove=input.InputChanged:Connect(function(event)
-        if not drag then return end
-        if drag.UserInputType==Enum.UserInputType.Touch and drag~=event then return end
-        if drag.UserInputType==Enum.UserInputType.MouseButton1 and event.UserInputType~=Enum.UserInputType.MouseMovement then return end
-        offset=offsetStart+Vector2.new(event.Position.X,event.Position.Y)-pointerStart
-        positionPanel()
-    end)
-    local dragEnd=input.InputEnded:Connect(function(event) if event==drag then drag=nil end end)
-    local resize=canvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(positionPanel)
-    lifecycle.add(function() dragBegin:Disconnect() dragMove:Disconnect() dragEnd:Disconnect() resize:Disconnect() end)
-    task.defer(positionPanel)
-    local status=make("TextLabel",{Position=UDim2.fromOffset(12,32),Size=UDim2.new(1,-24,0,48),
-        BackgroundTransparency=1,Text=handoff.available and "Configure a fila e inicie." or "O Delta pode exigir abrir o loader ao chegar.",
-        Font=Enum.Font.Gotham,TextSize=15,TextColor3=pale,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left},panel)
-    local function button(text,x,y,w)
-        local object=make("TextButton",{Position=UDim2.new(x,7,0,y),Size=UDim2.new(w,-10,0,35),
-            BackgroundColor3=Color3.fromRGB(36,55,77),BorderSizePixel=0,Text=text,TextColor3=pale,
-            TextSize=13,Font=Enum.Font.GothamBold},panel)
-        corner(object)
-        return object
+    local function clipboard(value)
+        local copy=type(setclipboard)=="function" and setclipboard or type(toclipboard)=="function" and toclipboard
+        return value and copy and pcall(copy,value)
     end
-    local size=button("",0,84,1/3)
-    local friends=button("",1/3,84,1/3)
-    local skip=button("",2/3,84,1/3)
-    local repeatButton=button("",0,124,0.53)
-    local stopButton=button("PARAR",0.53,124,0.21)
-    local copyButton=button("COPIAR LOG",0.74,124,0.26)
-    local launch=button("ENTRAR E INICIAR OP",0,164,1)
-    launch.BackgroundColor3=mint launch.TextColor3=Color3.fromRGB(10,24,30)
-    local cycle=button("INICIAR CICLO COMPLETO",0,206,1)
-    make("TextLabel",{Position=UDim2.fromOffset(12,248),Size=UDim2.new(1,-24,0,24),
-        BackgroundTransparency=1,Text="COLECOES   /   MELHORIAS   /   CLASSES",Font=Enum.Font.GothamBold,
-        TextSize=15,TextColor3=mint,TextXAlignment=Enum.TextXAlignment.Left},panel)
-    local autoImprove=button("AUTO MELHORIA: OFF",0,277,1/3)
-    local crate=button("CAIXA DO EVENTO",1/3,277,1/3)
-    local last=button("ULTIMA PARTIDA",2/3,277,1/3)
-    local targets=make("TextBox",{Position=UDim2.fromOffset(7,319),Size=UDim2.new(1,-17,0,38),
-        BackgroundColor3=Color3.fromRGB(13,23,37),BorderSizePixel=0,Text="",
-        PlaceholderText="Classes para parar, separadas por virgula",ClearTextOnFocus=false,
-        TextSize=14,TextColor3=pale,PlaceholderColor3=Color3.fromRGB(151,174,201),Font=Enum.Font.Gotham},panel)
-    corner(targets)
-    local chooseClass=button("ADICIONAR ALVO",0,364,1/3)
-    local autoRoll=button("ROLAR ATE A LISTA",1/3,364,1/3)
-    local rarest=button("ROLAR ATE A MAIS RARA",2/3,364,1/3)
-    local featureStatus=make("TextLabel",{Position=UDim2.fromOffset(11,405),Size=UDim2.new(1,-22,0,42),
-        BackgroundTransparency=1,Text="Giros gratuitos. O jogo determina o resultado de cada caixa e giro.",
-        TextColor3=pale,Font=Enum.Font.Gotham,TextSize=13,TextWrapped=true,
-        TextXAlignment=Enum.TextXAlignment.Left},panel)
-    local featureToken,featureBusy,improving,classIndex=0,false,false,0
-    local function stopFeatures()
-        featureToken+=1 featureBusy=false improving=false
-        autoImprove.Text="AUTO MELHORIA: OFF"
-        autoRoll.Text="ROLAR ATE A LISTA"
-        rarest.Text="ROLAR ATE A MAIS RARA"
+    local function stopFeature()
+        featureToken+=1 feature=nil refresh()
     end
-    local function runFeature(callback,rolling)
+    local function startFeature(kind,fn)
         if busy or gate.expired() then return end
-        if featureBusy then stopFeatures() featureStatus.Text="Rotina de colecao pausada." return end
-        featureBusy=true featureToken+=1
-        if rolling then autoRoll.Text="PARAR GIROS" rarest.Text="PARAR GIROS" end
+        if feature then
+            if feature==kind then stopFeature() view.status("Rotina pausada.")
+            else view.status("Já há uma rotina de lobby em andamento.") end
+            return
+        end
+        featureToken+=1 feature=kind refresh()
         local current=featureToken
         task.spawn(function()
             local function valid() return lifecycle.alive() and current==featureToken and not gate.expired() and not busy end
-            local ok,success,message=pcall(callback,valid)
+            local ok,success,message=pcall(fn,valid)
             if not valid() then return end
-            stopFeatures()
-            featureStatus.Text=ok and tostring(message or success) or "Rotina interrompida pelo cliente."
+            stopFeature()
+            view.status(ok and tostring(message or success) or "O jogo interrompeu a rotina do lobby.")
         end)
     end
-    autoImprove.Activated:Connect(function()
-        if improving then stopFeatures() featureStatus.Text="Melhoria automatica pausada." return end
-        if featureBusy or busy then return end
-        improving=true autoImprove.Text="AUTO MELHORIA: ON"
-        runFeature(function(valid)
-            while valid() do
-                local ok,why=runtime.features.upgrade(valid)
-                featureStatus.Text=tostring(why)
-                task.wait(ok and 1 or 4)
-            end
-        end,false)
-    end)
-    crate.Activated:Connect(function() runFeature(runtime.features.openEvent,false) end)
-    chooseClass.Activated:Connect(function()
-        local classes=runtime.features.catalog()
-        if #classes==0 then featureStatus.Text="Abra Classes uma vez ou digite o nome da classe." return end
-        classIndex=classIndex%#classes+1
-        local name=classes[classIndex].name
-        targets.Text=targets.Text=="" and name or (targets.Text..", "..name)
-        featureStatus.Text="Alvo adicionado: "..name.."."
-    end)
-    local function spin(useRarest)
-        runFeature(function(valid)
-            return runtime.features.roll(valid,targets.Text,useRarest,function(message) featureStatus.Text=message end)
-        end,true)
+    local function countCrate()
+        history.lobby("crates","Caixa do evento aberta","80 abóboras · abertura confirmada")
+        record("crate",true)
     end
-    autoRoll.Activated:Connect(function() spin(false) end)
-    rarest.Activated:Connect(function() spin(true) end)
-    last.Activated:Connect(function()
-        local value=runtime.lastRun()
-        local copy=type(setclipboard)=="function" and setclipboard or type(toclipboard)=="function" and toclipboard
-        if value and copy and pcall(copy,value) then featureStatus.Text="Diagnostico da ultima partida copiado."
-        else featureStatus.Text="Nenhum diagnostico salvo disponivel." end
-    end)
-    local close=make("TextButton",{Position=UDim2.new(1,-34,0,5),Size=UDim2.fromOffset(28,27),
-        BackgroundTransparency=1,Text="×",TextColor3=pale,TextSize=21},panel)
-    local function refresh()
-        size.Text="JOGADORES "..options.size
-        friends.Text=options.friends and "AMIGOS: SIM" or "AMIGOS: NAO"
-        skip.Text=options.skip and "INTRO: PULAR" or "INTRO: VER"
-        repeatButton.Text=options.repeatRun and "REPETIR: SIM" or "REPETIR: NAO"
-        launch.Text=busy and "AGUARDANDO O JOGO…" or "ENTRAR E INICIAR OP"
-        cycle.Text=busy and "CICLO EM ANDAMENTO" or "INICIAR CICLO COMPLETO"
-    end
-    refresh()
-    size.Activated:Connect(function() if not busy then options.size=options.size%4+1 refresh() end end)
-    friends.Activated:Connect(function() if not busy then options.friends=not options.friends refresh() end end)
-    skip.Activated:Connect(function() if not busy then options.skip=not options.skip refresh() end end)
-    repeatButton.Activated:Connect(function() if not busy then options.repeatRun=not options.repeatRun refresh() end end)
     local function stop()
-        stopFeatures()
+        stopFeature()
         token+=1 busy=false nav.stop() handoff.clear()
         record("stop",true)
         refresh()
-        status.Text=transferred and "Retomada cancelada. O teleporte ja foi iniciado pelo jogo." or "Automacao do lobby parada."
+        view.status(transferred and "Retomada cancelada. O jogo já solicitou o teleporte." or "Ciclo do lobby parado.")
     end
-    stopButton.Activated:Connect(stop)
-    copyButton.Activated:Connect(function()
-        local copy=type(setclipboard)=="function" and setclipboard or type(toclipboard)=="function" and toclipboard
+    callbacks.stop=stop
+    callbacks.copyLog=function()
         local ok,details=pcall(runtime.features.diagnostic)
-        if copy and pcall(copy,services.HttpService:JSONEncode({phase="lobby",options=options,
-            transfer=transferred,events=trace,features=ok and details or nil})) then status.Text="Diagnostico do lobby copiado."
-        else status.Text="O executor nao disponibilizou a copia." end
-    end)
-    close.Activated:Connect(function() stop() lifecycle.close() end)
+        local payload={phase="lobby",options=options,transfer=transferred,events=trace,features=ok and details or nil}
+        view.status(clipboard(services.HttpService:JSONEncode(payload)) and "Diagnóstico do lobby copiado."
+            or "O executor não liberou a cópia.")
+    end
+    callbacks.lastRun=function()
+        view.status(clipboard(runtime.lastRun()) and "Diagnóstico da última partida copiado."
+            or "Nenhuma partida salva ou cópia indisponível.")
+    end
+    callbacks.copyHistory=function()
+        local data=history.state
+        view.status(clipboard(services.HttpService:JSONEncode({totals=data.totals,events=data.events})) and "Histórico copiado."
+            or "O executor não liberou a cópia.")
+    end
+    callbacks.size=function()
+        if not busy then options.size=options.size%4+1 persist() refresh() end
+    end
+    for _,key in ipairs({"friends","skip","skipOutro","repeatRun","autoCrates"}) do
+        callbacks[key]=function()
+            if not busy then options[key]=not options[key] persist() refresh() end
+        end
+    end
+    callbacks.crateCount=function(count,save)
+        if busy or feature=="crate" then return end
+        options.crateCount=count
+        if save then persist() end
+        refresh()
+        view.resources(runtime.features.pumpkins(),count,runtime.features.gems())
+    end
+    callbacks.openBatch=function()
+        local count=options.crateCount
+        startFeature("crate",function(valid)
+            return runtime.features.openBatch(valid,count,countCrate,view.status)
+        end)
+    end
+    callbacks.autoImprove=function()
+        startFeature("upgrade",function(valid)
+            while valid() do
+                local ok,message,name=runtime.features.upgrade(valid)
+                if ok then history.lobby("upgrades","Melhoria do lobby",name or message) end
+                view.status(message)
+                task.wait(ok and 1 or 4)
+            end
+        end)
+    end
+    local function chooseTarget(id)
+        if busy or feature=="roll" then return end
+        for _,entry in ipairs(runtime.features.catalog()) do
+            if tostring(entry.id)==id then
+                options.classTarget=id
+                persist()
+                view.status("Alvo selecionado: "..entry.name..".")
+                return entry
+            end
+        end
+    end
+    callbacks.target=chooseTarget
+    callbacks.rarest=function()
+        local entry=runtime.rarest(runtime.features.catalog())
+        if entry then chooseTarget(tostring(entry.id))
+        else view.status("As chances ainda não foram carregadas pelo jogo.") end
+    end
+    callbacks.roll=function()
+        startFeature("roll",function(valid)
+            local selected=nil
+            for _,entry in ipairs(runtime.features.catalog()) do
+                if tostring(entry.id)==options.classTarget then selected=entry break end
+            end
+            if not selected then return false,"Escolha uma classe na barra." end
+            return runtime.features.roll(valid,selected,view.status,function(result)
+                history.lobby("rolls","Giro de classe",result or "Resultado confirmado")
+            end)
+        end)
+    end
     local transferConnection=player.OnTeleport:Connect(function(state,place)
         if place==game.PlaceId and (state.Name=="RequestedFromServer" or state.Name=="Started" or state.Name=="InProgress") then
             transferred=true
@@ -348,13 +301,13 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
         if who~=player or place~=game.PlaceId or not busy then return end
         transferred=false
         stop()
-        status.Text="O Roblox recusou o teleporte. Saia da fila atual e tente novamente."
+        view.status("O Roblox recusou o teleporte. Saia da fila atual e tente novamente.")
     end)
     lifecycle.add(function() failedConnection:Disconnect() end)
 
     local function start()
         if busy or transferred or gate.expired() then return end
-        stopFeatures()
+        if feature then view.status("Pare a rotina de lobby antes de entrar na fila.") return end
         busy=true token+=1 refresh()
         local run=token
         local selected=normalize(options)
@@ -369,13 +322,11 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
             if id=="friends" then return get(content,"Options","FriendsOnly") end
             if id=="skip" then return get(content,"Options","SkipIntro") end
             if id=="deploy" or id=="setup" then return get(content,"CreateHolder","Create") end
-            return nil
         end
         local function flag(id)
             local button=control(id)
             local check=button and button:FindFirstChild("Check",true)
             if check and check:IsA("GuiObject") then return check.Visible end
-            return nil
         end
         local function ready(id)
             if id=="transfer" then return transferred end
@@ -392,67 +343,99 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
             end
             return false
         end
-        status.Text="Localizando a fila do Capitulo II…"
         task.spawn(function()
-            local ran,success,message=pcall(Lobby.deploy,{
-                ready=ready,flag=flag,waitFor=waitFor,
-                approach=function()
-                    local pad=freePad(services,player)
-                    if not pad then return false,"Nenhuma area de fila livre. Entre em uma area vazia manualmente." end
-                    record("queue_zone",pad.Parent.Name)
-                    local floor=pad.Position-Vector3.new(0,pad.Size.Y/2,0)
-                    local moved,reason=nav.goTo(floor,function() return valid() and not ready("chapter") end)
-                    if ready("chapter") then return true end
-                    return moved,reason
-                end,
-                click=function(id)
-                    if not valid() then return false,"Cancelado." end
-                    if id=="deploy" then status.Text="DEPLOY acionado. Aguardando o jogo…" end
-                    local ok,why=bridge.activate(control(id))
-                    record(id,ok and "activated" or tostring(why))
-                    return ok,why
-                end,
-                arm=function(settings)
-                    if not valid() then return false,"Cancelado." end
-                    local ok,why=handoff.arm("chapter",settings,gate.transfer())
-                    record("handoff",ok and "queued" or tostring(why))
-                    return ok,why
-                end,
-            },selected)
+            local ran,success,message=pcall(function()
+                if selected.autoCrates then
+                    local balance=runtime.features.pumpkins()
+                    local deadline=os.clock()+3
+                    while balance==nil and valid() and os.clock()<deadline do
+                        task.wait(0.25)
+                        balance=runtime.features.pumpkins()
+                    end
+                    local plan,cost=Lobby.cratePlan(selected,balance)
+                    record("crate_plan",plan)
+                    if plan=="ready" then
+                        view.status("Abrindo o lote antes de entrar na fila…")
+                        local ok,why=runtime.features.openBatch(valid,selected.crateCount,countCrate,view.status,true)
+                        if not ok then return false,why end
+                    elseif plan=="saving" then
+                        view.status(string.format("Juntando abóboras para o lote: %d/%d.",balance,cost))
+                    end
+                end
+                if not valid() then return false,"Cancelado." end
+                view.status("Localizando a fila do Capítulo II…")
+                return Lobby.deploy({
+                    ready=ready,flag=flag,waitFor=waitFor,
+                    approach=function()
+                        local pad=freePad(services,player)
+                        if not pad then return false,"Nenhuma área de fila livre. Entre em uma área vazia manualmente." end
+                        record("queue_zone",pad.Parent.Name)
+                        local floor=pad.Position-Vector3.new(0,pad.Size.Y/2,0)
+                        local moved,why=nav.goTo(floor,function() return valid() and not ready("chapter") end)
+                        if ready("chapter") then return true end
+                        return moved,why
+                    end,
+                    click=function(id)
+                        if not valid() then return false,"Cancelado." end
+                        if id=="deploy" then view.status("DEPLOY acionado. Aguardando o jogo…") end
+                        local ok,why=bridge.activate(control(id))
+                        record(id,ok and "activated" or tostring(why))
+                        return ok,why
+                    end,
+                    arm=function(settings)
+                        if not valid() then return false,"Cancelado." end
+                        local ok,why=handoff.arm("chapter",settings,gate.transfer())
+                        record("handoff",ok and "queued" or tostring(why))
+                        return ok,why
+                    end,
+                },selected)
+            end)
             if not valid() then return end
             if not ran or not success then
                 record("failure",ran and tostring(message) or "lobby error")
                 handoff.clear()
                 busy=false refresh()
             end
-            status.Text=ran and tostring(message) or "Falha ao acionar a fila. Tente novamente em uma area livre."
+            view.status(ran and tostring(message) or "Falha no lobby. Copie o log para verificar.")
         end)
     end
-    launch.Activated:Connect(start)
-    cycle.Activated:Connect(function()
+    callbacks.launch=start
+    callbacks.cycle=function()
         if busy or transferred then return end
         options.repeatRun=true
-        options.skip=true
         options.reconnectCount=0
+        persist()
         refresh()
         start()
-    end)
+    end
     runtime.watch(function() return busy and options.repeatRun and not transferred end,function(code)
         token+=1
         record("connection_error",code)
         nav.stop()
-        status.Text="Conexao perdida ("..code.."). Tentando voltar ao lobby…"
+        view.status("Conexão perdida ("..code.."). Tentando voltar ao lobby…")
         local ok,why=runtime.reconnect(options)
-        if not ok then busy=false refresh() status.Text=why return end
+        if not ok then busy=false refresh() view.status(why) return end
         local pending=token
         task.delay(25,function()
             if lifecycle.alive() and token==pending and busy and not transferred then
                 stop()
-                status.Text="O Roblox nao confirmou a reconexao."
+                view.status("O Roblox não confirmou a reconexão.")
             end
         end)
     end)
-    runtime.idle(function() return busy end)
+    runtime.idle(function() return busy or feature~=nil end)
+    refresh()
+    task.spawn(function()
+        while lifecycle.alive() do
+            view.resources(runtime.features.pumpkins(),options.crateCount,runtime.features.gems())
+            if view.showingClasses() then
+                local current,free=runtime.features.classState()
+                view.classes(runtime.features.catalog(),options.classTarget,current,free)
+            end
+            view.history(history.state,history.persistent)
+            task.wait(1.2)
+        end
+    end)
     gate.close()
     if autoStart then task.defer(start) end
 end
@@ -463,6 +446,7 @@ end)()
 local LobbyExtras = (function()
 -- Luau · potato_lobby_extras.luau · native lobby offers and confirmed free class rolls
 local Extras={}
+Extras.CRATE_COST=80
 
 local function get(root,...)
     for index=1,select("#",...) do
@@ -476,13 +460,9 @@ end
 local function norm(value)
     return type(value)=="string" and value:lower():gsub("[^%w]","") or ""
 end
-function Extras.targets(text)
-    local selected={}
-    for entry in tostring(text or ""):gmatch("[^,;\n]+") do
-        local key=norm(entry)
-        if key~="" then selected[key]=true end
-    end
-    return selected
+function Extras.matchesTarget(target,current)
+    local key=norm(current)
+    return key~="" and (key==norm(target.name) or key==norm(target.id))
 end
 
 function Extras.rarest(catalog)
@@ -494,11 +474,16 @@ function Extras.rarest(catalog)
     return best
 end
 
+function Extras.confirmCrate(before,after,rewardSeen)
+    return type(before)=="number" and after==before-Extras.CRATE_COST and rewardSeen==true
+end
+
 function Extras.create(services,bridge,nav,lifecycle)
     local player=services.Players.LocalPlayer
     local gui=player:WaitForChild("PlayerGui")
     local storage=services.ReplicatedStorage
     local stateModule=nil
+    local nativePackets=nil
     local classSignal=0
     local crateSignal=0
     local moduleCatalog={}
@@ -510,6 +495,7 @@ function Extras.create(services,bridge,nav,lifecycle)
     task.spawn(function()
         stateModule=load(get(storage,"Shared","PlayerStateShared"))
         local packets=load(get(storage,"Modules","Resources","Packets"))
+        nativePackets=packets
         local event=packets and packets.ClassRolled and packets.ClassRolled.OnClientEvent
         if event and type(event.Connect)=="function" then
             local ok,connection=pcall(event.Connect,event,function() classSignal+=1 end)
@@ -528,7 +514,10 @@ function Extras.create(services,bridge,nav,lifecycle)
                 local title=row.Name or row.DisplayName or (type(id)=="string" and id)
                 local chance=row.Chance or row.Weight or row.Probability
                 if type(title)=="string" and type(chance)=="number" then
-                    table.insert(moduleCatalog,{name=title,id=row.Id or title,chance=chance})
+                    local icon=row.Icon or row.Image or row.ImageId
+                    if type(icon)=="number" then icon="rbxassetid://"..string.format("%.0f",icon) end
+                    table.insert(moduleCatalog,{name=title,id=row.Id or title,chance=chance,
+                        icon=type(icon)=="string" and icon or nil})
                 end
             end
         end
@@ -536,6 +525,8 @@ function Extras.create(services,bridge,nav,lifecycle)
     local function state()
         if not stateModule or type(stateModule.TryGetPlayerState)~="function" then return nil end
         local ok,value=pcall(stateModule.TryGetPlayerState,player)
+        if ok and type(value)=="table" then return value end
+        ok,value=pcall(stateModule.TryGetPlayerState,player.UserId)
         if ok and type(value)=="table" then return value end
     end
     local function number(value)
@@ -547,6 +538,14 @@ function Extras.create(services,bridge,nav,lifecycle)
         local label=get(gui,"Diamonds","Counter","Value") or get(gui,"Gems","Counter","Value")
         local written=label and label:IsA("TextLabel") and label.Text:match("^%s*([%d,%.]+)%s*$")
         return number(data and (data.Diamonds or data.Gems)) or number(save and (save.Diamonds or save.Gems))
+            or written and tonumber((written:gsub("[,.]",""))) or nil
+    end
+    local function pumpkins()
+        local data=state()
+        local save=data and data.SaveData
+        local label=get(gui,"Pumpkins","Counter","Value") or get(gui,"Pumpkins","Value")
+        local written=label and label:IsA("TextLabel") and label.Text:match("^%s*([%d,%.]+)%s*$")
+        return number(save and save.Pumpkins) or number(data and data.Pumpkins)
             or written and tonumber((written:gsub("[,.]",""))) or nil
     end
     local function classState()
@@ -592,25 +591,21 @@ function Extras.create(services,bridge,nav,lifecycle)
                 local title=parent and (parent:FindFirstChild("ClassName") or parent:FindFirstChild("Title") or parent:FindFirstChild("Name"))
                 if probability and title and title:IsA("TextLabel") and not seen[title.Text] then
                     seen[title.Text]=true
-                    table.insert(result,{name=title.Text,id=title.Text,chance=probability})
+                    local image=parent:FindFirstChild("Icon") or parent:FindFirstChild("Image")
+                    local icon=image and (image:IsA("ImageLabel") or image:IsA("ImageButton")) and image.Image
+                    table.insert(result,{name=title.Text,id=title.Text,chance=probability,icon=icon})
                 end
             end
         end
         return result
     end
-    local function roll(valid,text,useRarest,report)
-        local selected=Extras.targets(text)
-        if useRarest then
-            local best=Extras.rarest(catalog())
-            if not best then return false,"O jogo ainda nao mostrou as chances. Digite as classes desejadas." end
-            selected[norm(best.name)]=true selected[norm(best.id)]=true
-        end
-        if not next(selected) then return false,"Digite as classes para parar, separadas por virgula." end
+    local function roll(valid,target,report,onResult)
+        if type(target)~="table" or norm(target.name)=="" then return false,"Escolha uma classe na barra." end
         for index=1,100 do
             if not valid() then return true,"Rolagem pausada." end
             local current,free=classState()
             if not current or free==nil then return false,"A classe ou a quantidade de giros gratuitos nao esta disponivel." end
-            if selected[norm(current)] then return true,"Classe encontrada: "..current.."." end
+            if Extras.matchesTarget(target,current) then return true,"Classe encontrada: "..current.."." end
             if free<=0 then return true,"Sem giros gratuitos. Ultima classe: "..current.."." end
             local screen=gui:FindFirstChild("Classes")
             local choices=buttons(screen,function(item,label)
@@ -638,7 +633,8 @@ function Extras.create(services,bridge,nav,lifecycle)
             end) then return false,"O jogo nao confirmou o resultado. Rolagem parada." end
             local nextClass=select(1,classState())
             report("Giro "..index.." confirmado: "..tostring(nextClass))
-            if selected[norm(nextClass)] then return true,"Classe encontrada: "..nextClass.."." end
+            if onResult then onResult(nextClass) end
+            if Extras.matchesTarget(target,nextClass) then return true,"Classe encontrada: "..nextClass.."." end
             if not valid() then return true,"Rolagem pausada." end
             task.wait(0.7)
         end
@@ -673,7 +669,7 @@ function Extras.create(services,bridge,nav,lifecycle)
             local after=gems()
             return after and after<balance or best.button.Parent and bridge.texts(best.button)~=best.text
         end) then return false,"O jogo nao confirmou a melhoria de lobby." end
-        return true,"Melhoria de lobby confirmada: "..best.name.."."
+        return true,"Melhoria de lobby confirmada: "..best.name..".",best.name
     end
     local function eventContext(text)
         local key=norm(text)
@@ -693,11 +689,13 @@ function Extras.create(services,bridge,nav,lifecycle)
                 end
                 parent=parent.Parent
             end
-            return eventContext(context) and (name=="open" or name=="opencrate" or name=="openpumpkins"
+            local quoted=tonumber(context:match("%f[%d](80)%f[^%d]"))
+            local multiple=name:match("^open%d+$") or key:match("openx%d") or key:match("abrirx%d")
+            return not multiple and not paid(context) and quoted==Extras.CRATE_COST and eventContext(context) and (name=="open" or name=="opencrate" or name=="openpumpkins"
                 or key:find("open",1,true) or key:find("abrir",1,true))
         end,true)
     end
-    local function openEvent(valid)
+    local function requestEvent(valid)
         local choices=eventButtons()
         if #choices==0 then
             local zone=get(services.Workspace,"Map","Zones","HalloweenZone")
@@ -711,27 +709,82 @@ function Extras.create(services,bridge,nav,lifecycle)
                 end
             end
             if prompt then
+                local startBalance,startSignal=pumpkins(),crateSignal
                 local ok,why=nav.trigger(prompt,valid)
                 if not ok then return false,why end
-                waitFor(valid,2,function() choices=eventButtons() return #choices>0 end)
+                waitFor(valid,2,function()
+                    choices=eventButtons()
+                    return #choices>0 or crateSignal>startSignal or pumpkins()~=startBalance
+                end)
+                if crateSignal>startSignal or pumpkins()~=startBalance then return true end
+            else
+                local packet=nativePackets and nativePackets.CrateOpenPumpkins
+                if type(packet)=="table" and type(packet.Fire)=="function"
+                    and type(packet.Writes)=="table" and #packet.Writes==0
+                    and type(packet.Reads)=="table" and #packet.Reads==0 then
+                    if not valid() then return false,"Abertura cancelada." end
+                    local ok=pcall(packet.Fire,packet)
+                    if ok then return true end
+                    return false,"Falha ao enviar a abertura de evento."
+                end
             end
         end
-        if #choices~=1 then return false,"Abra a tela da caixa de aboboras. Botao do evento ainda nao identificado." end
-        local before=crateSignal
-        local rollUi=get(gui,"Crates","Roll")
-        local wasVisible=rollUi and bridge.visible(rollUi)
-        local ok,why=bridge.activate(choices[1])
-        if not ok then return false,why end
-        local confirmed=waitFor(valid,5,function()
-            local roll=get(gui,"Crates","Roll")
-            return crateSignal>before or not wasVisible and roll and bridge.visible(roll)
+        if #choices~=1 then return false,"Abra a tela da caixa de abóboras. O botão nativo de 80 ainda não foi identificado." end
+        return bridge.activate(choices[1])
+    end
+    local function settleRoll(valid)
+        local roll=get(gui,"Crates","Roll")
+        if not roll or not bridge.visible(roll) then return true end
+        local skip=roll:FindFirstChild("Skip",true)
+        if skip and skip:IsA("GuiButton") and bridge.visible(skip) then bridge.activate(skip) end
+        local dismissed=false
+        return waitFor(valid,7,function()
+            if not bridge.visible(roll) then return true end
+            if not dismissed then
+                local close=roll:FindFirstChild("Close",true) or roll:FindFirstChild("Continue",true)
+                if close and close:IsA("GuiButton") and close.Active and bridge.visible(close) then
+                    dismissed=bridge.activate(close)
+                end
+            end
+            return false
         end)
-        return confirmed,confirmed and "Abertura confirmada. Veja o resultado do jogo." or "O jogo nao confirmou a abertura."
+    end
+    local function openBatch(valid,count,onOpened,onProgress,settleLast)
+        if type(count)~="number" or count%1~=0 or count<1 or count>10 then return false,"Lote inválido.",0 end
+        local balance=pumpkins()
+        if balance==nil then return false,"O jogo ainda não informou o saldo de abóboras.",0 end
+        if balance<count*Extras.CRATE_COST then
+            return false,string.format("Saldo insuficiente para o lote. %d de %d abóboras.",balance,count*Extras.CRATE_COST),0
+        end
+        local opened=0
+        for index=1,count do
+            if not valid() then return false,"Lote pausado.",opened end
+            if not settleRoll(valid) then return false,"A caixa anterior ainda está aberta.",opened end
+            local before=pumpkins()
+            if before==nil or before<Extras.CRATE_COST then return false,"Saldo mudou durante o lote.",opened end
+            local serial=crateSignal
+            if onProgress then onProgress(string.format("Abrindo caixa %d/%d…",index,count)) end
+            local ok,why=requestEvent(valid)
+            if not ok then return false,why,opened end
+            if not waitFor(valid,10,function()
+                local after=pumpkins()
+                local shown=get(gui,"Crates","Roll")
+                return Extras.confirmCrate(before,after,crateSignal>serial or shown~=nil and bridge.visible(shown))
+            end) then return false,"O jogo não confirmou o débito e o resultado. Lote interrompido.",opened end
+            opened+=1
+            if onOpened then onOpened() end
+            if index<count then task.wait(0.45) end
+        end
+        if settleLast and not settleRoll(valid) then return false,"Lote aberto, mas a tela da última caixa ainda está ativa.",opened end
+        return true,string.format("%d caixa(s) confirmada(s).",opened),opened
     end
     local function diagnostic()
         local info={buttons={}}
         info.class,info.freeRolls=classState()
         info.gems=gems()
+        info.pumpkins=pumpkins()
+        local packet=nativePackets and nativePackets.CrateOpenPumpkins
+        info.eventCrateFields=type(packet)=="table" and type(packet.Writes)=="table" and #packet.Writes or nil
         for _,name in ipairs({"Classes","Crates","LobbyUpgrades"}) do
             local controls=buttons(gui:FindFirstChild(name),function() return true end,false)
             for index=1,math.min(#controls,16) do
@@ -741,10 +794,455 @@ function Extras.create(services,bridge,nav,lifecycle)
         end
         return info
     end
-    return {upgrade=upgrade,openEvent=openEvent,roll=roll,catalog=catalog,classState=classState,diagnostic=diagnostic}
+    return {upgrade=upgrade,openBatch=openBatch,roll=roll,catalog=catalog,classState=classState,
+        pumpkins=pumpkins,gems=gems,diagnostic=diagnostic}
 end
 
 return Extras
+
+end)()
+
+local LobbyView = (function()
+-- Luau · potato_lobby_view.luau · mobile lobby control panel
+local View={}
+
+function View.create(services,lifecycle,gui,callbacks)
+    local input=services.UserInputService
+    local tween=services.TweenService
+    local base=Color3.fromRGB(13,19,34)
+    local surface=Color3.fromRGB(26,37,60)
+    local border=Color3.fromRGB(66,86,125)
+    local bright=Color3.fromRGB(234,244,255)
+    local dim=Color3.fromRGB(163,182,213)
+    local mint=Color3.fromRGB(115,235,199)
+    local blue=Color3.fromRGB(142,164,255)
+    local tabs,buttons,pages={}, {}, {}
+    local function make(class,props,parent)
+        local item=Instance.new(class)
+        for key,value in pairs(props) do item[key]=value end
+        item.Parent=parent
+        return item
+    end
+    local function round(item,radius)
+        make("UICorner",{CornerRadius=UDim.new(0,radius or 12)},item)
+    end
+    local function stroke(item,color)
+        return make("UIStroke",{Color=color or border,Thickness=1},item)
+    end
+    local function gradient(item,left,right,angle)
+        return make("UIGradient",{Color=ColorSequence.new(left,right),Rotation=angle or 0},item)
+    end
+    local function label(parent,content,size,color,bold)
+        return make("TextLabel",{Text=content,TextSize=size,TextColor3=color or bright,
+            BackgroundTransparency=1,Font=bold and Enum.Font.GothamBold or Enum.Font.Gotham,
+            TextXAlignment=Enum.TextXAlignment.Left,TextWrapped=true},parent)
+    end
+    local function call(name,...)
+        if callbacks[name] then callbacks[name](...) end
+    end
+    local function button(parent,key,title,primary)
+        local b=make("TextButton",{Text=title,TextSize=15,TextColor3=primary and base or bright,
+            BackgroundColor3=primary and mint or surface,BorderSizePixel=0,
+            Font=Enum.Font.GothamBold,TextWrapped=true},parent)
+        round(b)
+        if key then buttons[key]=b b.Activated:Connect(function() call(key) end) end
+        return b
+    end
+    local canvas=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1},gui)
+    local panel=make("Frame",{AnchorPoint=Vector2.new(0.5,0),Size=UDim2.fromOffset(760,570),
+        Position=UDim2.new(0.5,0,0,8),BackgroundColor3=base,BorderSizePixel=0,ClipsDescendants=true},canvas)
+    round(panel,18) stroke(panel)
+    gradient(panel,Color3.fromRGB(35,46,77),base,108)
+    local scaler=make("UIScale",{Scale=0.65},panel)
+    local header=make("Frame",{Size=UDim2.new(1,0,0,74),BackgroundColor3=Color3.fromRGB(35,48,77),
+        BorderSizePixel=0,ClipsDescendants=true,Active=true},panel)
+    gradient(header,Color3.fromRGB(41,55,86),Color3.fromRGB(22,30,52),12)
+    for index=1,3 do
+        local beam=make("Frame",{Position=UDim2.new(1,-(index*71),0,-34),Size=UDim2.fromOffset(17,145),
+            BackgroundColor3=index%2==0 and mint or blue,BackgroundTransparency=0.72,Rotation=23,BorderSizePixel=0},header)
+        make("UIGradient",{Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,1),
+            NumberSequenceKeypoint.new(0.5,0.12),NumberSequenceKeypoint.new(1,1)}),Rotation=90},beam)
+    end
+    local brand=label(header,"E V O L V Y",25,bright,true)
+    brand.Position,brand.Size=UDim2.fromOffset(16,6),UDim2.new(1,-102,0,31)
+    local tagline=label(header,"LOBBY  /  CENTRAL DE PARTIDAS",13,mint,true)
+    tagline.Position,tagline.Size=UDim2.fromOffset(17,40),UDim2.new(1,-102,0,22)
+    local hide=button(header,nil,"OCULTAR")
+    hide.Position,hide.Size=UDim2.new(1,-86,0,15),UDim2.fromOffset(75,41)
+    local launcher=button(canvas,nil,"A")
+    launcher.Position,launcher.Size=UDim2.new(0,10,1,-64),UDim2.fromOffset(47,47)
+    launcher.TextSize=26 launcher.ZIndex=6 launcher.BackgroundColor3=surface
+    gradient(launcher,Color3.fromRGB(62,109,164),Color3.fromRGB(32,48,83),44)
+    stroke(launcher,mint)
+
+    local nav=make("ScrollingFrame",{Position=UDim2.fromOffset(9,83),Size=UDim2.new(0,129,1,-139),
+        BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.fromOffset(0,0),
+        AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=2},panel)
+    make("UIListLayout",{Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder},nav)
+    local body=make("Frame",{Position=UDim2.fromOffset(146,83),Size=UDim2.new(1,-155,1,-139),
+        BackgroundTransparency=1,ClipsDescendants=true},panel)
+    local footer=label(panel,"Pronto para configurar a fila.",14,dim,false)
+    footer.Position,footer.Size=UDim2.new(0,13,1,-47),UDim2.new(1,-26,0,40)
+    local activePage="chapter2"
+    local function showPage(key)
+        activePage=key
+        for name,page in pairs(pages) do page.Visible=name==key end
+        for name,b in pairs(tabs) do
+            b.BackgroundColor3=name==key and Color3.fromRGB(49,68,110) or surface
+            b.TextColor3=name==key and mint or bright
+        end
+        local page=pages[key]
+        if page then
+            page.Position=UDim2.fromOffset(7,0)
+            tween:Create(page,TweenInfo.new(0.18,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),
+                {Position=UDim2.fromOffset(0,0)}):Play()
+        end
+    end
+    local function page(key,title,index)
+        local buttonItem=button(nav,nil,title)
+        buttonItem.Size=UDim2.new(1,-3,0,45)
+        buttonItem.LayoutOrder=index
+        buttonItem.TextSize=14
+        buttonItem.Activated:Connect(function() showPage(key) end)
+        tabs[key]=buttonItem
+        local target=make("ScrollingFrame",{Size=UDim2.fromScale(1,1),Visible=false,BackgroundTransparency=1,
+            BorderSizePixel=0,CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,
+            ScrollingDirection=Enum.ScrollingDirection.Y,ScrollBarThickness=3,ScrollBarImageColor3=mint},body)
+        make("UIPadding",{PaddingTop=UDim.new(0,1),PaddingBottom=UDim.new(0,6),PaddingRight=UDim.new(0,5)},target)
+        make("UIListLayout",{Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder},target)
+        pages[key]=target
+        return target
+    end
+    local function block(parent,title,description,height)
+        local frame=make("Frame",{Size=UDim2.new(1,0,0,height or 82),
+            BackgroundColor3=surface,BorderSizePixel=0},parent)
+        round(frame) stroke(frame)
+        local h=label(frame,title,19,bright,true)
+        h.Position,h.Size=UDim2.fromOffset(11,7),UDim2.new(1,-22,0,25)
+        local d=label(frame,description,14,dim,false)
+        d.Position,d.Size=UDim2.fromOffset(11,33),UDim2.new(1,-22,1,-38)
+        return frame,d
+    end
+    local function row(parent)
+        return make("Frame",{Size=UDim2.new(1,0,0,46),BackgroundTransparency=1},parent)
+    end
+    local function rowButton(parent,key,title,x,width,primary)
+        local item=button(parent,key,title,primary)
+        item.Position,item.Size=UDim2.new(x,0,0,0),UDim2.new(width,-5,1,0)
+        return item
+    end
+    local one=page("chapter1","Cap. 1\nEm breve",1)
+    block(one,"Capítulo I","Em breve no Evolvy.")
+    local two=page("chapter2","Cap. 2",2)
+    block(two,"Capítulo II","Entre numa rodada solo ou deixe o ciclo retomar o OP e voltar ao lobby.",84)
+    local launch=row(two)
+    rowButton(launch,"launch","ENTRAR + OP",0,0.42,true)
+    rowButton(launch,"cycle","CICLO COMPLETO",0.43,0.57)
+    local queueRow=row(two)
+    rowButton(queueRow,"stop","PARAR",0,0.34)
+    rowButton(queueRow,"copyLog","COPIAR LOG DO LOBBY",0.35,0.65)
+    local _,balance=block(two,"Recursos do lobby","Lendo o saldo do jogo…",69)
+    local three=page("chapter3","Cap. 3\nEm breve",3)
+    block(three,"Capítulo III","Em breve no Evolvy.")
+    local settings=page("config","Configurar",4)
+    block(settings,"Fila do Capítulo II","As escolhas são reaplicadas na próxima rodada.",72)
+    local first=row(settings)
+    rowButton(first,"size","JOGADORES",0,0.47)
+    rowButton(first,"friends","AMIGOS",0.48,0.52)
+    local scenes=row(settings)
+    rowButton(scenes,"skip","INTRODUÇÃO",0,0.47)
+    rowButton(scenes,"skipOutro","CENA FINAL",0.48,0.52)
+    local actions=row(settings)
+    rowButton(actions,"repeatRun","REPETIR",0,0.47)
+    rowButton(actions,"autoImprove","AUTO MELHORIA",0.48,0.52)
+
+    local event=page("event","Caixas",5)
+    block(event,"Caixa do evento","O custo é de 80 abóboras por caixa. Escolha o tamanho do lote.",78)
+    local _,eventBalance=block(event,"Saldo de abóboras","Aguardando o jogo…",69)
+    local countBox=row(event)
+    local track=make("Frame",{Position=UDim2.new(0,11,0.5,-5),Size=UDim2.new(1,-116,0,10),
+        BackgroundColor3=Color3.fromRGB(46,61,91),BorderSizePixel=0},countBox)
+    round(track)
+    local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=mint,BorderSizePixel=0},track)
+    round(fill)
+    local knob=make("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0,0.5),
+        Size=UDim2.fromOffset(26,26),BackgroundColor3=mint,BorderSizePixel=0},track)
+    round(knob,13)
+    local hit=make("Frame",{Position=UDim2.fromOffset(0,0),Size=UDim2.new(1,-95,1,0),
+        BackgroundTransparency=1,Active=true,ZIndex=5},countBox)
+    local amount=label(countBox,"10",19,mint,true)
+    amount.Position,amount.Size=UDim2.new(1,-91,0,0),UDim2.fromOffset(86,46)
+    amount.TextXAlignment=Enum.TextXAlignment.Center
+    local eventButtons=row(event)
+    rowButton(eventButtons,"autoCrates","AUTO CAIXAS",0,0.54)
+    rowButton(eventButtons,"openBatch","ABRIR LOTE",0.55,0.45,true)
+
+    local classes=page("classes","Classes",6)
+    block(classes,"Alvo de classe","Toque em uma única classe para escolher o alvo dos giros gratuitos.",79)
+    local strip=make("ScrollingFrame",{Size=UDim2.new(1,0,0,112),CanvasSize=UDim2.fromOffset(0,0),
+        AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum.ScrollingDirection.X,
+        ScrollBarThickness=4,ScrollBarImageColor3=mint,BorderSizePixel=0,BackgroundTransparency=1},classes)
+    make("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,8),
+        SortOrder=Enum.SortOrder.LayoutOrder},strip)
+    local empty=label(strip,"Abra Classes no jogo para carregar o catálogo.",14,dim,false)
+    empty.Size=UDim2.fromOffset(260,90)
+    local _,classStatus=block(classes,"Classe atual","Aguardando o jogo…",70)
+    local rollRow=row(classes)
+    rowButton(rollRow,"roll","GIRAR ATÉ O ALVO",0,0.60,true)
+    rowButton(rollRow,"rarest","SELECIONAR MAIS RARA",0.61,0.39)
+    local classItems={}
+    local classKey=""
+
+    local history=page("history","Histórico",7)
+    local _,totals=block(history,"Atividade desta conta","Aguardando registros…",104)
+    local historyRow=row(history)
+    rowButton(historyRow,"lastRun","COPIAR ÚLTIMA PARTIDA",0,0.56)
+    rowButton(historyRow,"copyHistory","COPIAR HISTÓRICO",0.57,0.43)
+    local journal=make("Frame",{Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,
+        BackgroundTransparency=1},history)
+    make("UIListLayout",{Padding=UDim.new(0,7),SortOrder=Enum.SortOrder.LayoutOrder},journal)
+    local entries={}
+    local journalKey=""
+
+    local open=true
+    local offset=Vector2.zero
+    local currentTween=nil
+    local function position()
+        local size=canvas.AbsoluteSize
+        if size.X<80 or size.Y<80 then return end
+        local unit=math.min(0.65,(size.Y-14)/280)
+        scaler.Scale=unit
+        local w=math.min(760,(size.X-16)/unit)
+        local h=math.min(570,(size.Y-14)/unit)
+        panel.Size=UDim2.fromOffset(w,h)
+        local range=math.max(0,(size.X-w*unit)/2-5)
+        offset=Vector2.new(math.clamp(offset.X,-range,range),math.clamp(offset.Y,0,math.max(0,size.Y-h*unit-14)))
+        panel.Position=UDim2.new(0.5,offset.X,0,7+offset.Y)
+    end
+    local function toggle()
+        open=not open
+        if currentTween then currentTween:Cancel() currentTween=nil end
+        panel.Visible=open
+        launcher.BackgroundColor3=open and surface or Color3.fromRGB(55,89,135)
+        if open then
+            position()
+            local target=panel.Position
+            panel.Position=UDim2.new(0.5,offset.X,0,1+offset.Y)
+            currentTween=tween:Create(panel,TweenInfo.new(0.18),{Position=target})
+            currentTween:Play()
+        end
+    end
+    launcher.Activated:Connect(toggle)
+    hide.Activated:Connect(toggle)
+    local pointer,dragStart,offsetStart,slider=nil,nil,nil,nil
+    local function pointerType(eventInput)
+        return eventInput.UserInputType==Enum.UserInputType.Touch or eventInput.UserInputType==Enum.UserInputType.MouseButton1
+    end
+    local function matching(origin,changed)
+        return origin and (origin.UserInputType==Enum.UserInputType.Touch and changed==origin
+            or origin.UserInputType==Enum.UserInputType.MouseButton1 and changed.UserInputType==Enum.UserInputType.MouseMovement)
+    end
+    local function slide(x,save)
+        local ratio=math.clamp((x-track.AbsolutePosition.X)/math.max(1,track.AbsoluteSize.X),0,1)
+        call("crateCount",1+math.floor(ratio*9+0.5),save)
+    end
+    header.InputBegan:Connect(function(eventInput)
+        if pointerType(eventInput) then
+            pointer=eventInput dragStart=Vector2.new(eventInput.Position.X,eventInput.Position.Y) offsetStart=offset
+        end
+    end)
+    hit.InputBegan:Connect(function(eventInput)
+        if pointerType(eventInput) then slider=eventInput slide(eventInput.Position.X,false) end
+    end)
+    local moved=input.InputChanged:Connect(function(eventInput)
+        if matching(slider,eventInput) then slide(eventInput.Position.X,false)
+        elseif matching(pointer,eventInput) then
+            offset=offsetStart+Vector2.new(eventInput.Position.X,eventInput.Position.Y)-dragStart
+            position()
+        end
+    end)
+    local ended=input.InputEnded:Connect(function(eventInput)
+        if eventInput==pointer then pointer=nil end
+        if eventInput==slider then slider=nil slide(eventInput.Position.X,true) end
+    end)
+    local resized=canvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(position)
+    lifecycle.add(function() moved:Disconnect() ended:Disconnect() resized:Disconnect() end)
+    task.defer(position)
+    showPage("chapter2")
+
+    return {
+        status=function(message) footer.Text=tostring(message) end,
+        showingClasses=function() return open and activePage=="classes" end,
+        options=function(value,busy,improving,rolling)
+            buttons.size.Text="JOGADORES  ·  "..value.size
+            buttons.friends.Text=value.friends and "SÓ AMIGOS  ·  SIM" or "SÓ AMIGOS  ·  NÃO"
+            buttons.skip.Text=value.skip and "INTRO  ·  PULAR" or "INTRO  ·  VER"
+            buttons.skipOutro.Text=value.skipOutro and "FINAL  ·  PULAR" or "FINAL  ·  VER"
+            buttons.repeatRun.Text=value.repeatRun and "REPETIR  ·  SIM" or "REPETIR  ·  NÃO"
+            buttons.autoImprove.Text=improving and "MELHORIAS  ·  ON" or "MELHORIAS  ·  OFF"
+            buttons.autoCrates.Text=value.autoCrates and "AUTO CAIXAS  ·  ON" or "AUTO CAIXAS  ·  OFF"
+            buttons.cycle.Text=busy and "AGUARDANDO O JOGO" or "CICLO COMPLETO"
+            buttons.roll.Text=rolling and "PARAR GIROS" or "GIRAR ATÉ O ALVO"
+            amount.Text=tostring(value.crateCount)
+            local ratio=(value.crateCount-1)/9
+            fill.Size=UDim2.fromScale(ratio,1)
+            knob.Position=UDim2.fromScale(ratio,0.5)
+        end,
+        resources=function(value,count,gems)
+            balance.Text=string.format("Abóboras  %s   ·   Gemas  %s",tostring(value or "—"),tostring(gems or "—"))
+            eventBalance.Text=string.format("%s no saldo   ·   %d caixa(s) = %d abóboras",tostring(value or "—"),count,count*80)
+        end,
+        classes=function(list,selected,current,free)
+            classStatus.Text=string.format("%s   ·   Giros grátis: %s",current or "—",tostring(free or "—"))
+            if activePage~="classes" or not open then return end
+            local signature={}
+            for index=1,math.min(#list,30) do
+                local item=list[index]
+                signature[index]=tostring(item.id)..":"..tostring(item.name)..":"..tostring(item.icon)
+            end
+            local key=table.concat(signature,"|")
+            if key~=classKey then
+                classKey=key
+                for _,item in pairs(classItems) do item.button:Destroy() end
+                table.clear(classItems)
+                empty.Visible=#list==0
+                for index=1,math.min(#list,30) do
+                    local entry=list[index]
+                    local id=tostring(entry.id)
+                    local tile=button(strip,nil,"")
+                    tile.Size,tile.LayoutOrder=UDim2.fromOffset(105,101),index
+                    local line=stroke(tile)
+                    if type(entry.icon)=="string" and entry.icon:find("rbxasset",1,true) then
+                        make("ImageLabel",{Position=UDim2.fromOffset(29,6),Size=UDim2.fromOffset(47,47),
+                            BackgroundTransparency=1,Image=entry.icon,ScaleType=Enum.ScaleType.Fit},tile)
+                    else
+                        local letter=label(tile,string.sub(entry.name,1,1),31,blue,true)
+                        letter.Position,letter.Size=UDim2.fromOffset(6,3),UDim2.new(1,-12,0,49)
+                        letter.TextXAlignment=Enum.TextXAlignment.Center
+                    end
+                    local name=label(tile,entry.name,12,bright,true)
+                    name.Position,name.Size=UDim2.fromOffset(4,53),UDim2.new(1,-8,0,40)
+                    name.TextXAlignment=Enum.TextXAlignment.Center
+                    tile.Activated:Connect(function() call("target",id) end)
+                    classItems[id]={button=tile,line=line}
+                end
+            end
+            for id,entry in pairs(classItems) do
+                entry.line.Color=id==selected and mint or border
+                entry.button.BackgroundColor3=id==selected and Color3.fromRGB(45,79,95) or surface
+            end
+        end,
+        history=function(state,persistent)
+            if activePage~="history" or not open then return end
+            local n=state.totals
+            totals.Text=string.format("Rodadas  %d   ·   Abóboras  %d   ·   Gemas  %d\nCaixas  %d   ·   Melhorias  %d   ·   Giros  %d\n%s",
+                n.rounds or 0,n.pumpkins or 0,n.gems or 0,n.crates or 0,n.upgrades or 0,n.rolls or 0,
+                persistent and "Histórico salvo neste dispositivo" or "Histórico da sessão")
+            local last=state.events[#state.events]
+            local signature=tostring(last)
+            if signature==journalKey then return end
+            journalKey=signature
+            for _,item in ipairs(entries) do item:Destroy() end
+            table.clear(entries)
+            for index=#state.events,math.max(1,#state.events-24),-1 do
+                local entry=state.events[index]
+                local detail=tostring(entry.detail or "")
+                local frame=block(journal,entry.title,detail,#detail>180 and 113 or 67)
+                frame.LayoutOrder=#state.events-index
+                table.insert(entries,frame)
+            end
+        end,
+    }
+end
+
+return View
+
+end)()
+
+local History = (function()
+-- Luau · potato_history.luau · confirmed totals and a bounded local journal
+local History={}
+local counters={"rounds","pumpkins","gems","crates","upgrades","rolls"}
+
+local function amount(value)
+    if type(value)~="number" or value~=value or value<0 or value>1000000000 then return 0 end
+    return math.floor(value)
+end
+
+function History.create(io,account)
+    local path="Evolvy_History_"..tostring(account)..".json"
+    local persistent=type(io.read)=="function" and type(io.write)=="function"
+    local state={schema=1,totals={},events={},roundIds={},settings={}}
+    if persistent then
+        local ok,value=pcall(function()
+            local raw=io.read(path)
+            if type(raw)=="string" and #raw<=180000 then return io.decode(raw) end
+        end)
+        if ok and type(value)=="table" and value.schema==1 then
+            for _,key in ipairs(counters) do
+                state.totals[key]=amount(type(value.totals)=="table" and value.totals[key])
+            end
+            if type(value.events)=="table" then
+                for index=math.max(1,#value.events-59),#value.events do
+                    local entry=value.events[index]
+                    if type(entry)=="table" and type(entry.title)=="string" then table.insert(state.events,entry) end
+                end
+            end
+            if type(value.roundIds)=="table" then
+                for index=math.max(1,#value.roundIds-59),#value.roundIds do
+                    if type(value.roundIds[index])=="string" then table.insert(state.roundIds,value.roundIds[index]) end
+                end
+            end
+            if type(value.settings)=="table" then state.settings=value.settings end
+        end
+    end
+    local function save()
+        if not persistent then return false end
+        local ok,result=pcall(function() return io.write(path,io.encode(state)) end)
+        return ok and result~=false
+    end
+    local function add(key,value)
+        state.totals[key]=math.min(1000000000,amount(state.totals[key])+amount(value))
+    end
+    local function event(kind,title,detail)
+        table.insert(state.events,{kind=kind,title=title,detail=detail,at=io.clock()})
+        if #state.events>60 then table.remove(state.events,1) end
+    end
+    local function lobby(kind,title,detail)
+        if kind~="crates" and kind~="upgrades" and kind~="rolls" then return end
+        add(kind,1)
+        event(kind,title,detail)
+        save()
+    end
+    local function round(id,counts,elapsed,purchases)
+        if type(id)~="string" or id=="" or table.find(state.roundIds,id) then return false end
+        table.insert(state.roundIds,id)
+        if #state.roundIds>60 then table.remove(state.roundIds,1) end
+        add("rounds",1)
+        add("pumpkins",counts.pumpkins)
+        add("gems",counts.gems)
+        local names={}
+        local upgrades=0
+        for _,item in ipairs(purchases or {}) do
+            if item.group=="upgrade" then
+                upgrades+=1
+                if #names<35 then table.insert(names,item.name) end
+            end
+        end
+        add("upgrades",upgrades)
+        local time=amount(elapsed)
+        local summary=string.format("%02d:%02d  ·  %d abóboras  ·  %d gemas  ·  %d melhorias",
+            math.floor(time/60),time%60,amount(counts.pumpkins),amount(counts.gems),upgrades)
+        if #names>0 then summary=summary.."\n"..table.concat(names,", ") end
+        event("rounds","Capítulo II concluído",summary)
+        save()
+        return true
+    end
+    return {lobby=lobby,round=round,state=state,persistent=persistent,
+        settings=function(value) state.settings=value save() end}
+end
+
+return History
 
 end)()
 
@@ -845,8 +1343,11 @@ function Handoff.options(values)
     if not size or size~=size or size<1 or size>4 or size%1~=0 then size=1 end
     local failures=tonumber(values.reconnectCount) or 0
     if failures~=1 and failures~=2 then failures=0 end
-    return {size=size,friends=values.friends==true,skip=values.skip~=false,repeatRun=values.repeatRun==true,
-        reconnectCount=failures}
+    local crates=tonumber(values.crateCount)
+    if not crates or crates~=crates or crates<1 or crates>10 or crates%1~=0 then crates=10 end
+    return {size=size,friends=values.friends==true,skip=values.skip~=false,skipOutro=values.skipOutro~=false,repeatRun=values.repeatRun==true,
+        reconnectCount=failures,autoCrates=values.autoCrates==true,crateCount=crates,
+        classTarget=type(values.classTarget)=="string" and #values.classTarget<=72 and values.classTarget or nil}
 end
 
 function Handoff.create(io,identity,bootstrap,checkLicense)
@@ -4220,6 +4721,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
     local exactBagBound=false
     local pumpkinSerial,gemSerial=0,0
     local counts={collected=0,pumpkins=0,gems=0,sold=0,sales=0,throws=0,delivered=0,cuts=0,cooled=0,purchases=0}
+    local purchases={}
     local cutEngine=nil
     local last={}
     local retryAt={}
@@ -4928,7 +5430,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         if not before or not capacity or before>=capacity and not item.pumpkin then return false,"bolsa cheia ou capacidade desconhecida" end
         local identity=resolver.stats.identity
         local mapped=resolver.stats.native_map or identity and math.max(identity.confirmed_geometry or 0,identity.confirmed_permuted or 0)>=3
-        if batch and mapped and exactBagBound and not item.logical then
+        if batch and mapped and exactBagBound and not item.logical and not item.pumpkin then
             local deliveryLimit=config.teamFunding and Core.effective(config,"autoDeliver") and Core.deliveryGoal(config,capacity)
             local batchCapacity=deliveryLimit or capacity
             local limit=burst.budget(os.clock(),before,batchCapacity)
@@ -4943,7 +5445,8 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             params.FilterType=Enum.RaycastFilterType.Include params.FilterDescendantsInstances={folder}
             local ids={}
             local function add(target)
-                if not itemAlive(target) or not target.part or (target.part.Position-root.Position).Magnitude>math.min(18,config.auraRadius) then return end
+                if not itemAlive(target) or target.pumpkin or not target.part
+                    or (target.part.Position-root.Position).Magnitude>math.min(18,config.auraRadius) then return end
                 local id=resolver.slot(target.part)
                 local exposed=resolver.exposed and resolver.exposed(target.part,id)
                 local hit=exposed==nil and world:Raycast(target.part.Position+Vector3.new(0,25,0),Vector3.new(0,-25.5,0),params)
@@ -5039,8 +5542,6 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             vacuumMisses=0
             if item.part and not nativeVacuum then resolver.confirm(item.part,item.slot,item.geometry) end
             counts.collected+=math.max(0,(after or before)-before)
-            if item.pumpkin and pumpkinSerial>beforePumpkin then counts.pumpkins+=pumpkinSerial-beforePumpkin end
-            if gemSerial>beforeGem then counts.gems+=gemSerial-beforeGem end
             adaptivePickDelay=math.max(0.04,adaptivePickDelay*0.9)
         else
             if equippedTool=="PotatoSucker" then
@@ -5232,6 +5733,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             else safeCall(storeView,"Close") end
             if success and not deferred then
                 counts.purchases+=1
+                if #purchases<100 then table.insert(purchases,{name=item.name,group=item.group}) end
                 if afterSale and item.group=="cut" then postSaleWeaponBought=true end
                 log("Compra confirmada: "..item.name..".")
             end
@@ -5402,6 +5904,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
         local ok,connection=pcall(pumpkinEvent.Connect,pumpkinEvent,function(first)
             if typeof(first)=="Instance" and first:IsA("Player") and first~=player then return end
             pumpkinSerial+=1
+            counts.pumpkins+=1
         end)
         if ok then table.insert(connections,connection) end
     end
@@ -5416,7 +5919,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             if ok then table.insert(connections,connection) end
         end
     end
-    watchReward("PotatoDiamondCollected",function() gemSerial+=1 end)
+    watchReward("PotatoDiamondCollected",function() gemSerial+=1 counts.gems+=1 end)
     watchReward("DynamiteThrown",function()
         dynamiteSerial+=1
         if bombPending then counts.throws+=1 bombPending=nil bombBackoff=math.max(0.1,bombBackoff*0.8) end
@@ -5544,7 +6047,7 @@ function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,Cut
             return dashboardCache
         end,
         droneAsked=function() droneAsked=true end,droneConfirm=function(value) droneConsent=value==true snapshotAt=0 end,
-        snapshot=snapshot,findCandidate=findCandidate,release=release,cancelCut=cancelCut,reset=reset,recover=recover,restoreGame=restoreGame,counts=counts,
+        snapshot=snapshot,findCandidate=findCandidate,release=release,cancelCut=cancelCut,reset=reset,recover=recover,restoreGame=restoreGame,counts=counts,purchases=purchases,
         manualUpgrade=manualUpgrade,
         questMode=function(action)
             if action==questMode then return end
@@ -5592,7 +6095,7 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.24.0"
+local BOOT_VERSION="0.25.0"
 local bootPhase="preparar o hub"
 
 local function bootAnonymousPotato()
@@ -5630,6 +6133,7 @@ lifecycle.add(function() if environment.AnonymousPotatoSession==registry then en
 local json={encode=function(value) return services.HttpService:JSONEncode(value) end,
     decode=function(value) return services.HttpService:JSONDecode(value) end}
 local files={read=type(readfile)=="function" and readfile or nil,write=type(writefile)=="function" and writefile or nil}
+local history=History.create({read=files.read,write=files.write,encode=json.encode,decode=json.decode,clock=os.time},player.UserId)
 local lastRunFile="Evolvy_Last_Chapter2_Diagnostic.json"
 local saveLastRun=nil
 local queueTransfer=type(queue_on_teleport)=="function" and queue_on_teleport
@@ -5771,6 +6275,7 @@ if phase=="lobby" then
             idle=attachIdle,reconnect=reconnect,
             watch=function(active,onError) Reconnect.watch(services,lifecycle,active,onError) end,
             features=LobbyExtras.create(services,bridge,nav,lifecycle),
+            history=history,view=LobbyView.create,rarest=LobbyExtras.rarest,
             lastRun=function()
                 if not files.read then return nil end
                 local ok,value=pcall(files.read,lastRunFile)
@@ -5790,7 +6295,11 @@ local function clearQuest()
     if adapter then adapter.questMode(nil) end
 end
 local loopEnabled=resume and resume.repeatRun==true or false
-if loopEnabled then config.skipEndingScene=true config.releaseEndingCamera=true end
+if resume then
+    config.skipEndingScene=resume.skipOutro
+    config.releaseEndingCamera=resume.skipOutro
+    if resume.autoCrates then config.collectPumpkins=true end
+end
 local loopAttempted,reportAt=false,nil
 local returning=false
 local loopStatus=nil
@@ -6053,6 +6562,7 @@ local function diagnostic()
         report.lobby_cycle={enabled=loopEnabled,report_received=reportAt~=nil,return_attempted=loopAttempted,status=loopStatus}
         report.op_start={expected_phase=expectedPhase,resumed=resume~=nil,waiting_for_character=pendingOP,
             character_confirmed=autoStartedCharacter~=nil}
+        report.collection_plan={auto_crates=resume and resume.autoCrates or false,collect_pumpkins=config.collectPumpkins}
         report.quests={selected=selectedQuest,action=questAction,rows=questRows}
         report.gui_recovery=lastRecovery
         local member=gate.membership()
@@ -6232,6 +6742,7 @@ local heartbeat=services.RunService.Heartbeat:Connect(function()
         if exitState.finished and not completionHandled then
             completionHandled=true
             finishSeconds=(escapeDriver.finishTime() or os.clock())-sessionStartedAt
+            history.round(game.JobId,adapter.counts,finishSeconds,adapter.purchases)
             pause("Capitulo 2 concluido; rotinas pausadas.")
             saveLastRun()
         end
