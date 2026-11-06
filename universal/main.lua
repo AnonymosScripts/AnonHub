@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal tools
-local BOOT_VERSION="0.33.0"
+local BOOT_VERSION="0.34.0"
 local hub=...
 if type(hub)~="table" then return end
 
@@ -320,6 +320,7 @@ end
 local launcher=ui.button(canvas,"A",0,true)
 launcher.ZIndex=20
 launcher.TextSize=23
+hub.decorateLauncher(launcher)
 local function togglePanel() body.Visible=not body.Visible end
 local suppressLauncherUntil=0
 connect(launcher.Activated,function() if os.clock()>suppressLauncherUntil then togglePanel() end end)

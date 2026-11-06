@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal entry point
-local version="0.33.0"
+local version="0.34.0"
 local games={
     [10767408330]={name="Peel THE Potato",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
@@ -29,6 +29,77 @@ local function save()
     if type(writefile)=="function" then
         pcall(function() writefile(preferencesFile,http:JSONEncode(preferences)) end)
     end
+end
+
+local iconFile="AnonHub_Launcher_v1.png"
+local iconSignature=string.char(137,80,78,71,13,10,26,10)
+local registerAsset=type(getcustomasset)=="function" and getcustomasset
+    or type(getsynasset)=="function" and getsynasset or nil
+local iconUri,iconLoading
+local iconButtons={}
+
+local function isIcon(bytes)
+    return type(bytes)=="string" and #bytes>=24 and #bytes<=4*1024*1024
+        and bytes:sub(1,#iconSignature)==iconSignature
+end
+
+local function loadIcon()
+    local cached=false
+    if type(readfile)=="function" then
+        local ok,bytes=pcall(readfile,iconFile)
+        cached=ok and isIcon(bytes)
+    end
+    if not cached then
+        if type(writefile)~="function" then return end
+        local ok,bytes=pcall(game.HttpGet,game,root.."assets/anonhub-launcher.png?v=1")
+        if not ok or not isIcon(bytes) then return end
+        local wrote,result=pcall(writefile,iconFile,bytes)
+        if not wrote or result==false then return end
+    end
+    local ok,uri=pcall(registerAsset,iconFile)
+    if ok and type(uri)=="string" and (uri:match("^rbxasset://.+") or uri:match("^rbxassetid://%d+$")) then
+        return uri
+    end
+end
+
+local function setLauncherIcon(button,uri)
+    if not button.Parent or button:FindFirstChild("AnonHubLauncherIcon") then return end
+    local image=Instance.new("ImageLabel")
+    image.Name="AnonHubLauncherIcon"
+    image.Size=UDim2.fromScale(1,1)
+    image.BackgroundTransparency=1
+    image.BorderSizePixel=0
+    image.Active=false
+    image.ScaleType=Enum.ScaleType.Crop
+    image.ZIndex=button.ZIndex+1
+    local corner=Instance.new("UICorner")
+    local buttonCorner=button:FindFirstChildOfClass("UICorner")
+    corner.CornerRadius=buttonCorner and buttonCorner.CornerRadius or UDim.new(0,7)
+    corner.Parent=image
+    local function reveal()
+        if image.Parent and image.IsLoaded then button.TextTransparency=1 end
+    end
+    image:GetPropertyChangedSignal("IsLoaded"):Connect(reveal)
+    image.Parent=button
+    image.Image=uri
+    reveal()
+end
+
+local function decorateLauncher(button)
+    if not registerAsset then return end
+    if iconUri then setLauncherIcon(button,iconUri) return end
+    table.insert(iconButtons,button)
+    if iconLoading then return end
+    iconLoading=true
+    task.spawn(function()
+        iconUri=loadIcon()
+        iconLoading=false
+        local pending=iconButtons
+        iconButtons={}
+        if iconUri then
+            for _,control in ipairs(pending) do setLauncherIcon(control,iconUri) end
+        end
+    end)
 end
 
 local function rgb(hex)
@@ -310,6 +381,7 @@ start=function(chooseLanguage)
         local ok=pcall(run,{
             language=language,access=access,startNow=startNow,unload=state.close,
             identity=identity,progress=progress,ready=showReady,
+            decorateLauncher=decorateLauncher,
             ui=skin,settings=customization,
             saveSettings=function(value)
                 if not dedicated and current() then preferences.universal=table.clone(value) save() end

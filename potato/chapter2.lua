@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- AnonHub 0.33.0 · Chapter 2 and lobby
+-- AnonHub 0.34.0 · Chapter 2 and lobby
 
 local hub=...
 if type(hub)~="table" or type(hub.access)~="table" then return end
@@ -549,7 +549,7 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
     local gui=Instance.new("ScreenGui")
     gui.Name="EvolvyChapter2Lobby" gui.ResetOnSpawn=false gui.DisplayOrder=10001 gui.Parent=playerGui
     lifecycle.add(function() gui:Destroy() end)
-    local callbacks={}
+    local callbacks={decorateLauncher=hub.decorateLauncher}
     local view=runtime.view(services,lifecycle,gui,callbacks)
     local function refresh() view.options(options,busy,feature=="upgrade",feature=="roll") end
     local function persist() runtime.settings.save(normalize(options)) end
@@ -1559,6 +1559,7 @@ function View.create(services,lifecycle,gui,callbacks)
     local launcher=button(canvas,nil,"A")
     launcher.Position,launcher.Size=UDim2.new(0,10,1,-64),UDim2.fromOffset(47,47)
     launcher.TextSize=26 launcher.ZIndex=6 launcher.BackgroundColor3=surface
+    if callbacks.decorateLauncher then callbacks.decorateLauncher(launcher) end
 
     local nav=make("ScrollingFrame",{Position=UDim2.fromOffset(9,83),Size=UDim2.new(0,129,1,-139),
         BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.fromOffset(0,0),
@@ -3693,6 +3694,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
     local mini=button(canvas,"A")
     mini.Position,mini.Size=UDim2.fromOffset(13,72),UDim2.fromOffset(56,56)
     mini.BackgroundColor3=palette.accent mini.TextColor3=palette.background mini.TextSize=27 mini.Visible=true mini.ZIndex=20
+    if callbacks.decorateLauncher then callbacks.decorateLauncher(mini) end
     local dragBar=make("Frame",{Name="MoveHandle",Size=UDim2.new(1,-18,0,33),BackgroundTransparency=1,Active=true},panel)
     local dragHint=text(dragBar,"≡   ANONHUB / POTATO   ·   ARRASTE",10,palette.muted,true)
     dragHint.Position,dragHint.Size=UDim2.fromOffset(15,3),UDim2.new(1,-30,1,-6)
@@ -6555,7 +6557,7 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.33.0"
+local BOOT_VERSION="0.34.0"
 
 
 local function bootAnonymousPotato()
@@ -6986,6 +6988,7 @@ local function change(field,value)
 end
 hub.progress(0.9,"Montando os controles…","Building the controls…")
 ui=UI.create(services,config,{
+    decorateLauncher=hub.decorateLauncher,
     value=displayed,change=change,parseNumber=Core.parseAmount,membership=gate.membership,startProfile=startProfile,
     manualUpgrade=function(tool,id)
         if gate.expired() or completionHandled then return end
