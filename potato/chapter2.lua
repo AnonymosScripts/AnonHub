@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.25.0. Chapter 2 and lobby. No paid purchases.
+-- Local test key: Anonymous. Version 0.26.0. Chapter 2 and lobby. No paid purchases.
 
 local BootError = (function()
 -- Luau · potato_boot_error.luau · visible startup errors for mobile
@@ -245,6 +245,10 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
         refresh()
         view.resources(runtime.features.pumpkins(),count,runtime.features.gems())
     end
+    callbacks.launcher=function(x,y)
+        options.launcherX,options.launcherY=x,y
+        persist()
+    end
     callbacks.openBatch=function()
         local count=options.crateCount
         startFeature("crate",function(valid)
@@ -278,15 +282,17 @@ function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,
         if entry then chooseTarget(tostring(entry.id))
         else view.status("As chances ainda não foram carregadas pelo jogo.") end
     end
-    callbacks.roll=function()
+    callbacks.roll=function(useGems)
         startFeature("roll",function(valid)
             local selected=nil
             for _,entry in ipairs(runtime.features.catalog()) do
                 if tostring(entry.id)==options.classTarget then selected=entry break end
             end
             if not selected then return false,"Escolha uma classe na barra." end
-            return runtime.features.roll(valid,selected,view.status,function(result)
-                history.lobby("rolls","Giro de classe",result or "Resultado confirmado")
+            return runtime.features.roll(valid,selected,useGems,view.status,function(result,spent)
+                local detail=result or "Resultado confirmado"
+                if spent then detail=detail..string.format(" · %d gemas",spent) end
+                history.lobby("rolls","Giro de classe",detail)
             end)
         end)
     end
@@ -444,7 +450,7 @@ return Lobby
 end)()
 
 local LobbyExtras = (function()
--- Luau · potato_lobby_extras.luau · native lobby offers and confirmed free class rolls
+-- Luau · potato_lobby_extras.luau · native lobby offers and confirmed class rolls
 local Extras={}
 Extras.CRATE_COST=80
 
@@ -478,6 +484,23 @@ function Extras.confirmCrate(before,after,rewardSeen)
     return type(before)=="number" and after==before-Extras.CRATE_COST and rewardSeen==true
 end
 
+function Extras.offerAmount(text)
+    local plain=text:gsub("<.->","")
+    local raw=plain:match("^%s*([%d][%d,.]*)%s*$") or plain:match("%f[%d]([%d][%d,.]*)%f[^%d]")
+    if not raw then return nil end
+    local tail=plain:gsub(raw:gsub("([^%w])","%%%1"),"",1)
+    if tail:find("%d") or tail:find("%%") then return nil end
+    if raw:find("[,.]") and not raw:match("^%d%d?%d?[,.]%d%d%d$") then return nil end
+    local value=tonumber((raw:gsub("[,.]","")))
+    return value and value>0 and value or nil
+end
+
+function Extras.confirmRoll(before,after,cost,spentGems,resultSeen)
+    return type(before)=="number" and type(after)=="number" and resultSeen==true
+        and (spentGems and type(cost)=="number" and cost>0 and after==before-cost
+            or not spentGems and after==before-1)
+end
+
 function Extras.create(services,bridge,nav,lifecycle)
     local player=services.Players.LocalPlayer
     local gui=player:WaitForChild("PlayerGui")
@@ -487,6 +510,16 @@ function Extras.create(services,bridge,nav,lifecycle)
     local classSignal=0
     local crateSignal=0
     local moduleCatalog={}
+    local lastCrateRoute=nil
+    local function imageId(value)
+        if type(value)=="number" and value>0 then return "rbxassetid://"..string.format("%.0f",value) end
+        if type(value)~="string" or value=="" then return nil end
+        if value:match("^%d+$") then return "rbxassetid://"..value end
+        if value:match("^rbxasset") or value:match("^https?://") then return value end
+    end
+    local function imageObject(item)
+        return item:IsA("ImageLabel") or item:IsA("ImageButton") or item:IsA("Decal")
+    end
     local function load(module)
         if not module or not module:IsA("ModuleScript") then return nil end
         local ok,value=pcall(require,module)
@@ -508,16 +541,16 @@ function Extras.create(services,bridge,nav,lifecycle)
         end
         local definition=load(get(storage,"Shared","ClassShared"))
             or load(get(storage,"Shared","ClassesShared")) or load(get(storage,"Modules","Resources","Classes"))
-        local list=definition and (definition.Classes or definition)
+            or load(get(storage,"Modules","Resources","ClassConfig"))
+        local list=definition and (definition.Classes or definition.Definitions or definition.List or definition)
         for id,row in pairs(list or {}) do
             if type(row)=="table" then
                 local title=row.Name or row.DisplayName or (type(id)=="string" and id)
                 local chance=row.Chance or row.Weight or row.Probability
-                if type(title)=="string" and type(chance)=="number" then
-                    local icon=row.Icon or row.Image or row.ImageId
-                    if type(icon)=="number" then icon="rbxassetid://"..string.format("%.0f",icon) end
+                if type(title)=="string" and (type(chance)=="number" or row.Id~=nil) then
+                    local icon=imageId(row.Icon or row.IconId or row.Image or row.ImageId or row.Thumbnail or row.Texture)
                     table.insert(moduleCatalog,{name=title,id=row.Id or title,chance=chance,
-                        icon=type(icon)=="string" and icon or nil})
+                        icon=icon})
                 end
             end
         end
@@ -579,66 +612,158 @@ function Extras.create(services,bridge,nav,lifecycle)
         until os.clock()>=deadline
         return false
     end
+    local function readIcon(item)
+        if item:IsA("ImageLabel") or item:IsA("ImageButton") then
+            return imageId(item.Image),item.ImageRectOffset,item.ImageRectSize
+        end
+        if item:IsA("Decal") then return imageId(item.Texture) end
+    end
     local function catalog()
-        if #moduleCatalog>0 then return moduleCatalog end
-        local result={}
-        local seen={}
+        local result,byName={},{}
+        local function register(entry)
+            local key=norm(entry.name)
+            if key=="" or byName[key] then return end
+            byName[key]=entry
+            table.insert(result,entry)
+        end
+        for _,entry in ipairs(moduleCatalog) do register(table.clone(entry)) end
         local screen=gui:FindFirstChild("Classes")
         for _,label in ipairs(screen and screen:GetDescendants() or {}) do
-            if label:IsA("TextLabel") then
-                local probability=tonumber(label.Text:match("([%d%.]+)%s*%%"))
-                local parent=label.Parent
-                local title=parent and (parent:FindFirstChild("ClassName") or parent:FindFirstChild("Title") or parent:FindFirstChild("Name"))
-                if probability and title and title:IsA("TextLabel") and not seen[title.Text] then
-                    seen[title.Text]=true
-                    local image=parent:FindFirstChild("Icon") or parent:FindFirstChild("Image")
-                    local icon=image and (image:IsA("ImageLabel") or image:IsA("ImageButton")) and image.Image
-                    table.insert(result,{name=title.Text,id=title.Text,chance=probability,icon=icon})
+            if not (label:IsA("TextLabel") or label:IsA("TextButton")) then continue end
+            local title=label.Text:gsub("<.->","")
+            local entry=byName[norm(title)]
+            local row=label.Parent
+            local labelName=norm(label.Name)
+            local isTitle=labelName=="classname" or labelName=="title" or labelName=="name"
+            for _=1,2 do
+                if not row or row==screen then break end
+                local chance,icon,offset,size=nil,nil,nil,nil
+                local images=0
+                for _,item in ipairs(row:GetDescendants()) do
+                    if item:IsA("TextLabel") and not chance then
+                        local value=item.Text:match("([%d.,]+)%s*%%")
+                        chance=value and tonumber((value:gsub(",",".")))
+                    elseif imageObject(item) then
+                        local key=norm(item.Name)
+                        if key=="classicon" or key=="portrait" or key=="icon" or key=="image" or key=="classimage" then
+                            local candidate,crop,extent=readIcon(item)
+                            if candidate then icon,offset,size=candidate,crop,extent images+=1 end
+                        end
+                    end
+                end
+                if not entry and chance and isTitle then
+                    entry={name=title,id=title,chance=chance}
+                    register(entry)
+                end
+                if entry and icon and images==1 then
+                    entry.icon,entry.iconOffset,entry.iconSize=icon,offset,size
+                    break
+                end
+                row=row.Parent
+            end
+        end
+        local assets=get(storage,"Assets","Classes") or get(storage,"Assets","ClassIcons")
+        if assets then
+            for _,item in ipairs(assets:GetChildren()) do
+                local entry=byName[norm(item.Name)]
+                if entry and not entry.icon then
+                    local visual=imageObject(item) and item or item:FindFirstChildWhichIsA("ImageLabel",true)
+                        or item:FindFirstChildWhichIsA("Decal",true)
+                    if visual then entry.icon,entry.iconOffset,entry.iconSize=readIcon(visual) end
                 end
             end
         end
+        table.sort(result,function(a,b)
+            if a.chance==b.chance then return a.name<b.name end
+            return (a.chance or 0)>(b.chance or 0)
+        end)
         return result
     end
-    local function roll(valid,target,report,onResult)
-        if type(target)~="table" or norm(target.name)=="" then return false,"Escolha uma classe na barra." end
-        for index=1,100 do
-            if not valid() then return true,"Rolagem pausada." end
-            local current,free=classState()
-            if not current or free==nil then return false,"A classe ou a quantidade de giros gratuitos nao esta disponivel." end
-            if Extras.matchesTarget(target,current) then return true,"Classe encontrada: "..current.."." end
-            if free<=0 then return true,"Sem giros gratuitos. Ultima classe: "..current.."." end
-            local screen=gui:FindFirstChild("Classes")
-            local choices=buttons(screen,function(item,label)
-                local key=norm(item.Name)
-                local textKey=norm(label)
-                return key=="roll" or key=="reroll" or key=="freeroll" or key=="rollfree"
-                    or textKey=="roll" or textKey=="reroll" or textKey=="rolar" or textKey=="girar"
-                    or textKey:find("freeroll",1,true) or textKey:find("rollfree",1,true)
-            end,false)
-            if #choices~=1 then
-                local exact=buttons(screen,function(item,label)
-                    local key,textKey=norm(item.Name),norm(label)
-                    return key=="freeroll" or key=="rollfree" or textKey:find("freeroll",1,true)
-                        or textKey:find("rollfree",1,true)
-                end,false)
-                if #exact==1 then choices=exact end
+    local function currency(root,expected,sourceScreen)
+        local own=norm(root.Name.." "..bridge.texts(root))
+        for _,word in ipairs(expected) do
+            if own:find(word,1,true) then return true end
+        end
+        local hud=get(gui,sourceScreen,"Counter","Icon") or get(gui,sourceScreen,"Icon")
+        local icon=hud and readIcon(hud)
+        if not icon then return false end
+        for _,item in ipairs(root:GetDescendants()) do
+            if readIcon(item)==icon then return true end
+        end
+        return false
+    end
+    local function controlPrice(button,label)
+        local price=nil
+        for _,item in ipairs(button:GetDescendants()) do
+            local key=norm(item.Name)
+            if item:IsA("TextLabel") and bridge.visible(item)
+                and (key=="price" or key=="cost" or key=="amount") then
+                local value=Extras.offerAmount(item.Text)
+                if price and value and value~=price then return nil end
+                price=value or price
             end
-            if #choices~=1 then return false,"Abra a tela Classes uma vez. Nenhum botao gratuito unico foi identificado." end
+        end
+        return price or Extras.offerAmount(label)
+    end
+    local function rollOffer(screen,useGems)
+        local choices={}
+        for _,button in ipairs(buttons(screen,function() return true end,useGems)) do
+            local label=bridge.texts(button)
+            local key=norm(button.Name.." "..label)
+            local action=key:find("roll",1,true) or key:find("girar",1,true) or key:find("rolar",1,true)
+            local withGems=currency(button,{"gem","diamond","gema","diamante"},"Diamonds")
+                or currency(button,{},"Gems")
+            local free=key:find("free",1,true) or key:find("grati",1,true)
+            local price=controlPrice(button,label)
+            if action and (useGems and withGems and not free and price or not useGems and not withGems) then
+                table.insert(choices,{button=button,price=price,free=free})
+            end
+        end
+        if not useGems and #choices>1 then
+            local freeChoices={}
+            for _,choice in ipairs(choices) do if choice.free then table.insert(freeChoices,choice) end end
+            choices=freeChoices
+        end
+        if #choices==1 then return choices[1] end
+    end
+    local function roll(valid,target,useGems,report,onResult)
+        if type(target)~="table" or norm(target.name)=="" then return false,"Escolha uma classe na barra." end
+        local index=0
+        while valid() do
+            local current,free=classState()
+            if not current or not useGems and free==nil then return false,"O estado dos giros ainda não está disponível." end
+            if Extras.matchesTarget(target,current) then return true,"Classe encontrada: "..current.."." end
+            if not useGems and free<=0 then return true,"Sem giros gratuitos. Última classe: "..current.."." end
+            local screen=gui:FindFirstChild("Classes")
+            local offer=rollOffer(screen,useGems)
+            if not offer then
+                return false,useGems and "O giro com preço em gemas não foi identificado. Abra Classes no jogo."
+                    or "O giro gratuito não foi identificado. Abra Classes no jogo."
+            end
+            local before=free
+            if useGems then before=gems() end
+            if before==nil then return false,"Aguardando o saldo de gemas do jogo." end
+            if useGems and before<offer.price then return true,"Gemas insuficientes para o próximo giro." end
             local seen=classSignal
-            local ok,why=bridge.activate(choices[1],true)
+            local ok,why=bridge.activate(offer.button,not useGems)
             if not ok then return false,why end
+            local nextClass=nil
             if not waitFor(valid,12,function()
-                local _,remaining=classState()
-                return remaining and remaining<free and (classSignal>seen or select(1,classState())~=current)
+                local class,remaining=classState()
+                local after=remaining
+                if useGems then after=gems() end
+                local confirmed=class~=nil and Extras.confirmRoll(before,after,offer.price,useGems,
+                    classSignal>seen or class~=current)
+                if confirmed then nextClass=class end
+                return confirmed
             end) then return false,"O jogo nao confirmou o resultado. Rolagem parada." end
-            local nextClass=select(1,classState())
+            index+=1
             report("Giro "..index.." confirmado: "..tostring(nextClass))
-            if onResult then onResult(nextClass) end
+            if onResult then onResult(nextClass,useGems and offer.price or nil) end
             if Extras.matchesTarget(target,nextClass) then return true,"Classe encontrada: "..nextClass.."." end
-            if not valid() then return true,"Rolagem pausada." end
             task.wait(0.7)
         end
-        return true,"Limite de 100 giros atingido."
+        return true,"Rolagem pausada."
     end
     local function upgrade(valid)
         local root=get(gui,"LobbyUpgrades","Panel","Content","Upgrades")
@@ -677,59 +802,116 @@ function Extras.create(services,bridge,nav,lifecycle)
             or key:find("eventcrate",1,true) or key:find("caixadoevento",1,true)
     end
     local function eventButtons()
-        return buttons(gui:FindFirstChild("Crates"),function(item,label)
+        local screen=gui:FindFirstChild("Crates")
+        return buttons(screen,function(item,label)
             local name=norm(item.Name)
             local key=norm(label)
             local parent=item.Parent
-            local context=(parent and parent.Name or "").." "..item.Name.." "..label
-            for _=1,2 do
-                if not parent or parent==gui:FindFirstChild("Crates") then break end
+            local action=name:find("open",1,true) or name:find("buy",1,true) or name:find("purchase",1,true)
+                or key:find("open",1,true) or key:find("abrir",1,true) or key:find("comprar",1,true)
+            local quoted=controlPrice(item,label)
+            local pumpkin=currency(item,{"pumpkin","abobora"},"Pumpkins")
+            if parent and parent~=screen then
                 for _,child in ipairs(parent:GetChildren()) do
-                    if child:IsA("TextLabel") then context=context.." "..child.Text end
+                    if child:IsA("TextLabel") and bridge.visible(child) then
+                        local childName=norm(child.Name)
+                        if not quoted and (childName:find("price",1,true) or childName:find("cost",1,true)) then
+                            quoted=Extras.offerAmount(child.Text)
+                        end
+                        pumpkin=pumpkin or eventContext(child.Text)
+                    end
                 end
-                parent=parent.Parent
+                pumpkin=pumpkin or eventContext(parent.Name)
             end
-            local quoted=tonumber(context:match("%f[%d](80)%f[^%d]"))
-            local multiple=name:match("^open%d+$") or key:match("openx%d") or key:match("abrirx%d")
-            return not multiple and not paid(context) and quoted==Extras.CRATE_COST and eventContext(context) and (name=="open" or name=="opencrate" or name=="openpumpkins"
-                or key:find("open",1,true) or key:find("abrir",1,true))
+            local multiple=name:match("^open%d+$") or key:match("openx%d") or key:match("abrirx%d") or key:match("x%d+open")
+            return not multiple and quoted==Extras.CRATE_COST and (action or pumpkin)
+                and (pumpkin or eventContext(item.Name))
         end,true)
     end
-    local function requestEvent(valid)
-        local choices=eventButtons()
-        if #choices==0 then
-            local zone=get(services.Workspace,"Map","Zones","HalloweenZone")
-            local prompt=nil
-            for _,item in ipairs(zone and zone:GetDescendants() or {}) do
-                if item:IsA("ProximityPrompt") and item.Enabled
-                    and eventContext(item.Name.." "..item.ActionText.." "..item.ObjectText)
-                    and not paid(item.ActionText.." "..item.ObjectText) then
-                    if prompt then return false,"Mais de uma caixa de evento encontrada." end
-                    prompt=item
+    local function eventZone()
+        return get(services.Workspace,"Map","Zones","HalloweenZone")
+    end
+    local function eventPrompt(zone)
+        local matches,fallback={},{}
+        for _,item in ipairs(zone and zone:GetDescendants() or {}) do
+            if item:IsA("ProximityPrompt") and item.Enabled and not paid(item.ActionText.." "..item.ObjectText) then
+                local description=item.Name.." "..item.ActionText.." "..item.ObjectText
+                local key=norm(description)
+                if eventContext(description) or key:find("crate",1,true) or key:find("caixa",1,true) then
+                    table.insert(matches,item)
+                elseif key:find("open",1,true) or key:find("abrir",1,true) or key:find("interact",1,true) then
+                    table.insert(fallback,item)
                 end
             end
+        end
+        if #matches==1 then return matches[1] end
+        if #matches==0 and #fallback==1 then return fallback[1] end
+    end
+    local function eventDetector(zone)
+        local match=nil
+        for _,item in ipairs(zone and zone:GetDescendants() or {}) do
+            if item:IsA("ClickDetector") and item.MaxActivationDistance>0 then
+                if match then return nil end
+                match=item
+            end
+        end
+        return match
+    end
+    local function fireEventPacket(valid)
+        local packet=nativePackets and nativePackets.CrateOpenPumpkins
+        if type(packet)~="table" or type(packet.Fire)~="function"
+            or type(packet.Writes)~="table" or #packet.Writes~=0
+            or type(packet.Reads)~="table" or #packet.Reads~=0 then return nil end
+        if not valid() then return false,"Abertura cancelada." end
+        lastCrateRoute="CrateOpenPumpkins"
+        local ok=pcall(packet.Fire,packet)
+        return ok,ok and nil or "Falha ao enviar a abertura de evento."
+    end
+    local function requestEvent(valid)
+        lastCrateRoute=nil
+        local choices=eventButtons()
+        if #choices==0 then
+            local zone=eventZone()
+            local prompt=eventPrompt(zone)
+            local detector=not prompt and eventDetector(zone) or nil
+            local startBalance,startSignal=pumpkins(),crateSignal
             if prompt then
-                local startBalance,startSignal=pumpkins(),crateSignal
+                lastCrateRoute=prompt:GetFullName()
                 local ok,why=nav.trigger(prompt,valid)
                 if not ok then return false,why end
-                waitFor(valid,2,function()
+            else
+                local anchor=zone and zone:FindFirstChild("stylematchstone",true)
+                if anchor and anchor:IsA("BasePart") then
+                    local floor=anchor.Position-Vector3.new(0,anchor.Size.Y/2,0)
+                    lastCrateRoute=anchor:GetFullName()
+                    nav.goTo(floor,valid)
+                end
+                if detector and type(fireclickdetector)=="function" and valid() then
+                    local host=detector.Parent
+                    local root=nav.actor()
+                    local position=host and (host:IsA("BasePart") and host.Position
+                        or host:IsA("Model") and host:GetPivot().Position)
+                    if root and position and (root.Position-position).Magnitude<=detector.MaxActivationDistance then
+                        local ok=pcall(fireclickdetector,detector)
+                        if ok then lastCrateRoute=detector:GetFullName() end
+                    end
+                end
+            end
+            if prompt or lastCrateRoute then
+                waitFor(valid,2.5,function()
                     choices=eventButtons()
                     return #choices>0 or crateSignal>startSignal or pumpkins()~=startBalance
                 end)
                 if crateSignal>startSignal or pumpkins()~=startBalance then return true end
-            else
-                local packet=nativePackets and nativePackets.CrateOpenPumpkins
-                if type(packet)=="table" and type(packet.Fire)=="function"
-                    and type(packet.Writes)=="table" and #packet.Writes==0
-                    and type(packet.Reads)=="table" and #packet.Reads==0 then
-                    if not valid() then return false,"Abertura cancelada." end
-                    local ok=pcall(packet.Fire,packet)
-                    if ok then return true end
-                    return false,"Falha ao enviar a abertura de evento."
-                end
+            end
+            if #choices==0 and not prompt and not detector then
+                local ok,why=fireEventPacket(valid)
+                if ok~=nil then return ok,why end
             end
         end
-        if #choices~=1 then return false,"Abra a tela da caixa de abóboras. O botão nativo de 80 ainda não foi identificado." end
+        if #choices~=1 then return false,"A oferta de 80 abóboras não pôde ser confirmada. Copie o log do lobby." end
+        if not valid() then return false,"Abertura cancelada." end
+        lastCrateRoute=choices[1]:GetFullName()
         return bridge.activate(choices[1])
     end
     local function settleRoll(valid)
@@ -785,11 +967,23 @@ function Extras.create(services,bridge,nav,lifecycle)
         info.pumpkins=pumpkins()
         local packet=nativePackets and nativePackets.CrateOpenPumpkins
         info.eventCrateFields=type(packet)=="table" and type(packet.Writes)=="table" and #packet.Writes or nil
+        info.crateRoute=lastCrateRoute
+        info.eventOffers=#eventButtons()
+        info.eventPrompts={}
+        local zone=eventZone()
+        for _,item in ipairs(zone and zone:GetDescendants() or {}) do
+            if item:IsA("ProximityPrompt") and #info.eventPrompts<18 then
+                table.insert(info.eventPrompts,{path=item:GetFullName(),action=item.ActionText,object=item.ObjectText,enabled=item.Enabled})
+            elseif item:IsA("ClickDetector") and #info.eventPrompts<18 then
+                table.insert(info.eventPrompts,{path=item:GetFullName(),distance=item.MaxActivationDistance})
+            end
+        end
         for _,name in ipairs({"Classes","Crates","LobbyUpgrades"}) do
             local controls=buttons(gui:FindFirstChild(name),function() return true end,false)
             for index=1,math.min(#controls,16) do
                 local control=controls[index]
-                table.insert(info.buttons,{screen=name,name=control.Name,label=bridge.texts(control):sub(1,90),visible=bridge.visible(control)})
+                table.insert(info.buttons,{screen=name,path=control:GetFullName(),name=control.Name,
+                    label=bridge.texts(control):sub(1,140),visible=bridge.visible(control)})
             end
         end
         return info
@@ -945,14 +1139,55 @@ function View.create(services,lifecycle,gui,callbacks)
     local three=page("chapter3","Cap. 3\nEm breve",3)
     block(three,"Capítulo III","Em breve no Evolvy.")
     local settings=page("config","Configurar",4)
-    block(settings,"Fila do Capítulo II","As escolhas são reaplicadas na próxima rodada.",72)
-    local first=row(settings)
+    block(settings,"Configurar capítulo","Escolha um capítulo para ver as opções da fila.",73)
+    local chapterNames={"Capítulo I","Capítulo II","Capítulo III"}
+    local expanded,selectedChapter=false,1
+    local function chapterCard(parent,index,dropdown)
+        local item=button(parent,nil,"")
+        item.Size=UDim2.new(1,0,0,43)
+        local title=label(item,chapterNames[index],15,bright,true)
+        title.Position,title.Size=UDim2.fromOffset(12,0),UDim2.new(1,-130,1,0)
+        local color=index==2 and mint or dim
+        local dot=make("Frame",{Size=UDim2.fromOffset(7,7),Position=UDim2.new(1,-108,0.5,-3),
+            BackgroundColor3=color,BorderSizePixel=0},item)
+        round(dot,5)
+        local badge=label(item,index==2 and "ONLINE" or "EM BREVE",11,color,true)
+        badge.Position,badge.Size=UDim2.new(1,-94,0,0),UDim2.fromOffset(73,43)
+        local caret=nil
+        if dropdown then
+            caret=label(item,"⌄",17,dim,true)
+            caret.Position,caret.Size=UDim2.new(1,-23,0,0),UDim2.fromOffset(18,43)
+        end
+        return item,title,dot,badge,caret
+    end
+    local selector,chapterLabel,chapterDot,chapterBadge,caret=chapterCard(settings,1,true)
+    local choices=make("Frame",{BackgroundTransparency=1,Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,Visible=false},settings)
+    make("UIListLayout",{Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder},choices)
+    local chapterOptions=make("Frame",{BackgroundTransparency=1,Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,Visible=false},settings)
+    make("UIListLayout",{Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder},chapterOptions)
+    local function showChapter()
+        local online=selectedChapter==2
+        chapterLabel.Text=chapterNames[selectedChapter]
+        chapterDot.BackgroundColor3=online and mint or dim
+        chapterBadge.Text,chapterBadge.TextColor3=online and "ONLINE" or "EM BREVE",online and mint or dim
+        caret.Text=expanded and "⌃" or "⌄"
+        choices.Visible=expanded
+        chapterOptions.Visible=online
+    end
+    selector.Activated:Connect(function() expanded=not expanded showChapter() end)
+    for index=1,3 do
+        local item=chapterCard(choices,index,false)
+        item.LayoutOrder=index
+        item.Activated:Connect(function() selectedChapter=index expanded=false showChapter() end)
+    end
+    block(chapterOptions,"Fila do Capítulo II","As escolhas são reaplicadas na próxima rodada.",69)
+    local first=row(chapterOptions)
     rowButton(first,"size","JOGADORES",0,0.47)
     rowButton(first,"friends","AMIGOS",0.48,0.52)
-    local scenes=row(settings)
+    local scenes=row(chapterOptions)
     rowButton(scenes,"skip","INTRODUÇÃO",0,0.47)
     rowButton(scenes,"skipOutro","CENA FINAL",0.48,0.52)
-    local actions=row(settings)
+    local actions=row(chapterOptions)
     rowButton(actions,"repeatRun","REPETIR",0,0.47)
     rowButton(actions,"autoImprove","AUTO MELHORIA",0.48,0.52)
 
@@ -978,7 +1213,7 @@ function View.create(services,lifecycle,gui,callbacks)
     rowButton(eventButtons,"openBatch","ABRIR LOTE",0.55,0.45,true)
 
     local classes=page("classes","Classes",6)
-    block(classes,"Alvo de classe","Toque em uma única classe para escolher o alvo dos giros gratuitos.",79)
+    block(classes,"Alvo de classe","Selecione um cartão. A rolagem para quando o jogo confirma a classe.",79)
     local strip=make("ScrollingFrame",{Size=UDim2.new(1,0,0,112),CanvasSize=UDim2.fromOffset(0,0),
         AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum.ScrollingDirection.X,
         ScrollBarThickness=4,ScrollBarImageColor3=mint,BorderSizePixel=0,BackgroundTransparency=1},classes)
@@ -987,8 +1222,18 @@ function View.create(services,lifecycle,gui,callbacks)
     local empty=label(strip,"Abra Classes no jogo para carregar o catálogo.",14,dim,false)
     empty.Size=UDim2.fromOffset(260,90)
     local _,classStatus=block(classes,"Classe atual","Aguardando o jogo…",70)
+    local useGems,rollingNow=false,false
+    local gemCheck=button(classes,nil,"□   USAR GEMAS PARA GIRAR")
+    gemCheck.Size=UDim2.new(1,-5,0,42)
+    gemCheck.Activated:Connect(function()
+        if rollingNow then return end
+        useGems=not useGems
+        gemCheck.Text=useGems and "✓   USAR GEMAS PARA GIRAR" or "□   USAR GEMAS PARA GIRAR"
+        gemCheck.TextColor3=useGems and mint or bright
+    end)
     local rollRow=row(classes)
-    rowButton(rollRow,"roll","GIRAR ATÉ O ALVO",0,0.60,true)
+    local rollButton=rowButton(rollRow,nil,"GIRAR ATÉ O ALVO",0,0.60,true)
+    rollButton.Activated:Connect(function() call("roll",useGems) end)
     rowButton(rollRow,"rarest","SELECIONAR MAIS RARA",0.61,0.39)
     local classItems={}
     local classKey=""
@@ -1006,7 +1251,16 @@ function View.create(services,lifecycle,gui,callbacks)
 
     local open=true
     local offset=Vector2.zero
+    local launcherFraction=Vector2.new(0,1)
     local currentTween=nil
+    local function launcherRange()
+        local size=canvas.AbsoluteSize
+        return Vector2.new(math.max(1,size.X-63),math.max(1,size.Y-63))
+    end
+    local function placeLauncher()
+        local range=launcherRange()
+        launcher.Position=UDim2.fromOffset(8+launcherFraction.X*range.X,8+launcherFraction.Y*range.Y)
+    end
     local function position()
         local size=canvas.AbsoluteSize
         if size.X<80 or size.Y<80 then return end
@@ -1018,6 +1272,7 @@ function View.create(services,lifecycle,gui,callbacks)
         local range=math.max(0,(size.X-w*unit)/2-5)
         offset=Vector2.new(math.clamp(offset.X,-range,range),math.clamp(offset.Y,0,math.max(0,size.Y-h*unit-14)))
         panel.Position=UDim2.new(0.5,offset.X,0,7+offset.Y)
+        placeLauncher()
     end
     local function toggle()
         open=not open
@@ -1032,9 +1287,10 @@ function View.create(services,lifecycle,gui,callbacks)
             currentTween:Play()
         end
     end
-    launcher.Activated:Connect(toggle)
     hide.Activated:Connect(toggle)
     local pointer,dragStart,offsetStart,slider=nil,nil,nil,nil
+    local launcherPointer,launcherStart,launcherOrigin=nil,nil,nil
+    local launcherMoved=false
     local function pointerType(eventInput)
         return eventInput.UserInputType==Enum.UserInputType.Touch or eventInput.UserInputType==Enum.UserInputType.MouseButton1
     end
@@ -1054,14 +1310,35 @@ function View.create(services,lifecycle,gui,callbacks)
     hit.InputBegan:Connect(function(eventInput)
         if pointerType(eventInput) then slider=eventInput slide(eventInput.Position.X,false) end
     end)
+    launcher.InputBegan:Connect(function(eventInput)
+        if not pointerType(eventInput) or launcherPointer then return end
+        launcherPointer=eventInput
+        launcherStart=Vector2.new(eventInput.Position.X,eventInput.Position.Y)
+        launcherOrigin=launcherFraction
+        launcherMoved=false
+    end)
     local moved=input.InputChanged:Connect(function(eventInput)
-        if matching(slider,eventInput) then slide(eventInput.Position.X,false)
+        if matching(launcherPointer,eventInput) then
+            local delta=Vector2.new(eventInput.Position.X,eventInput.Position.Y)-launcherStart
+            if delta.Magnitude>=7 then launcherMoved=true end
+            if launcherMoved then
+                local range=launcherRange()
+                launcherFraction=Vector2.new(math.clamp(launcherOrigin.X+delta.X/range.X,0,1),
+                    math.clamp(launcherOrigin.Y+delta.Y/range.Y,0,1))
+                placeLauncher()
+            end
+        elseif matching(slider,eventInput) then slide(eventInput.Position.X,false)
         elseif matching(pointer,eventInput) then
             offset=offsetStart+Vector2.new(eventInput.Position.X,eventInput.Position.Y)-dragStart
             position()
         end
     end)
     local ended=input.InputEnded:Connect(function(eventInput)
+        if eventInput==launcherPointer then
+            launcherPointer=nil
+            if launcherMoved then call("launcher",launcherFraction.X,launcherFraction.Y)
+            elseif eventInput.UserInputState==Enum.UserInputState.End then toggle() end
+        end
         if eventInput==pointer then pointer=nil end
         if eventInput==slider then slider=nil slide(eventInput.Position.X,true) end
     end)
@@ -1074,6 +1351,11 @@ function View.create(services,lifecycle,gui,callbacks)
         status=function(message) footer.Text=tostring(message) end,
         showingClasses=function() return open and activePage=="classes" end,
         options=function(value,busy,improving,rolling)
+            rollingNow=rolling
+            if not launcherPointer then
+                launcherFraction=Vector2.new(value.launcherX,value.launcherY)
+                placeLauncher()
+            end
             buttons.size.Text="JOGADORES  ·  "..value.size
             buttons.friends.Text=value.friends and "SÓ AMIGOS  ·  SIM" or "SÓ AMIGOS  ·  NÃO"
             buttons.skip.Text=value.skip and "INTRO  ·  PULAR" or "INTRO  ·  VER"
@@ -1082,7 +1364,7 @@ function View.create(services,lifecycle,gui,callbacks)
             buttons.autoImprove.Text=improving and "MELHORIAS  ·  ON" or "MELHORIAS  ·  OFF"
             buttons.autoCrates.Text=value.autoCrates and "AUTO CAIXAS  ·  ON" or "AUTO CAIXAS  ·  OFF"
             buttons.cycle.Text=busy and "AGUARDANDO O JOGO" or "CICLO COMPLETO"
-            buttons.roll.Text=rolling and "PARAR GIROS" or "GIRAR ATÉ O ALVO"
+            rollButton.Text=rolling and "PARAR GIROS" or "GIRAR ATÉ O ALVO"
             amount.Text=tostring(value.crateCount)
             local ratio=(value.crateCount-1)/9
             fill.Size=UDim2.fromScale(ratio,1)
@@ -1099,6 +1381,7 @@ function View.create(services,lifecycle,gui,callbacks)
             for index=1,math.min(#list,30) do
                 local item=list[index]
                 signature[index]=tostring(item.id)..":"..tostring(item.name)..":"..tostring(item.icon)
+                    ..":"..tostring(item.iconOffset)..":"..tostring(item.iconSize)
             end
             local key=table.concat(signature,"|")
             if key~=classKey then
@@ -1112,9 +1395,10 @@ function View.create(services,lifecycle,gui,callbacks)
                     local tile=button(strip,nil,"")
                     tile.Size,tile.LayoutOrder=UDim2.fromOffset(105,101),index
                     local line=stroke(tile)
-                    if type(entry.icon)=="string" and entry.icon:find("rbxasset",1,true) then
+                    if type(entry.icon)=="string" and entry.icon~="" then
                         make("ImageLabel",{Position=UDim2.fromOffset(29,6),Size=UDim2.fromOffset(47,47),
-                            BackgroundTransparency=1,Image=entry.icon,ScaleType=Enum.ScaleType.Fit},tile)
+                            BackgroundTransparency=1,Image=entry.icon,ScaleType=Enum.ScaleType.Fit,
+                            ImageRectOffset=entry.iconOffset or Vector2.zero,ImageRectSize=entry.iconSize or Vector2.zero},tile)
                     else
                         local letter=label(tile,string.sub(entry.name,1,1),31,blue,true)
                         letter.Position,letter.Size=UDim2.fromOffset(6,3),UDim2.new(1,-12,0,49)
@@ -1345,8 +1629,13 @@ function Handoff.options(values)
     if failures~=1 and failures~=2 then failures=0 end
     local crates=tonumber(values.crateCount)
     if not crates or crates~=crates or crates<1 or crates>10 or crates%1~=0 then crates=10 end
+    local function fraction(value,default)
+        if type(value)~="number" or value~=value then return default end
+        return math.clamp(value,0,1)
+    end
     return {size=size,friends=values.friends==true,skip=values.skip~=false,skipOutro=values.skipOutro~=false,repeatRun=values.repeatRun==true,
         reconnectCount=failures,autoCrates=values.autoCrates==true,crateCount=crates,
+        launcherX=fraction(values.launcherX,0),launcherY=fraction(values.launcherY,1),
         classTarget=type(values.classTarget)=="string" and #values.classTarget<=72 and values.classTarget or nil}
 end
 
@@ -2987,61 +3276,68 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
         instance.Parent=parent return instance
     end
     local function corner(parent,radius) make("UICorner",{CornerRadius=UDim.new(0,radius)},parent) end
+    local ink=Color3.fromRGB(246,235,206)
+    local muted=Color3.fromRGB(192,175,147)
+    local green=Color3.fromRGB(145,209,95)
+    local edge=Color3.fromRGB(115,89,57)
+    local function gradient(parent,top,bottom)
+        return make("UIGradient",{Color=ColorSequence.new(top,bottom),Rotation=90},parent)
+    end
     local old=player.PlayerGui:FindFirstChild("AnonymousPotatoAccess") if old then old:Destroy() end
     local gui=make("ScreenGui",{Name="AnonymousPotatoAccess",ResetOnSpawn=false,DisplayOrder=10001,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},player.PlayerGui)
-    local backdrop=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.fromRGB(6,9,17),BackgroundTransparency=0.12,BorderSizePixel=0},gui)
-    local panel=make("Frame",{BackgroundColor3=Color3.fromRGB(17,22,37),BorderSizePixel=0},backdrop)
-    corner(panel,20)
-    make("UIStroke",{Color=Color3.fromRGB(83,103,155),Thickness=1},panel)
-    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(28,38,64),Color3.fromRGB(11,16,28)),Rotation=80},panel)
-    local accent=make("Frame",{Position=UDim2.new(0.5,-28,0,8),Size=UDim2.fromOffset(56,3),
-        BackgroundColor3=Color3.fromRGB(113,231,201),BorderSizePixel=0},panel) corner(accent,4)
-    local close=make("TextButton",{Text="×",BackgroundTransparency=1,TextColor3=Color3.fromRGB(178,193,220),Position=UDim2.new(1,-38,0,6),Size=UDim2.fromOffset(32,32),TextSize=24,Font=Enum.Font.Gotham,ZIndex=4},panel)
-    local body=make("ScrollingFrame",{BackgroundTransparency=1,BorderSizePixel=0,Position=UDim2.fromOffset(24,24),Size=UDim2.new(1,-48,1,-94),CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=3,ScrollBarImageColor3=Color3.fromRGB(104,231,196)},panel)
+    local backdrop=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.fromRGB(17,14,11),BackgroundTransparency=0.27,BorderSizePixel=0},gui)
+    local panel=make("Frame",{BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=0},backdrop)
+    corner(panel,14)
+    make("UIStroke",{Color=edge,Thickness=2},panel)
+    gradient(panel,Color3.fromRGB(71,52,33),Color3.fromRGB(31,25,20))
+    local close=make("TextButton",{Text="×",BackgroundColor3=Color3.fromRGB(78,47,37),TextColor3=ink,Position=UDim2.new(1,-40,0,8),Size=UDim2.fromOffset(30,30),TextSize=24,Font=Enum.Font.GothamBold,ZIndex=4,BorderSizePixel=0},panel)
+    corner(close,7)
+    local body=make("ScrollingFrame",{BackgroundTransparency=1,BorderSizePixel=0,Position=UDim2.fromOffset(24,24),Size=UDim2.new(1,-48,1,-94),CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=3,ScrollBarImageColor3=green},panel)
     local bodyLayout=make("UIListLayout",{Padding=UDim.new(0,12),SortOrder=Enum.SortOrder.LayoutOrder},body)
     local function label(content,height,size,color,order,parent)
-        return make("TextLabel",{BackgroundTransparency=1,Text=content,Size=UDim2.new(1,0,0,height),Font=Enum.Font.Gotham,TextSize=size,TextColor3=color or Color3.fromRGB(239,246,255),TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,LayoutOrder=order},parent or body)
+        return make("TextLabel",{BackgroundTransparency=1,Text=content,Size=UDim2.new(1,0,0,height),Font=Enum.Font.Gotham,TextSize=size,TextColor3=color or ink,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,LayoutOrder=order},parent or body)
     end
     local hero=make("Frame",{Size=UDim2.new(1,0,0,60),BackgroundTransparency=1,LayoutOrder=1},body)
-    local icon=make("ImageLabel",{Size=UDim2.fromOffset(52,52),Position=UDim2.new(1,-58,0,4),
-        BackgroundColor3=Color3.fromRGB(32,53,68),BorderSizePixel=0,Image="rbxassetid://103225914639722",ScaleType=Enum.ScaleType.Fit},hero)
-    corner(icon,13)
-    local title=label("EVOLVY",34,31,nil,1,hero)
-    title.Size=UDim2.new(1,-64,0,34) title.Font=Enum.Font.GothamBold
-    local subtitle=label("CAPÍTULO II   /   ÁREA DE MEMBRO",16,10,Color3.fromRGB(113,231,201),2,hero)
-    subtitle.Position,subtitle.Size=UDim2.fromOffset(1,36),UDim2.new(1,-64,0,16)
-    local profile=make("Frame",{BackgroundColor3=Color3.fromRGB(12,18,31),BorderSizePixel=0,Size=UDim2.new(1,0,0,67),LayoutOrder=3},body) corner(profile,12)
-    make("UIStroke",{Color=Color3.fromRGB(49,75,103),Thickness=1},profile)
-    local avatar=make("ImageLabel",{BackgroundColor3=Color3.fromRGB(26,41,62),BorderSizePixel=0,
+    local icon=make("ImageLabel",{Size=UDim2.fromOffset(50,50),Position=UDim2.fromOffset(0,4),
+        BackgroundColor3=Color3.fromRGB(91,69,43),BorderSizePixel=0,Image="rbxassetid://103225914639722",ScaleType=Enum.ScaleType.Fit},hero)
+    corner(icon,10)
+    local title=label("KEY DE ACESSO",34,27,nil,1,hero)
+    title.Position,title.Size=UDim2.fromOffset(61,1),UDim2.new(1,-91,0,34)
+    title.Font=Enum.Font.GothamBlack
+    local subtitle=label("EVOLVY  /  CAPÍTULO II",16,11,green,2,hero)
+    subtitle.Position,subtitle.Size=UDim2.fromOffset(62,36),UDim2.new(1,-92,0,16)
+    local profile=make("Frame",{BackgroundColor3=Color3.fromRGB(39,31,24),BorderSizePixel=0,Size=UDim2.new(1,0,0,67),LayoutOrder=3},body) corner(profile,9)
+    make("UIStroke",{Color=edge,Thickness=1},profile)
+    local avatar=make("ImageLabel",{BackgroundColor3=Color3.fromRGB(76,58,39),BorderSizePixel=0,
         Position=UDim2.fromOffset(9,8),Size=UDim2.fromOffset(50,50),Image=""},profile) corner(avatar,25)
-    local initial=label(string.upper(string.sub(player.Name,1,1)),50,21,Color3.fromRGB(113,231,201),0,avatar)
+    local initial=label(string.upper(string.sub(player.Name,1,1)),50,21,green,0,avatar)
     initial.TextXAlignment=Enum.TextXAlignment.Center
     local name=label(player.DisplayName or player.Name,24,16,nil,1,profile)
     name.Position,name.Size=UDim2.fromOffset(70,6),UDim2.new(1,-80,0,24)
     name.Font=Enum.Font.GothamBold name.TextTruncate=Enum.TextTruncate.AtEnd name.TextWrapped=false
-    local handle=label("@"..player.Name,15,10,Color3.fromRGB(160,179,210),2,profile)
+    local handle=label("@"..player.Name,15,10,muted,2,profile)
     handle.Position,handle.Size=UDim2.fromOffset(70,30),UDim2.new(1,-80,0,15)
-    local member=label("MEMBER",15,10,Color3.fromRGB(113,231,201),3,profile)
+    local member=label("MEMBER",15,10,green,3,profile)
     member.Position,member.Size=UDim2.fromOffset(70,47),UDim2.new(1,-80,0,15)
     local localKey=type(options.validate)~="function"
-    local hint=label(localKey and ("ACESSO LOCAL   ·   "..tostring(options.key or "Anonymous").."   ·   Life time") or "Informe sua key de acesso.",20,11,Color3.fromRGB(166,185,216),4)
-    local entry=make("TextBox",{Size=UDim2.new(1,0,0,46),BackgroundColor3=Color3.fromRGB(8,14,25),BorderSizePixel=0,ClearTextOnFocus=false,Text="",PlaceholderText="Sua key de acesso",PlaceholderColor3=Color3.fromRGB(109,130,166),TextColor3=Color3.fromRGB(237,246,255),TextSize=15,Font=Enum.Font.Gotham,LayoutOrder=5},body) corner(entry,10)
-    local entryStroke=make("UIStroke",{Color=Color3.fromRGB(53,75,113),Thickness=1},entry)
+    local hint=label(localKey and ("Acesso local  ·  "..tostring(options.key or "Anonymous").."  ·  Life time") or "Informe sua key de acesso.",20,12,muted,4)
+    local entry=make("TextBox",{Size=UDim2.new(1,0,0,46),BackgroundColor3=Color3.fromRGB(29,24,19),BorderSizePixel=0,ClearTextOnFocus=false,Text="",PlaceholderText="Digite ou cole sua key",PlaceholderColor3=muted,TextColor3=ink,TextSize=16,Font=Enum.Font.GothamBold,LayoutOrder=5},body) corner(entry,8)
+    local entryStroke=make("UIStroke",{Color=edge,Thickness=1},entry)
     local actions=make("Frame",{Position=UDim2.new(0,24,1,-105),Size=UDim2.new(1,-48,0,44),
         BackgroundTransparency=1},panel)
-    local submit=make("TextButton",{Size=UDim2.new(0.45,-4,1,0),BackgroundColor3=Color3.fromRGB(42,56,83),BorderSizePixel=0,
-        Text="ABRIR HUB",TextColor3=Color3.fromRGB(233,242,255),TextSize=12,Font=Enum.Font.GothamBold},actions)
-    corner(submit,10)
+    local submit=make("TextButton",{Size=UDim2.new(0.45,-4,1,0),BackgroundColor3=Color3.fromRGB(85,66,44),BorderSizePixel=0,
+        Text="ABRIR HUB",TextColor3=ink,TextSize=13,Font=Enum.Font.GothamBlack},actions)
+    corner(submit,8)
     local quickLabel=options.lobby and "VALIDAR E ENTRAR" or "VALIDAR E INICIAR OP"
     local quick=make("TextButton",{Position=UDim2.new(0.45,4,0,0),Size=UDim2.new(0.55,-4,1,0),
-        BackgroundColor3=Color3.fromRGB(113,231,201),BorderSizePixel=0,Text=quickLabel,
-        TextColor3=Color3.fromRGB(9,23,28),TextSize=11,Font=Enum.Font.GothamBold},actions)
-    corner(quick,10)
-    local details=label("",42,12,Color3.fromRGB(166,185,216),7)
+        BackgroundColor3=green,BorderSizePixel=0,Text=quickLabel,
+        TextColor3=Color3.fromRGB(25,43,15),TextSize=12,Font=Enum.Font.GothamBlack},actions)
+    corner(quick,8)
+    local details=label("",42,12,muted,7)
     details.Visible=approved
-    local status=make("TextLabel",{BackgroundTransparency=1,Text="PRONTO PARA VALIDAR",Position=UDim2.new(0,24,1,-58),Size=UDim2.new(1,-48,0,28),TextColor3=Color3.fromRGB(166,185,216),Font=Enum.Font.Gotham,TextSize=11,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left},panel)
-    local track=make("Frame",{Position=UDim2.new(0,24,1,-20),Size=UDim2.new(1,-48,0,4),BackgroundColor3=Color3.fromRGB(37,51,77),BorderSizePixel=0},panel) corner(track,4)
-    local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=Color3.fromRGB(113,231,201),BorderSizePixel=0},track) corner(fill,4)
+    local status=make("TextLabel",{BackgroundTransparency=1,Text="PRONTO PARA VALIDAR",Position=UDim2.new(0,24,1,-58),Size=UDim2.new(1,-48,0,28),TextColor3=muted,Font=Enum.Font.Gotham,TextSize=12,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left},panel)
+    local track=make("Frame",{Position=UDim2.new(0,24,1,-20),Size=UDim2.new(1,-48,0,4),BackgroundColor3=edge,BorderSizePixel=0},panel) corner(track,4)
+    local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=green,BorderSizePixel=0},track) corner(fill,4)
     Membership.requestAvatar(services.Players,player.UserId,function(image) if gui.Parent then avatar.Image=image initial.Visible=false end end)
     local function refreshMember()
         if not license then return end
@@ -3066,7 +3362,7 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
         if not session and value=="" then status.Text="Digite sua key para continuar." entry:CaptureFocus() return end
         local selected=startNow and quick or submit
         checking=true selected.Text="VALIDANDO..."
-        entryStroke.Color=Color3.fromRGB(113,231,201)
+        entryStroke.Color=green
         task.spawn(function()
             local ok,accepted,message,metadata
             if type(options.validate)=="function" then ok,accepted,message,metadata=pcall(options.validate,value,session)
@@ -6095,7 +6391,7 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.25.0"
+local BOOT_VERSION="0.26.0"
 local bootPhase="preparar o hub"
 
 local function bootAnonymousPotato()
