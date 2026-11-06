@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.28.2. Chapter 2 and lobby. No paid purchases.
+-- Local test key: Anonymous. Version 0.28.4. Chapter 2 and lobby. No paid purchases.
 
 local BootError = (function()
 -- Luau · potato_boot_error.luau · visible startup errors for mobile
@@ -15,7 +15,7 @@ function BootError.show(phase,reason,version)
     local valid,endAt=pcall(utf8.offset,detail,2201)
     if valid and endAt then detail=detail:sub(1,endAt-1)
     elseif not valid then detail=detail:sub(1,2200) end
-    local message="Evolvy "..version.."\nEtapa: "..phase.."\n\n"..detail
+    local message="AnonHub "..version.."\nEtapa: "..phase.."\n\n"..detail
     local shown=pcall(function()
         local player=game:GetService("Players").LocalPlayer
         local gui=player and player:FindFirstChildOfClass("PlayerGui")
@@ -33,7 +33,7 @@ function BootError.show(phase,reason,version)
         make("UISizeConstraint",{MaxSize=Vector2.new(580,400)},panel)
         make("UICorner",{CornerRadius=UDim.new(0,13)},panel)
         local title=make("TextLabel",{Position=UDim2.fromOffset(12,6),Size=UDim2.new(1,-24,0,31),
-            Text="FALHA AO CARREGAR O EVOLVY",BackgroundTransparency=1,Font=Enum.Font.GothamBold,
+            Text="FALHA AO CARREGAR O ANONHUB",BackgroundTransparency=1,Font=Enum.Font.GothamBold,
             TextSize=14,TextColor3=Color3.fromRGB(255,180,171),TextXAlignment=Enum.TextXAlignment.Left},panel)
         local area=make("ScrollingFrame",{Position=UDim2.fromOffset(12,42),Size=UDim2.new(1,-24,1,-96),
             CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=4,
@@ -59,7 +59,7 @@ function BootError.show(phase,reason,version)
         pcall(function()
             local first=detail:match("[^\r\n]+") or "Erro sem detalhes."
             game:GetService("StarterGui"):SetCore("SendNotification",{
-                Title="Evolvy "..version.." / "..phase,Text=first:sub(1,140),Duration=12})
+                Title="AnonHub "..version.." / "..phase,Text=first:sub(1,140),Duration=12})
         end)
     end
 end
@@ -1194,7 +1194,7 @@ function View.create(services,lifecycle,gui,callbacks)
     make("Frame",{Position=UDim2.new(0,0,1,-3),Size=UDim2.new(1,0,0,3),BackgroundColor3=border,BorderSizePixel=0},header)
     make("ImageLabel",{Position=UDim2.fromOffset(13,11),Size=UDim2.fromOffset(49,49),BackgroundTransparency=1,
         Image="rbxassetid://103225914639722",ScaleType=Enum.ScaleType.Fit},header)
-    local brand=label(header,"EVOLVY",28,bright,true)
+    local brand=label(header,"ANONHUB",28,bright,true)
     brand.TextStrokeColor3,brand.TextStrokeTransparency=border,0
     brand.Position,brand.Size=UDim2.fromOffset(73,6),UDim2.new(1,-146,0,34)
     local tagline=label(header,"CENTRAL DO LOBBY",13,gold,true)
@@ -3433,7 +3433,7 @@ function Gate.open(services,lifecycle,options,Membership,Layout)
     local title=label("KEY DE ACESSO",34,27,nil,1,hero)
     title.Position,title.Size=UDim2.fromOffset(61,1),UDim2.new(1,-91,0,34)
     title.Font=Enum.Font.GothamBlack
-    local subtitle=label("EVOLVY  /  CAPÍTULO II",16,11,green,2,hero)
+    local subtitle=label("ANONHUB  /  CAPÍTULO II",16,11,green,2,hero)
     subtitle.Position,subtitle.Size=UDim2.fromOffset(62,36),UDim2.new(1,-92,0,16)
     local profile=make("Frame",{BackgroundColor3=Color3.fromRGB(39,31,24),BorderSizePixel=0,Size=UDim2.new(1,0,0,67),LayoutOrder=3},body) corner(profile,9)
     make("UIStroke",{Color=edge,Thickness=1},profile)
@@ -3600,10 +3600,10 @@ function UI.create(services, config, callbacks, Layout, Membership)
     make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(28,31,51),palette.background),Rotation=90},panel)
     corner(panel,15) stroke(panel)
     local sidebar=make("Frame",{Size=UDim2.new(0,174,1,0),BackgroundColor3=palette.sidebar,BorderSizePixel=0},panel)
-    local brand=text(sidebar,"EVOLVY",20,palette.text,true)
+    local brand=text(sidebar,"ANONHUB",20,palette.text,true)
     brand.Position,brand.Size=UDim2.fromOffset(17,21),UDim2.new(1,-32,0,28)
     local edition=text(sidebar,"POTATO / CONTROL",10,palette.accent,true)
-    edition.Position,edition.Size=UDim2.fromOffset(18,51),UDim2.new(1,-32,0,16) edition.Text="CHAPTER II / EVOLVY"
+    edition.Position,edition.Size=UDim2.fromOffset(18,51),UDim2.new(1,-32,0,16) edition.Text="CHAPTER II / ANONHUB"
     local nav=make("ScrollingFrame",{BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=2,
         AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.fromOffset(0,0),
         Position=UDim2.fromOffset(12,90),Size=UDim2.new(1,-24,1,-165)},sidebar)
@@ -4147,7 +4147,7 @@ function UI.create(services, config, callbacks, Layout, Membership)
         navLayout.FillDirection=compact and Enum.FillDirection.Horizontal or Enum.FillDirection.Vertical
         dragHint.Text=compact and "≡   ANONYMOUS / POTATO   ·   ARRASTE" or "≡   ARRASTE PARA MOVER"
         dragHint.TextXAlignment=compact and Enum.TextXAlignment.Left or Enum.TextXAlignment.Right
-        brand.Text=compact and "A" or "EVOLVY"
+        brand.Text=compact and "A" or "ANONHUB"
         brand.TextSize=compact and 27 or 20
         edition.Visible=not compact
         for name,b in pairs(navButtons) do
@@ -6520,7 +6520,7 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.28.2"
+local BOOT_VERSION="0.28.4"
 local bootPhase="preparar o hub"
 
 local function bootAnonymousPotato()
@@ -6529,7 +6529,19 @@ local function bootAnonymousPotato()
 local VERSION=BOOT_VERSION
 local EXPECTED_PLACE=116701845804918
 local EXPECTED_GAME=10767408330
-local LOADER_URL="https://raw.githubusercontent.com/AnonymosScripts/Script-1-Evolvy-Hub/main/potato/loader.lua?v="..VERSION
+local loaderRoot="https://raw.githubusercontent.com/AnonymosScripts/"
+local loaderPath="/main/potato/loader.lua?v="..VERSION
+local fetchLoader=string.format([[
+    local run
+    for _,url in ipairs({%q,%q}) do
+        local ok,source=pcall(game.HttpGet,game,url)
+        if ok and type(source)=="string" and string.find(source,%q,1,true) then
+            run=loadstring(source)
+            if run then break end
+        end
+    end
+]],loaderRoot.."AnonHub"..loaderPath,loaderRoot.."Script-1-Evolvy-Hub"..loaderPath,
+    'local version="'..VERSION..'"')
 local ACCESS={enabled=true,key="Anonymous",plan="Member",lifetime=true}
 bootPhase="servicos do Roblox"
 local services={}
@@ -6544,7 +6556,7 @@ assert(player,"Execute o hub no cliente Roblox dentro da experiencia.")
 BootError.clear(player:FindFirstChildOfClass("PlayerGui"))
 if game.PlaceId~=EXPECTED_PLACE or game.GameId~=EXPECTED_GAME then
     pcall(services.StarterGui.SetCore,services.StarterGui,"SendNotification",{
-        Title="Anonymous Potato",Text="Este arquivo e para Descasque a Batata, PlaceId "..EXPECTED_PLACE,Duration=8})
+        Title="AnonHub",Text="Este arquivo e para Descasque a Batata, PlaceId "..EXPECTED_PLACE,Duration=8})
     return
 end
 local environment=type(getgenv)=="function" and getgenv() or _G
@@ -6575,14 +6587,13 @@ local transferBootstrap=string.format([[
     end)
     if not ok or type(data)~="table" or data.account~=player.UserId or data.game~=game.GameId
         or data.from==game.JobId or type(data.untilTime)~="number" or os.time()>data.untilTime then return end
-    local loaded,source=pcall(game.HttpGet,game,%q)
-    local run=loaded and type(source)=="string" and loadstring(source)
+    %s
     if not run then
         local cached,body=pcall(readfile,"Evolvy_Chapter2_Main.luau")
         if cached and type(body)=="string" and string.find(body,%q,1,true) then run=loadstring(body) end
     end
     if run then run() end
-]],EXPECTED_PLACE,EXPECTED_GAME,LOADER_URL,'local BOOT_VERSION="'..VERSION..'"')
+]],EXPECTED_PLACE,EXPECTED_GAME,fetchLoader,'local BOOT_VERSION="'..VERSION..'"')
 local handoff=Handoff.create({read=files.read,write=files.write,queue=queueTransfer,encode=json.encode,decode=json.decode,clock=os.time},
     {account=player.UserId,game=game.GameId,job=game.JobId},transferBootstrap,License.transfer)
 local store=Session.create(Core,json,files)
@@ -6609,7 +6620,7 @@ end
 local function notify(message)
     if config.notifications then
         pcall(services.StarterGui.SetCore,services.StarterGui,"SendNotification",{
-            Title="Anonymous Potato",Text=tostring(message),Duration=5})
+            Title="AnonHub",Text=tostring(message),Duration=5})
     end
 end
 bootPhase="identificar lobby ou partida"
@@ -7043,7 +7054,7 @@ ui=UI.create(services,config,{
     export=export,close=function() stopLoop() lifecycle.close() end,
     restore=restoreInterface,
     copyLoader=function()
-        local code='loadstring(game:HttpGet("'..LOADER_URL..'"))()'
+        local code=fetchLoader..'if run then run() else warn("AnonHub: falha ao baixar o loader.") end'
         local clipboard=type(setclipboard)=="function" and setclipboard or (type(toclipboard)=="function" and toclipboard or nil)
         if clipboard then pcall(clipboard,code) log("Loader copiado.") end
         if type(writefile)=="function" then pcall(writefile,"Evolvy_Chapter2_Loader.lua",code) end
@@ -7060,7 +7071,7 @@ lifecycle.add(function() if ui then ui.close() end end)
 antiIdle=attachIdle(function() return Core.anyActive(config) end)
 ui.refresh()
 if lastRecovery then ui.recoveryInfo(lastRecovery) end
-log("Anonymous Potato "..VERSION.." / Place version "..game.PlaceVersion)
+log("AnonHub "..VERSION.." / Place version "..game.PlaceVersion)
 log(loadMessage)
 for name,why in pairs(moduleErrors) do log(name..": "..why,"error") end
 if not bridge.available then log("A ativacao de botoes nao esta disponivel; compras diretas por prompt ainda podem funcionar.") end
@@ -7272,6 +7283,6 @@ if not started then
     local env=type(getgenv)=="function" and getgenv() or _G
     local session=env.AnonymousPotatoSession
     if type(session)=="table" and type(session.close)=="function" then pcall(session.close) end
-    warn("Anonymous Potato: "..tostring(startError))
+    warn("AnonHub: "..tostring(startError))
     BootError.show(bootPhase,startError,BOOT_VERSION)
 end
