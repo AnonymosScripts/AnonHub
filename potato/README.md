@@ -1,29 +1,31 @@
-# Evolvy / Anonymous 0.18.0 — mapa nativo, renda e chave
+# Evolvy / Anonymous 0.19.0 — OP, perfil e finalização do capítulo II
 
-Chave do hub: Anonymous. Capitulo 2, PlaceId 116701845804918.
+PlaceId 116701845804918. Key local: **Anonymous**. Na tela inicial, escolha **Ativar OP** ou **Auto Progress**. Os modos são independentes no painel e mutuamente exclusivos; iniciar um troca o outro. O OP coordena seus serviços internos sem marcar como ligadas as rotinas manuais.
 
-Ative **Ajustes → OP Alto Zerar** com **Testar chave antecipada** ligado. PAUSAR interrompe as rotinas. Confirme Anonymous Potato 0.18.0 no registro para evitar comparar com uma versao anterior em cache.
+## A mudança com maior impacto no tempo
 
-## Falhas do registro anterior
+O teste informado da v0.18 concluiu em cerca de 24 minutos, com mapa nativo encontrado e 801 ondas de coleta com ganho em 837. O registro mostra a última melhoria do P0T4T0-3000 por volta de 19:35 e melhorias do cortador automático até aproximadamente 19:44. O intervalo de cerca de nove minutos inclui o corte e as vendas feitos para outros equipamentos. Não é uma previsão exata do ganho da v0.19.
 
-O metodo anterior nao encontrou um ID de chave: por isso houve zero tentativas. As 59 ondas de coleta tiveram 52 sem resposta. O OP tambem ficou sem gerar renda para a proxima melhoria, com $0,23, 85 batatas carregadas e 47 cortadas. A indicacao de upvalues indisponiveis era um valor fixo, e nao uma verificacao real da API.
+Assim que as três linhas do **P0T4T0-3000** estiverem no máximo confirmado, o OP pausa o financiamento de equipamentos adicionais e mantém a coleta até o contador nativo indicar montanha vazia. Compras, vendas, retornos à mesa e manivela aguardam. Resfriamento, dinamite, bolsa finita cheia e a saída com uma chave confirmada continuam sendo atendidos. Com bolsa infinita, não interrompe a coleta para descarregar lotes parciais. Ao esvaziar, entrega inclusive a última bolsa parcial e retoma o corte, priorizando as facas na fila de compra. A rota normal do Auto Progress mantém as metas anteriores.
 
-## Correcoes
+`op_bulk` informa entrada, duração e conclusão da fase de coleta contínua. O registro marca quando o sugador chegou a MAX e quando a montanha esvaziou. Use essas marcações, `session_elapsed_seconds`, `action_timings` e `exit.finished` para comparar a próxima partida. Meta: primeiro abaixo de 20 minutos, depois 14–16. Esses tempos ainda não foram medidos nesta versão.
 
-- Leitura real das upvalues disponiveis, com limites de funcoes, profundidade e amostragem. Procura o mapa BasePart → ID utilizado pelo controlador; nao usa posicao de array como ID nativo. A API ausente ou uma tabela nao reconhecida mantem o resolvedor espacial como alternativa.
-- Quando o mapa nativo e encontrado, evita a indexacao teorica completa de posicoes na largada. O predicado nativo de exposicao e usado quando o estado esta disponivel. Partes removidas, outra pilha e IDs invalidos sao recusados.
-- A chave pode ser lida tambem do estado interno do controlador. Um ID real nesse estado permite testar a coleta mesmo que o evento publico use zero. Se o ID nao estiver divulgado em nenhuma fonte, nao envia pedidos inventados. Posições sem modelo exigem uma transformacao validada em tres correspondencias reais.
-- Quando falta dinheiro para a proxima melhoria, o OP vende estoque existente ou abastece/corta um lote de renda. Uma bolsa infinita nao impede esse abastecimento. Com a producao completa, deixa de interromper a limpeza para financiar compras opcionais.
-- Equipamento usa o controlador nativo quando disponivel. GetPickCooldown recebe o nome da ferramenta. O intervalo nativo e o recuo apos ausencia de confirmacao reduzem lancamentos/coletas recusados.
+## Perfil, água e saída
 
-## Conferir no proximo diagnostico
+- Nova tela da key, adaptada a telas pequenas. A conta mostra avatar, nome do Roblox, **Member**, key e **Life time** para o acesso local atual. Os cartões de equipamento preservam as imagens do catálogo e ganharam cores por ferramenta.
+- **Resfriar → Tempo segurando a válvula:** 1–5 segundos, padrão 5. O ajuste local só é contado quando há água fluindo ou queda de calor. Se uma duração curta não for aceita, pode tentar o acionamento nativo e repetir com o tempo original. O valor original do botão é restaurado.
+- **Ajustes → Anti-AFK:** atua no evento de inatividade enquanto alguma rotina estiver ativa. Depende da função de entrada disponível no executor; erros aparecem em `anti_afk`. Pausar desativa os pulsos.
+- **Ajustes → Pular cena final:** durante a saída, procura um único botão nativo de pular, visível e ativo, nas telas de finalização. Se não houver esse botão, preserva a cena normal. `ending_scene` registra o botão e o resultado do acionamento. O evento real Escaped continua confirmando a vitória e pausa as rotinas da partida.
+- Rejoin, fila no lobby, seleção automática de capítulo, pular a introdução e repetição ficam para a próxima etapa, após validar o capítulo 2.
 
-`bindings.native_discovery` informa API, funcoes inspecionadas, mapa e estado encontrados. `bindings.native_map` indica uso do mapa nativo. `bindings.key` e `key_shortcut` mostram a descoberta/tentativa da chave. `op_funding` mostra se a rotina precisa gerar renda. `dynamite_timing`, `op_burst` e `pile_progress` permitem comparar intervalo, ganhos e reducao da pilha. O contador da pilha pode incluir outros jogadores.
+## Integração futura da licença
 
-**Nao foi demonstrada vitoria em um minuto nem coleta da chave antes dos requisitos do servidor.** A v0.18 corrige falhas concretas e adiciona leitura nativa que a v0.17 nao tentava. Nao houve execucao real pelo agente no Delta/iPhone. A conclusao continua exigindo HasKey e o evento real Escaped.
+A validação atual é local. O contrato preparado para `ACCESS.validate(key)` aceita retorno `accepted, message, metadata`. Em `metadata`, `plan` define o rótulo, `expiresAt` é um timestamp Unix em segundos e `lifetime=true` indica duração ilimitada se não houver expiração. A interface recalcula a duração restante, informa validade ausente quando o provedor não a informa e pausa ao expirar. A integração com um provedor real ainda não está conectada. Chaves não são incluídas no diagnóstico.
 
-## Validacao e publicacao
+Referências do cliente: [avatar do Roblox](https://create.roblox.com/docs/reference/engine/classes/Players#GetUserThumbnailAsync), [evento de inatividade](https://create.roblox.com/docs/reference/engine/classes/Player#Idled) e [ProximityPrompt](https://create.roblox.com/docs/reference/engine/classes/ProximityPrompt).
 
-Compilacao oficial Luau 0.745 e 15 suites locais. Novos casos cobrem mapa nativo diferente do indice geometrico, tabela de partes confundida com mapa, ciclos de closures, IDs removidos, chave do controlador, posicao de chave sem modelo, alvo coberto, renda com os valores do registro e argumento correto de cooldown.
+## Validação e publicação
 
-Publique com PUBLICAR_V018.cmd no seu Windows usando AnonymosScripts. O publicador verifica o commit preparado e compara chapter2.lua/loader.lua com as URLs publicas. O plugin conectado a Lucasxshttp nao possui permissao de escrita nesse repositorio. Veja PESQUISA_ATALHOS.md para as fontes e os limites da investigacao.
+Compilação oficial Luau 0.745 e 17 suítes locais, com 73 verificações de coordenação e 50 de layout. Casos novos cobrem mudança para coleta contínua com o sugador no máximo, descarga antes do corte, separação dos modos, restauração do tempo da válvula, expiração, Anti-AFK e seleção de botão da cena final. O agente não executou esta versão no Delta/iPhone; aparência no aparelho, tempo da partida, resfriamento curto e presença do botão de pular ainda precisam de teste real.
+
+Publique com PUBLICAR_V019.cmd usando AnonymosScripts. O publicador verifica o commit preparado e os arquivos públicos antes de mostrar o loader. A conexão atual do plugin GitHub usa uma conta sem permissão de escrita nesse repositório.
