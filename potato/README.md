@@ -1,4 +1,6 @@
-# Evolvy 0.23 · Ciclo completo
+# Evolvy 0.23.1 · Ciclo completo
+
+A versão 0.23.1 corrige a detecção do lobby e da partida no carregamento. Se houver outra falha, o painel mostra a etapa e o erro com o botão **Copiar erro**.
 
 Abra o loader no lobby, use a key local **Anonymous** e toque em **Abrir hub**. Ajuste o tamanho da fila e **Apenas amigos** se precisar. Toque em **Iniciar ciclo completo** para ativar tudo no mesmo teste.
 
@@ -14,4 +16,4 @@ O código do validador HTTPS, o emissor de keys e os testes estão em `license-s
 
 O hub compilou com Luau 0.745. As 19 suítes de Luau e os quatro testes do serviço de keys passaram. A execução completa no Delta, o salto da cena e a reconexão dependem do teste no jogo publicado.
 
-Publique com **PUBLICAR_V023.cmd** no PowerShell e use o loader quando aparecer **PUBLICADO E VERIFICADO**.
+Publique com **PUBLICAR_V0231.cmd** no PowerShell e use o loader quando aparecer **PUBLICADO E VERIFICADO**.

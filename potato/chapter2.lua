@@ -1,5 +1,71 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- Local test key: Anonymous. Version 0.23.0. Chapter 2 and lobby. No paid purchases.
+-- Local test key: Anonymous. Version 0.23.1. Chapter 2 and lobby. No paid purchases.
+
+local BootError = (function()
+-- Luau · potato_boot_error.luau · visible startup errors for mobile
+local BootError={}
+
+function BootError.clear(gui)
+    local old=gui and gui:FindFirstChild("EvolvyBootError")
+    if old then old:Destroy() end
+end
+
+function BootError.show(phase,reason,version)
+    local detail=tostring(reason)
+    local valid,endAt=pcall(utf8.offset,detail,2201)
+    if valid and endAt then detail=detail:sub(1,endAt-1)
+    elseif not valid then detail=detail:sub(1,2200) end
+    local message="Evolvy "..version.."\nEtapa: "..phase.."\n\n"..detail
+    local shown=pcall(function()
+        local player=game:GetService("Players").LocalPlayer
+        local gui=player and player:FindFirstChildOfClass("PlayerGui")
+        if not gui then error("PlayerGui indisponivel.") end
+        BootError.clear(gui)
+        local function make(class,props,parent)
+            local object=Instance.new(class)
+            for key,value in pairs(props) do object[key]=value end
+            object.Parent=parent
+            return object
+        end
+        local screen=make("ScreenGui",{Name="EvolvyBootError",ResetOnSpawn=false,DisplayOrder=10020},gui)
+        local panel=make("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),
+            Size=UDim2.fromScale(0.92,0.72),BackgroundColor3=Color3.fromRGB(20,28,46),BorderSizePixel=0},screen)
+        make("UISizeConstraint",{MaxSize=Vector2.new(580,400)},panel)
+        make("UICorner",{CornerRadius=UDim.new(0,13)},panel)
+        local title=make("TextLabel",{Position=UDim2.fromOffset(12,6),Size=UDim2.new(1,-24,0,31),
+            Text="FALHA AO CARREGAR O EVOLVY",BackgroundTransparency=1,Font=Enum.Font.GothamBold,
+            TextSize=14,TextColor3=Color3.fromRGB(255,180,171),TextXAlignment=Enum.TextXAlignment.Left},panel)
+        local area=make("ScrollingFrame",{Position=UDim2.fromOffset(12,42),Size=UDim2.new(1,-24,1,-96),
+            CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=4,
+            BackgroundColor3=Color3.fromRGB(10,16,28),BorderSizePixel=0},panel)
+        make("TextBox",{Size=UDim2.new(1,-10,0,0),AutomaticSize=Enum.AutomaticSize.Y,Text=message,
+            TextEditable=false,ClearTextOnFocus=false,MultiLine=true,TextWrapped=true,
+            TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,
+            TextColor3=Color3.fromRGB(232,240,255),TextSize=12,Font=Enum.Font.Code,BackgroundTransparency=1},area)
+        local function button(text,x)
+            return make("TextButton",{Position=UDim2.new(x,12,1,-43),Size=UDim2.new(0.5,-18,0,33),
+                Text=text,Font=Enum.Font.GothamBold,TextSize=12,TextColor3=Color3.fromRGB(232,240,255),
+                BackgroundColor3=Color3.fromRGB(41,60,85),BorderSizePixel=0},panel)
+        end
+        local copy=button("COPIAR ERRO",0)
+        button("FECHAR",0.5).Activated:Connect(function() screen:Destroy() end)
+        copy.Activated:Connect(function()
+            local clipboard=type(setclipboard)=="function" and setclipboard or type(toclipboard)=="function" and toclipboard
+            if clipboard and pcall(clipboard,message) then copy.Text="COPIADO"
+            else title.Text="Selecione o texto do erro acima." end
+        end)
+    end)
+    if not shown then
+        pcall(function()
+            local first=detail:match("[^\r\n]+") or "Erro sem detalhes."
+            game:GetService("StarterGui"):SetCore("SendNotification",{
+                Title="Evolvy "..version.." / "..phase,Text=first:sub(1,140),Duration=12})
+        end)
+    end
+end
+return BootError
+
+end)()
 
 local Lobby = (function()
 -- Luau · potato_lobby.luau · Chapter II native lobby entry
@@ -8,7 +74,8 @@ local Lobby={}
 local function get(root,...)
     for index=1,select("#",...) do
         if not root then return nil end
-        root=root:FindFirstChild(select(index,...))
+        local name=select(index,...)
+        root=root:FindFirstChild(name)
     end
     return root
 end
@@ -4918,14 +4985,18 @@ return Adapter
 
 end)()
 
+local BOOT_VERSION="0.23.1"
+local bootPhase="preparar o hub"
+
 local function bootAnonymousPotato()
 -- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
 -- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION="0.23.0"
+local VERSION=BOOT_VERSION
 local EXPECTED_PLACE=116701845804918
 local EXPECTED_GAME=10767408330
 local LOADER_URL="https://raw.githubusercontent.com/AnonymosScripts/Script-1-Evolvy-Hub/main/potato/loader.lua?v="..VERSION
 local ACCESS={enabled=true,key="Anonymous",plan="Member",lifetime=true}
+bootPhase="servicos do Roblox"
 local services={}
 for _,name in ipairs({"Players","Workspace","ReplicatedStorage","HttpService","RunService",
     "Lighting","ProximityPromptService","UserInputService","TweenService","PathfindingService","StarterGui","TeleportService"}) do services[name]=game:GetService(name) end
@@ -4935,6 +5006,7 @@ local coreOk,coreGui=pcall(game.GetService,game,"CoreGui")
 if coreOk then services.CoreGui=coreGui end
 local player=services.Players.LocalPlayer
 assert(player,"Execute o hub no cliente Roblox dentro da experiencia.")
+BootError.clear(player:FindFirstChildOfClass("PlayerGui"))
 if game.PlaceId~=EXPECTED_PLACE or game.GameId~=EXPECTED_GAME then
     pcall(services.StarterGui.SetCore,services.StarterGui,"SendNotification",{
         Title="Anonymous Potato",Text="Este arquivo e para Descasque a Batata, PlaceId "..EXPECTED_PLACE,Duration=8})
@@ -4971,7 +5043,7 @@ local transferBootstrap=string.format([[
         if cached and type(body)=="string" and string.find(body,%q,1,true) then run=loadstring(body) end
     end
     if run then run() end
-]],EXPECTED_PLACE,EXPECTED_GAME,LOADER_URL,'local VERSION="'..VERSION..'"')
+]],EXPECTED_PLACE,EXPECTED_GAME,LOADER_URL,'local BOOT_VERSION="'..VERSION..'"')
 local handoff=Handoff.create({read=files.read,write=files.write,queue=queueTransfer,encode=json.encode,decode=json.decode,clock=os.time},
     {account=player.UserId,game=game.GameId,job=game.JobId},transferBootstrap,License.transfer)
 local store=Session.create(Core,json,files)
@@ -5001,6 +5073,7 @@ local function notify(message)
             Title="Anonymous Potato",Text=tostring(message),Duration=5})
     end
 end
+bootPhase="identificar lobby ou partida"
 local deadline=os.clock()+24
 local phase=Lobby.stage(services.Workspace)
 while not phase and lifecycle.alive() and os.clock()<deadline do
@@ -5012,6 +5085,7 @@ if not phase or not lifecycle.alive() then
     lifecycle.close()
     return
 end
+bootPhase="validar acesso"
 local resume,resumeLicense=handoff.take(phase)
 local configured=environment.EvolvyLicenseEndpoint
 local endpoint=License.endpoint(configured) or resumeLicense and resumeLicense.endpoint
@@ -5076,6 +5150,7 @@ local function attachIdle(active)
     return idle
 end
 if phase=="lobby" then
+    bootPhase="abrir o painel do lobby"
     local lobbyConfig=Core.validate({movement="Walk",travelTimeout=20},true)
     local nav=Navigation.create(services,lobbyConfig,log)
     lifecycle.add(nav.close)
@@ -5107,6 +5182,7 @@ local moduleNames={
     "Controllers.Chapter2OutroController",
     "ModifiedPackages.Packet._Types",
 }
+bootPhase="carregar modulos da partida"
 modules,moduleErrors={},{}
 for index,path in ipairs(moduleNames) do
     if not lifecycle.alive() then return end
@@ -5134,6 +5210,7 @@ local syncDeadline=os.clock()+1.2
 while lifecycle.alive() and not resolver.ready() and os.clock()<syncDeadline do task.wait(0.05) end
 if not lifecycle.alive() then resolver.close() return end
 local bridge=Bridge.create(services,Core)
+bootPhase="iniciar controles da partida"
 adapter=Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,CutEngine,Chapter,Protocol,TopK,Burst)
 escapeDriver=Exit.create(services,modules,nav,log)
 endingSkipper=Exit.endingSkipper(player.PlayerGui,bridge,os.clock,function()
@@ -5566,6 +5643,5 @@ if not started then
     local session=env.AnonymousPotatoSession
     if type(session)=="table" and type(session.close)=="function" then pcall(session.close) end
     warn("Anonymous Potato: "..tostring(startError))
-    pcall(function() game:GetService("StarterGui"):SetCore("SendNotification",{
-        Title="Anonymous Potato",Text="Falha ao carregar; veja o console do Delta.",Duration=8}) end)
+    BootError.show(bootPhase,startError,BOOT_VERSION)
 end
