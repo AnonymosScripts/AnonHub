@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal tools
-local BOOT_VERSION="0.35.0"
+local BOOT_VERSION="0.35.1"
 local hub=...
 if type(hub)~="table" then return end
 
@@ -7,6 +7,7 @@ local Players=game:GetService("Players")
 local Run=game:GetService("RunService")
 local Input=game:GetService("UserInputService")
 local world=game:GetService("Workspace")
+local touchDevice=Input.TouchEnabled
 local player=Players.LocalPlayer
 local ui=hub.ui
 local color=ui.color
@@ -16,7 +17,7 @@ local defaults={
     panelX=0.5,panelY=0.5,buttonX=0,buttonY=1,
     espMode="outline",espColor="theme",espHex="FF7A8D",espRange=850,espThrough=true,
     espNick="display",espDistance=true,espTeam=true,espLabels="screen",espCustomRigs=true,
-    aimActivation=Input.TouchEnabled and "toggle" or "hold",aimResponse="smooth",
+    aimActivation=touchDevice and "toggle" or "hold",aimResponse="smooth",aimTouchSide="left",
     aimPriority="center",aimPart="head",aimCircle="enabled",aimCircleColor="theme",
     aimRadius=175,aimOffsetY=0,aimWidth=1,aimRange=850,aimSpeed=24,cameraFov=80,
     aimTeam=true,aimObstacles="visible",aimSticky=true,aimCustomCamera=true,aimLabel=true,
@@ -44,6 +45,7 @@ local nickModes={{"display","Nome de exibição","Display name"},{"username","@U
     {"both","Nome + @usuário","Name + @username"},{"off","Ocultar nome","Hide name"}}
 local activationModes={{"hold","Segurar","Hold"},{"toggle","Toque alterna","Tap to toggle"},
     {"always","Contínua","Continuous"}}
+local touchSides={{"left","Esquerda","Left"},{"right","Direita","Right"}}
 local responses={{"smooth","Suave","Smooth"},{"snap","Direta","Direct"},{"silent","Silenciosa","Silent"}}
 local obstacles={{"visible","Linha livre","Clear line"},{"effects","Ignorar efeitos","Ignore effects"},
     {"through","Atrás de obstáculos","Behind obstacles"}}
@@ -70,7 +72,7 @@ if lookup(ui.themes,saved.theme) then settings.theme=saved.theme end
 if lookup(modes,saved.espMode) then settings.espMode=saved.espMode end
 if lookup(colors,saved.espColor) then settings.espColor=saved.espColor end
 settings.espHex=hex(saved.espHex) or defaults.espHex
-for key,list in pairs({espNick=nickModes,espLabels=labelModes,aimActivation=activationModes,aimResponse=responses,
+for key,list in pairs({espNick=nickModes,espLabels=labelModes,aimActivation=activationModes,aimResponse=responses,aimTouchSide=touchSides,
     aimObstacles=obstacles,
     aimPriority=priorities,aimPart=aimParts,aimCircle=circles,aimCircleColor=circleColors}) do
     if lookup(list,saved[key]) then settings[key]=saved[key] end
@@ -450,23 +452,47 @@ local function holdButton(key,caption,offset,width,shouldHold)
     local control=ui.button(canvas,caption,0,true)
     control.Position,control.Size=UDim2.new(1,-width-12,1,offset),UDim2.fromOffset(width,46)
     control.Visible,control.ZIndex=false,30
-    local press
+    local press,stateChanged
+    local function release()
+        press=nil
+        held[key]=false
+        if stateChanged then stateChanged:Disconnect() stateChanged=nil end
+        if key=="aim" and silentSession then silentSession.target=nil end
+    end
     connect(control.InputBegan,function(event)
         if (not shouldHold or shouldHold()) and (not press or not held[key])
             and (event.UserInputType==Enum.UserInputType.Touch or event.UserInputType==Enum.UserInputType.MouseButton1) then
-            press=event held[key]=true
+            if press then release() end
+            press,held[key]=event,true
+            if event.UserInputType==Enum.UserInputType.Touch then
+                stateChanged=event:GetPropertyChangedSignal("UserInputState"):Connect(function()
+                    if event.UserInputState==Enum.UserInputState.Cancel or event.UserInputState==Enum.UserInputState.End then
+                        release()
+                    end
+                end)
+            end
         end
     end)
     connect(Input.InputEnded,function(event)
-        if event==press then press=nil held[key]=false end
+        if event==press then release() end
     end)
-    return control
+    connect(Input.WindowFocusReleased,release)
+    control.Destroying:Connect(release)
+    return control,release
 end
 local up=holdButton("up",T("↑  SUBIR","↑  UP"),-165,103)
 local down=holdButton("down",T("↓  DESCER","↓  DOWN"),-112,103)
-local aim=holdButton("aim",T("MIRAR","AIM"),-64,112,function() return settings.aimActivation=="hold" end)
+local aim,releaseAim=holdButton("aim",T("MIRAR","AIM"),-64,112,function() return settings.aimActivation=="hold" end)
+local function placeAimButton()
+    if not touchDevice then return end
+    local left=settings.aimTouchSide=="left"
+    aim.AnchorPoint=Vector2.new(left and 0 or 1,0.5)
+    aim.Position=UDim2.new(left and 0 or 1,left and 10 or -10,0.43,0)
+    aim.Size=UDim2.fromOffset(112,50)
+end
+placeAimButton()
 aimLayer=ui.make("ScreenGui",{Name="AnonHubAimOverlay",ResetOnSpawn=false,IgnoreGuiInset=true,
-    ScreenInsets=Enum.ScreenInsets.None,DisplayOrder=10026},playerGui)
+    ScreenInsets=Enum.ScreenInsets.DeviceSafeInsets,DisplayOrder=10026},playerGui)
 local sight=ui.make("Frame",{AnchorPoint=Vector2.new(0.5,0.5),
     BackgroundTransparency=1,Visible=false,Active=false},aimLayer)
 ui.make("UICorner",{CornerRadius=UDim.new(1,0)},sight)
@@ -480,7 +506,8 @@ local function clearTarget()
     if silentSession then silentSession.target=nil end
 end
 local function resetAim()
-    held.aim,aimLatched,aimTarget=false,false,nil
+    releaseAim()
+    aimLatched=false
     clearTarget()
 end
 local function aimButtonText()
@@ -501,12 +528,21 @@ connect(Input.InputBegan,function(event,processed)
 end)
 local function refreshOverlay()
     up.Visible,down.Visible=flags.fly==true,flags.fly==true
-    aim.Visible=flags.aim==true and settings.aimActivation~="always"
+    aim.Visible=flags.aim==true and settings.aimActivation~="always" and (not touchDevice or not body.Visible)
     if not flags.fly then held.up,held.down=false,false end
     if not flags.aim then resetAim() sight.Visible=false targetLabel.Visible=false end
     aimButtonText()
 end
 table.insert(updates,refreshOverlay)
+if touchDevice then
+    connect(body:GetPropertyChangedSignal("Visible"),function()
+        if body.Visible then
+            releaseAim()
+            clearTarget()
+        end
+        refreshOverlay()
+    end)
+end
 
 local movement=row(controls,3)
 toggle(movement,"fly",T("Voo","Fly"),false,function(enabled)
@@ -523,7 +559,13 @@ adjust(controls,values,"speed",T("Velocidade ao andar","Walk speed"),4,120,4,5)
 adjust(controls,values,"fly",T("Velocidade de voo","Flight speed"),10,180,10,6)
 section(aimPage,T("MIRA E CAMPO DE VISÃO","AIM AND FIELD OF VIEW"),1)
 local cameraRow=row(aimPage,2)
-toggle(cameraRow,"aim",T("Mira assistida","Aim assist"),false,refreshOverlay)
+toggle(cameraRow,"aim",T("Mira assistida","Aim assist"),false,function(enabled)
+    if enabled and touchDevice then
+        aimLatched=settings.aimActivation=="toggle"
+        body.Visible=false
+    end
+    refreshOverlay()
+end)
 toggle(cameraRow,"fov",T("FOV da câmera","Camera FOV"),true,function(enabled)
     if not enabled then restoreProperty(fovOwner) fovOwner=nil end
 end)
@@ -601,16 +643,22 @@ local function refreshActivation()
     resetAim()
     refreshOverlay()
     activationHint.Text=settings.aimActivation=="always" and T("A mira acompanha alvos enquanto estiver ligada.","Aim tracks targets while enabled.")
-        or settings.aimActivation=="toggle" and T("Toque em LIGAR MIRA. No PC, use botão direito ou Alt esquerdo.",
-            "Tap START AIM. On desktop, use right mouse or Left Alt.")
+        or settings.aimActivation=="toggle" and (touchDevice
+            and T("A mira começa ao ligar. Use o botão lateral para pausar ou retomar.",
+                "Aim starts when enabled. Use the side button to pause or resume.")
+            or T("Use o botão direito, Alt esquerdo ou o botão lateral.",
+                "Use right mouse, Left Alt, or the side button."))
         or T("Segure o botão lateral, o botão direito do mouse ou Alt esquerdo.",
             "Hold the side button, right mouse or Left Alt.")
 end
 selector(aimPage,activationModes,"aimActivation",3,5,optionCaption,refreshActivation)
 refreshActivation()
 section(aimPage,T("RESPOSTA DA MIRA","AIM RESPONSE"),7)
-local silentHelp=T("Mira silenciosa: apenas armas compatíveis com o mouse clássico.",
-    "Silent aim: compatible classic mouse weapons only.")
+local silentHelp=touchDevice
+    and T("Mira silenciosa: armas com mouse clássico ou raio central da câmera.",
+        "Silent aim: weapons using classic mouse or a centered camera ray.")
+    or T("Mira silenciosa: apenas armas compatíveis com o mouse clássico.",
+        "Silent aim: compatible classic mouse weapons only.")
 local silentStatus
 selector(aimPage,responses,"aimResponse",3,8,optionCaption,function()
     clearTarget()
@@ -637,6 +685,10 @@ settingToggle(aimPage,"aimLabel",T("Mostrar nome do alvo","Show target name"),25
 silentStatus=ui.label(aimPage,"TextLabel",silentHelp,36,26)
 silentStatus.TextSize=11
 ui.paint(silentStatus,"TextColor3","muted")
+if touchDevice then
+    section(aimPage,T("LADO DO BOTÃO DE MIRA","AIM BUTTON SIDE"),27)
+    selector(aimPage,touchSides,"aimTouchSide",2,28,optionCaption,placeAimButton)
+end
 
 section(visionPage,T("DESTAQUE DE JOGADORES","PLAYER HIGHLIGHTING"),1)
 local vision=row(visionPage,2)
@@ -831,7 +883,7 @@ local function showPlayers()
     end
     if (boxes or screenLabels) and not espScreen then
         espScreen=ui.make("ScreenGui",{Name="AnonHubESPOverlay",ResetOnSpawn=false,
-            IgnoreGuiInset=true,ScreenInsets=Enum.ScreenInsets.None,DisplayOrder=10025},playerGui)
+            IgnoreGuiInset=true,ScreenInsets=Enum.ScreenInsets.DeviceSafeInsets,DisplayOrder=10025},playerGui)
     end
     local camera=world.CurrentCamera
     local ownModel,ownRoot=playerRig(player,settings.espCustomRigs)
@@ -989,45 +1041,87 @@ local function visibleTarget(camera,other,anchor,limit,origin,ownModel,best)
     return target,score
 end
 
--- One dispatcher per client; clearing its session leaves normal mouse reads untouched.
-local mouseHook
-local triedMouseHook=false
-local function installMouseHook()
-    if triedMouseHook then return mouseHook end
-    triedMouseHook=true
-    if type(getgenv)~="function" or type(hookmetamethod)~="function"
-        or type(checkcaller)~="function" or type(getcallingscript)~="function" then return end
-    local ok,hook=pcall(function()
-        local env=getgenv()
-        if type(env.AnonHubSilentMouseHook_v1)=="table" then return env.AnonHubSilentMouseHook_v1 end
-        local state={mouse=player:GetMouse()}
-        local original
-        local function read(object,key)
-            local session=state.session
-            if session and object==state.mouse and (key=="Hit" or key=="Target") and not checkcaller() then
-                local target,tool=session.target,session.tool
-                if target and target.Parent and tool and tool.Parent==session.character
-                    and not Input:GetFocusedTextBox() then
-                    local scriptOk,caller=pcall(getcallingscript)
-                    if scriptOk and typeof(caller)=="Instance" and caller:IsDescendantOf(tool) then
-                        session.used=true
-                        if key=="Hit" then return target.CFrame end
-                        return target
-                    end
-                end
-            end
-            return original(object,key)
-        end
-        original=hookmetamethod(game,"__index",type(newcclosure)=="function" and newcclosure(read) or read)
-        env.AnonHubSilentMouseHook_v1=state
-        return state
-    end)
-    if ok then mouseHook=hook end
-    return mouseHook
+local silentHooks
+local triedSilentHooks=false
+local function activeWeaponTarget(session)
+    local target,tool=session.target,session.tool
+    if not target or not target.Parent or not tool or tool.Parent~=session.character
+        or Input:GetFocusedTextBox() then return end
+    local scriptOk,caller=pcall(getcallingscript)
+    if scriptOk and typeof(caller)=="Instance" and caller:IsDescendantOf(tool) then return target end
 end
 
-local function updateSilent(character,target)
-    local hook=installMouseHook()
+local function redirectRay(original,target)
+    local direction=target.Position-original.Origin
+    if direction.Magnitude<=0.001 then return original end
+    return Ray.new(original.Origin,direction.Unit)
+end
+
+local function installMouseHook(state)
+    local mouse=player:GetMouse()
+    local original
+    local function read(object,key)
+        local session=state.session
+        if session and session.target and object==mouse and (key=="Hit" or key=="Target" or key=="UnitRay")
+            and not checkcaller() then
+            local target=activeWeaponTarget(session)
+            if target then
+                session.used="mouse"
+                if key=="Hit" then return target.CFrame end
+                if key=="Target" then return target end
+                return redirectRay(original(object,key),target)
+            end
+        end
+        return original(object,key)
+    end
+    original=hookmetamethod(game,"__index",type(newcclosure)=="function" and newcclosure(read) or read)
+end
+
+local function installTouchRayHook(state)
+    local original
+    local nearCenter=math.cos(math.rad(8))
+    local function call(object,...)
+        local session=state.session
+        if session and session.target and session.camera==object and not checkcaller() then
+            local method=getnamecallmethod()
+            if method=="ViewportPointToRay" or method=="ScreenPointToRay" then
+                local normal=original(object,...)
+                if normal.Direction:Dot(session.camera.CFrame.LookVector)>=nearCenter then
+                    local target=activeWeaponTarget(session)
+                    if target then
+                        session.used="camera"
+                        return redirectRay(normal,target)
+                    end
+                end
+                return normal
+            end
+        end
+        return original(object,...)
+    end
+    original=hookmetamethod(game,"__namecall",type(newcclosure)=="function" and newcclosure(call) or call)
+end
+
+local function getSilentHooks()
+    if triedSilentHooks then return silentHooks end
+    triedSilentHooks=true
+    if type(getgenv)~="function" or type(hookmetamethod)~="function"
+        or type(checkcaller)~="function" or type(getcallingscript)~="function" then return end
+    local env=getgenv()
+    local state=env.AnonHubSilentHooks_v2
+    if type(state)~="table" then
+        state={}
+        env.AnonHubSilentHooks_v2=state
+    end
+    if not state.mouse then state.mouse=pcall(installMouseHook,state) end
+    if touchDevice and not state.camera and type(getnamecallmethod)=="function" then
+        state.camera=pcall(installTouchRayHook,state)
+    end
+    if state.mouse or (touchDevice and state.camera) then silentHooks=state end
+    return silentHooks
+end
+
+local function updateSilent(character,target,camera)
+    local hook=getSilentHooks()
     local tool=hook and character and character:FindFirstChildOfClass("Tool")
     if not hook or not tool then
         if silentSession then table.clear(silentSession) end
@@ -1035,13 +1129,15 @@ local function updateSilent(character,target)
         if not silentSession then silentSession={} end
         if silentSession.tool~=tool then silentSession.used=false end
         silentSession.character,silentSession.tool,silentSession.target=character,tool,target
+        silentSession.camera=touchDevice and camera or nil
         hook.session=silentSession
     end
     local message
     if not hook then message=T("Mira silenciosa indisponível neste executor.","Silent aim is unavailable on this executor.")
     elseif not tool then message=T("Equipe uma arma para usar a mira silenciosa.","Equip a weapon to use silent aim.")
-    elseif silentSession.used then message=T("Leitura de mouse da arma detectada.","Weapon mouse input detected.")
-    else message=T("Aguardando uso do mouse clássico pela arma.","Waiting for the weapon to use classic mouse input.") end
+    elseif silentSession.used=="camera" then message=T("Raio da câmera da arma detectado.","Weapon camera ray detected.")
+    elseif silentSession.used=="mouse" then message=T("Leitura de mouse da arma detectada.","Weapon mouse input detected.")
+    else message=T("Aguardando entrada compatível da arma.","Waiting for compatible weapon input.") end
     if silentStatus.Text~=message then silentStatus.Text=message end
 end
 
@@ -1101,7 +1197,7 @@ Run:BindToRenderStep(renderName,Enum.RenderPriority.Last.Value+1,function(dt)
         or (mode=="hold" and (held.aim or Input:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
             or Input:IsKeyDown(Enum.KeyCode.LeftAlt)))
     local character,ownRoot,humanoid=playerRig(player,settings.espCustomRigs)
-    if not aiming or not character or (humanoid and humanoid.Health<=0) or Input:GetFocusedTextBox()
+    if not aiming or (touchDevice and body.Visible) or not character or (humanoid and humanoid.Health<=0) or Input:GetFocusedTextBox()
         or (not settings.aimCustomCamera and camera.CameraType==Enum.CameraType.Scriptable) then
         clearTarget()
         nextAimSearch=0
@@ -1125,7 +1221,7 @@ Run:BindToRenderStep(renderName,Enum.RenderPriority.Last.Value+1,function(dt)
         end
     end
     if settings.aimResponse=="silent" then
-        updateSilent(character,target)
+        updateSilent(character,target,camera)
     elseif target then
         aimCamera(camera,target,anchor,viewport,dt)
     end
