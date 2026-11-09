@@ -6,7 +6,7 @@ local games={
 local universal={name="Universal",path="universal/main.lua",cache="AnonHub_Universal_v1.luau"}
 local root="https://raw.githubusercontent.com/AnonymosScripts/AnonHub/main/"
 -- Public Identifier from Panda Auth → Service Settings → General.
-local pandaServiceId=""
+local pandaServiceId="anonkey24hrs"
 local pandaSdkUrl="https://secure.pandauth.com/pv4/lib"
 local pandaKeyFile="AnonHub_Panda_Key_v1.json"
 local preferencesFile="AnonHub_Preferences_v1.json"
