@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- AnonHub 0.36.1 · Chapter 2 and lobby
+-- AnonHub 0.37.0 · Chapter 2 and lobby
 
 local hub=...
 if type(hub)~="table" or type(hub.access)~="table" then return end
@@ -6557,7 +6557,7 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.36.1"
+local BOOT_VERSION="0.37.0"
 
 
 local function bootAnonymousPotato()
@@ -6682,7 +6682,8 @@ local function restoreInterface()
 end
 if phase=="chapter" and config.autoRepairGui then restoreInterface() end
 local resume=handoff.take(phase)
-local memberAccess={plan=hub.access.plan or "Member",keyLabel=hub.access.keyLabel or "••••",expiresAt=hub.access.expiresAt}
+local memberAccess={plan=hub.access.plan or "Member",keyLabel=hub.access.keyLabel or "••••",
+    expiresAt=hub.access.expiresAt,lifetime=hub.access.lifetime,source=hub.access.source}
 local gate={
     membership=function() return Membership.describe(memberAccess,os.time()) end,
     expired=function() return Membership.expired(memberAccess,os.time()) end,

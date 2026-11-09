@@ -1,12 +1,14 @@
 -- Luau · AnonHub universal entry point
-local version="0.36.1"
+local version="0.37.0"
 local games={
     [10767408330]={name="Peel THE Potato",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
 local universal={name="Universal",path="universal/main.lua",cache="AnonHub_Universal_v1.luau"}
 local root="https://raw.githubusercontent.com/AnonymosScripts/AnonHub/main/"
-local testKey="Anonymous"
-local testLifetime=24*60*60
+-- Public Identifier from Panda Auth → Service Settings → General.
+local pandaServiceId=""
+local pandaSdkUrl="https://secure.pandauth.com/pv4/lib"
+local pandaKeyFile="AnonHub_Panda_Key_v1.json"
 local preferencesFile="AnonHub_Preferences_v1.json"
 local environment=type(getgenv)=="function" and getgenv() or _G
 local players=game:GetService("Players")
@@ -29,6 +31,85 @@ local function save()
     if type(writefile)=="function" then
         pcall(function() writefile(preferencesFile,http:JSONEncode(preferences)) end)
     end
+end
+
+local function cleanKey(value)
+    if type(value)~="string" or #value>512 then return nil end
+    local key=value:match("^%s*(.-)%s*$")
+    if key~="" and not key:find("%s") and not key:find("%c") then return key end
+end
+
+local rememberedKey
+local function readKey()
+    if rememberedKey~=nil then return rememberedKey or nil end
+    rememberedKey=false
+    if type(readfile)~="function" then return end
+    local ok,record=pcall(function()
+        local raw=readfile(pandaKeyFile)
+        if type(raw)=="string" and #raw<=2048 then return http:JSONDecode(raw) end
+    end)
+    if ok and type(record)=="table" and record.service==pandaServiceId and record.account==player.UserId then
+        rememberedKey=cleanKey(record.key) or false
+    end
+    return rememberedKey or nil
+end
+
+local function writeKey(key)
+    rememberedKey=key or false
+    if type(writefile)=="function" then
+        pcall(function()
+            writefile(pandaKeyFile,http:JSONEncode({service=pandaServiceId,account=player.UserId,key=key}))
+        end)
+    end
+end
+
+local function loadPandaSdk()
+    if pandaServiceId=="" then return nil,"NO_SERVICE" end
+    local fetched,source=pcall(game.HttpGet,game,pandaSdkUrl)
+    if not fetched or type(source)~="string" then return nil,"NETWORK" end
+    local ok,sdk=pcall(function()
+        local library=assert(loadstring(source,"Panda Auth SDK"))()
+        assert(type(library)=="table" and type(library.configure)=="function"
+            and type(library.validate)=="function" and type(library.getKeyUrl)=="function"
+            and type(library.disconnect)=="function")
+        library.configure({serviceId=pandaServiceId,debug=false,kickOnDetect=false})
+        return library
+    end)
+    if not ok then return nil,"PROTOCOL" end
+    return sdk
+end
+
+local function finite(value)
+    return type(value)=="number" and value==value and math.abs(value)<math.huge
+end
+
+local function validateKey(sdk,key)
+    local ok,result=pcall(sdk.validate,key)
+    if not ok then return nil,"NETWORK" end
+    if type(result)~="table" then return nil,"PROTOCOL" end
+    if result.success~=true then return nil,result.reason or "PROTOCOL" end
+
+    local expiresAt=result.expiresAtUnix
+    local remaining=result.timeLeft
+    if expiresAt~=nil and not finite(expiresAt) then return nil,"PROTOCOL" end
+    if remaining~=nil and not finite(remaining) then return nil,"PROTOCOL" end
+    if not expiresAt and result.expiresAt~=nil then
+        local parsed,date=pcall(DateTime.fromIsoDate,result.expiresAt)
+        if parsed and date then expiresAt=date.UnixTimestamp end
+        if not finite(expiresAt) then return nil,"PROTOCOL" end
+    end
+    if remaining==nil and expiresAt then remaining=expiresAt-os.time() end
+    if remaining and remaining<=0 then return nil,"EXPIRED" end
+    expiresAt=expiresAt or (remaining and os.time()+remaining)
+    if expiresAt and (expiresAt<=0 or expiresAt>253402300799) then return nil,"PROTOCOL" end
+    return {
+        plan=result.isPremium==true and "Premium" or "Member",
+        keyLabel=#key>8 and "••••"..key:sub(-4) or "••••",
+        expiresAt=expiresAt,
+        deadline=remaining and os.clock()+remaining or nil,
+        lifetime=remaining==nil,
+        source="Panda Auth",
+    }
 end
 
 local iconFile="AnonHub_Launcher_v1.png"
@@ -295,19 +376,11 @@ local function loadGame(route)
     return run
 end
 
-local function activeAccess(now)
-    local access=preferences.access
-    if type(access)=="table" and access.account==player.UserId and access.provider=="local-test"
-        and type(access.expiresAt)=="number" and access.expiresAt>now and access.expiresAt<=now+testLifetime then
-        return access
-    end
-end
-
 local start
 start=function(chooseLanguage)
     local previous=environment.AnonHubLauncher
     if type(previous)=="table" and type(previous.close)=="function" then previous.close() end
-    local screen,closeGame
+    local screen,closeGame,pandaSdk
     local state={}
     environment.AnonHubLauncher=state
     local function current() return environment.AnonHubLauncher==state end
@@ -318,7 +391,19 @@ start=function(chooseLanguage)
         if not current() then return end
         environment.AnonHubLauncher=nil
         dismiss()
+        if pandaSdk then pcall(pandaSdk.disconnect) pandaSdk=nil end
         if closeGame then closeGame() end
+    end
+
+    local function sdkForSession()
+        if pandaSdk then return pandaSdk end
+        local sdk,reason=loadPandaSdk()
+        if not current() then
+            if sdk then pcall(sdk.disconnect) end
+            return nil,"CLOSED"
+        end
+        pandaSdk=sdk
+        return sdk,reason
     end
 
     local language=preferences.language
@@ -427,16 +512,18 @@ start=function(chooseLanguage)
             repeat task.wait() until completed or not current() or os.clock()>=deadline
             if not current() then return end
         end
-        local function expire()
-            if current() and preferences.access==access then
-                preferences.access=nil
-                save()
+        local function checkExpiry()
+            if not current() or not access.deadline then return end
+            local remaining=access.deadline-os.clock()
+            if remaining<=0 then
+                writeKey(nil)
                 start(false)
+            else
+                task.delay(math.min(remaining,3600),checkExpiry)
             end
         end
-        local remaining=access.expiresAt-os.time()
-        if remaining<=0 then expire() return end
-        task.delay(remaining,expire)
+        checkExpiry()
+        if not current() then return end
         progress(dedicated and 0.43 or 0.82,"Preparando o painel…","Preparing the panel…")
         local ready=false
         local function showReady()
@@ -466,10 +553,8 @@ start=function(chooseLanguage)
     end
 
     local function showAccess()
-        local access=activeAccess(os.time())
-        if access then openGame(access,false) return end
         local body
-        screen,body=panel(505,nil,not dedicated)
+        screen,body=panel(545,nil,not dedicated)
         gameCard(body,identity,dedicated and tr("ACESSO AO MÓDULO","MODULE ACCESS") or tr("MODO UNIVERSAL","UNIVERSAL MODE"),1,not dedicated)
         local accessTitle=label(body,"TextLabel",tr("Cole sua key para abrir o hub.","Paste your key to open the hub."),28,2)
         if not dedicated then
@@ -497,20 +582,60 @@ start=function(chooseLanguage)
             input.FocusLost:Connect(function() skin.paint(focusBorder,"Color","edge") end)
             status.TextSize,status.TextXAlignment=12,Enum.TextXAlignment.Left
         end
-        local submitting,startWithOP=false,false
+        local busy,startWithOP=false,false
+        local accessActions=body
+        if not dedicated then
+            accessActions=make("Frame",{Size=UDim2.new(1,0,0,42),LayoutOrder=6,BackgroundTransparency=1},body)
+        end
+        local continueButton=button(accessActions,tr("Validar e abrir","Validate and open"),5,true)
+        local getKey=button(accessActions,tr("Obter key","Get key"),7)
+        if not dedicated then
+            continueButton.Size=UDim2.new(0.56,-4,1,0)
+            getKey.Position,getKey.Size=UDim2.new(0.56,4,0,0),UDim2.new(0.44,-4,1,0)
+        end
+        local function report(reason)
+            if reason=="INVALID_KEY" or reason=="EXPIRED" then
+                status.Text=tr("Key inválida ou expirada para este dispositivo.","Key invalid or expired for this device.")
+            elseif reason=="NO_KEY" then
+                status.Text=tr("Cole sua key para continuar.","Paste your key to continue.")
+            elseif reason=="NO_SERVICE" then
+                status.Text=tr("Serviço Panda Auth ainda não configurado.","Panda Auth service is not configured yet.")
+            elseif reason=="RATE_LIMITED" then
+                status.Text=tr("Muitas tentativas. Aguarde e tente de novo.","Too many attempts. Wait and try again.")
+            elseif reason=="IDENTITY" then
+                status.Text=tr("O Panda Auth não conseguiu identificar o dispositivo.","Panda Auth could not identify this device.")
+            elseif reason=="NO_HTTP" then
+                status.Text=tr("O executor não disponibilizou a conexão HTTP.","The executor did not provide HTTP access.")
+            else
+                status.Text=tr("Não foi possível conectar ao Panda Auth. Tente de novo.",
+                    "Could not connect to Panda Auth. Try again.")
+            end
+        end
         local function submit()
-            if submitting or not current() then return end
-            if input.Text:match("^%s*(.-)%s*$")~=testKey then
-                status.Text=tr("Key inválida. Confira e tente novamente.","Invalid key. Check it and try again.")
+            if busy or not current() then return end
+            local key=cleanKey(input.Text)
+            if not key then report("NO_KEY") return end
+            busy=true
+            status.Text=tr("Validando acesso com o Panda Auth…","Validating access with Panda Auth…")
+            local sdk,reason=sdkForSession()
+            local session
+            if sdk then session,reason=validateKey(sdk,key) end
+            if not current() then
+                if sdk then pcall(sdk.disconnect) end
                 return
             end
-            submitting=true
-            local session={account=player.UserId,provider="local-test",expiresAt=os.time()+testLifetime}
-            preferences.access=session
-            save()
+            busy=false
+            if not session then
+                if (reason=="INVALID_KEY" or reason=="EXPIRED") and readKey()==key then
+                    writeKey(nil)
+                    if input.Text==key then input.Text="" end
+                end
+                report(reason)
+                return
+            end
+            writeKey(key)
             openGame(session,startWithOP)
         end
-        local continueButton=button(body,tr("Validar e abrir","Validate and open"),dedicated and 5 or 6,true)
         continueButton.Activated:Connect(submit)
         if dedicated then
             local option=button(body,tr("INICIAR OP AO ABRIR","START OP ON OPEN").."  ·  OFF",6)
@@ -519,10 +644,8 @@ start=function(chooseLanguage)
                 option.Text=tr("INICIAR OP AO ABRIR","START OP ON OPEN").."  ·  "..(startWithOP and "ON" or "OFF")
                 option.BackgroundColor3=startWithOP and color.edge or color.tile
             end)
-        end
-        if dedicated then
-            button(body,tr("Idioma","Language"),7).Activated:Connect(function() task.defer(start,true) end)
-            button(body,tr("Fechar","Close"),8).Activated:Connect(state.close)
+            button(body,tr("Idioma","Language"),8).Activated:Connect(function() task.defer(start,true) end)
+            button(body,tr("Fechar","Close"),9).Activated:Connect(state.close)
         else
             local actions=make("Frame",{Size=UDim2.new(1,0,0,42),LayoutOrder=7,BackgroundTransparency=1},body)
             local languageButton=button(actions,tr("Idioma","Language"),0)
@@ -532,10 +655,41 @@ start=function(chooseLanguage)
             closeButton.Position,closeButton.Size=UDim2.new(0.5,4,0,0),UDim2.new(0.5,-4,1,0)
             closeButton.Activated:Connect(state.close)
         end
-        input.FocusLost:Connect(function(pressed) if pressed then submit() end end)
-        input:GetPropertyChangedSignal("Text"):Connect(function()
-            if input.Text:match("^%s*(.-)%s*$")==testKey then task.defer(submit) end
+        local keyLink=label(body,"TextBox","",0,dedicated and 10 or 8)
+        keyLink.Visible,keyLink.TextEditable,keyLink.ClearTextOnFocus=false,false,false
+        keyLink.TextWrapped=false
+        keyLink.Font,keyLink.TextSize=Enum.Font.Code,12
+        getKey.Activated:Connect(function()
+            if busy or not current() then return end
+            busy=true
+            status.Text=tr("Preparando o link de acesso…","Preparing your access link…")
+            local sdk,reason=sdkForSession()
+            local ok,url
+            if sdk then ok,url=pcall(sdk.getKeyUrl) end
+            if not current() then return end
+            busy=false
+            local host=ok and type(url)=="string" and url:match("^https://([%w%.%-]+)/")
+            if not host or (host~="pandauth.com" and not host:match("%.pandauth%.com$")) then
+                report(reason or "PROTOCOL")
+                return
+            end
+            local clipboard=type(setclipboard)=="function" and setclipboard or nil
+            if clipboard and pcall(clipboard,url) then
+                status.Text=tr("Link copiado. Abra no navegador.","Link copied. Open it in your browser.")
+            else
+                keyLink.Size=UDim2.new(1,0,0,36)
+                keyLink.Text,keyLink.Visible=url,true
+                status.Text=tr("Copie o link abaixo e abra no navegador.","Copy the link below and open it in your browser.")
+            end
         end)
+        input.FocusLost:Connect(function(pressed) if pressed then submit() end end)
+        local savedKey=readKey()
+        if savedKey then
+            input.Text=savedKey
+            task.defer(submit)
+        elseif pandaServiceId=="" then
+            report("NO_SERVICE")
+        end
     end
 
     if not chooseLanguage and (language=="pt" or language=="en") then showAccess() return end

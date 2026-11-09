@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal tools
-local BOOT_VERSION="0.36.1"
+local BOOT_VERSION="0.37.0"
 local hub=...
 if type(hub)~="table" then return end
 
@@ -349,6 +349,26 @@ local visionPage=tab("vision","ESP",T("Configure a apresentação dos jogadores 
 local settingsPage=tab("settings",T("Ajustes","Settings"),T("Personalize a aparência e a posição do painel.","Customize the appearance and panel position."),4)
 showTab("controls")
 ui.gameCard(controls,hub.identity,T("SESSÃO ATIVA · MÓDULO UNIVERSAL","ACTIVE SESSION · UNIVERSAL MODULE"),1,true)
+local access=hub.access
+if type(access)=="table" then
+    local card=ui.make("Frame",{Name="Membership",Size=UDim2.new(1,0,0,64),LayoutOrder=2,
+        BackgroundColor3="@tile",BorderSizePixel=0},controls)
+    ui.make("UICorner",{CornerRadius=UDim.new(0,9)},card)
+    local portrait=ui.make("ImageLabel",{Position=UDim2.fromOffset(11,11),Size=UDim2.fromOffset(42,42),
+        Image=string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=100&h=100",player.UserId),
+        BackgroundColor3="@dark",BorderSizePixel=0},card)
+    ui.make("UICorner",{CornerRadius=UDim.new(1,0)},portrait)
+    local member=ui.label(card,"TextLabel",(player.DisplayName or player.Name).."  ·  "..access.plan,22,0)
+    member.Position,member.Size=UDim2.fromOffset(62,7),UDim2.new(1,-72,0,22)
+    member.Font,member.TextSize,member.TextXAlignment=Enum.Font.GothamBold,13,Enum.TextXAlignment.Left
+    member.TextWrapped,member.TextTruncate=false,Enum.TextTruncate.AtEnd
+    local duration=access.lifetime and T("Vitalícia","Lifetime")
+        or os.date(T("!%d/%m/%Y %H:%M UTC","!%Y-%m-%d %H:%M UTC"),access.expiresAt)
+    local details=ui.label(card,"TextLabel",access.keyLabel.."  ·  "..duration,28,0)
+    details.Position,details.Size=UDim2.fromOffset(62,30),UDim2.new(1,-72,0,28)
+    details.Font,details.TextSize,details.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Left
+    ui.paint(details,"TextColor3","muted")
+end
 refreshStatus()
 
 local function section(parent,caption,order)
