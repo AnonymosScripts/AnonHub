@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal entry point
-local version="0.35.1"
+local version="0.36.0"
 local games={
     [10767408330]={name="Peel THE Potato",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
@@ -111,13 +111,14 @@ local function palette(dark,tile,text,muted,accent,active,edge,top,bottom)
 end
 local themes={
     peel=palette("231F19","413627","FCF6E2","D5C3A3","FFCA42","80CD37","745831","FFF1D6","B08455"),
+    carbon=palette("101215","1B1E24","F2F4F7","A7AFBA","82E6C2","A7F4D1","363F49","282F37","191E24"),
     midnight=palette("0D1524","182740","F1F6FF","A9BCD9","77B9FF","80E9BE","375C88","243D65","101D33"),
     blood=palette("1C0D17","361626","FFF0F4","DCADBD","FF7A8D","FF9AAE","874058","6B243C","2A1121"),
     aurora=palette("0A201F","153533","EEFFF8","A5CCBE","6CF5B8","A0EBAF","2F766A","275B55","12302F"),
     amethyst=palette("190F2B","2C2048","F8F0FF","C4B1E2","CE9BFF","D9B0FF","674C9B","503976","211736"),
     arctic=palette("0D202A","193646","ECFAFF","ACCDD9","87E5F5","A3ECE1","437E94","345E72","122938"),
 }
-local themeOptions={{"midnight","Midnight"},{"blood","Blood Moon"},{"aurora","Aurora"},
+local themeOptions={{"carbon","Carbon"},{"midnight","Midnight"},{"blood","Blood Moon"},{"aurora","Aurora"},
     {"amethyst","Amethyst"},{"arctic","Arctic"}}
 
 local function createUI(initialTheme)
@@ -165,7 +166,7 @@ local function createUI(initialTheme)
             LayoutOrder=order,BorderSizePixel=0,AutoLocalize=false},parent)
     end
 
-    local function panel(height,modal)
+    local function panel(height,modal,console)
         local screen=make("ScreenGui",{Name="AnonHubLauncher",ResetOnSpawn=false,DisplayOrder=10030},playerGui)
         local shade=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(0,0,0),
             BackgroundTransparency=modal==false and 1 or 0.3,BorderSizePixel=0,Active=modal~=false},screen)
@@ -174,19 +175,19 @@ local function createUI(initialTheme)
             CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,
             ScrollingDirection=Enum.ScrollingDirection.Y,ScrollBarThickness=3,ScrollBarImageColor3="@accent",
             ElasticBehavior=initialTheme=="peel" and Enum.ElasticBehavior.WhenScrollable or Enum.ElasticBehavior.Never},shade)
-        make("UISizeConstraint",{MaxSize=Vector2.new(modal==false and 520 or 470,height)},body)
-        make("UICorner",{CornerRadius=UDim.new(0,9)},body)
-        make("UIStroke",{Color="@edge",Thickness=2},body)
+        make("UISizeConstraint",{MaxSize=Vector2.new(console and 550 or modal==false and 520 or 470,height)},body)
+        make("UICorner",{CornerRadius=UDim.new(0,console and 14 or 9)},body)
+        make("UIStroke",{Color="@edge",Thickness=console and 1 or 2},body)
         make("UIPadding",{PaddingTop=UDim.new(0,12),PaddingBottom=UDim.new(0,12),
             PaddingLeft=UDim.new(0,16),PaddingRight=UDim.new(0,16)},body)
         make("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,6)},body)
-        local header=make("Frame",{Size=UDim2.new(1,0,0,42),LayoutOrder=0,BackgroundColor3="@edge",
+        local header=make("Frame",{Size=UDim2.new(1,0,0,42),LayoutOrder=0,BackgroundColor3=console and "@tile" or "@edge",
             BorderSizePixel=0,Active=true},body)
         make("UICorner",{CornerRadius=UDim.new(0,7)},header)
-        gradient(header,"top","bottom",90)
-        local brand=label(header,"TextLabel","ANONHUB",42,0)
-        brand.Font=Enum.Font.GothamBlack
-        brand.TextSize=25
+        if not console then gradient(header,"top","bottom",90) end
+        local brand=label(header,"TextLabel",console and "ANONHUB  /  UNIVERSAL" or "ANONHUB",42,0)
+        brand.Font=console and Enum.Font.Code or Enum.Font.GothamBlack
+        brand.TextSize=console and 15 or 25
         paint(brand,"TextStrokeColor3","dark")
         brand.TextStrokeTransparency=0.32
         return screen,body,shade,header
@@ -203,26 +204,37 @@ local function createUI(initialTheme)
         return object
     end
 
-    local function gameCard(parent,identity,badge,order)
-        local card=make("Frame",{Size=UDim2.new(1,0,0,112),BackgroundColor3="@tile",BorderSizePixel=0,
+    local function gameCard(parent,identity,badge,order,console)
+        local height=console and 148 or 112
+        local card=make("Frame",{Size=UDim2.new(1,0,0,height),BackgroundColor3="@tile",BorderSizePixel=0,
             ClipsDescendants=true,LayoutOrder=order},parent)
         make("UICorner",{CornerRadius=UDim.new(0,8)},card)
         local cover=make("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image=identity.cover,
-            ScaleType=Enum.ScaleType.Crop,ImageTransparency=0.32},card)
-        make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3="@dark",
-            BackgroundTransparency=0.42,BorderSizePixel=0},card)
-        local icon=make("ImageLabel",{Position=UDim2.fromOffset(11,18),Size=UDim2.fromOffset(76,76),
+            ScaleType=Enum.ScaleType.Crop,ImageTransparency=console and 0.08 or 0.32},card)
+        local shade=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3="@dark",
+            BackgroundTransparency=console and 0.08 or 0.42,BorderSizePixel=0},card)
+        if console then
+            make("UIGradient",{Rotation=90,Transparency=NumberSequence.new({
+                NumberSequenceKeypoint.new(0,0.94),NumberSequenceKeypoint.new(0.55,0.46),
+                NumberSequenceKeypoint.new(1,0),
+            })},shade)
+        end
+        local icon=make("ImageLabel",{Position=UDim2.fromOffset(11,console and 67 or 18),Size=UDim2.fromOffset(76,76),
             Image=identity.icon,BackgroundColor3="@dark",BorderSizePixel=0,ScaleType=Enum.ScaleType.Crop},card)
         make("UICorner",{CornerRadius=UDim.new(0,9)},icon)
         make("UIStroke",{Color="@edge",Thickness=1},icon)
         local name=label(card,"TextLabel",identity.name,44,1)
-        name.Position,name.Size=UDim2.fromOffset(100,22),UDim2.new(1,-109,0,44)
-        name.Font,name.TextSize=Enum.Font.GothamBlack,19
+        name.Position,name.Size=UDim2.fromOffset(100,console and 78 or 22),UDim2.new(1,-109,0,44)
+        name.Font,name.TextSize=Enum.Font.GothamBlack,console and 21 or 19
         name.TextXAlignment=Enum.TextXAlignment.Left
         identity.watch(function(value) if name.Parent then name.Text=value end end)
+        if identity.watchCover then
+            identity.watchCover(function(value) if cover.Parent then cover.Image=value end end)
+        end
         local mode=label(card,"TextLabel",badge,27,2)
-        mode.Position,mode.Size=UDim2.fromOffset(100,70),UDim2.new(1,-107,0,27)
+        mode.Position,mode.Size=UDim2.fromOffset(100,console and 117 or 70),UDim2.new(1,-107,0,27)
         mode.TextXAlignment,mode.TextSize=Enum.TextXAlignment.Left,11
+        if console then mode.Font=Enum.Font.Code end
         paint(mode,"TextColor3","accent")
         return card
     end
@@ -294,21 +306,26 @@ start=function(chooseLanguage)
     if dedicated and dedicated.place~=game.PlaceId then dedicated=nil end
     local route=dedicated or universal
     local customization=type(preferences.universal)=="table" and preferences.universal or {}
-    local theme=dedicated and "peel" or (customization.theme~="peel" and customization.theme or "midnight")
+    local theme=dedicated and "peel" or (customization.theme~="peel" and customization.theme or "carbon")
     local skin=createUI(theme)
     local panel,label,button,make,gameCard,color=skin.panel,skin.label,skin.button,skin.make,skin.gameCard,skin.color
-    local nameListeners={}
+    local nameListeners,coverListeners={},{}
+    local function coverUrl(placeId)
+        return string.format("rbxthumb://type=GameThumbnail&id=%d&w=480&h=270",placeId)
+    end
     local identity={
-        name=dedicated and dedicated.name or string.format("Roblox · %d",game.PlaceId),
+        name=dedicated and dedicated.name or tr("Experiência","Experience").." · "..game.PlaceId,
         icon=string.format("rbxthumb://type=GameIcon&id=%d&w=150&h=150",game.GameId),
-        cover=string.format("rbxthumb://type=GameThumbnail&id=%d&w=480&h=270",game.PlaceId),
+        cover=coverUrl(game.PlaceId),
         watch=function(callback) table.insert(nameListeners,callback) end,
+        watchCover=function(callback) table.insert(coverListeners,callback) end,
     }
     if not dedicated then
         task.spawn(function()
-            local ok,name=pcall(function()
+            local ok,name,rootPlace=pcall(function()
                 local url="https://games.roblox.com/v1/games?universeIds="..game.GameId
-                return http:JSONDecode(game:HttpGet(url)).data[1].name
+                local info=http:JSONDecode(game:HttpGet(url)).data[1]
+                return info.name,info.rootPlaceId
             end)
             if not ok or type(name)~="string" or name=="" then
                 ok,name=pcall(function()
@@ -319,29 +336,42 @@ start=function(chooseLanguage)
                 identity.name=name
                 for _,callback in ipairs(nameListeners) do callback(identity.name) end
             end
+            if current() and type(rootPlace)=="number" and rootPlace>0 and rootPlace~=game.PlaceId then
+                identity.cover=coverUrl(rootPlace)
+                for _,callback in ipairs(coverListeners) do callback(identity.cover) end
+            end
         end)
     end
 
     local function openGame(access,startNow)
         dismiss()
         local body
-        screen,body=panel(292)
+        screen,body=panel(dedicated and 292 or 370,nil,not dedicated)
         local badge=dedicated and tr("MÓDULO DO JOGO","GAME MODULE") or tr("FERRAMENTAS UNIVERSAIS","UNIVERSAL TOOLS")
-        gameCard(body,identity,badge,1)
+        gameCard(body,identity,badge,1,not dedicated)
         local caption=label(body,"TextLabel",tr("JOGO IDENTIFICADO","GAME IDENTIFIED"),24,2)
         caption.TextColor3=color.active
         caption.Font=Enum.Font.GothamBold
-        local status=label(body,"TextLabel",tr("Carregando funções…","Loading features…"),25,3)
+        local status=label(body,"TextLabel",tr("Carregando funções…","Loading features…"),28,3)
         status.TextColor3=color.muted
         local track=make("Frame",{Size=UDim2.new(1,0,0,6),LayoutOrder=4,BackgroundColor3=color.tile,
             BorderSizePixel=0},body)
         make("UICorner",{CornerRadius=UDim.new(0,5)},track)
         local fill=make("Frame",{Size=UDim2.fromScale(0.18,1),BackgroundColor3=color.accent,BorderSizePixel=0},track)
         make("UICorner",{CornerRadius=UDim.new(0,5)},fill)
+        local percent
+        if not dedicated then
+            percent=label(body,"TextLabel","01 / 03     18%",24,5)
+            percent.Font,percent.TextSize,percent.TextColor3=Enum.Font.Code,12,color.accent
+        end
         local function progress(fraction,portuguese,english)
             if current() and fill.Parent then
                 fill.Size=UDim2.fromScale(math.clamp(fraction,0,1),1)
                 if portuguese then status.Text=tr(portuguese,english) end
+                if percent then
+                    local stage=fraction<0.48 and 1 or fraction<0.75 and 2 or 3
+                    percent.Text=string.format("%02d / 03     %d%%",stage,math.floor(fraction*100+0.5))
+                end
             end
         end
         task.wait()
@@ -350,11 +380,24 @@ start=function(chooseLanguage)
         if not current() then return end
         if not run then
             status.Text=tr("Não foi possível baixar as funções.","Could not download the features.")
-            button(body,tr("Tentar novamente","Try again"),5,true).Activated:Connect(function()
+            button(body,tr("Tentar novamente","Try again"),6,true).Activated:Connect(function()
                 if current() then task.defer(start,false) end
             end)
-            button(body,tr("Fechar","Close"),6).Activated:Connect(state.close)
+            button(body,tr("Fechar","Close"),7).Activated:Connect(state.close)
             return
+        end
+        if not dedicated then
+            progress(0.55,"Carregando capa e ícone…","Loading cover and icon…")
+            local completed=false
+            task.spawn(function()
+                pcall(function()
+                    game:GetService("ContentProvider"):PreloadAsync({identity.icon,identity.cover})
+                end)
+                completed=true
+            end)
+            local deadline=os.clock()+1.25
+            repeat task.wait() until completed or not current() or os.clock()>=deadline
+            if not current() then return end
         end
         local function expire()
             if current() and preferences.access==access then
@@ -366,17 +409,13 @@ start=function(chooseLanguage)
         local remaining=access.expiresAt-os.time()
         if remaining<=0 then expire() return end
         task.delay(remaining,expire)
-        progress(0.43,"Preparando o painel…","Preparing the panel…")
+        progress(dedicated and 0.43 or 0.82,"Preparando o painel…","Preparing the panel…")
         local ready=false
         local function showReady()
             if ready or not current() then return end
             ready=true
             progress(1,"Pronto","Ready")
             dismiss()
-            if not dedicated then
-                task.spawn(notify,skin,tr("Este jogo ainda não tem um módulo próprio. Modo universal aberto.",
-                    "This game has no dedicated module yet. Universal mode is open."))
-            end
         end
         local ok=pcall(run,{
             language=language,access=access,startNow=startNow,unload=state.close,
@@ -402,8 +441,8 @@ start=function(chooseLanguage)
         local access=activeAccess(os.time())
         if access then openGame(access,false) return end
         local body
-        screen,body=panel(505)
-        gameCard(body,identity,dedicated and tr("ACESSO AO MÓDULO","MODULE ACCESS") or tr("MODO UNIVERSAL","UNIVERSAL MODE"),1)
+        screen,body=panel(505,nil,not dedicated)
+        gameCard(body,identity,dedicated and tr("ACESSO AO MÓDULO","MODULE ACCESS") or tr("MODO UNIVERSAL","UNIVERSAL MODE"),1,not dedicated)
         label(body,"TextLabel",tr("Cole sua key para abrir o hub.","Paste your key to open the hub."),28,2)
         local input=label(body,"TextBox","",42,3)
         input.BackgroundTransparency=0

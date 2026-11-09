@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal tools
-local BOOT_VERSION="0.35.1"
+local BOOT_VERSION="0.36.0"
 local hub=...
 if type(hub)~="table" then return end
 
@@ -7,25 +7,30 @@ local Players=game:GetService("Players")
 local Run=game:GetService("RunService")
 local Input=game:GetService("UserInputService")
 local world=game:GetService("Workspace")
-local touchDevice=Input.TouchEnabled
+local touchAvailable=Input.TouchEnabled
+local function usingTouch()
+    return touchAvailable and (Input.PreferredInput==nil or Input.PreferredInput==Enum.PreferredInput.Touch)
+end
+local silentAllowed=game.GameId~=8795154789 and game.PlaceId~=136801880565837
+    and game.GameId~=6035872082 and game.PlaceId~=17625359962
 local player=Players.LocalPlayer
 local ui=hub.ui
 local color=ui.color
 local function T(pt,en) return hub.language=="pt" and pt or en end
 local defaults={
-    theme="midnight",width=560,height=610,scale=100,launcher=48,opacity=100,
+    theme="carbon",width=560,height=610,scale=100,launcher=48,opacity=100,
     panelX=0.5,panelY=0.5,buttonX=0,buttonY=1,
     espMode="outline",espColor="theme",espHex="FF7A8D",espRange=850,espThrough=true,
     espNick="display",espDistance=true,espTeam=true,espLabels="screen",espCustomRigs=true,
-    aimActivation=touchDevice and "toggle" or "hold",aimResponse="smooth",aimTouchSide="left",
+    aimActivation="auto",aimResponse="smooth",aimTouchSide="left",aimAdaptiveFov=true,
     aimPriority="center",aimPart="head",aimCircle="enabled",aimCircleColor="theme",
-    aimRadius=175,aimOffsetY=0,aimWidth=1,aimRange=850,aimSpeed=24,cameraFov=80,
+    aimRadius=175,aimOffsetX=0,aimOffsetY=0,aimWidth=1,aimRange=850,aimSpeed=24,cameraFov=80,
     aimTeam=true,aimObstacles="visible",aimSticky=true,aimCustomCamera=true,aimLabel=true,
 }
 local limits={
     width={300,900},height={340,880},scale={65,140},launcher={40,90},opacity={60,100},
     panelX={0,1},panelY={0,1},buttonX={0,1},buttonY={0,1},espRange={100,1500},
-    aimRadius={30,500},aimOffsetY={-130,130},aimWidth={1,4},aimRange={75,1500},
+    aimRadius={30,500},aimOffsetX={-130,130},aimOffsetY={-130,130},aimWidth={1,4},aimRange={75,1500},
     aimSpeed={3,70},cameraFov={35,120},
 }
 local modes={
@@ -43,10 +48,11 @@ local colors={
 }
 local nickModes={{"display","Nome de exibição","Display name"},{"username","@Usuário","@Username"},
     {"both","Nome + @usuário","Name + @username"},{"off","Ocultar nome","Hide name"}}
-local activationModes={{"hold","Segurar","Hold"},{"toggle","Toque alterna","Tap to toggle"},
+local activationModes={{"auto","Automático","Automatic"},{"hold","Segurar","Hold"},{"toggle","Toque alterna","Tap to toggle"},
     {"always","Contínua","Continuous"}}
 local touchSides={{"left","Esquerda","Left"},{"right","Direita","Right"}}
-local responses={{"smooth","Suave","Smooth"},{"snap","Direta","Direct"},{"silent","Silenciosa","Silent"}}
+local responses={{"smooth","Suave","Smooth"},{"snap","Direta","Direct"}}
+if silentAllowed then table.insert(responses,{"silent","Silenciosa","Silent"}) end
 local obstacles={{"visible","Linha livre","Clear line"},{"effects","Ignorar efeitos","Ignore effects"},
     {"through","Atrás de obstáculos","Behind obstacles"}}
 local labelModes={{"screen","Na tela (2D)","Screen (2D)"},{"world","No personagem (3D)","On character (3D)"}}
@@ -78,11 +84,15 @@ for key,list in pairs({espNick=nickModes,espLabels=labelModes,aimActivation=acti
     if lookup(list,saved[key]) then settings[key]=saved[key] end
 end
 if not lookup(obstacles,saved.aimObstacles) and saved.aimVisible==false then settings.aimObstacles="through" end
-for _,key in ipairs({"espThrough","espDistance","espHealth","espTeam","espCustomRigs","aimTeam",
+for _,key in ipairs({"espThrough","espDistance","espHealth","espTeam","espCustomRigs","aimTeam","aimAdaptiveFov",
     "aimSticky","aimCustomCamera","aimLabel"}) do
     if type(saved[key])=="boolean" then settings[key]=saved[key] end
 end
 local function save() hub.saveSettings(settings) end
+local function activationMode()
+    if settings.aimActivation~="auto" then return settings.aimActivation end
+    return usingTouch() and "toggle" or "hold"
+end
 local function espHealthEnabled()
     if settings.espHealth~=nil then return settings.espHealth end
     return settings.espMode=="full"
@@ -95,35 +105,46 @@ local canvas=ui.make("Frame",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1
 local body=ui.make("Frame",{Name="UniversalPanel",AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),
     BackgroundColor3="@dark",BorderSizePixel=0,ClipsDescendants=true},canvas)
 local scale=ui.make("UIScale",{Scale=1},body)
-ui.make("UICorner",{CornerRadius=UDim.new(0,13)},body)
-ui.make("UIStroke",{Color="@edge",Thickness=2},body)
-local header=ui.make("Frame",{Size=UDim2.new(1,0,0,58),BackgroundColor3="@tile",
+ui.make("UICorner",{CornerRadius=UDim.new(0,14)},body)
+ui.make("UIStroke",{Color="@edge",Thickness=1},body)
+local header=ui.make("Frame",{Size=UDim2.new(1,0,0,62),BackgroundColor3="@tile",
     BorderSizePixel=0,Active=true,ClipsDescendants=true},body)
-ui.gradient(header,"top","bottom",90)
-local halo=ui.make("Frame",{Size=UDim2.fromOffset(136,136),Position=UDim2.new(1,-145,0,-44),
-    BackgroundColor3="@accent",BackgroundTransparency=0.87,BorderSizePixel=0},header)
-ui.make("UICorner",{CornerRadius=UDim.new(1,0)},halo)
-local orbit=ui.make("Frame",{Size=UDim2.fromOffset(114,114),Position=UDim2.fromOffset(11,11),
-    BackgroundTransparency=1},halo)
-ui.make("UICorner",{CornerRadius=UDim.new(1,0)},orbit)
-ui.make("UIStroke",{Color="@accent",Transparency=0.65,Thickness=1},orbit)
-local mark=ui.make("Frame",{Size=UDim2.fromOffset(20,20),Position=UDim2.fromOffset(22,19),Rotation=45,
+ui.make("Frame",{Size=UDim2.new(1,0,0,1),Position=UDim2.new(0,0,1,-1),
+    BackgroundColor3="@edge",BorderSizePixel=0},header)
+local mark=ui.make("Frame",{Size=UDim2.fromOffset(4,30),Position=UDim2.fromOffset(14,16),
     BackgroundColor3="@accent",BorderSizePixel=0},header)
-ui.make("UICorner",{CornerRadius=UDim.new(0,5)},mark)
+ui.make("UICorner",{CornerRadius=UDim.new(0,2)},mark)
 local brand=ui.label(header,"TextLabel","ANONHUB",28,1)
-brand.Position,brand.Size=UDim2.fromOffset(55,5),UDim2.new(1,-108,0,28)
+brand.Position,brand.Size=UDim2.fromOffset(28,7),UDim2.new(1,-85,0,28)
 brand.Font,brand.TextSize,brand.TextXAlignment=Enum.Font.GothamBlack,22,Enum.TextXAlignment.Left
-local tag=ui.label(header,"TextLabel",T("EDIÇÃO UNIVERSAL","UNIVERSAL EDITION"),17,2)
-tag.Position,tag.Size=UDim2.fromOffset(56,34),UDim2.new(1,-108,0,17)
-tag.TextSize,tag.TextXAlignment=11,Enum.TextXAlignment.Left
+local tag=ui.label(header,"TextLabel",T("CENTRAL UNIVERSAL","UNIVERSAL CONSOLE"),17,2)
+tag.Position,tag.Size=UDim2.fromOffset(29,36),UDim2.new(1,-85,0,17)
+tag.Font,tag.TextSize,tag.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Left
 ui.paint(tag,"TextColor3","accent")
-local nav=ui.make("Frame",{Position=UDim2.fromOffset(10,66),Size=UDim2.new(1,-20,0,36),
+local nav=ui.make("Frame",{Position=UDim2.fromOffset(12,72),Size=UDim2.new(1,-24,0,40),
     BackgroundTransparency=1},body)
+local footer=ui.make("Frame",{Position=UDim2.new(0,0,1,-29),Size=UDim2.new(1,0,0,29),
+    BorderSizePixel=0,BackgroundColor3="@tile"},body)
+ui.make("Frame",{Size=UDim2.new(1,0,0,1),BackgroundColor3="@edge",BorderSizePixel=0},footer)
+local sessionStatus=ui.label(footer,"TextLabel","",29,0)
+sessionStatus.Position,sessionStatus.Size=UDim2.fromOffset(12,0),UDim2.new(1,-85,1,0)
+sessionStatus.Font,sessionStatus.TextSize,sessionStatus.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Left
+local versionLabel=ui.label(footer,"TextLabel","v"..BOOT_VERSION,29,0)
+versionLabel.Position,versionLabel.Size=UDim2.new(1,-77,0,0),UDim2.fromOffset(65,29)
+versionLabel.Font,versionLabel.TextSize,versionLabel.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Right
+ui.paint(versionLabel,"TextColor3","muted")
 local pages={}
 local tabButtons={}
+local tabMarkers={}
 local connections={}
 local alive=true
 local flags={}
+local function refreshStatus()
+    local input=usingTouch() and T("TOQUE","TOUCH") or T("TECLADO / CONTROLE","KEYBOARD / PAD")
+    local aim=flags.aim and T("MIRA ON","AIM ON") or T("MIRA OFF","AIM OFF")
+    sessionStatus.Text=input.."  /  "..aim.."  /  ESP "..(flags.esp and "ON" or "OFF")
+    ui.paint(sessionStatus,"TextColor3",(flags.aim or flags.esp) and "active" or "muted")
+end
 local values={speed=24,fly=55}
 local updates={}
 local highlights={}
@@ -272,15 +293,18 @@ local function showTab(id)
     for key,page in pairs(pages) do
         local selected=key==id
         page.Visible=selected
-        ui.paint(tabButtons[key],"BackgroundColor3",selected and "accent" or "tile")
-        ui.paint(tabButtons[key],"TextColor3",selected and "dark" or "text")
+        ui.paint(tabButtons[key],"BackgroundColor3",selected and "tile" or "dark")
+        ui.paint(tabButtons[key],"TextColor3",selected and "accent" or "muted")
+        tabMarkers[key].Visible=selected
     end
 end
 local function tab(id,caption,index)
     local control=ui.button(nav,caption,0)
     control.Position,control.Size=UDim2.new((index-1)/4,0,0,0),UDim2.new(1/4,-4,1,0)
-    control.TextSize=12
-    local page=ui.make("ScrollingFrame",{Name=id,Position=UDim2.fromOffset(10,110),Size=UDim2.new(1,-20,1,-120),
+    control.Font,control.TextSize=Enum.Font.Code,12
+    tabMarkers[id]=ui.make("Frame",{Position=UDim2.new(0,10,1,-3),Size=UDim2.new(1,-20,0,2),
+        BackgroundColor3="@accent",BorderSizePixel=0},control)
+    local page=ui.make("ScrollingFrame",{Name=id,Position=UDim2.fromOffset(12,122),Size=UDim2.new(1,-24,1,-158),
         BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.fromOffset(0,0),
         AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=3,ScrollBarImageColor3="@accent",
         ScrollingDirection=Enum.ScrollingDirection.Y,ElasticBehavior=Enum.ElasticBehavior.Never,Visible=false},body)
@@ -295,7 +319,8 @@ local aimPage=tab("aim",T("MIRA","AIM"),2)
 local visionPage=tab("vision","ESP",3)
 local settingsPage=tab("settings",T("AJUSTES","SETTINGS"),4)
 showTab("controls")
-ui.gameCard(controls,hub.identity,T("FERRAMENTAS UNIVERSAIS","UNIVERSAL TOOLS"),1)
+ui.gameCard(controls,hub.identity,T("SESSÃO ATIVA · MÓDULO UNIVERSAL","ACTIVE SESSION · UNIVERSAL MODULE"),1,true)
+refreshStatus()
 
 local function section(parent,caption,order)
     local heading=ui.label(parent,"TextLabel",caption,26,order)
@@ -317,6 +342,7 @@ local function toggle(parent,key,title,right,onChange)
         control.Text=title.."  ·  "..(flags[key] and "ON" or "OFF")
         ui.paint(control,"BackgroundColor3",flags[key] and "active" or "tile")
         ui.paint(control,"TextColor3",flags[key] and "dark" or "text")
+        if key=="aim" or key=="esp" then refreshStatus() end
     end
     table.insert(updates,update)
     update()
@@ -482,9 +508,9 @@ local function holdButton(key,caption,offset,width,shouldHold)
 end
 local up=holdButton("up",T("↑  SUBIR","↑  UP"),-165,103)
 local down=holdButton("down",T("↓  DESCER","↓  DOWN"),-112,103)
-local aim,releaseAim=holdButton("aim",T("MIRAR","AIM"),-64,112,function() return settings.aimActivation=="hold" end)
+local aim,releaseAim=holdButton("aim",T("MIRAR","AIM"),-64,112,function() return activationMode()=="hold" end)
 local function placeAimButton()
-    if not touchDevice then return end
+    if not touchAvailable then return end
     local left=settings.aimTouchSide=="left"
     aim.AnchorPoint=Vector2.new(left and 0 or 1,0.5)
     aim.Position=UDim2.new(left and 0 or 1,left and 10 or -10,0.43,0)
@@ -511,12 +537,12 @@ local function resetAim()
     clearTarget()
 end
 local function aimButtonText()
-    local message=settings.aimActivation=="toggle" and (aimLatched and T("PARAR MIRA","STOP AIM") or T("LIGAR MIRA","START AIM"))
+    local message=activationMode()=="toggle" and (aimLatched and T("PARAR MIRA","STOP AIM") or T("LIGAR MIRA","START AIM"))
         or T("SEGURAR MIRA","HOLD AIM")
     if aim.Text~=message then aim.Text=message end
 end
 local function toggleAim()
-    if not flags.aim or settings.aimActivation~="toggle" then return end
+    if not flags.aim or activationMode()~="toggle" then return end
     aimLatched=not aimLatched
     clearTarget()
     aimButtonText()
@@ -528,13 +554,13 @@ connect(Input.InputBegan,function(event,processed)
 end)
 local function refreshOverlay()
     up.Visible,down.Visible=flags.fly==true,flags.fly==true
-    aim.Visible=flags.aim==true and settings.aimActivation~="always" and (not touchDevice or not body.Visible)
+    aim.Visible=flags.aim==true and activationMode()~="always" and (not usingTouch() or not body.Visible)
     if not flags.fly then held.up,held.down=false,false end
     if not flags.aim then resetAim() sight.Visible=false targetLabel.Visible=false end
     aimButtonText()
 end
 table.insert(updates,refreshOverlay)
-if touchDevice then
+if touchAvailable then
     connect(body:GetPropertyChangedSignal("Visible"),function()
         if body.Visible then
             releaseAim()
@@ -560,8 +586,8 @@ adjust(controls,values,"fly",T("Velocidade de voo","Flight speed"),10,180,10,6)
 section(aimPage,T("MIRA E CAMPO DE VISÃO","AIM AND FIELD OF VIEW"),1)
 local cameraRow=row(aimPage,2)
 toggle(cameraRow,"aim",T("Mira assistida","Aim assist"),false,function(enabled)
-    if enabled and touchDevice then
-        aimLatched=settings.aimActivation=="toggle"
+    if enabled and usingTouch() then
+        aimLatched=activationMode()=="toggle"
         body.Visible=false
     end
     refreshOverlay()
@@ -640,10 +666,9 @@ local activationHint=ui.label(aimPage,"TextLabel","",36,6)
 activationHint.TextSize=11
 ui.paint(activationHint,"TextColor3","muted")
 local function refreshActivation()
-    resetAim()
-    refreshOverlay()
-    activationHint.Text=settings.aimActivation=="always" and T("A mira acompanha alvos enquanto estiver ligada.","Aim tracks targets while enabled.")
-        or settings.aimActivation=="toggle" and (touchDevice
+    local mode=activationMode()
+    activationHint.Text=mode=="always" and T("A mira acompanha alvos enquanto estiver ligada.","Aim tracks targets while enabled.")
+        or mode=="toggle" and (usingTouch()
             and T("A mira começa ao ligar. Use o botão lateral para pausar ou retomar.",
                 "Aim starts when enabled. Use the side button to pause or resume.")
             or T("Use o botão direito, Alt esquerdo ou o botão lateral.",
@@ -651,16 +676,30 @@ local function refreshActivation()
         or T("Segure o botão lateral, o botão direito do mouse ou Alt esquerdo.",
             "Hold the side button, right mouse or Left Alt.")
 end
-selector(aimPage,activationModes,"aimActivation",3,5,optionCaption,refreshActivation)
+selector(aimPage,activationModes,"aimActivation",2,5,optionCaption,function()
+    resetAim()
+    refreshOverlay()
+    refreshActivation()
+end)
+connect(Input:GetPropertyChangedSignal("PreferredInput"),function()
+    resetAim()
+    refreshOverlay()
+    refreshActivation()
+    refreshStatus()
+end)
 refreshActivation()
 section(aimPage,T("RESPOSTA DA MIRA","AIM RESPONSE"),7)
-local silentHelp=touchDevice
-    and T("Mira silenciosa: armas com mouse clássico ou raio central da câmera.",
-        "Silent aim: weapons using classic mouse or a centered camera ray.")
-    or T("Mira silenciosa: apenas armas compatíveis com o mouse clássico.",
-        "Silent aim: compatible classic mouse weapons only.")
+local silentHelp
+if not silentAllowed then
+    silentHelp=T("Silent indisponível neste jogo. Use Suave ou Direta.", "Silent is unavailable here. Use Smooth or Direct.")
+elseif touchAvailable then
+    silentHelp=T("Silent funciona com armas que usam mouse clássico ou raio central da câmera.",
+        "Silent works with weapons that use classic mouse or a centered camera ray.")
+else
+    silentHelp=T("Silent funciona com armas que usam mouse clássico.", "Silent works with weapons that use classic mouse.")
+end
 local silentStatus
-selector(aimPage,responses,"aimResponse",3,8,optionCaption,function()
+selector(aimPage,responses,"aimResponse",#responses,8,optionCaption,function()
     clearTarget()
     silentStatus.Text=silentHelp
 end)
@@ -685,10 +724,15 @@ settingToggle(aimPage,"aimLabel",T("Mostrar nome do alvo","Show target name"),25
 silentStatus=ui.label(aimPage,"TextLabel",silentHelp,36,26)
 silentStatus.TextSize=11
 ui.paint(silentStatus,"TextColor3","muted")
-if touchDevice then
+if touchAvailable then
     section(aimPage,T("LADO DO BOTÃO DE MIRA","AIM BUTTON SIDE"),27)
     selector(aimPage,touchSides,"aimTouchSide",2,28,optionCaption,placeAimButton)
+    settingToggle(aimPage,"aimAdaptiveFov",T("Raio adaptado à tela","Scale radius to screen"),29,clearTarget)
 end
+adjust(aimPage,settings,"aimOffsetX",T("Ajuste horizontal (px)","Horizontal offset (px)"),-130,130,5,30,function()
+    clearTarget()
+    save()
+end)
 
 section(visionPage,T("DESTAQUE DE JOGADORES","PLAYER HIGHLIGHTING"),1)
 local vision=row(visionPage,2)
@@ -1113,10 +1157,10 @@ local function getSilentHooks()
         env.AnonHubSilentHooks_v2=state
     end
     if not state.mouse then state.mouse=pcall(installMouseHook,state) end
-    if touchDevice and not state.camera and type(getnamecallmethod)=="function" then
+    if touchAvailable and not state.camera and type(getnamecallmethod)=="function" then
         state.camera=pcall(installTouchRayHook,state)
     end
-    if state.mouse or (touchDevice and state.camera) then silentHooks=state end
+    if state.mouse or (touchAvailable and state.camera) then silentHooks=state end
     return silentHooks
 end
 
@@ -1129,7 +1173,7 @@ local function updateSilent(character,target,camera)
         if not silentSession then silentSession={} end
         if silentSession.tool~=tool then silentSession.used=false end
         silentSession.character,silentSession.tool,silentSession.target=character,tool,target
-        silentSession.camera=touchDevice and camera or nil
+        silentSession.camera=usingTouch() and camera or nil
         hook.session=silentSession
     end
     local message
@@ -1143,8 +1187,7 @@ end
 
 local strokeColors={}
 for _,option in ipairs(circleColors) do if option[4] then strokeColors[option[1]]=ui.rgb(option[4]) end end
-local function drawAim(viewport,anchor,aiming,target)
-    local radius=settings.aimRadius
+local function drawAim(viewport,anchor,radius,aiming,target)
     sight.Visible=settings.aimCircle=="enabled" or (settings.aimCircle=="active" and aiming)
     if sight.Visible then
         sight.Position,sight.Size=UDim2.fromOffset(anchor.X,anchor.Y),UDim2.fromOffset(radius*2,radius*2)
@@ -1162,7 +1205,7 @@ end
 local function aimCamera(camera,target,anchor,viewport,dt)
     local current=camera.CFrame
     local goal=CFrame.lookAt(current.Position,target.Position,current.UpVector)
-    if anchor.Y~=viewport.Y*0.5 then
+    if anchor.X~=viewport.X*0.5 or anchor.Y~=viewport.Y*0.5 then
         local direction=camera:ViewportPointToRay(anchor.X,anchor.Y).Direction
         local relative=current:VectorToObjectSpace(direction)
         local offCenter=CFrame.lookAt(Vector3.zero,relative)
@@ -1174,7 +1217,7 @@ local function aimCamera(camera,target,anchor,viewport,dt)
             local previous=aimMotion.frame
             from=previous+(current.Position-previous.Position)
         end
-        goal=from:Lerp(goal,1-math.exp(-settings.aimSpeed*dt))
+        goal=from:Lerp(goal,1-math.exp(-settings.aimSpeed*math.min(dt,0.1)))
     end
     camera.CFrame=goal
     aimMotion={camera=camera,target=target,frame=goal}
@@ -1191,21 +1234,27 @@ Run:BindToRenderStep(renderName,Enum.RenderPriority.Last.Value+1,function(dt)
     aimButtonText()
     local viewport=camera.ViewportSize
     if viewport.X<=0 or viewport.Y<=0 then clearTarget() sight.Visible=false targetLabel.Visible=false return end
-    local anchor=Vector2.new(viewport.X*0.5,math.clamp(viewport.Y*0.5+settings.aimOffsetY,0,viewport.Y))
-    local mode=settings.aimActivation
+    local touch=usingTouch()
+    local radius=settings.aimRadius
+    if touch and settings.aimAdaptiveFov then
+        radius*=math.clamp(math.min(viewport.X,viewport.Y)/480,0.65,1.2)
+    end
+    local anchor=Vector2.new(math.clamp(viewport.X*0.5+settings.aimOffsetX,0,viewport.X),
+        math.clamp(viewport.Y*0.5+settings.aimOffsetY,0,viewport.Y))
+    local mode=activationMode()
     local aiming=mode=="always" or (mode=="toggle" and aimLatched)
         or (mode=="hold" and (held.aim or Input:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
             or Input:IsKeyDown(Enum.KeyCode.LeftAlt)))
     local character,ownRoot,humanoid=playerRig(player,settings.espCustomRigs)
-    if not aiming or (touchDevice and body.Visible) or not character or (humanoid and humanoid.Health<=0) or Input:GetFocusedTextBox()
+    if not aiming or (touch and body.Visible) or not character or (humanoid and humanoid.Health<=0) or Input:GetFocusedTextBox()
         or (not settings.aimCustomCamera and camera.CameraType==Enum.CameraType.Scriptable) then
         clearTarget()
         nextAimSearch=0
-        drawAim(viewport,anchor,false,nil)
+        drawAim(viewport,anchor,radius,false,nil)
         return
     end
     local origin=ownRoot and ownRoot.Position or camera.CFrame.Position
-    local limit=settings.aimRadius
+    local limit=radius
     local target,score
     if aimTarget then
         target,score=visibleTarget(camera,aimTarget,anchor,settings.aimSticky and limit*1.12 or limit,origin,character)
@@ -1220,12 +1269,12 @@ Run:BindToRenderStep(renderName,Enum.RenderPriority.Last.Value+1,function(dt)
             end
         end
     end
-    if settings.aimResponse=="silent" then
+    if silentAllowed and settings.aimResponse=="silent" then
         updateSilent(character,target,camera)
     elseif target then
         aimCamera(camera,target,anchor,viewport,dt)
     end
-    drawAim(viewport,anchor,true,target)
+    drawAim(viewport,anchor,radius,true,target)
 end)
 
 hub.ready()
