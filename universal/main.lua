@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal tools
-local BOOT_VERSION="0.36.0"
+local BOOT_VERSION="0.36.1"
 local hub=...
 if type(hub)~="table" then return end
 
@@ -105,45 +105,57 @@ local canvas=ui.make("Frame",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1
 local body=ui.make("Frame",{Name="UniversalPanel",AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),
     BackgroundColor3="@dark",BorderSizePixel=0,ClipsDescendants=true},canvas)
 local scale=ui.make("UIScale",{Scale=1},body)
-ui.make("UICorner",{CornerRadius=UDim.new(0,14)},body)
+ui.make("UICorner",{CornerRadius=UDim.new(0,16)},body)
 ui.make("UIStroke",{Color="@edge",Thickness=1},body)
-local header=ui.make("Frame",{Size=UDim2.new(1,0,0,62),BackgroundColor3="@tile",
+local header=ui.make("Frame",{Size=UDim2.new(1,0,0,62),BackgroundColor3="@dark",
     BorderSizePixel=0,Active=true,ClipsDescendants=true},body)
 ui.make("Frame",{Size=UDim2.new(1,0,0,1),Position=UDim2.new(0,0,1,-1),
     BackgroundColor3="@edge",BorderSizePixel=0},header)
-local mark=ui.make("Frame",{Size=UDim2.fromOffset(4,30),Position=UDim2.fromOffset(14,16),
-    BackgroundColor3="@accent",BorderSizePixel=0},header)
-ui.make("UICorner",{CornerRadius=UDim.new(0,2)},mark)
-local brand=ui.label(header,"TextLabel","ANONHUB",28,1)
-brand.Position,brand.Size=UDim2.fromOffset(28,7),UDim2.new(1,-85,0,28)
-brand.Font,brand.TextSize,brand.TextXAlignment=Enum.Font.GothamBlack,22,Enum.TextXAlignment.Left
-local tag=ui.label(header,"TextLabel",T("CENTRAL UNIVERSAL","UNIVERSAL CONSOLE"),17,2)
-tag.Position,tag.Size=UDim2.fromOffset(29,36),UDim2.new(1,-85,0,17)
-tag.Font,tag.TextSize,tag.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Left
-ui.paint(tag,"TextColor3","accent")
-local nav=ui.make("Frame",{Position=UDim2.fromOffset(12,72),Size=UDim2.new(1,-24,0,40),
-    BackgroundTransparency=1},body)
-local footer=ui.make("Frame",{Position=UDim2.new(0,0,1,-29),Size=UDim2.new(1,0,0,29),
-    BorderSizePixel=0,BackgroundColor3="@tile"},body)
+local mark=ui.label(header,"TextLabel","A",30,0)
+mark.Position,mark.Size=UDim2.fromOffset(16,16),UDim2.fromOffset(30,30)
+mark.BackgroundTransparency=0
+mark.Font,mark.TextSize=Enum.Font.GothamBlack,17
+ui.paint(mark,"BackgroundColor3","accent")
+ui.paint(mark,"TextColor3","dark")
+ui.make("UICorner",{CornerRadius=UDim.new(0,9)},mark)
+local brand=ui.label(header,"TextLabel","AnonHub",25,1)
+brand.Position,brand.Size=UDim2.fromOffset(56,11),UDim2.new(1,-110,0,25)
+brand.Font,brand.TextSize,brand.TextXAlignment=Enum.Font.GothamBold,19,Enum.TextXAlignment.Left
+local tag=ui.label(header,"TextLabel",T("CENTRAL UNIVERSAL","UNIVERSAL WORKSPACE"),16,2)
+tag.Position,tag.Size=UDim2.fromOffset(57,35),UDim2.new(1,-112,0,16)
+tag.Font,tag.TextSize,tag.TextXAlignment=Enum.Font.Code,10,Enum.TextXAlignment.Left
+ui.paint(tag,"TextColor3","muted")
+local nav=ui.make("Frame",{Name="Navigation",BackgroundColor3="@tile",BorderSizePixel=0},body)
+ui.make("UICorner",{CornerRadius=UDim.new(0,10)},nav)
+local navTitle=ui.label(nav,"TextLabel",T("ÁREA DE TRABALHO","WORKSPACE"),18,0)
+navTitle.Position,navTitle.Size=UDim2.fromOffset(14,10),UDim2.new(1,-24,0,18)
+navTitle.Font,navTitle.TextSize,navTitle.TextXAlignment=Enum.Font.Code,9,Enum.TextXAlignment.Left
+ui.paint(navTitle,"TextColor3","muted")
+local footer=ui.make("Frame",{Position=UDim2.new(0,0,1,-32),Size=UDim2.new(1,0,0,32),
+    BorderSizePixel=0,BackgroundColor3="@dark"},body)
 ui.make("Frame",{Size=UDim2.new(1,0,0,1),BackgroundColor3="@edge",BorderSizePixel=0},footer)
-local sessionStatus=ui.label(footer,"TextLabel","",29,0)
-sessionStatus.Position,sessionStatus.Size=UDim2.fromOffset(12,0),UDim2.new(1,-85,1,0)
+local sessionDot=ui.make("Frame",{Position=UDim2.fromOffset(15,13),Size=UDim2.fromOffset(6,6),
+    BorderSizePixel=0,BackgroundColor3="@accent"},footer)
+ui.make("UICorner",{CornerRadius=UDim.new(1,0)},sessionDot)
+local sessionStatus=ui.label(footer,"TextLabel","",32,0)
+sessionStatus.Position,sessionStatus.Size=UDim2.fromOffset(28,0),UDim2.new(1,-104,1,0)
 sessionStatus.Font,sessionStatus.TextSize,sessionStatus.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Left
-local versionLabel=ui.label(footer,"TextLabel","v"..BOOT_VERSION,29,0)
-versionLabel.Position,versionLabel.Size=UDim2.new(1,-77,0,0),UDim2.fromOffset(65,29)
+local versionLabel=ui.label(footer,"TextLabel","v"..BOOT_VERSION,32,0)
+versionLabel.Position,versionLabel.Size=UDim2.new(1,-77,0,0),UDim2.fromOffset(61,32)
 versionLabel.Font,versionLabel.TextSize,versionLabel.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Right
 ui.paint(versionLabel,"TextColor3","muted")
 local pages={}
 local tabButtons={}
-local tabMarkers={}
+local tabs={}
 local connections={}
 local alive=true
 local flags={}
 local function refreshStatus()
-    local input=usingTouch() and T("TOQUE","TOUCH") or T("TECLADO / CONTROLE","KEYBOARD / PAD")
+    local input=usingTouch() and T("TOQUE","TOUCH") or T("TECLADO","KEYBOARD")
     local aim=flags.aim and T("MIRA ON","AIM ON") or T("MIRA OFF","AIM OFF")
     sessionStatus.Text=input.."  /  "..aim.."  /  ESP "..(flags.esp and "ON" or "OFF")
-    ui.paint(sessionStatus,"TextColor3",(flags.aim or flags.esp) and "active" or "muted")
+    ui.paint(sessionStatus,"TextColor3","muted")
+    ui.paint(sessionDot,"BackgroundColor3",(flags.aim or flags.esp) and "active" or "accent")
 end
 local values={speed=24,fly=55}
 local updates={}
@@ -293,40 +305,60 @@ local function showTab(id)
     for key,page in pairs(pages) do
         local selected=key==id
         page.Visible=selected
-        ui.paint(tabButtons[key],"BackgroundColor3",selected and "tile" or "dark")
-        ui.paint(tabButtons[key],"TextColor3",selected and "accent" or "muted")
-        tabMarkers[key].Visible=selected
+        tabButtons[key].BackgroundTransparency=selected and 0 or 1
+        ui.paint(tabButtons[key],"BackgroundColor3","dark")
+        local tabInfo=tabs[key]
+        ui.paint(tabInfo.caption,"TextColor3",selected and "accent" or "muted")
+        tabInfo.marker.Visible=selected
     end
 end
-local function tab(id,caption,index)
-    local control=ui.button(nav,caption,0)
-    control.Position,control.Size=UDim2.new((index-1)/4,0,0,0),UDim2.new(1/4,-4,1,0)
-    control.Font,control.TextSize=Enum.Font.Code,12
-    tabMarkers[id]=ui.make("Frame",{Position=UDim2.new(0,10,1,-3),Size=UDim2.new(1,-20,0,2),
-        BackgroundColor3="@accent",BorderSizePixel=0},control)
-    local page=ui.make("ScrollingFrame",{Name=id,Position=UDim2.fromOffset(12,122),Size=UDim2.new(1,-24,1,-158),
+local function tab(id,caption,description,index)
+    local control=ui.label(nav,"TextButton","",40,0)
+    control.Name=id.."Tab"
+    control.AutoButtonColor=false
+    ui.make("UICorner",{CornerRadius=UDim.new(0,7)},control)
+    local captionLabel=ui.label(control,"TextLabel",caption,40,0)
+    captionLabel.Font,captionLabel.TextSize=Enum.Font.GothamBold,12
+    local marker=ui.make("Frame",{BackgroundColor3="@accent",BorderSizePixel=0},control)
+    ui.make("UICorner",{CornerRadius=UDim.new(1,0)},marker)
+    local number=ui.label(control,"TextLabel",string.format("%02d",index),18,0)
+    number.Position,number.Size=UDim2.fromOffset(10,11),UDim2.fromOffset(21,18)
+    number.Font,number.TextSize=Enum.Font.Code,10
+    ui.paint(number,"TextColor3","muted")
+    local page=ui.make("ScrollingFrame",{Name=id,
         BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.fromOffset(0,0),
         AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=3,ScrollBarImageColor3="@accent",
         ScrollingDirection=Enum.ScrollingDirection.Y,ElasticBehavior=Enum.ElasticBehavior.Never,Visible=false},body)
     ui.make("UIPadding",{PaddingRight=UDim.new(0,6),PaddingBottom=UDim.new(0,8)},page)
-    ui.make("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,6)},page)
+    ui.make("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,8)},page)
+    local introduction=ui.make("Frame",{Size=UDim2.new(1,0,0,60),LayoutOrder=0,BackgroundTransparency=1},page)
+    local title=ui.label(introduction,"TextLabel",caption,28,0)
+    title.Font,title.TextSize,title.TextXAlignment=Enum.Font.GothamBold,23,Enum.TextXAlignment.Left
+    local detail=ui.label(introduction,"TextLabel",description,28,0)
+    detail.Position=UDim2.fromOffset(0,29)
+    detail.TextSize,detail.TextXAlignment,detail.TextYAlignment=12,Enum.TextXAlignment.Left,Enum.TextYAlignment.Top
+    ui.paint(detail,"TextColor3","muted")
     pages[id],tabButtons[id]=page,control
+    tabs[id]={index=index,marker=marker,number=number,caption=captionLabel}
     connect(control.Activated,function() showTab(id) end)
     return page
 end
-local controls=tab("controls",T("CONTROLES","CONTROLS"),1)
-local aimPage=tab("aim",T("MIRA","AIM"),2)
-local visionPage=tab("vision","ESP",3)
-local settingsPage=tab("settings",T("AJUSTES","SETTINGS"),4)
+local controls=tab("controls",T("Controles","Controls"),T("Jogo atual e atalhos de movimento.","Current game and movement shortcuts."),1)
+local aimPage=tab("aim",T("Mira","Aim"),T("Ajuste a resposta, os alvos e o campo de visão.","Adjust response, targets, and field of view."),2)
+local visionPage=tab("vision","ESP",T("Configure a apresentação dos jogadores na tela.","Choose how players are displayed on screen."),3)
+local settingsPage=tab("settings",T("Ajustes","Settings"),T("Personalize a aparência e a posição do painel.","Customize the appearance and panel position."),4)
 showTab("controls")
 ui.gameCard(controls,hub.identity,T("SESSÃO ATIVA · MÓDULO UNIVERSAL","ACTIVE SESSION · UNIVERSAL MODULE"),1,true)
 refreshStatus()
 
 local function section(parent,caption,order)
-    local heading=ui.label(parent,"TextLabel",caption,26,order)
-    ui.paint(heading,"TextColor3","accent")
-    heading.Font=Enum.Font.GothamBold
-    heading.TextSize=12
+    local line=ui.make("Frame",{Size=UDim2.new(1,0,0,26),LayoutOrder=order,BackgroundTransparency=1},parent)
+    ui.make("Frame",{Size=UDim2.new(1,0,0,1),BackgroundColor3="@edge",BorderSizePixel=0},line)
+    local heading=ui.label(line,"TextLabel",caption,20,0)
+    heading.Position=UDim2.fromOffset(0,6)
+    ui.paint(heading,"TextColor3","muted")
+    heading.Font=Enum.Font.Code
+    heading.TextSize=11
     heading.TextXAlignment=Enum.TextXAlignment.Left
 end
 
@@ -334,14 +366,31 @@ local function row(parent,order)
     return ui.make("Frame",{Size=UDim2.new(1,0,0,44),LayoutOrder=order,BackgroundTransparency=1},parent)
 end
 
+local function switch(parent,title,order)
+    local button=ui.button(parent,"",order)
+    button.Name=title
+    button.AutoButtonColor=false
+    local label=ui.label(button,"TextLabel",title,42,0)
+    label.Position,label.Size=UDim2.fromOffset(11,0),UDim2.new(1,-56,1,0)
+    label.TextSize,label.TextXAlignment=12,Enum.TextXAlignment.Left
+    local track=ui.make("Frame",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-10,0.5,0),
+        Size=UDim2.fromOffset(31,16),BorderSizePixel=0},button)
+    local thumb=ui.make("Frame",{Size=UDim2.fromOffset(12,12),BorderSizePixel=0},track)
+    ui.make("UICorner",{CornerRadius=UDim.new(1,0)},track)
+    ui.make("UICorner",{CornerRadius=UDim.new(1,0)},thumb)
+    return button,function(enabled)
+        ui.paint(track,"BackgroundColor3",enabled and "active" or "edge")
+        ui.paint(thumb,"BackgroundColor3",enabled and "dark" or "muted")
+        thumb.Position=UDim2.fromOffset(enabled and 17 or 2,2)
+    end
+end
+
 local function toggle(parent,key,title,right,onChange)
-    local control=ui.button(parent,title,0)
+    local control,updateSwitch=switch(parent,title,0)
     control.Position=UDim2.fromScale(right and 0.51 or 0,0)
     control.Size=UDim2.fromScale(0.49,1)
     local function update()
-        control.Text=title.."  ·  "..(flags[key] and "ON" or "OFF")
-        ui.paint(control,"BackgroundColor3",flags[key] and "active" or "tile")
-        ui.paint(control,"TextColor3",flags[key] and "dark" or "text")
+        updateSwitch(flags[key])
         if key=="aim" or key=="esp" then refreshStatus() end
     end
     table.insert(updates,update)
@@ -393,8 +442,8 @@ hub.decorateLauncher(launcher)
 local function togglePanel() body.Visible=not body.Visible end
 local suppressLauncherUntil=0
 connect(launcher.Activated,function() if os.clock()>suppressLauncherUntil then togglePanel() end end)
-local hide=ui.button(header,"×",0)
-hide.Position,hide.Size=UDim2.new(1,-47,0,10),UDim2.fromOffset(36,36)
+local hide=ui.button(header,"−",0)
+hide.Position,hide.Size=UDim2.new(1,-50,0,14),UDim2.fromOffset(34,34)
 connect(hide.Activated,togglePanel)
 
 local margin=8
@@ -403,6 +452,32 @@ local function position(size,extent,x,y)
     local vertical=math.max(0,size.Y-extent.Y-2*margin)
     return margin+horizontal*x,margin+vertical*y
 end
+
+local function layoutNavigation(width,height)
+    local sidebar=width>=530 and height>=330
+    navTitle.Visible=sidebar
+    nav.Position=UDim2.fromOffset(12,74)
+    nav.Size=sidebar and UDim2.new(0,132,1,-118) or UDim2.new(1,-24,0,44)
+    for id,tabInfo in pairs(tabs) do
+        local control,page=tabButtons[id],pages[id]
+        tabInfo.number.Visible=sidebar
+        if sidebar then
+            control.Position,control.Size=UDim2.fromOffset(6,34+(tabInfo.index-1)*46),UDim2.new(1,-12,0,40)
+            tabInfo.caption.Position,tabInfo.caption.Size=UDim2.fromOffset(37,0),UDim2.new(1,-45,1,0)
+            tabInfo.caption.TextXAlignment=Enum.TextXAlignment.Left
+            tabInfo.marker.Position,tabInfo.marker.Size=UDim2.fromOffset(0,10),UDim2.fromOffset(3,20)
+            page.Position,page.Size=UDim2.fromOffset(160,74),UDim2.new(1,-172,1,-118)
+        else
+            control.Position=UDim2.new((tabInfo.index-1)/4,3,0,3)
+            control.Size=UDim2.new(1/4,-6,1,-6)
+            tabInfo.caption.Position,tabInfo.caption.Size=UDim2.fromOffset(0,0),UDim2.fromScale(1,1)
+            tabInfo.caption.TextXAlignment=Enum.TextXAlignment.Center
+            tabInfo.marker.Position,tabInfo.marker.Size=UDim2.new(0.25,0,1,-3),UDim2.new(0.5,0,0,2)
+            page.Position,page.Size=UDim2.fromOffset(12,130),UDim2.new(1,-24,1,-170)
+        end
+    end
+end
+
 local function applyLayout()
     local size=canvas.AbsoluteSize
     if size.X<50 or size.Y<50 then return end
@@ -411,6 +486,7 @@ local function applyLayout()
     local height=math.min(settings.height,(size.Y-2*margin)/zoom)
     body.Size,scale.Scale=UDim2.fromOffset(width,height),zoom
     body.BackgroundTransparency=1-settings.opacity/100
+    layoutNavigation(width,height)
     local extent=Vector2.new(width*zoom,height*zoom)
     local x,y=position(size,extent,settings.panelX,settings.panelY)
     body.Position=UDim2.fromOffset(x+extent.X*0.5,y+extent.Y*0.5)
@@ -639,16 +715,13 @@ local function selector(parent,options,key,columns,order,caption,onChange,swatch
 end
 
 local function settingToggle(parent,key,title,order,onChange,readValue)
-    local button=ui.button(parent,"",order)
+    local button,updateSwitch=switch(parent,title,order)
     local function enabled()
         if readValue then return readValue() end
         return settings[key]
     end
     local function refresh()
-        local on=enabled()
-        button.Text=title.."  ·  "..(on and "ON" or "OFF")
-        ui.paint(button,"BackgroundColor3",on and "active" or "tile")
-        ui.paint(button,"TextColor3",on and "dark" or "text")
+        updateSwitch(enabled())
     end
     refresh()
     connect(button.Activated,function()

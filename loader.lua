@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal entry point
-local version="0.36.0"
+local version="0.36.1"
 local games={
     [10767408330]={name="Peel THE Potato",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
@@ -111,7 +111,7 @@ local function palette(dark,tile,text,muted,accent,active,edge,top,bottom)
 end
 local themes={
     peel=palette("231F19","413627","FCF6E2","D5C3A3","FFCA42","80CD37","745831","FFF1D6","B08455"),
-    carbon=palette("101215","1B1E24","F2F4F7","A7AFBA","82E6C2","A7F4D1","363F49","282F37","191E24"),
+    carbon=palette("101118","191B26","F2F2FA","A8AEC3","B3ADFF","81DDC0","33364A","30334D","181A26"),
     midnight=palette("0D1524","182740","F1F6FF","A9BCD9","77B9FF","80E9BE","375C88","243D65","101D33"),
     blood=palette("1C0D17","361626","FFF0F4","DCADBD","FF7A8D","FF9AAE","874058","6B243C","2A1121"),
     aurora=palette("0A201F","153533","EEFFF8","A5CCBE","6CF5B8","A0EBAF","2F766A","275B55","12302F"),
@@ -169,27 +169,45 @@ local function createUI(initialTheme)
     local function panel(height,modal,console)
         local screen=make("ScreenGui",{Name="AnonHubLauncher",ResetOnSpawn=false,DisplayOrder=10030},playerGui)
         local shade=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(0,0,0),
-            BackgroundTransparency=modal==false and 1 or 0.3,BorderSizePixel=0,Active=modal~=false},screen)
+            BackgroundTransparency=modal==false and 1 or console and 0.22 or 0.3,BorderSizePixel=0,Active=modal~=false},screen)
         local body=make("ScrollingFrame",{Size=UDim2.fromScale(0.9,0.92),AnchorPoint=Vector2.new(0.5,0.5),
             Position=UDim2.fromScale(0.5,0.5),BackgroundColor3="@dark",BorderSizePixel=0,
             CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,
             ScrollingDirection=Enum.ScrollingDirection.Y,ScrollBarThickness=3,ScrollBarImageColor3="@accent",
             ElasticBehavior=initialTheme=="peel" and Enum.ElasticBehavior.WhenScrollable or Enum.ElasticBehavior.Never},shade)
         make("UISizeConstraint",{MaxSize=Vector2.new(console and 550 or modal==false and 520 or 470,height)},body)
-        make("UICorner",{CornerRadius=UDim.new(0,console and 14 or 9)},body)
+        make("UICorner",{CornerRadius=UDim.new(0,console and 16 or 9)},body)
         make("UIStroke",{Color="@edge",Thickness=console and 1 or 2},body)
         make("UIPadding",{PaddingTop=UDim.new(0,12),PaddingBottom=UDim.new(0,12),
             PaddingLeft=UDim.new(0,16),PaddingRight=UDim.new(0,16)},body)
         make("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,6)},body)
-        local header=make("Frame",{Size=UDim2.new(1,0,0,42),LayoutOrder=0,BackgroundColor3=console and "@tile" or "@edge",
+        local header=make("Frame",{Size=UDim2.new(1,0,0,console and 49 or 42),LayoutOrder=0,BackgroundColor3=console and "@dark" or "@edge",
             BorderSizePixel=0,Active=true},body)
         make("UICorner",{CornerRadius=UDim.new(0,7)},header)
-        if not console then gradient(header,"top","bottom",90) end
-        local brand=label(header,"TextLabel",console and "ANONHUB  /  UNIVERSAL" or "ANONHUB",42,0)
-        brand.Font=console and Enum.Font.Code or Enum.Font.GothamBlack
-        brand.TextSize=console and 15 or 25
-        paint(brand,"TextStrokeColor3","dark")
-        brand.TextStrokeTransparency=0.32
+        if console then
+            local mark=label(header,"TextLabel","A",30,0)
+            mark.Position,mark.Size=UDim2.fromOffset(0,6),UDim2.fromOffset(30,30)
+            mark.BackgroundTransparency=0
+            mark.Font,mark.TextSize=Enum.Font.GothamBlack,17
+            paint(mark,"BackgroundColor3","accent")
+            paint(mark,"TextColor3","dark")
+            make("UICorner",{CornerRadius=UDim.new(0,9)},mark)
+            local brand=label(header,"TextLabel","AnonHub",40,0)
+            brand.Position,brand.Size=UDim2.fromOffset(41,1),UDim2.new(1,-130,0,40)
+            brand.Font,brand.TextSize,brand.TextXAlignment=Enum.Font.GothamBold,18,Enum.TextXAlignment.Left
+            local chip=label(header,"TextLabel","UNIVERSAL",24,0)
+            chip.Position,chip.Size=UDim2.new(1,-82,0,9),UDim2.fromOffset(82,24)
+            chip.Font,chip.TextSize,chip.BackgroundTransparency=Enum.Font.Code,10,0
+            paint(chip,"BackgroundColor3","tile")
+            paint(chip,"TextColor3","accent")
+            make("UICorner",{CornerRadius=UDim.new(0,6)},chip)
+        else
+            gradient(header,"top","bottom",90)
+            local brand=label(header,"TextLabel","ANONHUB",42,0)
+            brand.Font,brand.TextSize=Enum.Font.GothamBlack,25
+            paint(brand,"TextStrokeColor3","dark")
+            brand.TextStrokeTransparency=0.32
+        end
         return screen,body,shade,header
     end
 
@@ -205,10 +223,11 @@ local function createUI(initialTheme)
     end
 
     local function gameCard(parent,identity,badge,order,console)
-        local height=console and 148 or 112
+        local height=console and 158 or 112
         local card=make("Frame",{Size=UDim2.new(1,0,0,height),BackgroundColor3="@tile",BorderSizePixel=0,
             ClipsDescendants=true,LayoutOrder=order},parent)
-        make("UICorner",{CornerRadius=UDim.new(0,8)},card)
+        make("UICorner",{CornerRadius=UDim.new(0,console and 12 or 8)},card)
+        if console then make("UIStroke",{Color="@edge",Thickness=1},card) end
         local cover=make("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image=identity.cover,
             ScaleType=Enum.ScaleType.Crop,ImageTransparency=console and 0.08 or 0.32},card)
         local shade=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3="@dark",
@@ -219,20 +238,24 @@ local function createUI(initialTheme)
                 NumberSequenceKeypoint.new(1,0),
             })},shade)
         end
-        local icon=make("ImageLabel",{Position=UDim2.fromOffset(11,console and 67 or 18),Size=UDim2.fromOffset(76,76),
+        local icon=make("ImageLabel",{Position=UDim2.fromOffset(console and 14 or 11,console and 71 or 18),Size=UDim2.fromOffset(76,76),
             Image=identity.icon,BackgroundColor3="@dark",BorderSizePixel=0,ScaleType=Enum.ScaleType.Crop},card)
         make("UICorner",{CornerRadius=UDim.new(0,9)},icon)
         make("UIStroke",{Color="@edge",Thickness=1},icon)
         local name=label(card,"TextLabel",identity.name,44,1)
-        name.Position,name.Size=UDim2.fromOffset(100,console and 78 or 22),UDim2.new(1,-109,0,44)
-        name.Font,name.TextSize=Enum.Font.GothamBlack,console and 21 or 19
+        name.Position,name.Size=UDim2.fromOffset(103,console and 80 or 22),UDim2.new(1,-115,0,44)
+        name.Font,name.TextSize=Enum.Font.GothamBold,console and 22 or 19
+        if not console then
+            name.Position,name.Size=UDim2.fromOffset(100,22),UDim2.new(1,-109,0,44)
+            name.Font=Enum.Font.GothamBlack
+        end
         name.TextXAlignment=Enum.TextXAlignment.Left
         identity.watch(function(value) if name.Parent then name.Text=value end end)
         if identity.watchCover then
             identity.watchCover(function(value) if cover.Parent then cover.Image=value end end)
         end
         local mode=label(card,"TextLabel",badge,27,2)
-        mode.Position,mode.Size=UDim2.fromOffset(100,console and 117 or 70),UDim2.new(1,-107,0,27)
+        mode.Position,mode.Size=UDim2.fromOffset(console and 104 or 100,console and 124 or 70),UDim2.new(1,console and -116 or -107,0,27)
         mode.TextXAlignment,mode.TextSize=Enum.TextXAlignment.Left,11
         if console then mode.Font=Enum.Font.Code end
         paint(mode,"TextColor3","accent")
@@ -354,6 +377,10 @@ start=function(chooseLanguage)
         caption.Font=Enum.Font.GothamBold
         local status=label(body,"TextLabel",tr("Carregando funções…","Loading features…"),28,3)
         status.TextColor3=color.muted
+        if not dedicated then
+            caption.Font,caption.TextSize,caption.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Left
+            status.Font,status.TextSize,status.TextXAlignment=Enum.Font.GothamMedium,16,Enum.TextXAlignment.Left
+        end
         local track=make("Frame",{Size=UDim2.new(1,0,0,6),LayoutOrder=4,BackgroundColor3=color.tile,
             BorderSizePixel=0},body)
         make("UICorner",{CornerRadius=UDim.new(0,5)},track)
@@ -363,6 +390,7 @@ start=function(chooseLanguage)
         if not dedicated then
             percent=label(body,"TextLabel","01 / 03     18%",24,5)
             percent.Font,percent.TextSize,percent.TextColor3=Enum.Font.Code,12,color.accent
+            percent.TextXAlignment=Enum.TextXAlignment.Right
         end
         local function progress(fraction,portuguese,english)
             if current() and fill.Parent then
@@ -443,16 +471,32 @@ start=function(chooseLanguage)
         local body
         screen,body=panel(505,nil,not dedicated)
         gameCard(body,identity,dedicated and tr("ACESSO AO MÓDULO","MODULE ACCESS") or tr("MODO UNIVERSAL","UNIVERSAL MODE"),1,not dedicated)
-        label(body,"TextLabel",tr("Cole sua key para abrir o hub.","Paste your key to open the hub."),28,2)
-        local input=label(body,"TextBox","",42,3)
+        local accessTitle=label(body,"TextLabel",tr("Cole sua key para abrir o hub.","Paste your key to open the hub."),28,2)
+        if not dedicated then
+            accessTitle.Text=tr("Acesso à central","Workspace access")
+            accessTitle.Font,accessTitle.TextSize,accessTitle.TextXAlignment=Enum.Font.GothamBold,21,Enum.TextXAlignment.Left
+            local hint=label(body,"TextLabel",tr("Insira a key de acesso para continuar.","Enter your access key to continue."),24,3)
+            hint.TextSize,hint.TextXAlignment=13,Enum.TextXAlignment.Left
+            skin.paint(hint,"TextColor3","muted")
+        end
+        local input=label(body,"TextBox","",dedicated and 42 or 48,dedicated and 3 or 4)
         input.BackgroundTransparency=0
         input.BackgroundColor3=color.tile
         input.ClearTextOnFocus=false
         input.PlaceholderText=tr("Key de acesso","Access key")
         input.PlaceholderColor3=color.muted
         make("UICorner",{CornerRadius=UDim.new(0,7)},input)
-        local status=label(body,"TextLabel","",28,4)
+        local status=label(body,"TextLabel","",28,dedicated and 4 or 5)
         status.TextColor3=color.muted
+        if not dedicated then
+            input.Font,input.TextSize,input.TextXAlignment=Enum.Font.Code,14,Enum.TextXAlignment.Left
+            input.TextWrapped=false
+            make("UIPadding",{PaddingLeft=UDim.new(0,12),PaddingRight=UDim.new(0,12)},input)
+            local focusBorder=make("UIStroke",{Color="@edge",Thickness=1,ApplyStrokeMode=Enum.ApplyStrokeMode.Border},input)
+            input.Focused:Connect(function() skin.paint(focusBorder,"Color","accent") end)
+            input.FocusLost:Connect(function() skin.paint(focusBorder,"Color","edge") end)
+            status.TextSize,status.TextXAlignment=12,Enum.TextXAlignment.Left
+        end
         local submitting,startWithOP=false,false
         local function submit()
             if submitting or not current() then return end
@@ -466,7 +510,8 @@ start=function(chooseLanguage)
             save()
             openGame(session,startWithOP)
         end
-        button(body,tr("Validar e abrir","Validate and open"),5,true).Activated:Connect(submit)
+        local continueButton=button(body,tr("Validar e abrir","Validate and open"),dedicated and 5 or 6,true)
+        continueButton.Activated:Connect(submit)
         if dedicated then
             local option=button(body,tr("INICIAR OP AO ABRIR","START OP ON OPEN").."  ·  OFF",6)
             option.Activated:Connect(function()
@@ -475,8 +520,18 @@ start=function(chooseLanguage)
                 option.BackgroundColor3=startWithOP and color.edge or color.tile
             end)
         end
-        button(body,tr("Idioma","Language"),7).Activated:Connect(function() task.defer(start,true) end)
-        button(body,tr("Fechar","Close"),8).Activated:Connect(state.close)
+        if dedicated then
+            button(body,tr("Idioma","Language"),7).Activated:Connect(function() task.defer(start,true) end)
+            button(body,tr("Fechar","Close"),8).Activated:Connect(state.close)
+        else
+            local actions=make("Frame",{Size=UDim2.new(1,0,0,42),LayoutOrder=7,BackgroundTransparency=1},body)
+            local languageButton=button(actions,tr("Idioma","Language"),0)
+            languageButton.Size=UDim2.new(0.5,-4,1,0)
+            languageButton.Activated:Connect(function() task.defer(start,true) end)
+            local closeButton=button(actions,tr("Fechar","Close"),0)
+            closeButton.Position,closeButton.Size=UDim2.new(0.5,4,0,0),UDim2.new(0.5,-4,1,0)
+            closeButton.Activated:Connect(state.close)
+        end
         input.FocusLost:Connect(function(pressed) if pressed then submit() end end)
         input:GetPropertyChangedSignal("Text"):Connect(function()
             if input.Text:match("^%s*(.-)%s*$")==testKey then task.defer(submit) end
@@ -485,7 +540,7 @@ start=function(chooseLanguage)
 
     if not chooseLanguage and (language=="pt" or language=="en") then showAccess() return end
     local body
-    screen,body=panel(250)
+    screen,body=panel(250,nil,not dedicated)
     label(body,"TextLabel","Escolha o idioma  /  Choose a language",38,1)
     local function selectLanguage(code)
         if not current() then return end
