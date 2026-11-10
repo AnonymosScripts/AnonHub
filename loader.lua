@@ -312,6 +312,42 @@ local function createUI(initialTheme)
         return object
     end
 
+    local function providerButton(parent,provider,message,order)
+        local control=button(parent,"",order)
+        control.Name=provider.."Button"
+        local caption=label(control,"TextLabel",message,42,0)
+        caption.Position,caption.Size=UDim2.fromOffset(37,0),UDim2.new(1,-44,1,0)
+        caption.Font,caption.TextSize=Enum.Font.GothamBold,12
+        caption.TextXAlignment=Enum.TextXAlignment.Left
+        local icon=make("Frame",{Name=provider.."Icon",Position=UDim2.new(0,11,0.5,0),
+            AnchorPoint=Vector2.new(0,0.5),Size=UDim2.fromOffset(18,18),BackgroundTransparency=1},control)
+        local white=Color3.fromRGB(255,255,255)
+        if provider=="YouTube" then
+            local mark=make("Frame",{Position=UDim2.fromOffset(0,3),Size=UDim2.fromOffset(18,12),
+                BorderSizePixel=0,BackgroundColor3=Color3.fromRGB(255,32,52)},icon)
+            make("UICorner",{CornerRadius=UDim.new(0,4)},mark)
+            local play=label(mark,"TextLabel","▶",12,0)
+            play.Position,play.TextSize,play.TextColor3=UDim2.fromOffset(0,-1),9,white
+        else
+            local ink=Color3.fromRGB(24,25,31)
+            icon.BackgroundTransparency=0.15
+            paint(icon,"BackgroundColor3","accent")
+            make("UICorner",{CornerRadius=UDim.new(0,5)},icon)
+            local function oval(name,x,y,width,height,tint,rotation)
+                local part=make("Frame",{Name=name,Position=UDim2.fromOffset(x,y),Size=UDim2.fromOffset(width,height),
+                    BorderSizePixel=0,BackgroundColor3=tint,Rotation=rotation or 0},icon)
+                make("UICorner",{CornerRadius=UDim.new(1,0)},part)
+            end
+            oval("LeftEar",0,0,7,7,ink)
+            oval("RightEar",11,0,7,7,ink)
+            oval("Face",1,3,16,14,white)
+            oval("LeftEye",4,7,4,5,ink,28)
+            oval("RightEye",10,7,4,5,ink,-28)
+            oval("Nose",7,12,4,2,ink)
+        end
+        return control,caption
+    end
+
     local function gameCard(parent,identity,badge,order,console)
         local height=console and 158 or 112
         local card=make("Frame",{Size=UDim2.new(1,0,0,height),BackgroundColor3="@tile",BorderSizePixel=0,
@@ -361,9 +397,8 @@ local function createUI(initialTheme)
         local catalog=button(actions,"",0)
         catalog.Size=UDim2.new(0.60,-4,1,0)
         catalog.TextSize=12
-        local social=button(actions,"YouTube  ↗",0)
+        local social,socialCaption=providerButton(actions,"YouTube","YouTube",0)
         social.Position,social.Size=UDim2.new(0.60,4,0,0),UDim2.new(0.40,-4,1,0)
-        social.TextSize=12
         local list=make("Frame",{Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,
             LayoutOrder=2,BackgroundTransparency=1,Visible=false},stack)
         make("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,4)},list)
@@ -393,14 +428,15 @@ local function createUI(initialTheme)
         make("UICorner",{CornerRadius=UDim.new(0,7)},link)
         social.Activated:Connect(function()
             if type(setclipboard)=="function" and pcall(setclipboard,youtubeUrl) then
-                social.Text=pt and "Link copiado" or "Link copied"
-                task.delay(2,function() if social.Parent then social.Text="YouTube  ↗" end end)
+                socialCaption.Text=pt and "Link copiado" or "Link copied"
+                task.delay(2,function() if social.Parent then socialCaption.Text="YouTube" end end)
             else
                 link.Visible=not link.Visible
             end
         end)
     end
-    return {make=make,paint=paint,gradient=gradient,panel=panel,label=label,button=button,gameCard=gameCard,resources=resources,
+    return {make=make,paint=paint,gradient=gradient,panel=panel,label=label,button=button,
+        providerButton=providerButton,gameCard=gameCard,resources=resources,
         color=color,setTheme=setTheme,themes=themeOptions,rgb=rgb,
         themeAccent=function(id) return themes[id].accent end}
 end
@@ -661,14 +697,14 @@ start=function(chooseLanguage)
         local busy,startWithOP=false,false
         local accessActions=make("Frame",{Size=UDim2.new(1,0,0,46),LayoutOrder=3,BackgroundTransparency=1},form)
         local continueButton=button(accessActions,tr("Validar e abrir","Validate and open"),5,true)
-        local getKey=button(accessActions,tr("Obter key  ↗","Get key  ↗"),7)
+        local getKey,getKeyCaption=skin.providerButton(accessActions,"Panda",tr("Obter key","Get key"),7)
         continueButton.Size=UDim2.new(0.56,-4,1,0)
         getKey.Position,getKey.Size=UDim2.new(0.56,4,0,0),UDim2.new(0.44,-4,1,0)
-        continueButton.TextSize,getKey.TextSize=13,13
+        continueButton.TextSize,getKeyCaption.TextSize=13,13
         local function setBusy(value,fetchingLink)
             busy=value
             continueButton.Text=value and not fetchingLink and tr("Validando…","Validating…") or tr("Validar e abrir","Validate and open")
-            getKey.Text=value and fetchingLink and tr("Preparando…","Preparing…") or tr("Obter key  ↗","Get key  ↗")
+            getKeyCaption.Text=value and fetchingLink and tr("Preparando…","Preparing…") or tr("Obter key","Get key")
         end
         local function report(reason)
             skin.paint(status,"TextColor3","accent")
