@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal tools
-local BOOT_VERSION="0.37.2"
+local BOOT_VERSION="0.37.3"
 local hub=...
 if type(hub)~="table" then return end
 

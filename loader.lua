@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal entry point
-local version="0.37.2"
+local version="0.37.3"
 local games={
     [10767408330]={name="Peel THE Potato",chapter="2",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
@@ -348,21 +348,43 @@ local function createUI(initialTheme)
         return control,caption
     end
 
-    local function gameCard(parent,identity,badge,order,console)
+    local function artworkBackdrop(parent)
+        gradient(parent,"top","dark",0)
+        -- Use only the mask so localized labels never compete with text baked into the artwork.
+        local art=make("ImageLabel",{Name="AnonHubArtwork",AnchorPoint=Vector2.new(1,0.5),
+            Position=UDim2.fromScale(1,0.5),Size=UDim2.fromScale(0.60,1),BackgroundTransparency=1,
+            ScaleType=Enum.ScaleType.Crop,ImageTransparency=0.14,
+            ImageRectOffset=Vector2.new(530,76),ImageRectSize=Vector2.new(470,520)},parent)
+        make("UICorner",{CornerRadius=UDim.new(0,10)},art)
+        decorateArtwork(art)
+        local shade=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3="@dark",BorderSizePixel=0},parent)
+        make("UICorner",{CornerRadius=UDim.new(0,10)},shade)
+        make("UIGradient",{Transparency=NumberSequence.new({
+            NumberSequenceKeypoint.new(0,0.06),NumberSequenceKeypoint.new(0.58,0.34),
+            NumberSequenceKeypoint.new(1,0.93),
+        })},shade)
+    end
+
+    local function gameCard(parent,identity,badge,order,console,localizedBackdrop)
         local height=console and 158 or 112
         local card=make("Frame",{Size=UDim2.new(1,0,0,height),BackgroundColor3="@tile",BorderSizePixel=0,
             ClipsDescendants=true,LayoutOrder=order},parent)
         make("UICorner",{CornerRadius=UDim.new(0,console and 12 or 8)},card)
         if console then make("UIStroke",{Color="@edge",Thickness=1},card) end
-        local cover=make("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image=identity.cover,
-            ScaleType=Enum.ScaleType.Crop,ImageTransparency=console and 0.08 or 0.32},card)
-        local shade=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3="@dark",
-            BackgroundTransparency=console and 0.08 or 0.42,BorderSizePixel=0},card)
-        if console then
-            make("UIGradient",{Rotation=90,Transparency=NumberSequence.new({
-                NumberSequenceKeypoint.new(0,0.94),NumberSequenceKeypoint.new(0.55,0.46),
-                NumberSequenceKeypoint.new(1,0),
-            })},shade)
+        local cover
+        if localizedBackdrop then
+            artworkBackdrop(card)
+        else
+            cover=make("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image=identity.cover,
+                ScaleType=Enum.ScaleType.Crop,ImageTransparency=console and 0.08 or 0.32},card)
+            local shade=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3="@dark",
+                BackgroundTransparency=console and 0.08 or 0.42,BorderSizePixel=0},card)
+            if console then
+                make("UIGradient",{Rotation=90,Transparency=NumberSequence.new({
+                    NumberSequenceKeypoint.new(0,0.94),NumberSequenceKeypoint.new(0.55,0.46),
+                    NumberSequenceKeypoint.new(1,0),
+                })},shade)
+            end
         end
         local icon=make("ImageLabel",{Position=UDim2.fromOffset(console and 14 or 11,console and 71 or 18),Size=UDim2.fromOffset(76,76),
             Image=identity.icon,BackgroundColor3="@dark",BorderSizePixel=0,ScaleType=Enum.ScaleType.Crop},card)
@@ -377,7 +399,7 @@ local function createUI(initialTheme)
         end
         name.TextXAlignment=Enum.TextXAlignment.Left
         identity.watch(function(value) if name.Parent then name.Text=value end end)
-        if identity.watchCover then
+        if cover and identity.watchCover then
             identity.watchCover(function(value) if cover.Parent then cover.Image=value end end)
         end
         local mode=label(card,"TextLabel",badge,27,2)
@@ -474,6 +496,7 @@ local function createUI(initialTheme)
     end
     return {make=make,paint=paint,gradient=gradient,panel=panel,label=label,button=button,
         providerButton=providerButton,gameCard=gameCard,gameCatalog=gameCatalog,resources=resources,
+        artworkBackdrop=artworkBackdrop,
         color=color,setTheme=setTheme,themes=themeOptions,rgb=rgb,
         themeAccent=function(id) return themes[id].accent end}
 end
@@ -586,8 +609,10 @@ start=function(chooseLanguage)
         dismiss()
         local body
         screen,body=panel(dedicated and 292 or 370,nil,not dedicated)
+        local splash=screen
+        splash.DisplayOrder=10031
         local badge=dedicated and tr("MÓDULO DO JOGO","GAME MODULE") or tr("FERRAMENTAS UNIVERSAIS","UNIVERSAL TOOLS")
-        gameCard(body,identity,badge,1,not dedicated)
+        gameCard(body,identity,badge,1,not dedicated,true)
         local caption=label(body,"TextLabel",tr("JOGO IDENTIFICADO","GAME IDENTIFIED"),24,2)
         caption.TextColor3=color.active
         caption.Font=Enum.Font.GothamBold
@@ -597,25 +622,21 @@ start=function(chooseLanguage)
             caption.Font,caption.TextSize,caption.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Left
             status.Font,status.TextSize,status.TextXAlignment=Enum.Font.GothamMedium,16,Enum.TextXAlignment.Left
         end
-        local track=make("Frame",{Size=UDim2.new(1,0,0,6),LayoutOrder=4,BackgroundColor3=color.tile,
+        local track=make("Frame",{Name="LoadingProgress",Size=UDim2.new(1,0,0,8),LayoutOrder=4,BackgroundColor3=color.tile,
             BorderSizePixel=0},body)
         make("UICorner",{CornerRadius=UDim.new(0,5)},track)
         local fill=make("Frame",{Size=UDim2.fromScale(0.18,1),BackgroundColor3=color.accent,BorderSizePixel=0},track)
         make("UICorner",{CornerRadius=UDim.new(0,5)},fill)
-        local percent
-        if not dedicated then
-            percent=label(body,"TextLabel","01 / 03     18%",24,5)
-            percent.Font,percent.TextSize,percent.TextColor3=Enum.Font.Code,12,color.accent
-            percent.TextXAlignment=Enum.TextXAlignment.Right
-        end
+        local percent=label(body,"TextLabel","18%",24,5)
+        percent.Font,percent.TextSize,percent.TextColor3=Enum.Font.Code,12,color.accent
+        percent.TextXAlignment=Enum.TextXAlignment.Right
+        local displayed=0.18
         local function progress(fraction,portuguese,english)
-            if current() and fill.Parent then
-                fill.Size=UDim2.fromScale(math.clamp(fraction,0,1),1)
+            if current() and screen==splash and fill.Parent then
+                displayed=math.clamp(fraction,displayed,1)
+                fill.Size=UDim2.fromScale(displayed,1)
                 if portuguese then status.Text=tr(portuguese,english) end
-                if percent then
-                    local stage=fraction<0.48 and 1 or fraction<0.75 and 2 or 3
-                    percent.Text=string.format("%02d / 03     %d%%",stage,math.floor(fraction*100+0.5))
-                end
+                percent.Text=string.format("%d%%",math.floor(displayed*100+0.5))
             end
         end
         task.wait()
@@ -661,7 +682,9 @@ start=function(chooseLanguage)
             if ready or not current() then return end
             ready=true
             progress(1,"Pronto","Ready")
-            dismiss()
+            task.delay(0.2,function()
+                if current() and screen==splash then dismiss() end
+            end)
         end
         local ok=pcall(run,{
             language=language,access=access,startNow=startNow,unload=state.close,
@@ -680,7 +703,7 @@ start=function(chooseLanguage)
             if closeGame then closeGame() closeGame=nil end
             notify(skin,tr("Não foi possível abrir o módulo deste jogo.","Could not open this game's module."))
         end
-        if current() then dismiss() end
+        if current() and (not ready or not ok) then dismiss() end
     end
 
     local function showAccess()
@@ -689,17 +712,7 @@ start=function(chooseLanguage)
         local hero=make("Frame",{Size=UDim2.new(1,0,0,108),LayoutOrder=1,BorderSizePixel=0,
             ClipsDescendants=true,BackgroundColor3="@tile"},body)
         make("UICorner",{CornerRadius=UDim.new(0,10)},hero)
-        skin.gradient(hero,"top","dark",0)
-        local art=make("ImageLabel",{Name="AnonHubArtwork",Size=UDim2.fromScale(1,1),BackgroundTransparency=1,
-            ScaleType=Enum.ScaleType.Crop,ImageTransparency=0.18},hero)
-        make("UICorner",{CornerRadius=UDim.new(0,10)},art)
-        decorateArtwork(art)
-        local shade=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3="@dark",BorderSizePixel=0},hero)
-        make("UICorner",{CornerRadius=UDim.new(0,10)},shade)
-        make("UIGradient",{Transparency=NumberSequence.new({
-            NumberSequenceKeypoint.new(0,0.06),NumberSequenceKeypoint.new(0.58,0.28),
-            NumberSequenceKeypoint.new(1,0.93),
-        })},shade)
+        skin.artworkBackdrop(hero)
         local caption=label(hero,"TextLabel",tr("CENTRAL DE ACESSO","ACCESS CENTER"),20,0)
         caption.Position,caption.Size=UDim2.fromOffset(15,18),UDim2.new(1,-30,0,20)
         caption.Font,caption.TextSize,caption.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Left
@@ -767,7 +780,7 @@ start=function(chooseLanguage)
             local key=cleanKey(input.Text)
             if not key then report("NO_KEY") return end
             setBusy(true,false)
-            status.Text=tr("Validando acesso com o Panda Auth…","Validating access with Panda Auth…")
+            status.Text=tr("Validando acesso...","Validating access...")
             local sdk,reason=sdkForSession()
             local session
             if sdk then session,reason=validateKey(sdk,key) end
