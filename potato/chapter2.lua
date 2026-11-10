@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- AnonHub 0.37.0 · Chapter 2 and lobby
+-- AnonHub 0.37.1 · Chapter 2 and lobby
 
 local hub=...
 if type(hub)~="table" or type(hub.access)~="table" then return end
@@ -3678,7 +3678,8 @@ function UI.create(services, config, callbacks, Layout, Membership)
     memberLine.TextTruncate=Enum.TextTruncate.AtEnd
     local function showMembership(info)
         memberLine.Text=info.plan.."  ·  "..info.keyLabel.."  ·  "..T(info.validity)
-        memberLine.TextColor3=info.expired and Color3.fromRGB(255,160,150) or palette.mint
+        memberLine.TextColor3=info.expired and Color3.fromRGB(255,160,150)
+            or info.plan=="Premium" and Color3.fromRGB(248,208,130) or palette.mint
     end
     showMembership(access)
     if Membership then Membership.requestAvatar(Players,player.UserId,function(image)
@@ -6557,7 +6558,7 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.37.0"
+local BOOT_VERSION="0.37.1"
 
 
 local function bootAnonymousPotato()

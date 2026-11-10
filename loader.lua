@@ -1,7 +1,7 @@
 -- Luau · AnonHub universal entry point
-local version="0.37.0"
+local version="0.37.1"
 local games={
-    [10767408330]={name="Peel THE Potato",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
+    [10767408330]={name="Peel THE Potato",chapter="2",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
 local universal={name="Universal",path="universal/main.lua",cache="AnonHub_Universal_v1.luau"}
 local root="https://raw.githubusercontent.com/AnonymosScripts/AnonHub/main/"
@@ -9,6 +9,7 @@ local root="https://raw.githubusercontent.com/AnonymosScripts/AnonHub/main/"
 local pandaServiceId="anonkey24hrs"
 local pandaSdkUrl="https://secure.pandauth.com/pv4/lib"
 local pandaKeyFile="AnonHub_Panda_Key_v1.json"
+local youtubeUrl="https://www.youtube.com/@AnonymousApks_Scripts"
 local preferencesFile="AnonHub_Preferences_v1.json"
 local environment=type(getgenv)=="function" and getgenv() or _G
 local players=game:GetService("Players")
@@ -117,7 +118,7 @@ local iconSignature=string.char(137,80,78,71,13,10,26,10)
 local registerAsset=type(getcustomasset)=="function" and getcustomasset
     or type(getsynasset)=="function" and getsynasset or nil
 local iconUri,iconLoading
-local iconButtons={}
+local iconListeners={}
 
 local function isIcon(bytes)
     return type(bytes)=="string" and #bytes>=24 and #bytes<=4*1024*1024
@@ -166,21 +167,29 @@ local function setLauncherIcon(button,uri)
     reveal()
 end
 
-local function decorateLauncher(button)
+local function withArtwork(callback)
     if not registerAsset then return end
-    if iconUri then setLauncherIcon(button,iconUri) return end
-    table.insert(iconButtons,button)
+    if iconUri then callback(iconUri) return end
+    table.insert(iconListeners,callback)
     if iconLoading then return end
     iconLoading=true
     task.spawn(function()
         iconUri=loadIcon()
         iconLoading=false
-        local pending=iconButtons
-        iconButtons={}
+        local pending=iconListeners
+        iconListeners={}
         if iconUri then
-            for _,control in ipairs(pending) do setLauncherIcon(control,iconUri) end
+            for _,listener in ipairs(pending) do listener(iconUri) end
         end
     end)
+end
+
+local function decorateLauncher(button)
+    withArtwork(function(uri) setLauncherIcon(button,uri) end)
+end
+
+local function decorateArtwork(image)
+    withArtwork(function(uri) if image.Parent then image.Image=uri end end)
 end
 
 local function rgb(hex)
@@ -342,7 +351,56 @@ local function createUI(initialTheme)
         paint(mode,"TextColor3","accent")
         return card
     end
-    return {make=make,paint=paint,gradient=gradient,panel=panel,label=label,button=button,gameCard=gameCard,
+
+    local function resources(parent,order,language)
+        local pt=language=="pt"
+        local stack=make("Frame",{Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,
+            LayoutOrder=order,BackgroundTransparency=1},parent)
+        make("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,6)},stack)
+        local actions=make("Frame",{Size=UDim2.new(1,0,0,42),LayoutOrder=1,BackgroundTransparency=1},stack)
+        local catalog=button(actions,"",0)
+        catalog.Size=UDim2.new(0.60,-4,1,0)
+        catalog.TextSize=12
+        local social=button(actions,"YouTube  ↗",0)
+        social.Position,social.Size=UDim2.new(0.60,4,0,0),UDim2.new(0.40,-4,1,0)
+        social.TextSize=12
+        local list=make("Frame",{Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,
+            LayoutOrder=2,BackgroundTransparency=1,Visible=false},stack)
+        make("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,4)},list)
+        local entries={}
+        for _,gameModule in pairs(games) do table.insert(entries,gameModule) end
+        table.sort(entries,function(a,b) return a.name<b.name end)
+        for index,entry in ipairs(entries) do
+            local text=entry.name
+            if entry.chapter then text=text.."  ·  "..(pt and "Capítulo " or "Chapter ")..entry.chapter end
+            local item=label(list,"TextLabel",text,36,index)
+            item.TextSize,item.BackgroundTransparency=12,0
+            paint(item,"BackgroundColor3","tile")
+            make("UICorner",{CornerRadius=UDim.new(0,7)},item)
+        end
+        local function refreshCatalog()
+            catalog.Text=(pt and "Jogos com módulo" or "Games with modules").."  ·  "..#entries..(list.Visible and "  −" or "  +")
+        end
+        refreshCatalog()
+        catalog.Activated:Connect(function()
+            list.Visible=not list.Visible
+            refreshCatalog()
+        end)
+        local link=label(stack,"TextBox",youtubeUrl,34,3)
+        link.Visible,link.TextEditable,link.ClearTextOnFocus=false,false,false
+        link.TextSize,link.TextWrapped,link.BackgroundTransparency=11,false,0
+        paint(link,"BackgroundColor3","tile")
+        make("UICorner",{CornerRadius=UDim.new(0,7)},link)
+        social.Activated:Connect(function()
+            if type(setclipboard)=="function" and pcall(setclipboard,youtubeUrl) then
+                social.Text=pt and "Link copiado" or "Link copied"
+                task.delay(2,function() if social.Parent then social.Text="YouTube  ↗" end end)
+            else
+                link.Visible=not link.Visible
+            end
+        end)
+    end
+    return {make=make,paint=paint,gradient=gradient,panel=panel,label=label,button=button,gameCard=gameCard,resources=resources,
         color=color,setTheme=setTheme,themes=themeOptions,rgb=rgb,
         themeAccent=function(id) return themes[id].accent end}
 end
@@ -535,7 +593,7 @@ start=function(chooseLanguage)
         local ok=pcall(run,{
             language=language,access=access,startNow=startNow,unload=state.close,
             identity=identity,progress=progress,ready=showReady,
-            decorateLauncher=decorateLauncher,
+            decorateLauncher=decorateLauncher,decorateArtwork=decorateArtwork,
             ui=skin,settings=customization,
             saveSettings=function(value)
                 if not dedicated and current() then preferences.universal=table.clone(value) save() end
@@ -554,46 +612,66 @@ start=function(chooseLanguage)
 
     local function showAccess()
         local body
-        screen,body=panel(545,nil,not dedicated)
-        gameCard(body,identity,dedicated and tr("ACESSO AO MÓDULO","MODULE ACCESS") or tr("MODO UNIVERSAL","UNIVERSAL MODE"),1,not dedicated)
-        local accessTitle=label(body,"TextLabel",tr("Cole sua key para abrir o hub.","Paste your key to open the hub."),28,2)
-        if not dedicated then
-            accessTitle.Text=tr("Acesso à central","Workspace access")
-            accessTitle.Font,accessTitle.TextSize,accessTitle.TextXAlignment=Enum.Font.GothamBold,21,Enum.TextXAlignment.Left
-            local hint=label(body,"TextLabel",tr("Insira a key de acesso para continuar.","Enter your access key to continue."),24,3)
-            hint.TextSize,hint.TextXAlignment=13,Enum.TextXAlignment.Left
-            skin.paint(hint,"TextColor3","muted")
-        end
-        local input=label(body,"TextBox","",dedicated and 42 or 48,dedicated and 3 or 4)
-        input.BackgroundTransparency=0
-        input.BackgroundColor3=color.tile
-        input.ClearTextOnFocus=false
-        input.PlaceholderText=tr("Key de acesso","Access key")
-        input.PlaceholderColor3=color.muted
+        screen,body=panel(570,nil,not dedicated)
+        local hero=make("Frame",{Size=UDim2.new(1,0,0,108),LayoutOrder=1,BorderSizePixel=0,
+            ClipsDescendants=true,BackgroundColor3="@tile"},body)
+        make("UICorner",{CornerRadius=UDim.new(0,10)},hero)
+        skin.gradient(hero,"top","dark",0)
+        local art=make("ImageLabel",{Name="AnonHubArtwork",Size=UDim2.fromScale(1,1),BackgroundTransparency=1,
+            ScaleType=Enum.ScaleType.Crop,ImageTransparency=0.18},hero)
+        make("UICorner",{CornerRadius=UDim.new(0,10)},art)
+        decorateArtwork(art)
+        local shade=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundColor3="@dark",BorderSizePixel=0},hero)
+        make("UICorner",{CornerRadius=UDim.new(0,10)},shade)
+        make("UIGradient",{Transparency=NumberSequence.new({
+            NumberSequenceKeypoint.new(0,0.06),NumberSequenceKeypoint.new(0.58,0.28),
+            NumberSequenceKeypoint.new(1,0.93),
+        })},shade)
+        local caption=label(hero,"TextLabel",tr("CENTRAL DE ACESSO","ACCESS CENTER"),20,0)
+        caption.Position,caption.Size=UDim2.fromOffset(15,18),UDim2.new(1,-30,0,20)
+        caption.Font,caption.TextSize,caption.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Left
+        skin.paint(caption,"TextColor3","accent")
+        local accessTitle=label(hero,"TextLabel",tr("Bem-vindo ao AnonHub","Welcome to AnonHub"),38,0)
+        accessTitle.Position,accessTitle.Size=UDim2.fromOffset(15,39),UDim2.new(1,-30,0,38)
+        accessTitle.Font,accessTitle.TextSize,accessTitle.TextXAlignment=Enum.Font.GothamBold,21,Enum.TextXAlignment.Left
+
+        local form=make("Frame",{Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,LayoutOrder=2,
+            BackgroundColor3="@tile",BorderSizePixel=0},body)
+        make("UICorner",{CornerRadius=UDim.new(0,10)},form)
+        make("UIPadding",{PaddingTop=UDim.new(0,10),PaddingBottom=UDim.new(0,10),
+            PaddingLeft=UDim.new(0,11),PaddingRight=UDim.new(0,11)},form)
+        make("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,6)},form)
+        local hint=label(form,"TextLabel",tr("Já tem uma key? Cole abaixo.","Already have a key? Paste it below."),22,1)
+        hint.TextSize,hint.TextXAlignment=13,Enum.TextXAlignment.Left
+        skin.paint(hint,"TextColor3","muted")
+        local input=label(form,"TextBox","",46,2)
+        input.BackgroundTransparency,input.ClearTextOnFocus=0,false
+        input.PlaceholderText,input.PlaceholderColor3="PANDA-XXXX-XXXX-XXXX",color.muted
+        input.Font,input.TextSize,input.TextXAlignment=Enum.Font.Code,14,Enum.TextXAlignment.Left
+        input.TextWrapped=false
+        skin.paint(input,"BackgroundColor3","dark")
         make("UICorner",{CornerRadius=UDim.new(0,7)},input)
-        local status=label(body,"TextLabel","",28,dedicated and 4 or 5)
-        status.TextColor3=color.muted
-        if not dedicated then
-            input.Font,input.TextSize,input.TextXAlignment=Enum.Font.Code,14,Enum.TextXAlignment.Left
-            input.TextWrapped=false
-            make("UIPadding",{PaddingLeft=UDim.new(0,12),PaddingRight=UDim.new(0,12)},input)
-            local focusBorder=make("UIStroke",{Color="@edge",Thickness=1,ApplyStrokeMode=Enum.ApplyStrokeMode.Border},input)
-            input.Focused:Connect(function() skin.paint(focusBorder,"Color","accent") end)
-            input.FocusLost:Connect(function() skin.paint(focusBorder,"Color","edge") end)
-            status.TextSize,status.TextXAlignment=12,Enum.TextXAlignment.Left
-        end
+        make("UIPadding",{PaddingLeft=UDim.new(0,12),PaddingRight=UDim.new(0,12)},input)
+        local focusBorder=make("UIStroke",{Color="@edge",Thickness=1,ApplyStrokeMode=Enum.ApplyStrokeMode.Border},input)
+        input.Focused:Connect(function() skin.paint(focusBorder,"Color","accent") end)
+        input.FocusLost:Connect(function() skin.paint(focusBorder,"Color","edge") end)
+        local status=label(form,"TextLabel",tr("Sem key? Use Obter key para começar.","New here? Use Get key to start."),32,4)
+        status.TextSize,status.TextXAlignment=12,Enum.TextXAlignment.Left
+        skin.paint(status,"TextColor3","muted")
         local busy,startWithOP=false,false
-        local accessActions=body
-        if not dedicated then
-            accessActions=make("Frame",{Size=UDim2.new(1,0,0,42),LayoutOrder=6,BackgroundTransparency=1},body)
-        end
+        local accessActions=make("Frame",{Size=UDim2.new(1,0,0,46),LayoutOrder=3,BackgroundTransparency=1},form)
         local continueButton=button(accessActions,tr("Validar e abrir","Validate and open"),5,true)
-        local getKey=button(accessActions,tr("Obter key","Get key"),7)
-        if not dedicated then
-            continueButton.Size=UDim2.new(0.56,-4,1,0)
-            getKey.Position,getKey.Size=UDim2.new(0.56,4,0,0),UDim2.new(0.44,-4,1,0)
+        local getKey=button(accessActions,tr("Obter key  ↗","Get key  ↗"),7)
+        continueButton.Size=UDim2.new(0.56,-4,1,0)
+        getKey.Position,getKey.Size=UDim2.new(0.56,4,0,0),UDim2.new(0.44,-4,1,0)
+        continueButton.TextSize,getKey.TextSize=13,13
+        local function setBusy(value,fetchingLink)
+            busy=value
+            continueButton.Text=value and not fetchingLink and tr("Validando…","Validating…") or tr("Validar e abrir","Validate and open")
+            getKey.Text=value and fetchingLink and tr("Preparando…","Preparing…") or tr("Obter key  ↗","Get key  ↗")
         end
         local function report(reason)
+            skin.paint(status,"TextColor3","accent")
             if reason=="INVALID_KEY" or reason=="EXPIRED" then
                 status.Text=tr("Key inválida ou expirada para este dispositivo.","Key invalid or expired for this device.")
             elseif reason=="NO_KEY" then
@@ -615,7 +693,7 @@ start=function(chooseLanguage)
             if busy or not current() then return end
             local key=cleanKey(input.Text)
             if not key then report("NO_KEY") return end
-            busy=true
+            setBusy(true,false)
             status.Text=tr("Validando acesso com o Panda Auth…","Validating access with Panda Auth…")
             local sdk,reason=sdkForSession()
             local session
@@ -624,7 +702,7 @@ start=function(chooseLanguage)
                 if sdk then pcall(sdk.disconnect) end
                 return
             end
-            busy=false
+            setBusy(false)
             if not session then
                 if (reason=="INVALID_KEY" or reason=="EXPIRED") and readKey()==key then
                     writeKey(nil)
@@ -638,36 +716,36 @@ start=function(chooseLanguage)
         end
         continueButton.Activated:Connect(submit)
         if dedicated then
-            local option=button(body,tr("INICIAR OP AO ABRIR","START OP ON OPEN").."  ·  OFF",6)
+            local option=button(body,tr("INICIAR OP AO ABRIR","START OP ON OPEN").."  ·  OFF",4)
             option.Activated:Connect(function()
                 startWithOP=not startWithOP
                 option.Text=tr("INICIAR OP AO ABRIR","START OP ON OPEN").."  ·  "..(startWithOP and "ON" or "OFF")
                 option.BackgroundColor3=startWithOP and color.edge or color.tile
             end)
-            button(body,tr("Idioma","Language"),8).Activated:Connect(function() task.defer(start,true) end)
-            button(body,tr("Fechar","Close"),9).Activated:Connect(state.close)
-        else
-            local actions=make("Frame",{Size=UDim2.new(1,0,0,42),LayoutOrder=7,BackgroundTransparency=1},body)
-            local languageButton=button(actions,tr("Idioma","Language"),0)
-            languageButton.Size=UDim2.new(0.5,-4,1,0)
-            languageButton.Activated:Connect(function() task.defer(start,true) end)
-            local closeButton=button(actions,tr("Fechar","Close"),0)
-            closeButton.Position,closeButton.Size=UDim2.new(0.5,4,0,0),UDim2.new(0.5,-4,1,0)
-            closeButton.Activated:Connect(state.close)
         end
-        local keyLink=label(body,"TextBox","",0,dedicated and 10 or 8)
+        skin.resources(body,3,language)
+        local actions=make("Frame",{Size=UDim2.new(1,0,0,38),LayoutOrder=5,BackgroundTransparency=1},body)
+        local languageButton=button(actions,tr("Idioma","Language"),0)
+        languageButton.Size=UDim2.new(0.5,-4,1,0)
+        languageButton.TextSize=12
+        languageButton.Activated:Connect(function() task.defer(start,true) end)
+        local closeButton=button(actions,tr("Fechar","Close"),0)
+        closeButton.Position,closeButton.Size=UDim2.new(0.5,4,0,0),UDim2.new(0.5,-4,1,0)
+        closeButton.TextSize=12
+        closeButton.Activated:Connect(state.close)
+        local keyLink=label(form,"TextBox","",0,5)
         keyLink.Visible,keyLink.TextEditable,keyLink.ClearTextOnFocus=false,false,false
         keyLink.TextWrapped=false
         keyLink.Font,keyLink.TextSize=Enum.Font.Code,12
         getKey.Activated:Connect(function()
             if busy or not current() then return end
-            busy=true
+            setBusy(true,true)
             status.Text=tr("Preparando o link de acesso…","Preparing your access link…")
             local sdk,reason=sdkForSession()
             local ok,url
             if sdk then ok,url=pcall(sdk.getKeyUrl) end
             if not current() then return end
-            busy=false
+            setBusy(false)
             local host=ok and type(url)=="string" and url:match("^https://([%w%.%-]+)/")
             if not host or (host~="pandauth.com" and not host:match("%.pandauth%.com$")) then
                 report(reason or "PROTOCOL")
@@ -675,6 +753,7 @@ start=function(chooseLanguage)
             end
             local clipboard=type(setclipboard)=="function" and setclipboard or nil
             if clipboard and pcall(clipboard,url) then
+                skin.paint(status,"TextColor3","active")
                 status.Text=tr("Link copiado. Abra no navegador.","Link copied. Open it in your browser.")
             else
                 keyLink.Size=UDim2.new(1,0,0,36)

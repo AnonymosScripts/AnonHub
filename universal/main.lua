@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal tools
-local BOOT_VERSION="0.37.0"
+local BOOT_VERSION="0.37.1"
 local hub=...
 if type(hub)~="table" then return end
 
@@ -118,6 +118,12 @@ mark.Font,mark.TextSize=Enum.Font.GothamBlack,17
 ui.paint(mark,"BackgroundColor3","accent")
 ui.paint(mark,"TextColor3","dark")
 ui.make("UICorner",{CornerRadius=UDim.new(0,9)},mark)
+if hub.decorateArtwork then
+    local art=ui.make("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,
+        ScaleType=Enum.ScaleType.Crop,ZIndex=mark.ZIndex+1},mark)
+    ui.make("UICorner",{CornerRadius=UDim.new(0,9)},art)
+    hub.decorateArtwork(art)
+end
 local brand=ui.label(header,"TextLabel","AnonHub",25,1)
 brand.Position,brand.Size=UDim2.fromOffset(56,11),UDim2.new(1,-110,0,25)
 brand.Font,brand.TextSize,brand.TextXAlignment=Enum.Font.GothamBold,19,Enum.TextXAlignment.Left
@@ -348,27 +354,65 @@ local aimPage=tab("aim",T("Mira","Aim"),T("Ajuste a resposta, os alvos e o campo
 local visionPage=tab("vision","ESP",T("Configure a apresentação dos jogadores na tela.","Choose how players are displayed on screen."),3)
 local settingsPage=tab("settings",T("Ajustes","Settings"),T("Personalize a aparência e a posição do painel.","Customize the appearance and panel position."),4)
 showTab("controls")
-ui.gameCard(controls,hub.identity,T("SESSÃO ATIVA · MÓDULO UNIVERSAL","ACTIVE SESSION · UNIVERSAL MODULE"),1,true)
+ui.gameCard(controls,hub.identity,T("SESSÃO ATIVA · MÓDULO UNIVERSAL","ACTIVE SESSION · UNIVERSAL MODULE"),3,true)
 local access=hub.access
 if type(access)=="table" then
-    local card=ui.make("Frame",{Name="Membership",Size=UDim2.new(1,0,0,64),LayoutOrder=2,
+    local premium=access.plan=="Premium"
+    local card=ui.make("Frame",{Name="Membership",Size=UDim2.new(1,0,0,88),LayoutOrder=1,
         BackgroundColor3="@tile",BorderSizePixel=0},controls)
     ui.make("UICorner",{CornerRadius=UDim.new(0,9)},card)
-    local portrait=ui.make("ImageLabel",{Position=UDim2.fromOffset(11,11),Size=UDim2.fromOffset(42,42),
+    local border=ui.make("UIStroke",{Color="@edge",Thickness=1},card)
+    local portrait=ui.make("ImageLabel",{Position=UDim2.fromOffset(12,12),Size=UDim2.fromOffset(42,42),
         Image=string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=100&h=100",player.UserId),
         BackgroundColor3="@dark",BorderSizePixel=0},card)
     ui.make("UICorner",{CornerRadius=UDim.new(1,0)},portrait)
-    local member=ui.label(card,"TextLabel",(player.DisplayName or player.Name).."  ·  "..access.plan,22,0)
-    member.Position,member.Size=UDim2.fromOffset(62,7),UDim2.new(1,-72,0,22)
+    local member=ui.label(card,"TextLabel",player.DisplayName or player.Name,22,0)
+    member.Position,member.Size=UDim2.fromOffset(64,8),UDim2.new(1,-150,0,22)
     member.Font,member.TextSize,member.TextXAlignment=Enum.Font.GothamBold,13,Enum.TextXAlignment.Left
     member.TextWrapped,member.TextTruncate=false,Enum.TextTruncate.AtEnd
-    local duration=access.lifetime and T("Vitalícia","Lifetime")
-        or os.date(T("!%d/%m/%Y %H:%M UTC","!%Y-%m-%d %H:%M UTC"),access.expiresAt)
-    local details=ui.label(card,"TextLabel",access.keyLabel.."  ·  "..duration,28,0)
-    details.Position,details.Size=UDim2.fromOffset(62,30),UDim2.new(1,-72,0,28)
+    local badge=ui.label(card,"TextLabel",premium and "PREMIUM" or "MEMBER",23,0)
+    badge.Position,badge.Size=UDim2.new(1,-79,0,10),UDim2.fromOffset(68,23)
+    badge.Font,badge.TextSize,badge.BackgroundTransparency=Enum.Font.GothamBold,10,0
+    ui.make("UICorner",{CornerRadius=UDim.new(0,6)},badge)
+    ui.paint(badge,"TextColor3","dark")
+    if premium then
+        local gold=Color3.fromRGB(248,208,130)
+        badge.BackgroundColor3,border.Color=gold,gold
+    else
+        ui.paint(badge,"BackgroundColor3","accent")
+    end
+    local countdown=ui.label(card,"TextLabel","",22,0)
+    countdown.Position,countdown.Size=UDim2.fromOffset(64,31),UDim2.new(1,-75,0,22)
+    countdown.Font,countdown.TextSize,countdown.TextXAlignment=Enum.Font.GothamMedium,12,Enum.TextXAlignment.Left
+    ui.paint(countdown,"TextColor3","active")
+    local expiry=access.expiresAt and os.date(T("!%d/%m/%Y %H:%M UTC","!%Y-%m-%d %H:%M UTC"),access.expiresAt)
+    local details=ui.label(card,"TextLabel",access.keyLabel..(expiry and "   ·   "..expiry or ""),26,0)
+    details.Position,details.Size=UDim2.fromOffset(12,56),UDim2.new(1,-24,0,26)
     details.Font,details.TextSize,details.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Left
     ui.paint(details,"TextColor3","muted")
+    local function updateDuration()
+        if not alive or not card.Parent then return end
+        if access.lifetime then
+            countdown.Text=T("Acesso vitalício","Lifetime access")
+        elseif access.deadline or access.expiresAt then
+            local remaining=math.max(0,access.deadline and (access.deadline-os.clock()) or (access.expiresAt-os.time()))
+            if remaining<=0 then
+                countdown.Text=T("Acesso expirado","Access expired")
+            elseif remaining<60 then
+                countdown.Text=string.format(T("Restam %ds","%ds remaining"),math.ceil(remaining))
+                task.delay(1,updateDuration)
+            else
+                local minutes=math.ceil(remaining/60)
+                countdown.Text=string.format(T("Restam %dh %02dm","%dh %02dm remaining"),math.floor(minutes/60),minutes%60)
+                task.delay((remaining%60)+0.05,updateDuration)
+            end
+        else
+            countdown.Text=T("Validade não informada","Expiry unavailable")
+        end
+    end
+    updateDuration()
 end
+ui.resources(controls,2,hub.language)
 refreshStatus()
 
 local function section(parent,caption,order)
@@ -666,19 +710,19 @@ if touchAvailable then
     end)
 end
 
-local movement=row(controls,3)
+local movement=row(controls,4)
 toggle(movement,"fly",T("Voo","Fly"),false,function(enabled)
     if not enabled then stopFlight() end
     refreshOverlay()
 end)
 toggle(movement,"noclip","Noclip",true,function(enabled) if not enabled then restoreCollision() end end)
-local movement2=row(controls,4)
+local movement2=row(controls,5)
 toggle(movement2,"speed",T("Velocidade","Walk speed"),false,function(enabled)
     if not enabled then restoreProperty(speedOwner) speedOwner=nil end
 end)
 toggle(movement2,"jump",T("Salto infinito","Infinite jump"),true)
-adjust(controls,values,"speed",T("Velocidade ao andar","Walk speed"),4,120,4,5)
-adjust(controls,values,"fly",T("Velocidade de voo","Flight speed"),10,180,10,6)
+adjust(controls,values,"speed",T("Velocidade ao andar","Walk speed"),4,120,4,6)
+adjust(controls,values,"fly",T("Velocidade de voo","Flight speed"),10,180,10,7)
 section(aimPage,T("MIRA E CAMPO DE VISÃO","AIM AND FIELD OF VIEW"),1)
 local cameraRow=row(aimPage,2)
 toggle(cameraRow,"aim",T("Mira assistida","Aim assist"),false,function(enabled)
@@ -693,10 +737,10 @@ toggle(cameraRow,"fov",T("FOV da câmera","Camera FOV"),true,function(enabled)
 end)
 adjust(aimPage,settings,"cameraFov",T("Campo de visão da câmera (°)","Camera field of view (°)"),35,120,5,3,save)
 local help=ui.label(controls,"TextLabel",T("Para voar, use o direcional e os botões laterais.",
-    "Use movement controls and the side buttons to fly."),40,7)
+    "Use movement controls and the side buttons to fly."),40,8)
 help.TextSize=12
 ui.paint(help,"TextColor3","muted")
-connect(ui.button(controls,T("RESTAURAR CONTROLES","RESET CONTROLS"),8,true).Activated,reset)
+connect(ui.button(controls,T("RESTAURAR CONTROLES","RESET CONTROLS"),9,true).Activated,reset)
 
 local function selector(parent,options,key,columns,order,caption,onChange,swatch)
     local group=ui.make("Frame",{Size=UDim2.new(1,0,0,math.ceil(#options/columns)*39),LayoutOrder=order,
