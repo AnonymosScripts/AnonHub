@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal tools
-local BOOT_VERSION="0.37.5"
+local BOOT_VERSION="0.37.6"
 local hub=...
 if type(hub)~="table" then return end
 
@@ -96,6 +96,7 @@ local function save()
     local preferences=table.clone(settings)
     preferences.mobileScale=mobileLayout and settings.scale or saved.mobileScale
     preferences.desktopScale=mobileLayout and (saved.desktopScale or saved.scale or 100) or settings.scale
+    preferences.superpowerCards=saved.superpowerCards
     hub.saveSettings(preferences)
 end
 local function activationMode()
@@ -365,6 +366,10 @@ local function tab(id,caption,description,compactCaption)
 end
 local controls=tab("controls",T("Controles","Controls"),T("Jogo atual e atalhos de movimento.","Current game and movement shortcuts."),T("Início","Home"))
 local gamesPage=tab("games",T("Jogos","Games"),T("Módulos dedicados disponíveis no AnonHub.","Dedicated modules available in AnonHub."))
+local superpowerPage
+if game.GameId==10770228857 then
+    superpowerPage=tab("superpower",T("Cartas","Cards"),T("Compare suas cartas e anote o tempo dos chefes.","Compare your cards and track boss timers."))
+end
 local aimPage=tab("aim",T("Mira","Aim"),T("Ajuste a resposta, os alvos e o campo de visão.","Adjust response, targets, and field of view."))
 local visionPage=tab("vision","ESP",T("Configure a apresentação dos jogadores na tela.","Choose how players are displayed on screen."))
 local settingsPage=tab("settings",T("Ajustes","Settings"),T("Personalize a aparência e a posição do painel.","Customize the appearance and panel position."))
@@ -470,6 +475,150 @@ end
 local function row(parent,order)
     return ui.make("Frame",{Size=UDim2.new(1,0,0,44),LayoutOrder=order,BackgroundTransparency=1},parent)
 end
+
+local function mountSuperpowerNotes(page)
+    local maxCards=10
+    local cards={}
+    local function cardName(value)
+        if type(value)~="string" then return end
+        local name=value:match("^%s*(.-)%s*$")
+        if name~="" and #name<=60 and not name:find("%c") then return name end
+    end
+    local function validValue(value)
+        return type(value)=="number" and value>=0 and value<=1e15
+    end
+    if type(saved.superpowerCards)=="table" then
+        for _,entry in ipairs(saved.superpowerCards) do
+            local name=type(entry)=="table" and cardName(entry.name)
+            if name and validValue(entry.value) then
+                cards[#cards+1]={name=name,value=entry.value}
+                if #cards==maxCards then break end
+            end
+        end
+    end
+    local function input(parent,name,placeholder,order)
+        local box=ui.label(parent,"TextBox","",42,order)
+        box.Name=name
+        box.PlaceholderText,box.PlaceholderColor3=placeholder,color.muted
+        box.BackgroundTransparency,box.ClearTextOnFocus=0,false
+        box.TextSize,box.TextWrapped=13,false
+        box.TextXAlignment=Enum.TextXAlignment.Left
+        ui.paint(box,"BackgroundColor3","tile")
+        ui.make("UICorner",{CornerRadius=UDim.new(0,7)},box)
+        ui.make("UIPadding",{PaddingLeft=UDim.new(0,9),PaddingRight=UDim.new(0,9)},box)
+        return box
+    end
+    local function hint(text,order)
+        local label=ui.label(page,"TextLabel",text,32,order)
+        label.TextSize,label.TextXAlignment=12,Enum.TextXAlignment.Left
+        ui.paint(label,"TextColor3","muted")
+        return label
+    end
+
+    section(page,T("TEMPORIZADOR MANUAL","MANUAL TIMER"),1)
+    local timerInput=input(page,"BossTime",T("Tempo até o chefe (ex. 2:30)","Time until boss (e.g. 2:30)"),2)
+    local timerActions=row(page,3)
+    local startTimer=ui.button(timerActions,T("Iniciar","Start"),0,true)
+    startTimer.Size=UDim2.new(0.5,-4,1,0)
+    local resetTimer=ui.button(timerActions,T("Zerar timer","Reset timer"),0)
+    resetTimer.Position,resetTimer.Size=UDim2.new(0.5,4,0,0),UDim2.new(0.5,-4,1,0)
+    local timerStatus=hint(T("Informe o tempo observado no jogo.","Enter the time you observed in the game."),4)
+    local deadline
+    local function refreshTimer()
+        if not deadline then return end
+        local seconds=math.max(0,math.ceil(deadline-os.clock()))
+        if seconds==0 then
+            deadline=nil
+            timerStatus.Text=T("Tempo estimado atingido. Confira no jogo.","Estimated time reached. Check in the game.")
+        else
+            timerStatus.Text=string.format(T("Estimativa: %02d:%02d","Estimate: %02d:%02d"),math.floor(seconds/60),seconds%60)
+        end
+    end
+    connect(startTimer.Activated,function()
+        local raw=timerInput.Text:match("^%s*(.-)%s*$")
+        local minutes,seconds=raw:match("^(%d%d?):(%d%d)$")
+        local duration=raw:match("^%d%d?%d?%d?$") and tonumber(raw)
+        if minutes and tonumber(seconds)<60 then duration=tonumber(minutes)*60+tonumber(seconds) end
+        if not duration or duration<1 or duration>5999 then
+            if not deadline then timerStatus.Text=T("Use mm:ss ou um número de segundos (até 99:59).","Use mm:ss or seconds (up to 99:59).") end
+            return
+        end
+        deadline=os.clock()+duration
+        refreshTimer()
+    end)
+    connect(resetTimer.Activated,function()
+        deadline=nil
+        timerStatus.Text=T("Temporizador zerado.","Timer reset.")
+    end)
+    local refreshIn=0
+    connect(Run.Heartbeat,function(dt)
+        if not deadline or not page.Visible or not body.Visible then return end
+        refreshIn+=dt
+        if refreshIn>=0.2 then refreshIn=0 refreshTimer() end
+    end)
+
+    section(page,T("COMPARAR CARTAS","COMPARE CARDS"),5)
+    hint(T("Use a mesma métrica em todas as cartas, como dano ou renda.","Use the same metric for every card, such as damage or income."),6)
+    local nameInput=input(page,"CardName",T("Nome da carta","Card name"),7)
+    local valueInput=input(page,"CardValue",T("Valor da métrica (ex. 12,5K)","Metric value (e.g. 12.5K)"),8)
+    local add=ui.button(page,T("Adicionar carta","Add card"),9,true)
+    local cardStatus=hint("",10)
+    local list=ui.make("Frame",{Name="CardComparison",Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,
+        LayoutOrder=11,BackgroundTransparency=1},page)
+    ui.make("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,5)},list)
+    local function refreshCards()
+        for _,child in ipairs(list:GetChildren()) do
+            if child:IsA("Frame") then child:Destroy() end
+        end
+        local ranked={}
+        for index,entry in ipairs(cards) do ranked[index]={index=index,entry=entry} end
+        table.sort(ranked,function(a,b)
+            if a.entry.value==b.entry.value then return a.index<b.index end
+            return a.entry.value>b.entry.value
+        end)
+        for rank,record in ipairs(ranked) do
+            local line=row(list,rank)
+            local info=ui.label(line,"TextLabel",string.format("%d. %s  ·  %.8g",rank,record.entry.name,record.entry.value),44,0)
+            info.Size=UDim2.new(1,-49,1,0)
+            info.TextSize,info.TextXAlignment=12,Enum.TextXAlignment.Left
+            info.TextWrapped,info.TextTruncate=false,Enum.TextTruncate.AtEnd
+            local remove=ui.button(line,"×",0)
+            remove.Name="RemoveCard"
+            remove.Position,remove.Size=UDim2.new(1,-44,0,0),UDim2.fromOffset(44,44)
+            remove.Activated:Connect(function()
+                table.remove(cards,record.index)
+                saved.superpowerCards=cards
+                save()
+                refreshCards()
+            end)
+        end
+        cardStatus.Text=string.format(T("%d/%d cartas salvas","%d/%d cards saved"),#cards,maxCards)
+    end
+    connect(add.Activated,function()
+        local name=cardName(nameInput.Text)
+        local raw=valueInput.Text:lower():match("^%s*(.-)%s*$")
+        local number,suffix=raw:match("^(%d+[.,]?%d*)([kmbt]?)$")
+        local multiplier={[""]=1,k=1e3,m=1e6,b=1e9,t=1e12}
+        local parsed=number and tonumber((number:gsub(",",".")))
+        local value=parsed and parsed*multiplier[suffix]
+        if not name or not validValue(value) then
+            cardStatus.Text=T("Informe o nome e um valor válido.","Enter a card name and a valid value.")
+            return
+        end
+        if #cards>=maxCards then
+            cardStatus.Text=T("Limite atingido. Remova uma carta para adicionar outra.","Limit reached. Remove a card before adding another.")
+            return
+        end
+        cards[#cards+1]={name=name,value=value}
+        saved.superpowerCards=cards
+        save()
+        nameInput.Text,valueInput.Text="",""
+        refreshCards()
+    end)
+    refreshCards()
+end
+
+if superpowerPage then mountSuperpowerNotes(superpowerPage) end
 
 local function switch(parent,title,order)
     local button=ui.button(parent,"",order)
