@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal tools
-local BOOT_VERSION="0.37.1"
+local BOOT_VERSION="0.37.2"
 local hub=...
 if type(hub)~="table" then return end
 
@@ -153,6 +153,7 @@ ui.paint(versionLabel,"TextColor3","muted")
 local pages={}
 local tabButtons={}
 local tabs={}
+local tabCount=0
 local connections={}
 local alive=true
 local flags={}
@@ -318,7 +319,9 @@ local function showTab(id)
         tabInfo.marker.Visible=selected
     end
 end
-local function tab(id,caption,description,index)
+local function tab(id,caption,description,compactCaption)
+    tabCount+=1
+    local index=tabCount
     local control=ui.label(nav,"TextButton","",40,0)
     control.Name=id.."Tab"
     control.AutoButtonColor=false
@@ -345,15 +348,18 @@ local function tab(id,caption,description,index)
     detail.TextSize,detail.TextXAlignment,detail.TextYAlignment=12,Enum.TextXAlignment.Left,Enum.TextYAlignment.Top
     ui.paint(detail,"TextColor3","muted")
     pages[id],tabButtons[id]=page,control
-    tabs[id]={index=index,marker=marker,number=number,caption=captionLabel}
+    tabs[id]={index=index,marker=marker,number=number,caption=captionLabel,
+        title=caption,compactTitle=compactCaption or caption}
     connect(control.Activated,function() showTab(id) end)
     return page
 end
-local controls=tab("controls",T("Controles","Controls"),T("Jogo atual e atalhos de movimento.","Current game and movement shortcuts."),1)
-local aimPage=tab("aim",T("Mira","Aim"),T("Ajuste a resposta, os alvos e o campo de visão.","Adjust response, targets, and field of view."),2)
-local visionPage=tab("vision","ESP",T("Configure a apresentação dos jogadores na tela.","Choose how players are displayed on screen."),3)
-local settingsPage=tab("settings",T("Ajustes","Settings"),T("Personalize a aparência e a posição do painel.","Customize the appearance and panel position."),4)
+local controls=tab("controls",T("Controles","Controls"),T("Jogo atual e atalhos de movimento.","Current game and movement shortcuts."),T("Início","Home"))
+local gamesPage=tab("games",T("Jogos","Games"),T("Módulos dedicados disponíveis no AnonHub.","Dedicated modules available in AnonHub."))
+local aimPage=tab("aim",T("Mira","Aim"),T("Ajuste a resposta, os alvos e o campo de visão.","Adjust response, targets, and field of view."))
+local visionPage=tab("vision","ESP",T("Configure a apresentação dos jogadores na tela.","Choose how players are displayed on screen."))
+local settingsPage=tab("settings",T("Ajustes","Settings"),T("Personalize a aparência e a posição do painel.","Customize the appearance and panel position."))
 showTab("controls")
+ui.gameCatalog(gamesPage,hub.language,1)
 ui.gameCard(controls,hub.identity,T("SESSÃO ATIVA · MÓDULO UNIVERSAL","ACTIVE SESSION · UNIVERSAL MODULE"),3,true)
 local access=hub.access
 if type(access)=="table" then
@@ -412,7 +418,7 @@ if type(access)=="table" then
     end
     updateDuration()
 end
-ui.resources(controls,2,hub.language)
+ui.resources(controls,2,hub.language,function() showTab("games") end)
 refreshStatus()
 
 local function section(parent,caption,order)
@@ -518,7 +524,7 @@ local function position(size,extent,x,y)
 end
 
 local function layoutNavigation(width,height)
-    local sidebar=width>=530 and height>=330
+    local sidebar=width>=530 and height>=158+tabCount*46
     navTitle.Visible=sidebar
     nav.Position=UDim2.fromOffset(12,74)
     nav.Size=sidebar and UDim2.new(0,132,1,-118) or UDim2.new(1,-24,0,44)
@@ -527,13 +533,15 @@ local function layoutNavigation(width,height)
         tabInfo.number.Visible=sidebar
         if sidebar then
             control.Position,control.Size=UDim2.fromOffset(6,34+(tabInfo.index-1)*46),UDim2.new(1,-12,0,40)
+            tabInfo.caption.Text,tabInfo.caption.TextSize=tabInfo.title,12
             tabInfo.caption.Position,tabInfo.caption.Size=UDim2.fromOffset(37,0),UDim2.new(1,-45,1,0)
             tabInfo.caption.TextXAlignment=Enum.TextXAlignment.Left
             tabInfo.marker.Position,tabInfo.marker.Size=UDim2.fromOffset(0,10),UDim2.fromOffset(3,20)
             page.Position,page.Size=UDim2.fromOffset(160,74),UDim2.new(1,-172,1,-118)
         else
-            control.Position=UDim2.new((tabInfo.index-1)/4,3,0,3)
-            control.Size=UDim2.new(1/4,-6,1,-6)
+            control.Position=UDim2.new((tabInfo.index-1)/tabCount,3,0,3)
+            control.Size=UDim2.new(1/tabCount,-6,1,-6)
+            tabInfo.caption.Text,tabInfo.caption.TextSize=tabInfo.compactTitle,11
             tabInfo.caption.Position,tabInfo.caption.Size=UDim2.fromOffset(0,0),UDim2.fromScale(1,1)
             tabInfo.caption.TextXAlignment=Enum.TextXAlignment.Center
             tabInfo.marker.Position,tabInfo.marker.Size=UDim2.new(0.25,0,1,-3),UDim2.new(0.5,0,0,2)

@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal entry point
-local version="0.37.1"
+local version="0.37.2"
 local games={
     [10767408330]={name="Peel THE Potato",chapter="2",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
@@ -388,7 +388,51 @@ local function createUI(initialTheme)
         return card
     end
 
-    local function resources(parent,order,language)
+    local function catalogEntries()
+        local entries={}
+        for id,module in pairs(games) do table.insert(entries,{id=id,module=module}) end
+        table.sort(entries,function(a,b) return a.module.name<b.module.name end)
+        return entries
+    end
+
+    local function gameCatalog(parent,language,order)
+        local pt=language=="pt"
+        local entries=catalogEntries()
+        if #entries==0 then
+            local empty=label(parent,"TextLabel",pt and "Nenhum módulo dedicado no catálogo." or "No dedicated modules in the catalog.",40,order)
+            empty.TextSize=12
+            paint(empty,"TextColor3","muted")
+        end
+        for index,entry in ipairs(entries) do
+            local module=entry.module
+            local current=entry.id==game.GameId and module.place==game.PlaceId
+            local card=make("Frame",{Name="GameModule",Size=UDim2.new(1,0,0,78),LayoutOrder=order+index-1,
+                BackgroundColor3="@tile",BorderSizePixel=0},parent)
+            make("UICorner",{CornerRadius=UDim.new(0,9)},card)
+            make("UIStroke",{Color="@edge",Thickness=1},card)
+            local icon=make("ImageLabel",{Position=UDim2.fromOffset(11,13),Size=UDim2.fromOffset(52,52),
+                BackgroundColor3="@dark",BorderSizePixel=0,ScaleType=Enum.ScaleType.Crop,
+                Image=string.format("rbxthumb://type=GameIcon&id=%d&w=150&h=150",entry.id)},card)
+            make("UICorner",{CornerRadius=UDim.new(0,8)},icon)
+            local name=label(card,"TextLabel",module.name,26,0)
+            name.Position,name.Size=UDim2.fromOffset(73,9),UDim2.new(1,-85,0,26)
+            name.Font,name.TextSize,name.TextXAlignment=Enum.Font.GothamBold,15,Enum.TextXAlignment.Left
+            name.TextWrapped,name.TextTruncate=false,Enum.TextTruncate.AtEnd
+            local chapter=module.chapter and (pt and "Capítulo " or "Chapter ")..module.chapter
+                or (pt and "Módulo dedicado" or "Dedicated module")
+            local detail=label(card,"TextLabel",chapter,16,0)
+            detail.Position,detail.Size=UDim2.fromOffset(73,34),UDim2.new(1,-85,0,16)
+            detail.TextSize,detail.TextXAlignment=11,Enum.TextXAlignment.Left
+            paint(detail,"TextColor3","muted")
+            local status=current and (pt and "JOGO ABERTO" or "CURRENT GAME") or (pt and "DISPONÍVEL" or "AVAILABLE")
+            local badge=label(card,"TextLabel",status,17,0)
+            badge.Position,badge.Size=UDim2.fromOffset(73,53),UDim2.new(1,-85,0,17)
+            badge.Font,badge.TextSize,badge.TextXAlignment=Enum.Font.Code,10,Enum.TextXAlignment.Left
+            paint(badge,"TextColor3","active")
+        end
+    end
+
+    local function resources(parent,order,language,openCatalog)
         local pt=language=="pt"
         local stack=make("Frame",{Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,
             LayoutOrder=order,BackgroundTransparency=1},parent)
@@ -399,28 +443,21 @@ local function createUI(initialTheme)
         catalog.TextSize=12
         local social,socialCaption=providerButton(actions,"YouTube","YouTube",0)
         social.Position,social.Size=UDim2.new(0.60,4,0,0),UDim2.new(0.40,-4,1,0)
-        local list=make("Frame",{Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,
-            LayoutOrder=2,BackgroundTransparency=1,Visible=false},stack)
-        make("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,4)},list)
-        local entries={}
-        for _,gameModule in pairs(games) do table.insert(entries,gameModule) end
-        table.sort(entries,function(a,b) return a.name<b.name end)
-        for index,entry in ipairs(entries) do
-            local text=entry.name
-            if entry.chapter then text=text.."  ·  "..(pt and "Capítulo " or "Chapter ")..entry.chapter end
-            local item=label(list,"TextLabel",text,36,index)
-            item.TextSize,item.BackgroundTransparency=12,0
-            paint(item,"BackgroundColor3","tile")
-            make("UICorner",{CornerRadius=UDim.new(0,7)},item)
+        local catalogTitle=pt and "Jogos com módulo" or "Games with modules"
+        if openCatalog then
+            catalog.Text=catalogTitle.."  ›"
+            catalog.Activated:Connect(openCatalog)
+        else
+            local list=make("Frame",{Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,
+                LayoutOrder=2,BackgroundTransparency=1,Visible=false},stack)
+            make("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,4)},list)
+            gameCatalog(list,language,1)
+            catalog.Text=catalogTitle.."  +"
+            catalog.Activated:Connect(function()
+                list.Visible=not list.Visible
+                catalog.Text=catalogTitle..(list.Visible and "  −" or "  +")
+            end)
         end
-        local function refreshCatalog()
-            catalog.Text=(pt and "Jogos com módulo" or "Games with modules").."  ·  "..#entries..(list.Visible and "  −" or "  +")
-        end
-        refreshCatalog()
-        catalog.Activated:Connect(function()
-            list.Visible=not list.Visible
-            refreshCatalog()
-        end)
         local link=label(stack,"TextBox",youtubeUrl,34,3)
         link.Visible,link.TextEditable,link.ClearTextOnFocus=false,false,false
         link.TextSize,link.TextWrapped,link.BackgroundTransparency=11,false,0
@@ -436,7 +473,7 @@ local function createUI(initialTheme)
         end)
     end
     return {make=make,paint=paint,gradient=gradient,panel=panel,label=label,button=button,
-        providerButton=providerButton,gameCard=gameCard,resources=resources,
+        providerButton=providerButton,gameCard=gameCard,gameCatalog=gameCatalog,resources=resources,
         color=color,setTheme=setTheme,themes=themeOptions,rgb=rgb,
         themeAccent=function(id) return themes[id].accent end}
 end

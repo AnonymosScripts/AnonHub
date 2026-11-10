@@ -1,5 +1,5 @@
 -- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- AnonHub 0.37.1 · Chapter 2 and lobby
+-- AnonHub 0.37.2 · Chapter 2 and lobby
 
 local hub=...
 if type(hub)~="table" or type(hub.access)~="table" then return end
@@ -6558,7 +6558,7 @@ return Adapter
 
 end)()
 
-local BOOT_VERSION="0.37.1"
+local BOOT_VERSION="0.37.2"
 
 
 local function bootAnonymousPotato()
