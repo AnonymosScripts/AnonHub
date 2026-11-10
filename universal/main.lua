@@ -1,5 +1,5 @@
 -- Luau · AnonHub universal tools
-local BOOT_VERSION="0.37.3"
+local BOOT_VERSION="0.37.4"
 local hub=...
 if type(hub)~="table" then return end
 
@@ -137,7 +137,8 @@ local navTitle=ui.label(nav,"TextLabel",T("ÁREA DE TRABALHO","WORKSPACE"),18,0)
 navTitle.Position,navTitle.Size=UDim2.fromOffset(14,10),UDim2.new(1,-24,0,18)
 navTitle.Font,navTitle.TextSize,navTitle.TextXAlignment=Enum.Font.Code,9,Enum.TextXAlignment.Left
 ui.paint(navTitle,"TextColor3","muted")
-local footer=ui.make("Frame",{Position=UDim2.new(0,0,1,-32),Size=UDim2.new(1,0,0,32),
+local statusHeight=32
+local footer=ui.make("Frame",{Name="SessionStatus",Position=UDim2.new(0,0,1,-statusHeight),Size=UDim2.new(1,0,0,statusHeight),
     BorderSizePixel=0,BackgroundColor3="@dark"},body)
 ui.make("Frame",{Size=UDim2.new(1,0,0,1),BackgroundColor3="@edge",BorderSizePixel=0},footer)
 local sessionDot=ui.make("Frame",{Position=UDim2.fromOffset(15,13),Size=UDim2.fromOffset(6,6),
@@ -360,24 +361,34 @@ local visionPage=tab("vision","ESP",T("Configure a apresentação dos jogadores 
 local settingsPage=tab("settings",T("Ajustes","Settings"),T("Personalize a aparência e a posição do painel.","Customize the appearance and panel position."))
 showTab("controls")
 ui.gameCatalog(gamesPage,hub.language,1)
-ui.gameCard(controls,hub.identity,T("SESSÃO ATIVA · MÓDULO UNIVERSAL","ACTIVE SESSION · UNIVERSAL MODULE"),3,true)
+ui.gameCard(controls,hub.identity,T("SESSÃO ATIVA · MÓDULO UNIVERSAL","ACTIVE SESSION · UNIVERSAL MODULE"),2,true)
 local access=hub.access
+local membershipInset=0
+local layoutMembership
 if type(access)=="table" then
+    local height,gap=62,8
+    membershipInset=height+gap
     local premium=access.plan=="Premium"
-    local card=ui.make("Frame",{Name="Membership",Size=UDim2.new(1,0,0,88),LayoutOrder=1,
-        BackgroundColor3="@tile",BorderSizePixel=0},controls)
+    local card=ui.make("Frame",{Name="Membership",
+        Position=UDim2.new(0,12,1,-statusHeight-membershipInset),Size=UDim2.new(1,-24,0,height),
+        BackgroundColor3="@tile",BorderSizePixel=0},body)
     ui.make("UICorner",{CornerRadius=UDim.new(0,9)},card)
     local border=ui.make("UIStroke",{Color="@edge",Thickness=1},card)
-    local portrait=ui.make("ImageLabel",{Position=UDim2.fromOffset(12,12),Size=UDim2.fromOffset(42,42),
+    local portrait=ui.make("ImageLabel",{Position=UDim2.fromOffset(11,10),Size=UDim2.fromOffset(42,42),
         Image=string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=100&h=100",player.UserId),
         BackgroundColor3="@dark",BorderSizePixel=0},card)
     ui.make("UICorner",{CornerRadius=UDim.new(1,0)},portrait)
-    local member=ui.label(card,"TextLabel",player.DisplayName or player.Name,22,0)
-    member.Position,member.Size=UDim2.fromOffset(64,8),UDim2.new(1,-150,0,22)
+    local member=ui.label(card,"TextLabel",player.DisplayName or player.Name,19,0)
+    member.Position,member.Size=UDim2.fromOffset(63,5),UDim2.new(1,-151,0,19)
     member.Font,member.TextSize,member.TextXAlignment=Enum.Font.GothamBold,13,Enum.TextXAlignment.Left
     member.TextWrapped,member.TextTruncate=false,Enum.TextTruncate.AtEnd
+    local username=ui.label(card,"TextLabel","@"..player.Name,16,0)
+    username.Position,username.Size=UDim2.fromOffset(63,23),UDim2.new(1,-151,0,16)
+    username.TextSize,username.TextXAlignment=11,Enum.TextXAlignment.Left
+    username.TextWrapped,username.TextTruncate=false,Enum.TextTruncate.AtEnd
+    ui.paint(username,"TextColor3","muted")
     local badge=ui.label(card,"TextLabel",premium and "PREMIUM" or "MEMBER",23,0)
-    badge.Position,badge.Size=UDim2.new(1,-79,0,10),UDim2.fromOffset(68,23)
+    badge.Position,badge.Size=UDim2.new(1,-79,0,9),UDim2.fromOffset(68,23)
     badge.Font,badge.TextSize,badge.BackgroundTransparency=Enum.Font.GothamBold,10,0
     ui.make("UICorner",{CornerRadius=UDim.new(0,6)},badge)
     ui.paint(badge,"TextColor3","dark")
@@ -387,15 +398,24 @@ if type(access)=="table" then
     else
         ui.paint(badge,"BackgroundColor3","accent")
     end
-    local countdown=ui.label(card,"TextLabel","",22,0)
-    countdown.Position,countdown.Size=UDim2.fromOffset(64,31),UDim2.new(1,-75,0,22)
+    local countdown=ui.label(card,"TextLabel","",17,0)
+    countdown.Position=UDim2.fromOffset(63,39)
     countdown.Font,countdown.TextSize,countdown.TextXAlignment=Enum.Font.GothamMedium,12,Enum.TextXAlignment.Left
+    countdown.TextWrapped,countdown.TextTruncate=false,Enum.TextTruncate.AtEnd
     ui.paint(countdown,"TextColor3","active")
     local expiry=access.expiresAt and os.date(T("!%d/%m/%Y %H:%M UTC","!%Y-%m-%d %H:%M UTC"),access.expiresAt)
-    local details=ui.label(card,"TextLabel",access.keyLabel..(expiry and "   ·   "..expiry or ""),26,0)
-    details.Position,details.Size=UDim2.fromOffset(12,56),UDim2.new(1,-24,0,26)
-    details.Font,details.TextSize,details.TextXAlignment=Enum.Font.Code,11,Enum.TextXAlignment.Left
-    ui.paint(details,"TextColor3","muted")
+    local key=ui.label(card,"TextLabel",access.keyLabel,18,0)
+    key.Position,key.Size=UDim2.new(1,-79,0,35),UDim2.fromOffset(68,18)
+    key.Font,key.TextSize=Enum.Font.Code,10
+    ui.paint(key,"TextColor3","muted")
+    local expiryDate=ui.label(card,"TextLabel",expiry or "",17,0)
+    expiryDate.Position,expiryDate.Size=UDim2.new(1,-241,0,39),UDim2.fromOffset(151,17)
+    expiryDate.Font,expiryDate.TextSize,expiryDate.TextXAlignment=Enum.Font.Code,10,Enum.TextXAlignment.Right
+    ui.paint(expiryDate,"TextColor3","muted")
+    layoutMembership=function(width)
+        expiryDate.Visible=expiry~=nil and width>=510
+        countdown.Size=UDim2.new(1,expiryDate.Visible and -310 or -151,0,17)
+    end
     local function updateDuration()
         if not alive or not card.Parent then return end
         if access.lifetime then
@@ -418,7 +438,7 @@ if type(access)=="table" then
     end
     updateDuration()
 end
-ui.resources(controls,2,hub.language,function() showTab("games") end)
+ui.resources(controls,1,hub.language,function() showTab("games") end)
 refreshStatus()
 
 local function section(parent,caption,order)
@@ -524,10 +544,10 @@ local function position(size,extent,x,y)
 end
 
 local function layoutNavigation(width,height)
-    local sidebar=width>=530 and height>=158+tabCount*46
+    local sidebar=width>=530 and height>=158+tabCount*46+membershipInset
     navTitle.Visible=sidebar
     nav.Position=UDim2.fromOffset(12,74)
-    nav.Size=sidebar and UDim2.new(0,132,1,-118) or UDim2.new(1,-24,0,44)
+    nav.Size=sidebar and UDim2.new(0,132,1,-118-membershipInset) or UDim2.new(1,-24,0,44)
     for id,tabInfo in pairs(tabs) do
         local control,page=tabButtons[id],pages[id]
         tabInfo.number.Visible=sidebar
@@ -537,7 +557,7 @@ local function layoutNavigation(width,height)
             tabInfo.caption.Position,tabInfo.caption.Size=UDim2.fromOffset(37,0),UDim2.new(1,-45,1,0)
             tabInfo.caption.TextXAlignment=Enum.TextXAlignment.Left
             tabInfo.marker.Position,tabInfo.marker.Size=UDim2.fromOffset(0,10),UDim2.fromOffset(3,20)
-            page.Position,page.Size=UDim2.fromOffset(160,74),UDim2.new(1,-172,1,-118)
+            page.Position,page.Size=UDim2.fromOffset(160,74),UDim2.new(1,-172,1,-118-membershipInset)
         else
             control.Position=UDim2.new((tabInfo.index-1)/tabCount,3,0,3)
             control.Size=UDim2.new(1/tabCount,-6,1,-6)
@@ -545,7 +565,7 @@ local function layoutNavigation(width,height)
             tabInfo.caption.Position,tabInfo.caption.Size=UDim2.fromOffset(0,0),UDim2.fromScale(1,1)
             tabInfo.caption.TextXAlignment=Enum.TextXAlignment.Center
             tabInfo.marker.Position,tabInfo.marker.Size=UDim2.new(0.25,0,1,-3),UDim2.new(0.5,0,0,2)
-            page.Position,page.Size=UDim2.fromOffset(12,130),UDim2.new(1,-24,1,-170)
+            page.Position,page.Size=UDim2.fromOffset(12,130),UDim2.new(1,-24,1,-170-membershipInset)
         end
     end
 end
@@ -558,6 +578,7 @@ local function applyLayout()
     local height=math.min(settings.height,(size.Y-2*margin)/zoom)
     body.Size,scale.Scale=UDim2.fromOffset(width,height),zoom
     body.BackgroundTransparency=1-settings.opacity/100
+    if layoutMembership then layoutMembership(width) end
     layoutNavigation(width,height)
     local extent=Vector2.new(width*zoom,height*zoom)
     local x,y=position(size,extent,settings.panelX,settings.panelY)
