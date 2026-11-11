@@ -1,53 +1,96 @@
 -- Luau · Superpower standalone · Roblox/Delta · Luau
-local BOOT_VERSION="0.38.3"
+local BOOT_VERSION="0.38.4"
 local hub=...
 assert(type(hub)=="table" and hub.access,"Abra pelo loader autenticado")
 local Players=game:GetService("Players")
 local Input=game:GetService("UserInputService")
 local Http=game:GetService("HttpService")
+local Tween=game:GetService("TweenService")
 local player=Players.LocalPlayer
 local links,painted={},{}
 local cleanup,quickAction
 local alive=true
-local accent=Color3.fromRGB(94,190,255)
+local colors=hub.ui.color
+local accent=colors.accent
+local function T(pt,en) return hub.language=="pt" and pt or en end
 local function make(class,p,parent)
- local o=Instance.new(class);for k,v in pairs(p) do o[k]=v end;o.Parent=parent;return o
+ local o=Instance.new(class)
+ if o:IsA("GuiObject") then o.BorderSizePixel=0 end
+ for k,v in pairs(p) do o[k]=v end;o.Parent=parent;return o
 end
 local function listen(signal,fn) links[#links+1]=signal:Connect(fn) end
-local screen=make("ScreenGui",{Name="AnonHubSuperpower",ResetOnSpawn=false,DisplayOrder=95},player:WaitForChild("PlayerGui"))
-local panel=make("Frame",{Size=UDim2.fromScale(.92,.82),Position=UDim2.fromScale(.04,.09),BackgroundColor3=Color3.fromRGB(17,21,30)},screen)
-make("UISizeConstraint",{MaxSize=Vector2.new(700,660)},panel)
-make("UICorner",{CornerRadius=UDim.new(0,14)},panel)
-local title=make("TextLabel",{Text="AnonHub  /  SUPERPOWER",Size=UDim2.new(1,-90,0,48),Position=UDim2.fromOffset(15,0),BackgroundTransparency=1,TextColor3=accent,TextSize=18,Font=Enum.Font.GothamBold,TextXAlignment=Enum.TextXAlignment.Left},panel)
-painted[#painted+1]=title
-local float=make("TextButton",{Text="SP",Size=UDim2.fromOffset(52,52),Position=UDim2.fromScale(.02,.7),BackgroundColor3=accent,TextColor3=Color3.new(0,0,0),TextSize=18,Font=Enum.Font.GothamBold},screen)
-make("UICorner",{CornerRadius=UDim.new(1,0)},float)
-local tabs=make("Frame",{Size=UDim2.new(1,-20,0,38),Position=UDim2.fromOffset(10,51),BackgroundTransparency=1},panel)
-local pages,buttons={},{}
-local function selectPage(name)
- for key,p in pairs(pages) do p.Visible=key==name;buttons[key].BackgroundColor3=key==name and accent or Color3.fromRGB(35,43,58) end
+local function animate(o,p) Tween:Create(o,TweenInfo.new(.18,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),p):Play() end
+local function round(o,r) make("UICorner",{CornerRadius=UDim.new(0,r or 10)},o) end
+local function stroke(o) return make("UIStroke",{Color=colors.edge,Thickness=1,ApplyStrokeMode=Enum.ApplyStrokeMode.Border},o) end
+local screen=make("ScreenGui",{Name="AnonHubSuperpower",ResetOnSpawn=false,DisplayOrder=10030,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},player:WaitForChild("PlayerGui"))
+local panel=make("Frame",{AnchorPoint=Vector2.new(.5,.5),Size=UDim2.fromScale(.94,.88),Position=UDim2.fromScale(.5,.5),BackgroundColor3=colors.dark,ClipsDescendants=true},screen)
+make("UISizeConstraint",{MaxSize=Vector2.new(760,720)},panel);round(panel,16);stroke(panel)
+local header=make("Frame",{Size=UDim2.new(1,0,0,68),BackgroundTransparency=1,Active=true},panel)
+local mark=make("TextLabel",{Text="A",Font=Enum.Font.GothamBlack,TextSize=20,TextColor3=colors.dark,BackgroundColor3=accent,Position=UDim2.fromOffset(16,16),Size=UDim2.fromOffset(36,36)},header);round(mark)
+if hub.decorateArtwork then
+ local art=make("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1},mark);round(art);hub.decorateArtwork(art)
 end
+local title=make("TextLabel",{Text="AnonHub",Size=UDim2.new(1,-160,0,26),Position=UDim2.fromOffset(64,12),BackgroundTransparency=1,TextColor3=colors.text,TextSize=20,Font=Enum.Font.GothamBold,TextXAlignment=Enum.TextXAlignment.Left},header)
+make("TextLabel",{Text="STEAL A SUPERPOWER",Position=UDim2.fromOffset(65,39),Size=UDim2.new(1,-160,0,16),BackgroundTransparency=1,TextColor3=colors.muted,TextSize=10,Font=Enum.Font.Code,TextXAlignment=Enum.TextXAlignment.Left},header)
+local footer=make("TextLabel",{Text=T("MÓDULO DO JOGO  /  PT","GAME MODULE  /  EN").."                                      v"..BOOT_VERSION,Size=UDim2.new(1,-32,0,30),Position=UDim2.new(0,16,1,-32),BackgroundTransparency=1,TextColor3=colors.muted,TextSize=10,Font=Enum.Font.Code,TextXAlignment=Enum.TextXAlignment.Left},panel)
+local float=make("TextButton",{Text="A",Size=UDim2.fromOffset(52,52),Position=UDim2.fromScale(.02,.7),BackgroundColor3=accent,TextColor3=colors.dark,TextSize=20,Font=Enum.Font.GothamBlack},screen);round(float,16);stroke(float)
+if hub.decorateLauncher then hub.decorateLauncher(float) end
+local tabs=make("Frame",{Size=UDim2.new(1,-32,0,44),Position=UDim2.fromOffset(16,72),BackgroundColor3=colors.tile},panel);round(tabs)
+local pages,buttons={},{}
 local current="Farm"
 local captions={Farm="Farm",Cartas="Cards",Combate="Combat",Ajustes="Settings"}
+local function selectPage(name)
+ current=name
+ for key,p in pairs(pages) do
+  p.Visible=key==name
+  animate(buttons[key],{BackgroundColor3=key==name and accent or colors.tile,TextColor3=key==name and colors.dark or colors.muted})
+  if key==name then p.Position=UDim2.fromOffset(16,132);animate(p,{Position=UDim2.fromOffset(16,126)}) end
+ end
+end
 local function section(name)
  if pages[name] then return pages[name] end
- local p=make("ScrollingFrame",{Name=name,Size=UDim2.new(1,-24,1,-104),Position=UDim2.fromOffset(12,96),BackgroundTransparency=1,ScrollBarThickness=4,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,Visible=name=="Farm"},panel)
- make("UIListLayout",{Padding=UDim.new(0,7),SortOrder=Enum.SortOrder.LayoutOrder},p)
+ local p=make("ScrollingFrame",{Name=name,Size=UDim2.new(1,-32,1,-166),Position=UDim2.fromOffset(16,126),BackgroundTransparency=1,ScrollBarThickness=3,ScrollBarImageColor3=accent,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,Visible=name=="Farm"},panel)
+ make("UIListLayout",{Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder},p)
+ make("UIPadding",{PaddingTop=UDim.new(0,2),PaddingBottom=UDim.new(0,12),PaddingLeft=UDim.new(0,2)},p)
+ local descriptions={
+ Farm=T("Escolha seus alvos e controle a progressão.","Choose your targets and control progression."),
+ Cartas=T("Organize sua coleção e automatize as melhorias.","Manage your collection and automate upgrades."),
+ Combate=T("Controles de combate e habilidades.","Combat and ability controls."),
+ Ajustes=T("Personalize o painel e as regras de automação.","Customize the panel and automation rules.")}
+ local heading=make("TextLabel",{Text=hub.language=="pt" and name or captions[name],Size=UDim2.new(1,-8,0,28),LayoutOrder=-2,BackgroundTransparency=1,TextColor3=colors.text,TextSize=20,Font=Enum.Font.GothamBold,TextXAlignment=Enum.TextXAlignment.Left},p)
+ make("TextLabel",{Text=descriptions[name],Size=UDim2.new(1,-8,0,38),LayoutOrder=-1,BackgroundTransparency=1,TextColor3=colors.muted,TextSize=12,TextWrapped=true,Font=Enum.Font.Gotham,TextXAlignment=Enum.TextXAlignment.Left},p)
  local n=0;for _ in pairs(pages) do n+=1 end
- local b=make("TextButton",{Text=hub.language=="pt" and name or captions[name],TextSize=13,TextColor3=Color3.new(1,1,1),Size=UDim2.new(.25,-5,1,0),Position=UDim2.new(n*.25,0,0,0),BackgroundColor3=name=="Farm" and accent or Color3.fromRGB(35,43,58)},tabs)
- pages[name]=p;buttons[name]=b
- listen(b.Activated,function() current=name;selectPage(name) end)
+ local b=make("TextButton",{Text=hub.language=="pt" and name or captions[name],Font=Enum.Font.GothamMedium,TextSize=12,TextColor3=name=="Farm" and colors.dark or colors.muted,Size=UDim2.new(.25,-8,1,-8),Position=UDim2.new(n*.25,4,0,4),BackgroundColor3=name=="Farm" and accent or colors.tile,AutoButtonColor=false},tabs);round(b,8)
+ pages[name]=p;buttons[name]=b;listen(b.Activated,function() selectPage(name) end)
  return p
 end
 local ui={}
 function ui.label(parent,class,text,height,order)
- local o=make(class,{Text=text,Size=UDim2.new(1,-8,0,height),LayoutOrder=order,BackgroundTransparency=class=="TextBox" and 0 or 1,BackgroundColor3=Color3.fromRGB(35,43,58),TextColor3=Color3.fromRGB(231,237,246),TextSize=13,Font=Enum.Font.Gotham,TextWrapped=true},parent)
+ local o=make(class,{Text=text,Size=UDim2.new(1,-8,0,height),LayoutOrder=order,BackgroundTransparency=class=="TextBox" and 0 or 1,BackgroundColor3=colors.tile,TextColor3=colors.text,TextSize=13,Font=Enum.Font.Gotham,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left},parent)
+ make("UIPadding",{PaddingLeft=UDim.new(0,12),PaddingRight=UDim.new(0,12)},o)
+ if class=="TextBox" then round(o,8);stroke(o);o.ClearTextOnFocus=false;listen(o.Focused,function() animate(o,{BackgroundColor3=colors.edge}) end);listen(o.FocusLost,function() animate(o,{BackgroundColor3=colors.tile}) end) end
  return o
 end
 function ui.button(parent,text,order)
- local b=ui.label(parent,"TextButton",text,42,order);b.BackgroundTransparency=0
- make("UICorner",{CornerRadius=UDim.new(0,8)},b)
+ local b=ui.label(parent,"TextButton",text,48,order);b.BackgroundTransparency=0;b.AutoButtonColor=false;round(b,10);stroke(b)
+ listen(b.MouseEnter,function() animate(b,{BackgroundColor3=colors.edge}) end)
+ listen(b.MouseLeave,function() animate(b,{BackgroundColor3=colors.tile}) end)
+ listen(b.MouseButton1Down,function() animate(b,{BackgroundColor3=colors.dark}) end)
+ listen(b.MouseButton1Up,function() animate(b,{BackgroundColor3=colors.tile}) end)
  return b
+end
+local checkRefresh={}
+function ui.checkbox(parent,text,order)
+ local b=ui.button(parent,"",order)
+ local caption=ui.label(b,"TextLabel",text,48,0);caption.Size=UDim2.new(1,-44,1,0)
+ local box=make("TextLabel",{Text="",AnchorPoint=Vector2.new(1,.5),Position=UDim2.new(1,-2,.5,0),Size=UDim2.fromOffset(24,24),TextSize=18,Font=Enum.Font.GothamBold,TextColor3=colors.dark,BackgroundColor3=colors.dark},b);round(box,6);local edge=stroke(box)
+ local enabled=false
+ local function refresh(value)
+  enabled=value==true;box.Text=enabled and "✓" or ""
+  animate(box,{BackgroundColor3=enabled and accent or colors.dark});animate(edge,{Color=enabled and accent or colors.edge})
+ end
+ checkRefresh[#checkRefresh+1]=function() refresh(enabled) end
+ return b,refresh
 end
 local function close()
  if not alive then return end;alive=false
@@ -56,9 +99,16 @@ local function close()
  screen:Destroy()
 end
 hub.attach(close)
+local function visibility(show)
+ panel.Visible=show
+ if show then panel.Position=UDim2.fromScale(.5,.52);animate(panel,{Position=UDim2.fromScale(.5,.5)}) end
+end
 local hide=make("TextButton",{Text="—",Size=UDim2.fromOffset(32,32),Position=UDim2.new(1,-76,0,8)},panel)
 local exit=make("TextButton",{Text="×",Size=UDim2.fromOffset(32,32),Position=UDim2.new(1,-38,0,8)},panel)
-listen(hide.Activated,function() panel.Visible=false end)
+for _,b in ipairs({hide,exit}) do
+ b.BackgroundColor3=colors.tile;b.TextColor3=colors.text;b.Font=Enum.Font.GothamMedium;b.TextSize=18;round(b,8)
+end
+listen(hide.Activated,function() visibility(false) end)
 listen(exit.Activated,function() hub.unload() end)
 local drag,origin,startPosition,pressedAt,moved
 listen(float.InputBegan,function(i)
@@ -82,13 +132,13 @@ listen(Input.InputEnded,function(i)
  if drag and (i==drag or i.UserInputType==Enum.UserInputType.MouseButton1) then
   if not moved then
    if os.clock()-pressedAt>=.65 then if quickAction then quickAction() end
-   else panel.Visible=not panel.Visible end
+   else visibility(not panel.Visible) end
   end
   drag=nil
  end
 end)
 listen(Input.InputBegan,function(i,processed)
- if not processed and i.KeyCode==Enum.KeyCode.RightControl then panel.Visible=not panel.Visible end
+ if not processed and i.KeyCode==Enum.KeyCode.RightControl then visibility(not panel.Visible) end
 end)
 local init=(function()
 -- Luau · superpower/module.lua · AnonHub integration · Roblox/Delta · Luau
@@ -146,7 +196,9 @@ return function(ctx)
         return l
     end
     local info=label(T("Carregando interfaces do jogo...","Loading game interfaces..."),62)
+    info.LayoutOrder=800
     local bossInfo=label("",110)
+    bossInfo.LayoutOrder=801
     local log={}
     local function report(text)
         log[#log+1]=os.date("%H:%M:%S").." "..tostring(text)
@@ -237,8 +289,8 @@ return function(ctx)
     local updates={}
     local function toggle(key,pt,en)
         order=order+1
-        local b=ui.button(page,"",order)
-        local function update() b.Text=T(pt,en).."  ·  "..(cfg[key] and "ON" or "OFF") end
+        local b,check=ui.checkbox(page,T(pt,en),order)
+        local function update() check(cfg[key]) end
         updates[#updates+1]=update; update()
         connect(b.Activated,function()
             if (key=="boost" or key=="guard" or key=="stun") and not patchOK then
@@ -301,8 +353,8 @@ return function(ctx)
     local rarityNames={Common="Comum",Uncommon="Incomum",Rare="Rara",Epic="Epica",Legendary="Lendaria",Mythic="Mitica",God="Divina",Secret="Secreta",Cosmic="Cosmica",Ancient="Ancestral"}
     for _,rarity in ipairs(modules.Cards.RarityOrder) do
         order=order+1
-        local b=ui.button(page,"",order)
-        local function refresh() b.Text=T(rarityNames[rarity] or rarity,rarity).." · "..(cfg.rarities[rarity]==true and "ON" or "OFF") end
+        local b,check=ui.checkbox(page,T(rarityNames[rarity] or rarity,rarity),order)
+        local function refresh() check(cfg.rarities[rarity]==true) end
         refresh()
         connect(b.Activated,function() cfg.rarities[rarity]=not cfg.rarities[rarity];save();refresh() end)
     end
@@ -611,7 +663,7 @@ local themeFile="AnonHub_Superpower_Theme.json"
 local function apply(hex)
  if not hex:match("^%x%x%x%x%x%x$") then return false end
  accent=Color3.fromRGB(tonumber(hex:sub(1,2),16),tonumber(hex:sub(3,4),16),tonumber(hex:sub(5,6),16))
- float.BackgroundColor3=accent;title.TextColor3=accent;selectPage(current);theme.Text=hex;return true
+ float.BackgroundColor3=accent;mark.BackgroundColor3=accent;selectPage(current);for _,refresh in ipairs(checkRefresh) do refresh() end;for _,p in pairs(pages) do p.ScrollBarImageColor3=accent end;theme.Text=hex;return true
 end
 if type(readfile)=="function" then pcall(function() apply(Http:JSONDecode(readfile(themeFile)).hex) end) end
 listen(theme.FocusLost,function() local hex=theme.Text:gsub("#",""):upper();if apply(hex) and type(writefile)=="function" then pcall(writefile,themeFile,Http:JSONEncode({hex=hex})) end end)

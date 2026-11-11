@@ -53,7 +53,9 @@ return function(ctx)
         return l
     end
     local info=label(T("Carregando interfaces do jogo...","Loading game interfaces..."),62)
+    info.LayoutOrder=800
     local bossInfo=label("",110)
+    bossInfo.LayoutOrder=801
     local log={}
     local function report(text)
         log[#log+1]=os.date("%H:%M:%S").." "..tostring(text)
@@ -144,8 +146,8 @@ return function(ctx)
     local updates={}
     local function toggle(key,pt,en)
         order=order+1
-        local b=ui.button(page,"",order)
-        local function update() b.Text=T(pt,en).."  ·  "..(cfg[key] and "ON" or "OFF") end
+        local b,check=ui.checkbox(page,T(pt,en),order)
+        local function update() check(cfg[key]) end
         updates[#updates+1]=update; update()
         connect(b.Activated,function()
             if (key=="boost" or key=="guard" or key=="stun") and not patchOK then
@@ -208,8 +210,8 @@ return function(ctx)
     local rarityNames={Common="Comum",Uncommon="Incomum",Rare="Rara",Epic="Epica",Legendary="Lendaria",Mythic="Mitica",God="Divina",Secret="Secreta",Cosmic="Cosmica",Ancient="Ancestral"}
     for _,rarity in ipairs(modules.Cards.RarityOrder) do
         order=order+1
-        local b=ui.button(page,"",order)
-        local function refresh() b.Text=T(rarityNames[rarity] or rarity,rarity).." · "..(cfg.rarities[rarity]==true and "ON" or "OFF") end
+        local b,check=ui.checkbox(page,T(rarityNames[rarity] or rarity,rarity),order)
+        local function refresh() check(cfg.rarities[rarity]==true) end
         refresh()
         connect(b.Activated,function() cfg.rarities[rarity]=not cfg.rarities[rarity];save();refresh() end)
     end
