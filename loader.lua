@@ -1,10 +1,10 @@
 -- Luau · AnonHub universal entry point
-local version="0.38.0"
+local version="0.38.1"
 local games={
-    [10770228857]={name="Steal a Superpower",place=74183246285569,path="universal/main.lua",cache="AnonHub_Universal_v038.luau",universal=true,theme="carbon",status="ONLINE · TESTE"},
+    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0381.lua",theme="carbon"},
     [10767408330]={name="Peel THE Potato",chapter="2",version="0.37.5",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
-local universal={name="Universal",path="universal/main.lua",cache="AnonHub_Universal_v038.luau"}
+local universal={name="Universal",version="0.37.5",path="universal/main.lua",cache="AnonHub_Universal_v1.luau"}
 local root="https://raw.githubusercontent.com/AnonymosScripts/AnonHub/main/"
 -- Public Identifier from Panda Auth → Service Settings → General.
 local pandaServiceId="anonkey24hrs"
@@ -447,7 +447,7 @@ local function createUI(initialTheme)
             detail.Position,detail.Size=UDim2.fromOffset(73,34),UDim2.new(1,-85,0,16)
             detail.TextSize,detail.TextXAlignment=11,Enum.TextXAlignment.Left
             paint(detail,"TextColor3","muted")
-            local status=module.status or (current and (pt and "JOGO ABERTO" or "CURRENT GAME") or (pt and "DISPONÍVEL" or "AVAILABLE"))
+            local status=current and (pt and "JOGO ABERTO" or "CURRENT GAME") or (pt and "DISPONÍVEL" or "AVAILABLE")
             local badge=label(card,"TextLabel",status,17,0)
             badge.Position,badge.Size=UDim2.fromOffset(73,53),UDim2.new(1,-85,0,17)
             badge.Font,badge.TextSize,badge.TextXAlignment=Enum.Font.Code,10,Enum.TextXAlignment.Left
@@ -694,7 +694,7 @@ start=function(chooseLanguage)
             decorateLauncher=decorateLauncher,decorateArtwork=decorateArtwork,
             ui=skin,settings=customization,
             saveSettings=function(value)
-                if (not dedicated or dedicated.universal) and current() then preferences.universal=table.clone(value) save() end
+                if not dedicated and current() then preferences.universal=table.clone(value) save() end
             end,
             attach=function(close)
                 if current() then closeGame=close else close() end

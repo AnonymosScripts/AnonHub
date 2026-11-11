@@ -6,8 +6,8 @@ function Logic.protected(data,id,keep)
     return not card or keep[id] or card.Favorite==true or card.Locked==true
         or table.find(data.Equipped or {},id)~=nil
 end
-function Logic.sacrificeCount(data,id,keep,reserve,rank,spare)
-    if Logic.protected(data,id,keep) or rank>3 then return 0 end
+function Logic.sacrificeCount(data,id,keep,reserve,rank,spare,maxRank)
+    if Logic.protected(data,id,keep) or rank>(maxRank or 3) then return 0 end
     for _,held in pairs(data.Base and data.Base.Holders or {}) do if held==id then return 0 end end
     return math.min(1000,spare,math.max(0,math.floor(data.Cards[id].Count)-reserve))
 end
@@ -57,7 +57,7 @@ return function(ctx)
     end
     local cfg={farm=false,progress=false,boss=false,open=false,equip=false,place=false,fuse=false,
         sacrifice=false,tree=false,upgrades=false,abilities=false,boost=false,guard=false,stun=false,
-        multiplier=1e12,reserve=5,protected="",branch="Power",teleport=false}
+        multiplier=1e12,reserve=1,maxRank=3,protected="",branch="Power",teleport=false}
     local settingsFile="AnonHub_Superpower_"..player.UserId..".json"
     if type(readfile)=="function" then
         local ok,s=pcall(function() return Http:JSONDecode(readfile(settingsFile)) end)
@@ -151,23 +151,33 @@ return function(ctx)
             update()
         end)
     end
+    ctx.quick(function()
+        cfg.progress=not cfg.progress
+        for _,k in ipairs({"farm","boss","open","equip","place","fuse","tree","upgrades","abilities"}) do cfg[k]=cfg.progress end
+        pcall(setAuto,cfg.abilities)
+        for _,refresh in ipairs(updates) do refresh() end
+        report(cfg.progress and "Progressao ligada" or "Progressao desligada")
+    end)
     toggle("progress","Auto progressao","Auto progression")
     toggle("farm","Farm de inimigos","Enemy farm")
     toggle("boss","Priorizar bosses","Prioritize bosses")
     toggle("abilities","Habilidades automaticas","Automatic abilities")
+    page=ctx.section("Cartas")
     toggle("open","Abrir packs","Open packs")
     toggle("equip","Equipar melhor carta","Equip best card")
     toggle("place","Melhores cartas na base","Best cards on base")
     toggle("fuse","Fundir cartas","Fuse cards")
     toggle("tree","Comprar nos da arvore","Buy skill tree nodes")
     toggle("upgrades","Upgrades com dinheiro do jogo","Upgrades with game cash")
-    toggle("sacrifice","Sacrificar sobras Common/Uncommon/Rare","Sacrifice Common/Uncommon/Rare spares")
+    toggle("sacrifice","Sacrificar sobras conforme Ajustes","Sacrifice spares according to Settings")
     label(T("Sacrificio preserva cartas equipadas, posicionadas, protegidas e a reserva. Desligado por padrao.","Sacrifice preserves equipped, placed, protected cards and the reserve. Off by default."),54)
+    page=ctx.section("Combate")
     toggle("boost","Dano NPC local ampliado (experimental)","Boost local NPC damage (experimental)")
     toggle("guard","Bloquear dano local (experimental)","Block local damage (experimental)")
     toggle("stun","Bloquear stun local (experimental)","Block local stun (experimental)")
     label(T("Nao garante imunidade no servidor. Multiplicador atua em NPCs marcados Local.","Does not guarantee server immunity. Multiplier affects NPCs marked Local."),42)
     toggle("teleport","Mover por teleporte em vez de andar","Teleport instead of walking")
+    page=ctx.section("Ajustes")
     local function textbox(key,caption,parse)
         label(caption,28); order=order+1
         local box=ui.label(page,"TextBox",tostring(cfg[key]),38,order)
@@ -185,6 +195,9 @@ return function(ctx)
         local n=tonumber(s); if n and n==n and n<math.huge then return math.clamp(math.floor(n),1,1000) end
     end)
     textbox("protected",T("IDs de cartas protegidas, separados por virgula","Protected card IDs, comma separated"),function(s) return s:sub(1,2000) end)
+    textbox("maxRank",T("Raridade maxima para sacrificio: 1 Common, 2 Uncommon, 3 Rare, 4 Epic...","Maximum sacrifice rarity: 1 Common, 2 Uncommon, 3 Rare, 4 Epic..."),function(s)
+        local n=tonumber(s); if n and n==n and n<math.huge then return math.clamp(math.floor(n),1,#modules.Cards.RarityOrder) end
+    end)
     textbox("branch",T("Ramo: Cash, Luck, Power, Speed ou Boss","Branch: Cash, Luck, Power, Speed or Boss"),function(s)
         return table.find({"Cash","Luck","Power","Speed","Boss"},s) and s or nil
     end)
@@ -276,22 +289,32 @@ return function(ctx)
     end
     actions[5]=function(data)
         if not cfg.tree then return end
+        if not modules.Shrine.Open(data) then report("Arvore bloqueada: derrote Dominus Infernus (Volcano)."); return end
         local candidates={}
         for _,node in pairs(modules.Shrine.Tree or {}) do
             if node.Branch==cfg.branch and not modules.Shrine.CantBuy(data,node.Id) then candidates[#candidates+1]=node end
         end
         table.sort(candidates,function(a,b) return a.Cost==b.Cost and a.Id<b.Id or a.Cost<b.Cost end)
-        if candidates[1] then call("TreeBuy",candidates[1].Id) end
+        if candidates[1] then call("TreeBuy",candidates[1].Id)
+        else
+            local explanation="Nenhum no elegivel no ramo "..cfg.branch
+            for _,node in pairs(modules.Shrine.Tree or {}) do
+                if node.Branch==cfg.branch and not modules.Shrine.Owns(data,node.Id) then explanation=tostring(modules.Shrine.CantBuy(data,node.Id)); break end
+            end
+            report("Arvore: "..explanation)
+        end
     end
     actions[6]=function(data)
-        if not cfg.sacrifice or not modules.Shrine.Open(data) then return end
+        if not cfg.sacrifice then return end
+        if not modules.Shrine.Open(data) then report("Sacrificio bloqueado: derrote Dominus Infernus (Volcano)."); return end
         local keep=keepSet()
         for card in pairs(data.Cards or {}) do
             local def=modules.Cards.ById[card]
             local rank=def and modules.Cards.RarityRank[def.Rarity] or 999
-            local n=Logic.sacrificeCount(data,card,keep,cfg.reserve,rank,modules.Shrine.Spare(data,card))
+            local n=Logic.sacrificeCount(data,card,keep,cfg.reserve,rank,modules.Shrine.Spare(data,card),cfg.maxRank)
             if n>0 then call("Sacrifice",card,n); return end
         end
+        report("Sacrificio: nenhuma sobra elegivel. Confira reserva, raridade e cartas protegidas em Ajustes.")
     end
     actions[7]=function(data)
         if not cfg.upgrades then return end
