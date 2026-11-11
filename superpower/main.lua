@@ -1,5 +1,5 @@
 -- Luau · Superpower standalone · Roblox/Delta · Luau
-local BOOT_VERSION="0.38.2"
+local BOOT_VERSION="0.38.3"
 local hub=...
 assert(type(hub)=="table" and hub.access,"Abra pelo loader autenticado")
 local Players=game:GetService("Players")
@@ -28,12 +28,13 @@ local function selectPage(name)
  for key,p in pairs(pages) do p.Visible=key==name;buttons[key].BackgroundColor3=key==name and accent or Color3.fromRGB(35,43,58) end
 end
 local current="Farm"
+local captions={Farm="Farm",Cartas="Cards",Combate="Combat",Ajustes="Settings"}
 local function section(name)
  if pages[name] then return pages[name] end
  local p=make("ScrollingFrame",{Name=name,Size=UDim2.new(1,-24,1,-104),Position=UDim2.fromOffset(12,96),BackgroundTransparency=1,ScrollBarThickness=4,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,Visible=name=="Farm"},panel)
  make("UIListLayout",{Padding=UDim.new(0,7),SortOrder=Enum.SortOrder.LayoutOrder},p)
  local n=0;for _ in pairs(pages) do n+=1 end
- local b=make("TextButton",{Text=name,TextSize=13,TextColor3=Color3.new(1,1,1),Size=UDim2.new(.25,-5,1,0),Position=UDim2.new(n*.25,0,0,0),BackgroundColor3=name=="Farm" and accent or Color3.fromRGB(35,43,58)},tabs)
+ local b=make("TextButton",{Text=hub.language=="pt" and name or captions[name],TextSize=13,TextColor3=Color3.new(1,1,1),Size=UDim2.new(.25,-5,1,0),Position=UDim2.new(n*.25,0,0,0),BackgroundColor3=name=="Farm" and accent or Color3.fromRGB(35,43,58)},tabs)
  pages[name]=p;buttons[name]=b
  listen(b.Activated,function() current=name;selectPage(name) end)
  return p
@@ -93,6 +94,11 @@ local init=(function()
 -- Luau · superpower/module.lua · AnonHub integration · Roblox/Delta · Luau
 -- Implemented against the client inventory captured on 2026-11-11. No Luarmor code used.
 local Logic={}
+function Logic.manualEligible(mode,boss,padId,bossId,npcId)
+    if mode=="Mixed" then return (boss and padId==bossId) or (not boss and padId==npcId) end
+    if mode=="Boss" then return boss and padId==bossId end
+    return mode=="NPC" and not boss and padId==npcId
+end
 function Logic.protected(data,id,keep)
     local card=data.Cards and data.Cards[id]
     return not card or keep[id] or card.Favorite==true or card.Locked==true
@@ -157,7 +163,7 @@ return function(ctx)
             if type(s.protected)=="string" then cfg.protected=s.protected:sub(1,2000) end
             if type(s.multiplier)=="number" and s.multiplier==s.multiplier then cfg.multiplier=math.clamp(s.multiplier,1,1e12) end
             if type(s.reserve)=="number" and s.reserve==s.reserve then cfg.reserve=math.clamp(math.floor(s.reserve),1,1000) end
-            if table.find({"Auto","Boss","NPC"},s.farmMode) then cfg.farmMode=s.farmMode end
+            if table.find({"Auto","Boss","NPC","Mixed"},s.farmMode) then cfg.farmMode=s.farmMode end
             if type(s.bossId)=="number" then cfg.bossId=s.bossId end
             if type(s.npcId)=="number" then cfg.npcId=s.npcId end
             if type(s.rarities)=="table" then cfg.rarities=s.rarities end
@@ -226,7 +232,7 @@ return function(ctx)
     if not patchOK then
         for i=#patches,1,-1 do local p=patches[i]; if p.object[p.key]==p.replacement then p.object[p.key]=p.original end end
         table.clear(patches)
-        report("Combate experimental indisponivel: "..tostring(patchError))
+        report(T("Combate experimental indisponivel: ","Experimental combat unavailable: ")..tostring(patchError))
     end
     local updates={}
     local function toggle(key,pt,en)
@@ -236,7 +242,7 @@ return function(ctx)
         updates[#updates+1]=update; update()
         connect(b.Activated,function()
             if (key=="boost" or key=="guard" or key=="stun") and not patchOK then
-                report("Interfaces de combate indisponiveis: "..tostring(patchError)); return
+                report(T("Interfaces de combate indisponiveis: ","Combat interfaces unavailable: ")..tostring(patchError)); return
             end
             cfg[key]=not cfg[key]
             if key=="progress" then
@@ -252,7 +258,7 @@ return function(ctx)
         for _,k in ipairs({"farm","boss","open","equip","place","fuse","tree","upgrades","abilities"}) do cfg[k]=cfg.progress end
         pcall(setAuto,cfg.abilities)
         for _,refresh in ipairs(updates) do refresh() end
-        report(cfg.progress and "Progressao ligada" or "Progressao desligada")
+        report(cfg.progress and T("Progressao ligada","Progression enabled") or T("Progressao desligada","Progression disabled"))
     end)
     toggle("progress","Auto progressao","Auto progression")
     toggle("farm","Farm de inimigos","Enemy farm")
@@ -328,7 +334,7 @@ return function(ctx)
         list.CanvasSize=UDim2.new();list.AutomaticCanvasSize=Enum.AutomaticSize.Y;list.Parent=page
         local layout=Instance.new("UIListLayout");layout.Padding=UDim.new(0,4);layout.SortOrder=Enum.SortOrder.LayoutOrder;layout.Parent=list
         local function update()
-            local selected="Selecione"
+            local selected=T("Selecione","Select")
             for _,option in ipairs(options) do if option.id==cfg[key] then selected=option.text end end
             b.Text=caption..": "..selected.." ▼"
         end
@@ -339,7 +345,7 @@ return function(ctx)
         connect(b.Activated,function() list.Visible=not list.Visible end)
         update()
     end
-    selector(T("Modo de farm","Farm mode"),"farmMode",{{id="Auto",text="Progressao automatica"},{id="Boss",text="Boss escolhido"},{id="NPC",text="Area de NPCs escolhida"}})
+    selector(T("Modo de farm","Farm mode"),"farmMode",{{id="Auto",text=T("Progressao automatica","Automatic progression")},{id="Boss",text=T("Boss escolhido","Selected boss")},{id="NPC",text=T("Area de NPCs escolhida","Selected NPC area")},{id="Mixed",text=T("NPCs + Boss (prioridade ao boss)","NPCs + Boss (boss priority)")}})
     local bosses,areas={},{}
     for _,pad in ipairs(pads) do
         local option={id=pad.id,text=pad.name.." / "..pad.enemy.." · Lv "..pad.level.." · "..pad.respawn.."s"}
@@ -347,6 +353,7 @@ return function(ctx)
     end
     selector("Boss","bossId",bosses)
     selector(T("Area de NPCs","NPC area"),"npcId",areas)
+    label(T("NPCs + Boss: farma a area escolhida na espera e volta ao boss quando ele aparece. Verifica periodicamente a arena se o boss estiver fora do streaming.","NPCs + Boss: farms the selected area while waiting, then switches to the boss. Periodically checks the arena when the boss is outside streaming range."),70)
     label(T("Escolher o alvo nao liga o farm. Ative Farm ou Auto progressao acima.","Selecting a target does not start farming. Enable Farm or Auto progression above."),46)
     page=settingsPage
     local enemyRoot=workspace:FindFirstChild("Enemies")
@@ -376,7 +383,7 @@ return function(ctx)
     local function call(name,...)
         if not alive or pending or os.clock()<(backoff[name] or 0) then return nil end
         local remote=remotes:FindFirstChild(name)
-        if not remote or not remote:IsA("RemoteFunction") then report("RemoteFunction ausente: "..name); return nil end
+        if not remote or not remote:IsA("RemoteFunction") then report(T("RemoteFunction ausente: ","Missing RemoteFunction: ")..name); return nil end
         pending=true
         local args=table.pack(...)
         local finished,result=false,nil
@@ -384,11 +391,11 @@ return function(ctx)
         local start=os.clock()
         while alive and not finished and os.clock()-start<10 do task.wait(0.1) end
         if not alive then return nil end
-        if not finished then report(name..": aguardando servidor; sem repeticao concorrente"); backoff[name]=os.clock()+15; return nil end
+        if not finished then report(name..T(": aguardando servidor; sem repeticao concorrente",": waiting for server; no concurrent retry")); backoff[name]=os.clock()+15; return nil end
         if not result[1] or result[2]==false then
             report(name..": "..tostring(result[3] or result[2])); backoff[name]=os.clock()+8; return nil
         end
-        report(name..": resposta recebida")
+        report(name..T(": resposta recebida",": response received"))
         return table.unpack(result,2,result.n)
     end
     local actions={}
@@ -425,7 +432,7 @@ return function(ctx)
     end
     actions[5]=function(data)
         if not cfg.tree then return end
-        if not modules.Shrine.Open(data) then report("Arvore bloqueada: derrote Dominus Infernus (Volcano)."); return end
+        if not modules.Shrine.Open(data) then report(T("Arvore bloqueada: derrote Dominus Infernus (Volcano).","Tree locked: defeat Dominus Infernus (Volcano).")); return end
         local candidates={}
         for _,node in pairs(modules.Shrine.Tree or {}) do
             if node.Branch==cfg.branch and not modules.Shrine.CantBuy(data,node.Id) then candidates[#candidates+1]=node end
@@ -433,16 +440,16 @@ return function(ctx)
         table.sort(candidates,function(a,b) return a.Cost==b.Cost and a.Id<b.Id or a.Cost<b.Cost end)
         if candidates[1] then call("TreeBuy",candidates[1].Id)
         else
-            local explanation="Nenhum no elegivel no ramo "..cfg.branch
+            local explanation=T("Nenhum no elegivel no ramo ","No eligible node in branch ")..cfg.branch
             for _,node in pairs(modules.Shrine.Tree or {}) do
                 if node.Branch==cfg.branch and not modules.Shrine.Owns(data,node.Id) then explanation=tostring(modules.Shrine.CantBuy(data,node.Id)); break end
             end
-            report("Arvore: "..explanation)
+            report(T("Arvore: ","Tree: ")..explanation)
         end
     end
     actions[6]=function(data)
         if not cfg.sacrifice then return end
-        if not modules.Shrine.Open(data) then report("Sacrificio bloqueado: derrote Dominus Infernus (Volcano)."); return end
+        if not modules.Shrine.Open(data) then report(T("Sacrificio bloqueado: derrote Dominus Infernus (Volcano).","Sacrifice locked: defeat Dominus Infernus (Volcano).")); return end
         local keep=keepSet()
         for card in pairs(data.Cards or {}) do
             local def=modules.Cards.ById[card]
@@ -450,7 +457,7 @@ return function(ctx)
             local n=Logic.sacrificeCount(data,card,keep,cfg.reserve,rank,modules.Shrine.Spare(data,card),cfg.rarities[def and def.Rarity or ""]==true and 999 or 0)
             if n>0 then call("Sacrifice",card,n); return end
         end
-        report("Sacrificio: nenhuma sobra elegivel. Confira reserva, raridade e cartas protegidas em Ajustes.")
+        report(T("Sacrificio: nenhuma sobra elegivel. Confira reserva, raridade e cartas protegidas em Ajustes.","Sacrifice: no eligible spares. Check reserve, rarity and protected cards in Settings."))
     end
     actions[7]=function(data)
         if not cfg.upgrades then return end
@@ -478,9 +485,10 @@ return function(ctx)
     end)
     local nextKey=1
     local lastKey=0
+    local nextBossProbe,probeUntil=0,0
     local function step()
         local data=State.Data
-        if not data then report("Aguardando dados replicados..."); return end
+        if not data then report(T("Aguardando dados replicados...","Waiting for replicated data...")); return end
         enemyRoot=workspace:FindFirstChild("Enemies")
         local enemies=enemyRoot and enemyRoot:GetChildren() or {}
         local bossLines={}
@@ -502,26 +510,38 @@ return function(ctx)
                     local boss=enemy:GetAttribute("Boss")==true
                     local el=enemy:GetAttribute("Level") or 1
                     local available=cfg.boost or el<=level
-                    if cfg.farmMode=="Boss" then available=boss and pid==cfg.bossId
-                    elseif cfg.farmMode=="NPC" then available=not boss and pid==cfg.npcId
+                    if cfg.farmMode~="Auto" then available=Logic.manualEligible(cfg.farmMode,boss,pid,cfg.bossId,cfg.npcId)
                     elseif cfg.progress and boss then available=available and currentBoss and pid==currentBoss.id end
-                    if available and (cfg.farm or (cfg.boss and boss)) then
+                    if available and (cfg.farm or (cfg.boss and (boss or cfg.farmMode=="Mixed"))) then
                         local rank=(root.Position-er.Position).Magnitude
-                        if cfg.boss and boss then rank=rank-100000 end
+                        if (cfg.boss or cfg.farmMode=="Mixed") and boss then rank=rank-1000000000 end
                         if rank<score then score=rank; target=er end
                     end
                 end
             end
         end
         for _,pad in ipairs(pads) do if pad.gate then
-            local state=livePads[pad.id] and "VIVO" or (respawns[pad.id] and (math.ceil(math.max(0,respawns[pad.id]-os.clock())).."s estimados") or "nao observado")
+            local state=livePads[pad.id] and T("VIVO","ALIVE") or (respawns[pad.id] and (math.ceil(math.max(0,respawns[pad.id]-os.clock()))..T("s estimados","s estimated")) or T("nao observado","not observed"))
             bossLines[#bossLines+1]=pad.enemy..": "..state
         end end
         bossInfo.Text=table.concat(bossLines," | ")
-        local selected=cfg.farmMode=="Boss" and padById[cfg.bossId] or cfg.farmMode=="NPC" and padById[cfg.npcId] or currentBoss
-        targetInfo.Text=cfg.farmMode.." · "..(selected and selected.name or "Sem alvo").." · "..(target and "Alvo encontrado" or "Aguardando spawn/streaming ou liberacao da area")
+        local selected=(cfg.farmMode=="Boss" or cfg.farmMode=="Mixed" and livePads[cfg.bossId]) and padById[cfg.bossId] or (cfg.farmMode=="NPC" or cfg.farmMode=="Mixed") and padById[cfg.npcId] or currentBoss
+        local modeLabel=cfg.farmMode=="Mixed" and "NPCs + Boss" or cfg.farmMode
+        targetInfo.Text=modeLabel.." · "..(selected and selected.name or T("Sem alvo","No target")).." · "..(target and T("Alvo encontrado","Target found") or T("Aguardando spawn/streaming ou liberacao da area","Waiting for spawn/streaming or area unlock"))
         if not (root and humanoid and humanoid.Health>0) or modules.Opening.Playing then return end
         if cfg.farm or cfg.boss then
+            if cfg.farmMode=="Mixed" and not livePads[cfg.bossId] then
+                local bossPad=padById[cfg.bossId]
+                local now=os.clock()
+                if bossPad and typeof(bossPad.cf)=="CFrame" and now>=nextBossProbe and now>=(respawns[cfg.bossId] or 0) then
+                    nextBossProbe=now+20;probeUntil=now+2
+                    root.CFrame=bossPad.cf+Vector3.new(0,4,0)
+                end
+                if now<probeUntil then
+                    targetInfo.Text=T("Verificando spawn do boss...","Checking boss spawn...")
+                    return
+                end
+            end
             if target then
                 local delta=root.Position-target.Position
                 if delta.Magnitude>10 then
@@ -529,7 +549,7 @@ return function(ctx)
                     root.CFrame=CFrame.lookAt(destination,target.Position)
                 end
             else
-                local chosen=cfg.farmMode=="Boss" and padById[cfg.bossId] or cfg.farmMode=="NPC" and padById[cfg.npcId] or cfg.progress and currentBoss
+                local chosen=cfg.farmMode=="Boss" and padById[cfg.bossId] or (cfg.farmMode=="NPC" or cfg.farmMode=="Mixed") and padById[cfg.npcId] or cfg.progress and currentBoss
                 if chosen and typeof(chosen.cf)=="CFrame" and (cfg.farmMode~="Auto" or cfg.boost or chosen.level<=level) then
                     local destination=chosen.cf.Position+Vector3.new(0,4,0)
                     if (root.Position-destination).Magnitude>15 then root.CFrame=CFrame.new(destination) end
@@ -583,10 +603,10 @@ local ok,err=pcall(init,{ui=ui,page=section("Farm"),T=function(pt,en) return hub
  attach=function(fn) cleanup=fn end,section=section,quick=function(fn) quickAction=fn end})
 if not ok then if cleanup then pcall(cleanup);cleanup=nil end;ui.label(section("Farm"),"TextLabel",tostring(err),100,999) end
 local settings=section("Ajustes")
-ui.label(settings,"TextLabel","Toque SP: abrir/fechar. Segure 0,65s e solte: alternar progressao. Arraste: mover. RightCtrl: painel.",68,900)
+ui.label(settings,"TextLabel",hub.language=="pt" and "Toque SP: abrir/fechar. Segure 0,65s e solte: alternar progressao. Arraste: mover. RightCtrl: painel." or "Tap SP: toggle panel. Hold 0.65s and release: toggle progression. Drag: move. RightCtrl: panel.",68,900)
 local theme=ui.label(settings,"TextBox","5EBEFF",40,902)
 theme.ClearTextOnFocus=false
-ui.label(settings,"TextLabel","Cor de destaque: hexadecimal (ex.: 5EBEFF)",30,901)
+ui.label(settings,"TextLabel",hub.language=="pt" and "Cor de destaque: hexadecimal (ex.: 5EBEFF)" or "Accent color: hexadecimal (e.g. 5EBEFF)",30,901)
 local themeFile="AnonHub_Superpower_Theme.json"
 local function apply(hex)
  if not hex:match("^%x%x%x%x%x%x$") then return false end
