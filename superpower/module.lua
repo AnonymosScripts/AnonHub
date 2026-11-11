@@ -96,8 +96,16 @@ return function(ctx)
         Big="Shared/Util/Big",Packs="Shared/Config/PackConfig",Opening="Client/UI/Packs/PackOpening",
         Registry="Client/Core/LocalEnemyRegistry",Shields="Shared/Combat/Shields",Ability="Shared/Config/AbilityConfig",
         Settings="Client/Controllers/SettingsController",Power="Shared/Config/PowerConfig"}
-    local ok,reason=pcall(function() for name,path in pairs(names) do modules[name]=module(path) end end)
-    if not ok then report(reason); return function() alive=false end end
+    local loaded,total=0,0
+    for _ in pairs(names) do total+=1 end
+    local ok,reason=pcall(function()
+        for name,path in pairs(names) do
+            if ctx.progress then ctx.progress(.18+.46*loaded/total,"Carregando funções do jogo… ("..loaded.."/"..total..")","Loading game features… ("..loaded.."/"..total..")") end
+            modules[name]=module(path);loaded+=1
+        end
+    end)
+    if not ok then error(reason) end
+    if ctx.progress then ctx.progress(.7,"Preparando controles e automações…","Preparing controls and automation…") end
     local State=modules.State
     local remotes=RS:FindFirstChild("Remotes")
     assert(remotes,"Remotes missing")
@@ -169,18 +177,18 @@ return function(ctx)
         for _,refresh in ipairs(updates) do refresh() end
         report(cfg.progress and T("Progressao ligada","Progression enabled") or T("Progressao desligada","Progression disabled"))
     end)
-    toggle("progress","Auto progressao","Auto progression")
+    toggle("progress","Progressão automática","Auto progression")
     toggle("farm","Farm de inimigos","Enemy farm")
     toggle("boss","Priorizar bosses","Prioritize bosses")
-    toggle("abilities","Habilidades automaticas","Automatic abilities")
+    toggle("abilities","Habilidades automáticas","Automatic abilities")
     page=ctx.section("Cartas")
     toggle("open","Abrir packs","Open packs")
     toggle("equip","Equipar melhor carta","Equip best card")
     toggle("place","Melhores cartas na base","Best cards on base")
     toggle("fuse","Fundir cartas","Fuse cards")
-    toggle("tree","Comprar nos da arvore","Buy skill tree nodes")
+    toggle("tree","Comprar nós da árvore","Buy skill tree nodes")
     toggle("upgrades","Upgrades com dinheiro do jogo","Upgrades with game cash")
-    toggle("sacrifice","Sacrificar sobras conforme Ajustes","Sacrifice spares according to Settings")
+    toggle("sacrifice","Sacrificar cartas excedentes","Sacrifice spares according to Settings")
     label(T("Sacrificio preserva cartas equipadas, posicionadas, protegidas e a reserva. Desligado por padrao.","Sacrifice preserves equipped, placed, protected cards and the reserve. Off by default."),54)
     page=ctx.section("Combate")
     toggle("boost","Dano NPC local ampliado (experimental)","Boost local NPC damage (experimental)")
@@ -206,8 +214,8 @@ return function(ctx)
         local n=tonumber(s); if n and n==n and n<math.huge then return math.clamp(math.floor(n),1,1000) end
     end)
     textbox("protected",T("IDs de cartas protegidas, separados por virgula","Protected card IDs, comma separated"),function(s) return s:sub(1,2000) end)
-    label(T("Raridades permitidas no sacrificio (selecao individual)","Allowed sacrifice rarities (individual selection)"),42)
-    local rarityNames={Common="Comum",Uncommon="Incomum",Rare="Rara",Epic="Epica",Legendary="Lendaria",Mythic="Mitica",God="Divina",Secret="Secreta",Cosmic="Cosmica",Ancient="Ancestral"}
+    label(T("Raridades permitidas no sacrifício","Allowed sacrifice rarities (individual selection)"),42)
+    local rarityNames={Common="Comum",Uncommon="Incomum",Rare="Rara",Epic="Épica",Legendary="Lendária",Mythic="Mítica",God="Divina",Secret="Secreta",Cosmic="Cósmica",Ancient="Ancestral"}
     for _,rarity in ipairs(modules.Cards.RarityOrder) do
         order=order+1
         local b,check=ui.checkbox(page,T(rarityNames[rarity] or rarity,rarity),order)
@@ -254,16 +262,16 @@ return function(ctx)
         connect(b.Activated,function() list.Visible=not list.Visible end)
         update()
     end
-    selector(T("Modo de farm","Farm mode"),"farmMode",{{id="Auto",text=T("Progressao automatica","Automatic progression")},{id="Boss",text=T("Boss escolhido","Selected boss")},{id="NPC",text=T("Area de NPCs escolhida","Selected NPC area")},{id="Mixed",text=T("NPCs + Boss (prioridade ao boss)","NPCs + Boss (boss priority)")}})
+    selector(T("Modo de farm","Farm mode"),"farmMode",{{id="Auto",text=T("Progressão automática","Automatic progression")},{id="Boss",text=T("Boss escolhido","Selected boss")},{id="NPC",text=T("Área de NPCs escolhida","Selected NPC area")},{id="Mixed",text=T("NPCs + Boss (prioridade ao boss)","NPCs + Boss (boss priority)")}})
     local bosses,areas={},{}
     for _,pad in ipairs(pads) do
         local option={id=pad.id,text=pad.name.." / "..pad.enemy.." · Lv "..pad.level.." · "..pad.respawn.."s"}
         if pad.gate then bosses[#bosses+1]=option else areas[#areas+1]=option end
     end
     selector("Boss","bossId",bosses)
-    selector(T("Area de NPCs","NPC area"),"npcId",areas)
+    selector(T("Área de NPCs","NPC area"),"npcId",areas)
     label(T("NPCs + Boss: farma a area escolhida na espera e volta ao boss quando ele aparece. Verifica periodicamente a arena se o boss estiver fora do streaming.","NPCs + Boss: farms the selected area while waiting, then switches to the boss. Periodically checks the arena when the boss is outside streaming range."),70)
-    label(T("Escolher o alvo nao liga o farm. Ative Farm ou Auto progressao acima.","Selecting a target does not start farming. Enable Farm or Auto progression above."),46)
+    label(T("Escolher o alvo nao liga o farm. Ative Farm ou Progressão automática acima.","Selecting a target does not start farming. Enable Farm or Auto progression above."),46)
     page=settingsPage
     local enemyRoot=workspace:FindFirstChild("Enemies")
     local watched=setmetatable({}, {__mode="k"})
@@ -487,7 +495,7 @@ return function(ctx)
         end
     end)
     order=order+1
-    local stop=ui.button(page,T("Parar todas as automacoes","Stop all automation"),order)
+    local stop=ui.button(page,T("Parar todas as automações","Stop all automation"),order)
     connect(stop.Activated,function()
         for key,value in pairs(cfg) do if type(value)=="boolean" then cfg[key]=false end end
         pcall(setAuto,oldAuto)
@@ -495,7 +503,7 @@ return function(ctx)
         report(T("Automacoes paradas.","Automation stopped."))
     end)
     order=order+1
-    local export=ui.button(page,T("Exportar diagnostico de teste","Export test diagnostics"),order)
+    local export=ui.button(page,T("Exportar diagnóstico de teste","Export test diagnostics"),order)
     connect(export.Activated,function()
         if type(writefile)=="function" then
             local name="AnonHub_Superpower_Test_"..os.time()..".json"

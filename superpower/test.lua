@@ -1,6 +1,6 @@
 -- Luau · authenticated standalone test · Roblox/Delta
 local localSources={["superpower/main.lua"]=[====[-- Luau · Superpower standalone · Roblox/Delta · Luau
-local BOOT_VERSION="0.38.4"
+local BOOT_VERSION="0.38.5"
 local hub=...
 assert(type(hub)=="table" and hub.access,"Abra pelo loader autenticado")
 local Players=game:GetService("Players")
@@ -11,7 +11,7 @@ local player=Players.LocalPlayer
 local links,painted={},{}
 local cleanup,quickAction
 local alive=true
-local colors=hub.ui.color
+local colors={dark=Color3.fromRGB(35,31,25),tile=Color3.fromRGB(65,54,39),edge=Color3.fromRGB(116,88,49),text=Color3.fromRGB(252,246,226),muted=Color3.fromRGB(213,195,163),accent=Color3.fromRGB(255,202,66)}
 local accent=colors.accent
 local function T(pt,en) return hub.language=="pt" and pt or en end
 local function make(class,p,parent)
@@ -25,15 +25,20 @@ local function round(o,r) make("UICorner",{CornerRadius=UDim.new(0,r or 10)},o) 
 local function stroke(o) return make("UIStroke",{Color=colors.edge,Thickness=1,ApplyStrokeMode=Enum.ApplyStrokeMode.Border},o) end
 local screen=make("ScreenGui",{Name="AnonHubSuperpower",ResetOnSpawn=false,DisplayOrder=10030,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},player:WaitForChild("PlayerGui"))
 local panel=make("Frame",{AnchorPoint=Vector2.new(.5,.5),Size=UDim2.fromScale(.94,.88),Position=UDim2.fromScale(.5,.5),BackgroundColor3=colors.dark,ClipsDescendants=true},screen)
-make("UISizeConstraint",{MaxSize=Vector2.new(760,720)},panel);round(panel,16);stroke(panel)
+round(panel,9);stroke(panel)
+make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(73,53,35),colors.dark),Rotation=90},panel)
+local sidebar=make("Frame",{Size=UDim2.new(0,174,1,0),BackgroundColor3=Color3.fromRGB(48,39,29)},panel)
+make("TextLabel",{Text="ANONHUB",Position=UDim2.fromOffset(17,24),Size=UDim2.fromOffset(145,28),BackgroundTransparency=1,TextColor3=colors.text,Font=Enum.Font.GothamBold,TextSize=20,TextXAlignment=Enum.TextXAlignment.Left},sidebar)
+make("TextLabel",{Text="SUPERPOWER / CONTROL",Position=UDim2.fromOffset(18,56),Size=UDim2.fromOffset(146,20),BackgroundTransparency=1,TextColor3=accent,Font=Enum.Font.Code,TextSize=9,TextXAlignment=Enum.TextXAlignment.Left},sidebar)
+make("TextLabel",{Text=player.DisplayName,Position=UDim2.new(0,16,1,-62),Size=UDim2.new(1,-32,0,24),BackgroundTransparency=1,TextColor3=colors.text,Font=Enum.Font.GothamMedium,TextSize=12,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left},sidebar)
 local header=make("Frame",{Size=UDim2.new(1,0,0,68),BackgroundTransparency=1,Active=true},panel)
 local mark=make("TextLabel",{Text="A",Font=Enum.Font.GothamBlack,TextSize=20,TextColor3=colors.dark,BackgroundColor3=accent,Position=UDim2.fromOffset(16,16),Size=UDim2.fromOffset(36,36)},header);round(mark)
 if hub.decorateArtwork then
  local art=make("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1},mark);round(art);hub.decorateArtwork(art)
 end
-local title=make("TextLabel",{Text="AnonHub",Size=UDim2.new(1,-160,0,26),Position=UDim2.fromOffset(64,12),BackgroundTransparency=1,TextColor3=colors.text,TextSize=20,Font=Enum.Font.GothamBold,TextXAlignment=Enum.TextXAlignment.Left},header)
-make("TextLabel",{Text="STEAL A SUPERPOWER",Position=UDim2.fromOffset(65,39),Size=UDim2.new(1,-160,0,16),BackgroundTransparency=1,TextColor3=colors.muted,TextSize=10,Font=Enum.Font.Code,TextXAlignment=Enum.TextXAlignment.Left},header)
-local footer=make("TextLabel",{Text=T("MÓDULO DO JOGO  /  PT","GAME MODULE  /  EN").."                                      v"..BOOT_VERSION,Size=UDim2.new(1,-32,0,30),Position=UDim2.new(0,16,1,-32),BackgroundTransparency=1,TextColor3=colors.muted,TextSize=10,Font=Enum.Font.Code,TextXAlignment=Enum.TextXAlignment.Left},panel)
+local title=make("TextLabel",{Text="Superpower",Size=UDim2.new(1,-160,0,26),Position=UDim2.fromOffset(64,12),BackgroundTransparency=1,TextColor3=colors.text,TextSize=20,Font=Enum.Font.GothamBold,TextXAlignment=Enum.TextXAlignment.Left},header)
+make("TextLabel",{Text=T("≡  ARRASTE PARA MOVER","≡  DRAG TO MOVE"),Position=UDim2.fromOffset(65,39),Size=UDim2.new(1,-160,0,16),BackgroundTransparency=1,TextColor3=colors.muted,TextSize=10,Font=Enum.Font.Code,TextXAlignment=Enum.TextXAlignment.Left},header)
+local footer=make("TextLabel",{Text=T("MÓDULO DO JOGO  /  PT","GAME MODULE  /  EN").."                                      v"..BOOT_VERSION,Size=UDim2.new(1,-32,0,30),Position=UDim2.new(0,16,1,-32),BackgroundTransparency=1,TextColor3=colors.muted,TextSize=10,Font=Enum.Font.Code,TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd},panel)
 local float=make("TextButton",{Text="A",Size=UDim2.fromOffset(52,52),Position=UDim2.fromScale(.02,.7),BackgroundColor3=accent,TextColor3=colors.dark,TextSize=20,Font=Enum.Font.GothamBlack},screen);round(float,16);stroke(float)
 if hub.decorateLauncher then hub.decorateLauncher(float) end
 local tabs=make("Frame",{Size=UDim2.new(1,-32,0,44),Position=UDim2.fromOffset(16,72),BackgroundColor3=colors.tile},panel);round(tabs)
@@ -45,7 +50,7 @@ local function selectPage(name)
  for key,p in pairs(pages) do
   p.Visible=key==name
   animate(buttons[key],{BackgroundColor3=key==name and accent or colors.tile,TextColor3=key==name and colors.dark or colors.muted})
-  if key==name then p.Position=UDim2.fromOffset(16,132);animate(p,{Position=UDim2.fromOffset(16,126)}) end
+  if key==name then local target=p.Position;p.Position=target+UDim2.fromOffset(6,0);animate(p,{Position=target}) end
  end
 end
 local function section(name)
@@ -58,10 +63,11 @@ local function section(name)
  Cartas=T("Organize sua coleção e automatize as melhorias.","Manage your collection and automate upgrades."),
  Combate=T("Controles de combate e habilidades.","Combat and ability controls."),
  Ajustes=T("Personalize o painel e as regras de automação.","Customize the panel and automation rules.")}
- local heading=make("TextLabel",{Text=hub.language=="pt" and name or captions[name],Size=UDim2.new(1,-8,0,28),LayoutOrder=-2,BackgroundTransparency=1,TextColor3=colors.text,TextSize=20,Font=Enum.Font.GothamBold,TextXAlignment=Enum.TextXAlignment.Left},p)
- make("TextLabel",{Text=descriptions[name],Size=UDim2.new(1,-8,0,38),LayoutOrder=-1,BackgroundTransparency=1,TextColor3=colors.muted,TextSize=12,TextWrapped=true,Font=Enum.Font.Gotham,TextXAlignment=Enum.TextXAlignment.Left},p)
+ local heading=make("TextLabel",{Text=hub.language=="pt" and name or captions[name],Size=UDim2.new(1,-8,0,28),LayoutOrder=-30,BackgroundTransparency=1,TextColor3=colors.text,TextSize=20,Font=Enum.Font.GothamBold,TextXAlignment=Enum.TextXAlignment.Left},p)
+ make("TextLabel",{Text=descriptions[name],Size=UDim2.new(1,-8,0,38),LayoutOrder=-29,BackgroundTransparency=1,TextColor3=colors.muted,TextSize=12,TextWrapped=true,Font=Enum.Font.Gotham,TextXAlignment=Enum.TextXAlignment.Left},p)
  local n=0;for _ in pairs(pages) do n+=1 end
  local b=make("TextButton",{Text=hub.language=="pt" and name or captions[name],Font=Enum.Font.GothamMedium,TextSize=12,TextColor3=name=="Farm" and colors.dark or colors.muted,Size=UDim2.new(.25,-8,1,-8),Position=UDim2.new(n*.25,4,0,4),BackgroundColor3=name=="Farm" and accent or colors.tile,AutoButtonColor=false},tabs);round(b,8)
+ make("UIPadding",{PaddingLeft=UDim.new(0,10),PaddingRight=UDim.new(0,10)},b)
  pages[name]=p;buttons[name]=b;listen(b.Activated,function() selectPage(name) end)
  return p
 end
@@ -93,6 +99,119 @@ function ui.checkbox(parent,text,order)
  checkRefresh[#checkRefresh+1]=function() refresh(enabled) end
  return b,refresh
 end
+-- Pure layout calculations, using the same compact/sidebar behavior as Potato.
+local Layout={}
+function Layout.resolve(w,h,c)
+ local scale=math.max(.1,math.min(c.scale/100,math.max(1,w-16)/300,math.max(1,h-16)/340))
+ local width=math.min(c.width,math.max(1,w-16)/scale)
+ local height=math.min(c.height,math.max(1,h-16)/scale)
+ return {scale=scale,width=width,height=height,
+  x=8+math.max(0,w-16-width*scale)*c.x,
+  y=8+math.max(0,h-16-height*scale)*c.y,compact=width<620}
+end
+-- END LAYOUT
+local layoutFile="AnonHub_Superpower_Layout_"..player.UserId..".json"
+local layoutDefaults={width=760,height=580,scale=Input.TouchEnabled and 80 or 100,launcher=56,x=.5,y=.5}
+local layoutConfig=table.clone(layoutDefaults)
+local limits={width={300,1100},height={340,900},scale={65,150},launcher={44,88},x={0,1},y={0,1}}
+if type(readfile)=="function" then pcall(function()
+ local saved=Http:JSONDecode(readfile(layoutFile))
+ for k,range in pairs(limits) do
+  local v=saved[k]
+  if type(v)=="number" and v==v then layoutConfig[k]=math.clamp(v,range[1],range[2]) end
+ end
+end) end
+local function saveLayout()
+ if type(writefile)=="function" then pcall(writefile,layoutFile,Http:JSONEncode(layoutConfig)) end
+end
+local panelScale=make("UIScale",{Scale=1},panel)
+local function applyLayout()
+ local size=screen.AbsoluteSize
+ if size.X<100 or size.Y<100 then return end
+ local b=Layout.resolve(size.X,size.Y,layoutConfig)
+ panel.AnchorPoint=Vector2.zero;panel.Size=UDim2.fromOffset(b.width,b.height)
+ panel.Position=UDim2.fromOffset(b.x,b.y);panelScale.Scale=b.scale
+ sidebar.Visible=not b.compact
+ header.Position=UDim2.fromOffset(b.compact and 0 or 174,0)
+ header.Size=UDim2.new(1,b.compact and 0 or -174,0,76)
+ tabs.Parent=panel
+ tabs.Position=b.compact and UDim2.new(0,12,1,-84) or UDim2.fromOffset(12,100)
+ tabs.Size=b.compact and UDim2.new(1,-24,0,44) or UDim2.new(0,150,1,-180)
+ tabs.BackgroundTransparency=1
+ for i,name in ipairs({"Farm","Cartas","Combate","Ajustes"}) do
+  local button=buttons[name]
+  if button then
+   button.Size=b.compact and UDim2.new(.25,-6,0,42) or UDim2.new(1,0,0,44)
+   button.Position=b.compact and UDim2.new((i-1)*.25,0,0,0) or UDim2.fromOffset(0,(i-1)*52)
+   button.Text=b.compact and (hub.language=="pt" and name or captions[name]) or string.format("%02d   %s",i,hub.language=="pt" and name or captions[name])
+   button.TextXAlignment=b.compact and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
+  end
+ end
+ for _,p in pairs(pages) do
+  p.Position=UDim2.fromOffset(b.compact and 16 or 190,88)
+  p.Size=UDim2.new(1,b.compact and -32 or -206,1,b.compact and -184 or -136)
+ end
+ footer.Position=UDim2.new(0,b.compact and 16 or 190,1,-34)
+ footer.Size=UDim2.new(1,b.compact and -40 or -214,0,26)
+ float.Size=UDim2.fromOffset(layoutConfig.launcher,layoutConfig.launcher)
+end
+listen(screen:GetPropertyChangedSignal("AbsoluteSize"),applyLayout)
+local layoutRefresh={}
+local function layoutControls(parent)
+ ui.label(parent,"TextLabel",T("TELA E TOQUE","DISPLAY & TOUCH"),32,-10)
+ ui.label(parent,"TextLabel",T("Arraste o cabeçalho para mover. Use o canto inferior para redimensionar. Os ajustes são salvos automaticamente.","Drag the header to move. Use the bottom corner to resize. Changes are saved automatically."),64,-9)
+ for i,spec in ipairs({{"scale","Escala da interface","Interface scale",5,"%"},{"width","Largura do painel","Panel width",10," px"},{"height","Altura do painel","Panel height",10," px"},{"launcher","Tamanho do botão A","Launcher size",2," px"}}) do
+  local key=spec[1]
+  local row=make("Frame",{Size=UDim2.new(1,-8,0,76),BackgroundColor3=colors.tile,LayoutOrder=-8+i},parent);round(row,10);stroke(row)
+  local caption=ui.label(row,"TextLabel",T(spec[2],spec[3]),28,0);caption.Size=UDim2.new(1,0,0,28)
+  local minus=ui.button(row,"−",0);minus.Size=UDim2.fromOffset(42,36);minus.Position=UDim2.fromOffset(12,32);minus.TextXAlignment=Enum.TextXAlignment.Center
+  local field=ui.label(row,"TextBox","",36,0);field.Position=UDim2.fromOffset(62,32);field.Size=UDim2.new(1,-124,0,36);field.TextXAlignment=Enum.TextXAlignment.Center
+  local plus=ui.button(row,"+",0);plus.Size=UDim2.fromOffset(42,36);plus.Position=UDim2.new(1,-54,0,32);plus.TextXAlignment=Enum.TextXAlignment.Center
+  local function refresh() field.Text=tostring(math.floor(layoutConfig[key]))..spec[5] end
+  layoutRefresh[#layoutRefresh+1]=refresh
+  local function change(v)
+   if v and v==v then layoutConfig[key]=math.clamp(v,limits[key][1],limits[key][2]);applyLayout();saveLayout() end
+   refresh()
+  end
+  listen(minus.Activated,function() change(layoutConfig[key]-spec[4]) end)
+  listen(plus.Activated,function() change(layoutConfig[key]+spec[4]) end)
+  listen(field.FocusLost,function() change(tonumber(field.Text:match("[%d%.]+"))) end)
+  refresh()
+ end
+ local reset=ui.button(parent,T("Centralizar e restaurar tamanho","Center and restore size"),-3)
+ listen(reset.Activated,function()
+  layoutConfig=table.clone(layoutDefaults);applyLayout();saveLayout()
+  for _,fn in ipairs(layoutRefresh) do fn() end
+ end)
+end
+local resize=make("TextButton",{Text="◢",TextSize=20,TextColor3=colors.muted,BackgroundTransparency=1,Size=UDim2.fromOffset(30,30),Position=UDim2.new(1,-30,1,-30)},panel)
+local gesture
+local function beginGesture(input,kind)
+ if input.UserInputType~=Enum.UserInputType.MouseButton1 and input.UserInputType~=Enum.UserInputType.Touch then return end
+ gesture={input=input,kind=kind,origin=input.Position,pos=panel.Position,width=panel.Size.X.Offset,height=panel.Size.Y.Offset}
+end
+listen(header.InputBegan,function(i) beginGesture(i,"move") end)
+listen(resize.InputBegan,function(i) beginGesture(i,"resize") end)
+listen(Input.InputChanged,function(i)
+ if not gesture or (i~=gesture.input and i.UserInputType~=Enum.UserInputType.MouseMovement) then return end
+ local d=i.Position-gesture.origin;local size=screen.AbsoluteSize
+ if gesture.kind=="resize" then
+  layoutConfig.width=math.clamp(gesture.width+d.X/panelScale.Scale,300,1100)
+  layoutConfig.height=math.clamp(gesture.height+d.Y/panelScale.Scale,340,900)
+ else
+  local rx=math.max(1,size.X-16-panel.Size.X.Offset*panelScale.Scale)
+  local ry=math.max(1,size.Y-16-panel.Size.Y.Offset*panelScale.Scale)
+  layoutConfig.x=math.clamp((gesture.pos.X.Offset+d.X-8)/rx,0,1)
+  layoutConfig.y=math.clamp((gesture.pos.Y.Offset+d.Y-8)/ry,0,1)
+ end
+ applyLayout()
+end)
+listen(Input.InputEnded,function(i)
+ if gesture and i==gesture.input then
+  gesture=nil;saveLayout();for _,fn in ipairs(layoutRefresh) do fn() end
+ end
+end)
+
 local function close()
  if not alive then return end;alive=false
  if cleanup then pcall(cleanup) end
@@ -102,10 +221,10 @@ end
 hub.attach(close)
 local function visibility(show)
  panel.Visible=show
- if show then panel.Position=UDim2.fromScale(.5,.52);animate(panel,{Position=UDim2.fromScale(.5,.5)}) end
+ if show then applyLayout();local target=panel.Position;panel.Position=target+UDim2.fromOffset(0,8);animate(panel,{Position=target}) end
 end
-local hide=make("TextButton",{Text="—",Size=UDim2.fromOffset(32,32),Position=UDim2.new(1,-76,0,8)},panel)
-local exit=make("TextButton",{Text="×",Size=UDim2.fromOffset(32,32),Position=UDim2.new(1,-38,0,8)},panel)
+local hide=make("TextButton",{Text="—",Size=UDim2.fromOffset(32,32),Position=UDim2.new(1,-76,0,16)},header)
+local exit=make("TextButton",{Text="×",Size=UDim2.fromOffset(32,32),Position=UDim2.new(1,-38,0,16)},header)
 for _,b in ipairs({hide,exit}) do
  b.BackgroundColor3=colors.tile;b.TextColor3=colors.text;b.Font=Enum.Font.GothamMedium;b.TextSize=18;round(b,8)
 end
@@ -123,8 +242,8 @@ listen(Input.InputChanged,function(i)
   if delta.Magnitude>8 then moved=true end
   if moved then
    local size=screen.AbsoluteSize
-   local x=math.clamp(startPosition.X.Scale*size.X+startPosition.X.Offset+delta.X,0,math.max(0,size.X-52))
-   local y=math.clamp(startPosition.Y.Scale*size.Y+startPosition.Y.Offset+delta.Y,0,math.max(0,size.Y-52))
+   local x=math.clamp(startPosition.X.Scale*size.X+startPosition.X.Offset+delta.X,0,math.max(0,size.X-layoutConfig.launcher))
+   local y=math.clamp(startPosition.Y.Scale*size.Y+startPosition.Y.Offset+delta.Y,0,math.max(0,size.Y-layoutConfig.launcher))
    float.Position=UDim2.fromOffset(x,y)
   end
  end
@@ -141,6 +260,24 @@ end)
 listen(Input.InputBegan,function(i,processed)
  if not processed and i.KeyCode==Enum.KeyCode.RightControl then visibility(not panel.Visible) end
 end)
+local loading=make("Frame",{Name="Loading",Size=UDim2.fromScale(1,1),BackgroundColor3=colors.dark,ZIndex=50},panel);round(loading,10)
+local loadingBrand=make("TextLabel",{Text="ANONHUB",Position=UDim2.fromScale(.1,.22),Size=UDim2.fromScale(.8,.12),BackgroundTransparency=1,Font=Enum.Font.GothamBlack,TextSize=28,TextColor3=accent,ZIndex=51},loading)
+local loadingTitle=make("TextLabel",{Text=T("Preparando seu painel","Preparing your panel"),Position=UDim2.fromScale(.1,.38),Size=UDim2.fromScale(.8,.1),BackgroundTransparency=1,Font=Enum.Font.GothamBold,TextSize=18,TextWrapped=true,TextColor3=colors.text,ZIndex=51},loading)
+local loadingDetail=make("TextLabel",{Text="",Position=UDim2.fromScale(.1,.5),Size=UDim2.fromScale(.8,.1),BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=13,TextWrapped=true,TextColor3=colors.muted,ZIndex=51},loading)
+local track=make("Frame",{Position=UDim2.fromScale(.15,.65),Size=UDim2.fromScale(.7,.012),BackgroundColor3=colors.edge,ZIndex=51},loading);round(track,4)
+local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=accent,ZIndex=52},track);round(fill,4)
+local percent=make("TextLabel",{Text="",Position=UDim2.fromScale(.15,.7),Size=UDim2.fromScale(.7,.06),BackgroundTransparency=1,Font=Enum.Font.Code,TextSize=11,TextColor3=colors.muted,ZIndex=51},loading)
+local loadingClose=make("TextButton",{Text=T("Fechar","Close"),Position=UDim2.new(1,-88,0,12),Size=UDim2.fromOffset(76,32),BackgroundColor3=colors.tile,TextColor3=colors.text,Font=Enum.Font.Gotham,TextSize=12,ZIndex=52},loading);round(loadingClose,8)
+listen(loadingClose.Activated,function() hub.unload() end)
+local function progress(value,pt,en)
+ if not alive then error("Initialization cancelled") end
+ loadingDetail.Text=T(pt,en);percent.Text=string.format("%d%%",math.floor(value*100))
+ animate(fill,{Size=UDim2.fromScale(value,1)})
+ game:GetService("RunService").Heartbeat:Wait()
+end
+applyLayout()
+progress(.08,"Preparando a interface…","Preparing the interface…")
+
 local init=(function()
 -- Luau · superpower/module.lua · AnonHub integration · Roblox/Delta · Luau
 -- Implemented against the client inventory captured on 2026-11-11. No Luarmor code used.
@@ -240,8 +377,16 @@ return function(ctx)
         Big="Shared/Util/Big",Packs="Shared/Config/PackConfig",Opening="Client/UI/Packs/PackOpening",
         Registry="Client/Core/LocalEnemyRegistry",Shields="Shared/Combat/Shields",Ability="Shared/Config/AbilityConfig",
         Settings="Client/Controllers/SettingsController",Power="Shared/Config/PowerConfig"}
-    local ok,reason=pcall(function() for name,path in pairs(names) do modules[name]=module(path) end end)
-    if not ok then report(reason); return function() alive=false end end
+    local loaded,total=0,0
+    for _ in pairs(names) do total+=1 end
+    local ok,reason=pcall(function()
+        for name,path in pairs(names) do
+            if ctx.progress then ctx.progress(.18+.46*loaded/total,"Carregando funções do jogo… ("..loaded.."/"..total..")","Loading game features… ("..loaded.."/"..total..")") end
+            modules[name]=module(path);loaded+=1
+        end
+    end)
+    if not ok then error(reason) end
+    if ctx.progress then ctx.progress(.7,"Preparando controles e automações…","Preparing controls and automation…") end
     local State=modules.State
     local remotes=RS:FindFirstChild("Remotes")
     assert(remotes,"Remotes missing")
@@ -313,18 +458,18 @@ return function(ctx)
         for _,refresh in ipairs(updates) do refresh() end
         report(cfg.progress and T("Progressao ligada","Progression enabled") or T("Progressao desligada","Progression disabled"))
     end)
-    toggle("progress","Auto progressao","Auto progression")
+    toggle("progress","Progressão automática","Auto progression")
     toggle("farm","Farm de inimigos","Enemy farm")
     toggle("boss","Priorizar bosses","Prioritize bosses")
-    toggle("abilities","Habilidades automaticas","Automatic abilities")
+    toggle("abilities","Habilidades automáticas","Automatic abilities")
     page=ctx.section("Cartas")
     toggle("open","Abrir packs","Open packs")
     toggle("equip","Equipar melhor carta","Equip best card")
     toggle("place","Melhores cartas na base","Best cards on base")
     toggle("fuse","Fundir cartas","Fuse cards")
-    toggle("tree","Comprar nos da arvore","Buy skill tree nodes")
+    toggle("tree","Comprar nós da árvore","Buy skill tree nodes")
     toggle("upgrades","Upgrades com dinheiro do jogo","Upgrades with game cash")
-    toggle("sacrifice","Sacrificar sobras conforme Ajustes","Sacrifice spares according to Settings")
+    toggle("sacrifice","Sacrificar cartas excedentes","Sacrifice spares according to Settings")
     label(T("Sacrificio preserva cartas equipadas, posicionadas, protegidas e a reserva. Desligado por padrao.","Sacrifice preserves equipped, placed, protected cards and the reserve. Off by default."),54)
     page=ctx.section("Combate")
     toggle("boost","Dano NPC local ampliado (experimental)","Boost local NPC damage (experimental)")
@@ -350,8 +495,8 @@ return function(ctx)
         local n=tonumber(s); if n and n==n and n<math.huge then return math.clamp(math.floor(n),1,1000) end
     end)
     textbox("protected",T("IDs de cartas protegidas, separados por virgula","Protected card IDs, comma separated"),function(s) return s:sub(1,2000) end)
-    label(T("Raridades permitidas no sacrificio (selecao individual)","Allowed sacrifice rarities (individual selection)"),42)
-    local rarityNames={Common="Comum",Uncommon="Incomum",Rare="Rara",Epic="Epica",Legendary="Lendaria",Mythic="Mitica",God="Divina",Secret="Secreta",Cosmic="Cosmica",Ancient="Ancestral"}
+    label(T("Raridades permitidas no sacrifício","Allowed sacrifice rarities (individual selection)"),42)
+    local rarityNames={Common="Comum",Uncommon="Incomum",Rare="Rara",Epic="Épica",Legendary="Lendária",Mythic="Mítica",God="Divina",Secret="Secreta",Cosmic="Cósmica",Ancient="Ancestral"}
     for _,rarity in ipairs(modules.Cards.RarityOrder) do
         order=order+1
         local b,check=ui.checkbox(page,T(rarityNames[rarity] or rarity,rarity),order)
@@ -398,16 +543,16 @@ return function(ctx)
         connect(b.Activated,function() list.Visible=not list.Visible end)
         update()
     end
-    selector(T("Modo de farm","Farm mode"),"farmMode",{{id="Auto",text=T("Progressao automatica","Automatic progression")},{id="Boss",text=T("Boss escolhido","Selected boss")},{id="NPC",text=T("Area de NPCs escolhida","Selected NPC area")},{id="Mixed",text=T("NPCs + Boss (prioridade ao boss)","NPCs + Boss (boss priority)")}})
+    selector(T("Modo de farm","Farm mode"),"farmMode",{{id="Auto",text=T("Progressão automática","Automatic progression")},{id="Boss",text=T("Boss escolhido","Selected boss")},{id="NPC",text=T("Área de NPCs escolhida","Selected NPC area")},{id="Mixed",text=T("NPCs + Boss (prioridade ao boss)","NPCs + Boss (boss priority)")}})
     local bosses,areas={},{}
     for _,pad in ipairs(pads) do
         local option={id=pad.id,text=pad.name.." / "..pad.enemy.." · Lv "..pad.level.." · "..pad.respawn.."s"}
         if pad.gate then bosses[#bosses+1]=option else areas[#areas+1]=option end
     end
     selector("Boss","bossId",bosses)
-    selector(T("Area de NPCs","NPC area"),"npcId",areas)
+    selector(T("Área de NPCs","NPC area"),"npcId",areas)
     label(T("NPCs + Boss: farma a area escolhida na espera e volta ao boss quando ele aparece. Verifica periodicamente a arena se o boss estiver fora do streaming.","NPCs + Boss: farms the selected area while waiting, then switches to the boss. Periodically checks the arena when the boss is outside streaming range."),70)
-    label(T("Escolher o alvo nao liga o farm. Ative Farm ou Auto progressao acima.","Selecting a target does not start farming. Enable Farm or Auto progression above."),46)
+    label(T("Escolher o alvo nao liga o farm. Ative Farm ou Progressão automática acima.","Selecting a target does not start farming. Enable Farm or Auto progression above."),46)
     page=settingsPage
     local enemyRoot=workspace:FindFirstChild("Enemies")
     local watched=setmetatable({}, {__mode="k"})
@@ -631,7 +776,7 @@ return function(ctx)
         end
     end)
     order=order+1
-    local stop=ui.button(page,T("Parar todas as automacoes","Stop all automation"),order)
+    local stop=ui.button(page,T("Parar todas as automações","Stop all automation"),order)
     connect(stop.Activated,function()
         for key,value in pairs(cfg) do if type(value)=="boolean" then cfg[key]=false end end
         pcall(setAuto,oldAuto)
@@ -639,7 +784,7 @@ return function(ctx)
         report(T("Automacoes paradas.","Automation stopped."))
     end)
     order=order+1
-    local export=ui.button(page,T("Exportar diagnostico de teste","Export test diagnostics"),order)
+    local export=ui.button(page,T("Exportar diagnóstico de teste","Export test diagnostics"),order)
     connect(export.Activated,function()
         if type(writefile)=="function" then
             local name="AnonHub_Superpower_Test_"..os.time()..".json"
@@ -653,13 +798,22 @@ end
 
 end)()
 local ok,err=pcall(init,{ui=ui,page=section("Farm"),T=function(pt,en) return hub.language=="pt" and pt or en end,
- attach=function(fn) cleanup=fn end,section=section,quick=function(fn) quickAction=fn end})
-if not ok then if cleanup then pcall(cleanup);cleanup=nil end;ui.label(section("Farm"),"TextLabel",tostring(err),100,999) end
+ progress=progress,attach=function(fn) cleanup=fn end,section=section,quick=function(fn) quickAction=fn end})
+if not alive then return end
+if not ok then
+ if cleanup then pcall(cleanup);cleanup=nil end
+ loadingTitle.Text=T("Não foi possível carregar as funções","Could not load the features")
+ loadingDetail.Text=T("Feche o painel e tente novamente. Detalhes: ","Close the panel and try again. Details: ")..tostring(err)
+ percent.Text=T("Carregamento interrompido","Loading interrupted")
+ hub.ready();return
+end
+progress(.92,"Aplicando suas preferências…","Applying your preferences…")
 local settings=section("Ajustes")
-ui.label(settings,"TextLabel",hub.language=="pt" and "Toque SP: abrir/fechar. Segure 0,65s e solte: alternar progressao. Arraste: mover. RightCtrl: painel." or "Tap SP: toggle panel. Hold 0.65s and release: toggle progression. Drag: move. RightCtrl: panel.",68,900)
-local theme=ui.label(settings,"TextBox","5EBEFF",40,902)
+layoutControls(settings)
+ui.label(settings,"TextLabel",hub.language=="pt" and "Toque A: abrir/fechar. Segure 0,65s e solte: alternar progressao. Arraste: mover. RightCtrl: painel." or "Tap A: toggle panel. Hold 0.65s and release: toggle progression. Drag: move. RightCtrl: panel.",68,900)
+local theme=ui.label(settings,"TextBox","FFCA42",40,902)
 theme.ClearTextOnFocus=false
-ui.label(settings,"TextLabel",hub.language=="pt" and "Cor de destaque: hexadecimal (ex.: 5EBEFF)" or "Accent color: hexadecimal (e.g. 5EBEFF)",30,901)
+ui.label(settings,"TextLabel",hub.language=="pt" and "Cor de destaque: hexadecimal (ex.: FFCA42)" or "Accent color: hexadecimal (e.g. FFCA42)",30,901)
 local themeFile="AnonHub_Superpower_Theme.json"
 local function apply(hex)
  if not hex:match("^%x%x%x%x%x%x$") then return false end
@@ -668,12 +822,11 @@ local function apply(hex)
 end
 if type(readfile)=="function" then pcall(function() apply(Http:JSONDecode(readfile(themeFile)).hex) end) end
 listen(theme.FocusLost,function() local hex=theme.Text:gsub("#",""):upper();if apply(hex) and type(writefile)=="function" then pcall(writefile,themeFile,Http:JSONEncode({hex=hex})) end end)
-hub.ready()
-]====]}
+hub.ready()]====]}
 -- Luau · AnonHub universal entry point
-local version="0.38.4"
+local version="0.38.5"
 local games={
-    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0384.lua",theme="carbon"},
+    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0385.lua",theme="carbon"},
     [10767408330]={name="Peel THE Potato",chapter="2",version="0.37.5",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
 local universal={name="Universal",version="0.37.5",path="universal/main.lua",cache="AnonHub_Universal_v1.luau"}
