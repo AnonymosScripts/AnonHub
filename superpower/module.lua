@@ -57,7 +57,7 @@ return function(ctx)
     end
     local cfg={farm=false,progress=false,boss=false,open=false,equip=false,place=false,fuse=false,
         sacrifice=false,tree=false,upgrades=false,abilities=false,boost=false,guard=false,stun=false,
-        multiplier=1e12,reserve=1,maxRank=3,protected="",branch="Power",teleport=false}
+        multiplier=1e12,reserve=1,maxRank=3,protected="",branch="Power",farmMode="Auto",bossId=2,npcId=1,rarities={Common=true,Uncommon=true,Rare=true}}
     local settingsFile="AnonHub_Superpower_"..player.UserId..".json"
     if type(readfile)=="function" then
         local ok,s=pcall(function() return Http:JSONDecode(readfile(settingsFile)) end)
@@ -65,11 +65,15 @@ return function(ctx)
             if type(s.protected)=="string" then cfg.protected=s.protected:sub(1,2000) end
             if type(s.multiplier)=="number" and s.multiplier==s.multiplier then cfg.multiplier=math.clamp(s.multiplier,1,1e12) end
             if type(s.reserve)=="number" and s.reserve==s.reserve then cfg.reserve=math.clamp(math.floor(s.reserve),1,1000) end
+            if table.find({"Auto","Boss","NPC"},s.farmMode) then cfg.farmMode=s.farmMode end
+            if type(s.bossId)=="number" then cfg.bossId=s.bossId end
+            if type(s.npcId)=="number" then cfg.npcId=s.npcId end
+            if type(s.rarities)=="table" then cfg.rarities=s.rarities end
             if table.find({"Cash","Luck","Power","Speed","Boss"},s.branch) then cfg.branch=s.branch end
         end
     end
     local function save()
-        if type(writefile)=="function" then pcall(writefile,settingsFile,Http:JSONEncode({protected=cfg.protected,multiplier=cfg.multiplier,reserve=cfg.reserve,branch=cfg.branch})) end
+        if type(writefile)=="function" then pcall(writefile,settingsFile,Http:JSONEncode({protected=cfg.protected,multiplier=cfg.multiplier,reserve=cfg.reserve,branch=cfg.branch,farmMode=cfg.farmMode,bossId=cfg.bossId,npcId=cfg.npcId,rarities=cfg.rarities})) end
     end
     local function connect(signal,fn)
         connections[#connections+1]=signal:Connect(fn)
@@ -176,7 +180,7 @@ return function(ctx)
     toggle("guard","Bloquear dano local (experimental)","Block local damage (experimental)")
     toggle("stun","Bloquear stun local (experimental)","Block local stun (experimental)")
     label(T("Nao garante imunidade no servidor. Multiplicador atua em NPCs marcados Local.","Does not guarantee server immunity. Multiplier affects NPCs marked Local."),42)
-    toggle("teleport","Mover por teleporte em vez de andar","Teleport instead of walking")
+    label(T("Farm usa teleporte ate o alvo selecionado.","Farm teleports to the selected target."),36)
     page=ctx.section("Ajustes")
     local function textbox(key,caption,parse)
         label(caption,28); order=order+1
@@ -195,9 +199,15 @@ return function(ctx)
         local n=tonumber(s); if n and n==n and n<math.huge then return math.clamp(math.floor(n),1,1000) end
     end)
     textbox("protected",T("IDs de cartas protegidas, separados por virgula","Protected card IDs, comma separated"),function(s) return s:sub(1,2000) end)
-    textbox("maxRank",T("Raridade maxima para sacrificio: 1 Common, 2 Uncommon, 3 Rare, 4 Epic...","Maximum sacrifice rarity: 1 Common, 2 Uncommon, 3 Rare, 4 Epic..."),function(s)
-        local n=tonumber(s); if n and n==n and n<math.huge then return math.clamp(math.floor(n),1,#modules.Cards.RarityOrder) end
-    end)
+    label(T("Raridades permitidas no sacrificio (selecao individual)","Allowed sacrifice rarities (individual selection)"),42)
+    local rarityNames={Common="Comum",Uncommon="Incomum",Rare="Rara",Epic="Epica",Legendary="Lendaria",Mythic="Mitica",God="Divina",Secret="Secreta",Cosmic="Cosmica",Ancient="Ancestral"}
+    for _,rarity in ipairs(modules.Cards.RarityOrder) do
+        order=order+1
+        local b=ui.button(page,"",order)
+        local function refresh() b.Text=T(rarityNames[rarity] or rarity,rarity).." · "..(cfg.rarities[rarity]==true and "ON" or "OFF") end
+        refresh()
+        connect(b.Activated,function() cfg.rarities[rarity]=not cfg.rarities[rarity];save();refresh() end)
+    end
     textbox("branch",T("Ramo: Cash, Luck, Power, Speed ou Boss","Branch: Cash, Luck, Power, Speed or Boss"),function(s)
         return table.find({"Cash","Luck","Power","Speed","Boss"},s) and s or nil
     end)
@@ -208,11 +218,45 @@ return function(ctx)
     local padRoot=RS:FindFirstChild("EnemyPads")
     if padRoot then for _,p in ipairs(padRoot:GetChildren()) do
         local a=p:GetAttributes()
-        pads[#pads+1]={id=tonumber(p.Name),level=a.Level or 1,gate=a.Gate,enemy=a.Enemy,
+        pads[#pads+1]={id=tonumber(p.Name),level=a.Level or 1,gate=a.Gate,enemy=a.Enemy,name=a.Name or a.Enemy,
             respawn=a.RespawnTime or 90,cf=a.PadCFrame}
     end end
     table.sort(pads,function(a,b) return a.level<b.level end)
     local padById={}; for _,p in ipairs(pads) do padById[p.id]=p end
+    local settingsPage=page
+    page=ctx.section("Farm")
+    local targetInfo=label("",54)
+    local function selector(caption,key,options)
+        order=order+1
+        local b=ui.button(page,"",order)
+        order=order+1
+        local list=Instance.new("ScrollingFrame")
+        list.Size=UDim2.new(1,-8,0,160);list.LayoutOrder=order;list.Visible=false
+        list.BackgroundTransparency=1;list.ScrollBarThickness=5
+        list.CanvasSize=UDim2.new();list.AutomaticCanvasSize=Enum.AutomaticSize.Y;list.Parent=page
+        local layout=Instance.new("UIListLayout");layout.Padding=UDim.new(0,4);layout.SortOrder=Enum.SortOrder.LayoutOrder;layout.Parent=list
+        local function update()
+            local selected="Selecione"
+            for _,option in ipairs(options) do if option.id==cfg[key] then selected=option.text end end
+            b.Text=caption..": "..selected.." ▼"
+        end
+        for i,option in ipairs(options) do
+            local row=ui.button(list,option.text,i)
+            connect(row.Activated,function() cfg[key]=option.id;list.Visible=false;save();update() end)
+        end
+        connect(b.Activated,function() list.Visible=not list.Visible end)
+        update()
+    end
+    selector(T("Modo de farm","Farm mode"),"farmMode",{{id="Auto",text="Progressao automatica"},{id="Boss",text="Boss escolhido"},{id="NPC",text="Area de NPCs escolhida"}})
+    local bosses,areas={},{}
+    for _,pad in ipairs(pads) do
+        local option={id=pad.id,text=pad.name.." / "..pad.enemy.." · Lv "..pad.level.." · "..pad.respawn.."s"}
+        if pad.gate then bosses[#bosses+1]=option else areas[#areas+1]=option end
+    end
+    selector("Boss","bossId",bosses)
+    selector(T("Area de NPCs","NPC area"),"npcId",areas)
+    label(T("Escolher o alvo nao liga o farm. Ative Farm ou Auto progressao acima.","Selecting a target does not start farming. Enable Farm or Auto progression above."),46)
+    page=settingsPage
     local enemyRoot=workspace:FindFirstChild("Enemies")
     local watched=setmetatable({}, {__mode="k"})
     local respawns={}
@@ -311,7 +355,7 @@ return function(ctx)
         for card in pairs(data.Cards or {}) do
             local def=modules.Cards.ById[card]
             local rank=def and modules.Cards.RarityRank[def.Rarity] or 999
-            local n=Logic.sacrificeCount(data,card,keep,cfg.reserve,rank,modules.Shrine.Spare(data,card),cfg.maxRank)
+            local n=Logic.sacrificeCount(data,card,keep,cfg.reserve,rank,modules.Shrine.Spare(data,card),cfg.rarities[def and def.Rarity or ""]==true and 999 or 0)
             if n>0 then call("Sacrifice",card,n); return end
         end
         report("Sacrificio: nenhuma sobra elegivel. Confira reserva, raridade e cartas protegidas em Ajustes.")
@@ -366,7 +410,9 @@ return function(ctx)
                     local boss=enemy:GetAttribute("Boss")==true
                     local el=enemy:GetAttribute("Level") or 1
                     local available=cfg.boost or el<=level
-                    if cfg.progress and boss then available=available and currentBoss and pid==currentBoss.id end
+                    if cfg.farmMode=="Boss" then available=boss and pid==cfg.bossId
+                    elseif cfg.farmMode=="NPC" then available=not boss and pid==cfg.npcId
+                    elseif cfg.progress and boss then available=available and currentBoss and pid==currentBoss.id end
                     if available and (cfg.farm or (cfg.boss and boss)) then
                         local rank=(root.Position-er.Position).Magnitude
                         if cfg.boss and boss then rank=rank-100000 end
@@ -380,16 +426,22 @@ return function(ctx)
             bossLines[#bossLines+1]=pad.enemy..": "..state
         end end
         bossInfo.Text=table.concat(bossLines," | ")
+        local selected=cfg.farmMode=="Boss" and padById[cfg.bossId] or cfg.farmMode=="NPC" and padById[cfg.npcId] or currentBoss
+        targetInfo.Text=cfg.farmMode.." · "..(selected and selected.name or "Sem alvo").." · "..(target and "Alvo encontrado" or "Aguardando spawn/streaming ou liberacao da area")
         if not (root and humanoid and humanoid.Health>0) or modules.Opening.Playing then return end
         if cfg.farm or cfg.boss then
             if target then
                 local delta=root.Position-target.Position
                 if delta.Magnitude>10 then
                     local destination=target.Position+(delta.Magnitude>0 and delta.Unit or Vector3.new(0,0,1))*7
-                    if cfg.teleport then root.CFrame=CFrame.lookAt(destination,target.Position) else humanoid:MoveTo(destination) end
+                    root.CFrame=CFrame.lookAt(destination,target.Position)
                 end
-            elseif cfg.progress and currentBoss and (cfg.boost or currentBoss.level<=level) and typeof(currentBoss.cf)=="CFrame" then
-                if cfg.teleport then root.CFrame=currentBoss.cf+CFrame.new(0,4,0).Position else humanoid:MoveTo(currentBoss.cf.Position) end
+            else
+                local chosen=cfg.farmMode=="Boss" and padById[cfg.bossId] or cfg.farmMode=="NPC" and padById[cfg.npcId] or cfg.progress and currentBoss
+                if chosen and typeof(chosen.cf)=="CFrame" and (cfg.farmMode~="Auto" or cfg.boost or chosen.level<=level) then
+                    local destination=chosen.cf.Position+Vector3.new(0,4,0)
+                    if (root.Position-destination).Magnitude>15 then root.CFrame=CFrame.new(destination) end
+                end
             end
         end
         if cfg.abilities and target and os.clock()-lastKey>0.6 and not Input:GetFocusedTextBox() then

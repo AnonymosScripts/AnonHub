@@ -1,7 +1,7 @@
 -- Luau · AnonHub universal entry point
-local version="0.38.1"
+local version="0.38.2"
 local games={
-    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0381.lua",theme="carbon"},
+    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0382.lua",theme="carbon"},
     [10767408330]={name="Peel THE Potato",chapter="2",version="0.37.5",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
 local universal={name="Universal",version="0.37.5",path="universal/main.lua",cache="AnonHub_Universal_v1.luau"}
