@@ -1,6 +1,6 @@
 -- Luau · authenticated standalone test · Roblox/Delta
 local localSources={["superpower/main.lua"]=[====[-- Luau · Superpower standalone · Roblox/Delta · Luau
-local BOOT_VERSION="0.38.5"
+local BOOT_VERSION="0.38.6"
 local hub=...
 assert(type(hub)=="table" and hub.access,"Abra pelo loader autenticado")
 local Players=game:GetService("Players")
@@ -23,7 +23,7 @@ local function listen(signal,fn) links[#links+1]=signal:Connect(fn) end
 local function animate(o,p) Tween:Create(o,TweenInfo.new(.18,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),p):Play() end
 local function round(o,r) make("UICorner",{CornerRadius=UDim.new(0,r or 10)},o) end
 local function stroke(o) return make("UIStroke",{Color=colors.edge,Thickness=1,ApplyStrokeMode=Enum.ApplyStrokeMode.Border},o) end
-local screen=make("ScreenGui",{Name="AnonHubSuperpower",ResetOnSpawn=false,DisplayOrder=10030,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},player:WaitForChild("PlayerGui"))
+local screen=make("ScreenGui",{Name="AnonHubSuperpower",ResetOnSpawn=false,DisplayOrder=10032,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},player:WaitForChild("PlayerGui"))
 local panel=make("Frame",{AnchorPoint=Vector2.new(.5,.5),Size=UDim2.fromScale(.94,.88),Position=UDim2.fromScale(.5,.5),BackgroundColor3=colors.dark,ClipsDescendants=true},screen)
 round(panel,9);stroke(panel)
 make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(73,53,35),colors.dark),Rotation=90},panel)
@@ -264,14 +264,17 @@ local loading=make("Frame",{Name="Loading",Size=UDim2.fromScale(1,1),BackgroundC
 local loadingBrand=make("TextLabel",{Text="ANONHUB",Position=UDim2.fromScale(.1,.22),Size=UDim2.fromScale(.8,.12),BackgroundTransparency=1,Font=Enum.Font.GothamBlack,TextSize=28,TextColor3=accent,ZIndex=51},loading)
 local loadingTitle=make("TextLabel",{Text=T("Preparando seu painel","Preparing your panel"),Position=UDim2.fromScale(.1,.38),Size=UDim2.fromScale(.8,.1),BackgroundTransparency=1,Font=Enum.Font.GothamBold,TextSize=18,TextWrapped=true,TextColor3=colors.text,ZIndex=51},loading)
 local loadingDetail=make("TextLabel",{Text="",Position=UDim2.fromScale(.1,.5),Size=UDim2.fromScale(.8,.1),BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=13,TextWrapped=true,TextColor3=colors.muted,ZIndex=51},loading)
-local track=make("Frame",{Position=UDim2.fromScale(.15,.65),Size=UDim2.fromScale(.7,.012),BackgroundColor3=colors.edge,ZIndex=51},loading);round(track,4)
+local track=make("Frame",{Position=UDim2.fromScale(.15,.65),Size=UDim2.new(.7,0,0,10),BackgroundColor3=colors.edge,ZIndex=51},loading);round(track,4)
 local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=accent,ZIndex=52},track);round(fill,4)
+make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(255,171,47),Color3.fromRGB(255,230,136)),Rotation=0},fill)
+local stage=make("TextLabel",{Text="SUPERPOWER / ANONHUB",Position=UDim2.fromScale(.1,.15),Size=UDim2.fromScale(.8,.05),BackgroundTransparency=1,Font=Enum.Font.Code,TextSize=10,TextColor3=colors.muted,ZIndex=51},loading)
 local percent=make("TextLabel",{Text="",Position=UDim2.fromScale(.15,.7),Size=UDim2.fromScale(.7,.06),BackgroundTransparency=1,Font=Enum.Font.Code,TextSize=11,TextColor3=colors.muted,ZIndex=51},loading)
 local loadingClose=make("TextButton",{Text=T("Fechar","Close"),Position=UDim2.new(1,-88,0,12),Size=UDim2.fromOffset(76,32),BackgroundColor3=colors.tile,TextColor3=colors.text,Font=Enum.Font.Gotham,TextSize=12,ZIndex=52},loading);round(loadingClose,8)
 listen(loadingClose.Activated,function() hub.unload() end)
 local function progress(value,pt,en)
  if not alive then error("Initialization cancelled") end
  loadingDetail.Text=T(pt,en);percent.Text=string.format("%d%%",math.floor(value*100))
+ if hub.progress then hub.progress(.43+.57*value,pt,en) end
  animate(fill,{Size=UDim2.fromScale(value,1)})
  game:GetService("RunService").Heartbeat:Wait()
 end
@@ -369,7 +372,16 @@ return function(ctx)
     local function module(path)
         local obj=RS
         for name in path:gmatch("[^/]+") do obj=obj:FindFirstChild(name); assert(obj,"Missing module: "..path) end
-        return require(obj)
+        local done,ok,result=false,false,nil
+        local worker=task.spawn(function() ok,result=pcall(require,obj);done=true end)
+        local deadline=os.clock()+12
+        while alive and not done and os.clock()<deadline do task.wait(.05) end
+        if not done then
+            pcall(task.cancel,worker)
+            error(T("Tempo limite ao carregar: ","Loading timed out: ")..path)
+        end
+        if not ok then error(tostring(result)) end
+        return result
     end
     local modules={}
     local names={State="Client/Core/PlayerState",Cards="Shared/Config/CardConfig",Stats="Shared/Rules/CardStats",
@@ -797,8 +809,18 @@ return function(ctx)
 end
 
 end)()
-local ok,err=pcall(init,{ui=ui,page=section("Farm"),T=function(pt,en) return hub.language=="pt" and pt or en end,
+local ok,err,finished=false,nil,false
+local worker=task.spawn(function()
+ ok,err=pcall(init,{ui=ui,page=section("Farm"),T=function(pt,en) return hub.language=="pt" and pt or en end,
  progress=progress,attach=function(fn) cleanup=fn end,section=section,quick=function(fn) quickAction=fn end})
+ finished=true
+end)
+local deadline=os.clock()+45
+while alive and not finished and os.clock()<deadline do task.wait(.05) end
+if not finished then
+ pcall(task.cancel,worker)
+ ok=false;err=T("Tempo limite de 45 segundos excedido. Última etapa: ","45-second timeout. Last stage: ")..loadingDetail.Text
+end
 if not alive then return end
 if not ok then
  if cleanup then pcall(cleanup);cleanup=nil end
@@ -822,11 +844,17 @@ local function apply(hex)
 end
 if type(readfile)=="function" then pcall(function() apply(Http:JSONDecode(readfile(themeFile)).hex) end) end
 listen(theme.FocusLost,function() local hex=theme.Text:gsub("#",""):upper();if apply(hex) and type(writefile)=="function" then pcall(writefile,themeFile,Http:JSONEncode({hex=hex})) end end)
-hub.ready()]====]}
+applyLayout()
+progress(1,"Tudo pronto. Escolha uma função para começar.","Ready. Choose a feature to get started.")
+loadingTitle.Text=T("Seu painel está pronto","Your panel is ready")
+hub.ready()
+task.delay(.35,function()
+ if alive and loading.Parent then loading:Destroy() end
+end)]====]}
 -- Luau · AnonHub universal entry point
-local version="0.38.5"
+local version="0.38.6"
 local games={
-    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0385.lua",theme="carbon"},
+    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0386.lua",theme="carbon"},
     [10767408330]={name="Peel THE Potato",chapter="2",version="0.37.5",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
 local universal={name="Universal",version="0.37.5",path="universal/main.lua",cache="AnonHub_Universal_v1.luau"}

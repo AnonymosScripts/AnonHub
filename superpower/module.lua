@@ -88,7 +88,16 @@ return function(ctx)
     local function module(path)
         local obj=RS
         for name in path:gmatch("[^/]+") do obj=obj:FindFirstChild(name); assert(obj,"Missing module: "..path) end
-        return require(obj)
+        local done,ok,result=false,false,nil
+        local worker=task.spawn(function() ok,result=pcall(require,obj);done=true end)
+        local deadline=os.clock()+12
+        while alive and not done and os.clock()<deadline do task.wait(.05) end
+        if not done then
+            pcall(task.cancel,worker)
+            error(T("Tempo limite ao carregar: ","Loading timed out: ")..path)
+        end
+        if not ok then error(tostring(result)) end
+        return result
     end
     local modules={}
     local names={State="Client/Core/PlayerState",Cards="Shared/Config/CardConfig",Stats="Shared/Rules/CardStats",
