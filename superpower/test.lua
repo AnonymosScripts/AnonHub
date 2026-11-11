@@ -1,6 +1,6 @@
 -- Luau · authenticated standalone test · Roblox/Delta
 local localSources={["superpower/main.lua"]=[====[-- Luau · Superpower standalone · Roblox/Delta · Luau
-local BOOT_VERSION="0.38.6"
+local BOOT_VERSION="0.38.7"
 local hub=...
 assert(type(hub)=="table" and hub.access,"Abra pelo loader autenticado")
 local Players=game:GetService("Players")
@@ -267,7 +267,7 @@ local loadingDetail=make("TextLabel",{Text="",Position=UDim2.fromScale(.1,.5),Si
 local track=make("Frame",{Position=UDim2.fromScale(.15,.65),Size=UDim2.new(.7,0,0,10),BackgroundColor3=colors.edge,ZIndex=51},loading);round(track,4)
 local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=accent,ZIndex=52},track);round(fill,4)
 make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(255,171,47),Color3.fromRGB(255,230,136)),Rotation=0},fill)
-local stage=make("TextLabel",{Text="SUPERPOWER / ANONHUB",Position=UDim2.fromScale(.1,.15),Size=UDim2.fromScale(.8,.05),BackgroundTransparency=1,Font=Enum.Font.Code,TextSize=10,TextColor3=colors.muted,ZIndex=51},loading)
+local stage=make("TextLabel",{Text="SUPERPOWER / ANONHUB  ·  v"..BOOT_VERSION,Position=UDim2.fromScale(.1,.15),Size=UDim2.fromScale(.8,.05),BackgroundTransparency=1,Font=Enum.Font.Code,TextSize=10,TextColor3=colors.muted,ZIndex=51},loading)
 local percent=make("TextLabel",{Text="",Position=UDim2.fromScale(.15,.7),Size=UDim2.fromScale(.7,.06),BackgroundTransparency=1,Font=Enum.Font.Code,TextSize=11,TextColor3=colors.muted,ZIndex=51},loading)
 local loadingClose=make("TextButton",{Text=T("Fechar","Close"),Position=UDim2.new(1,-88,0,12),Size=UDim2.fromOffset(76,32),BackgroundColor3=colors.tile,TextColor3=colors.text,Font=Enum.Font.Gotham,TextSize=12,ZIndex=52},loading);round(loadingClose,8)
 listen(loadingClose.Activated,function() hub.unload() end)
@@ -829,7 +829,19 @@ if not ok then
  percent.Text=T("Carregamento interrompido","Loading interrupted")
  hub.ready();return
 end
-progress(.92,"Aplicando suas preferências…","Applying your preferences…")
+-- BEGIN OPTIONAL SETUP
+local function boundedSetup(fn,seconds)
+ local completed,success,result=false,false,nil
+ local thread=task.spawn(function() success,result=pcall(fn);completed=true end)
+ local untilTime=os.clock()+seconds
+ while alive and not completed and os.clock()<untilTime do task.wait(.05) end
+ if not completed then pcall(task.cancel,thread);return false,T("Tempo limite excedido","Time limit exceeded") end
+ return success,result
+end
+-- END OPTIONAL SETUP
+progress(.92,"Montando os ajustes de tela…","Building display settings…")
+local restoreTheme
+local settingsOK,settingsError=boundedSetup(function()
 local settings=section("Ajustes")
 layoutControls(settings)
 ui.label(settings,"TextLabel",hub.language=="pt" and "Toque A: abrir/fechar. Segure 0,65s e solte: alternar progressao. Arraste: mover. RightCtrl: painel." or "Tap A: toggle panel. Hold 0.65s and release: toggle progression. Drag: move. RightCtrl: panel.",68,900)
@@ -838,23 +850,54 @@ theme.ClearTextOnFocus=false
 ui.label(settings,"TextLabel",hub.language=="pt" and "Cor de destaque: hexadecimal (ex.: FFCA42)" or "Accent color: hexadecimal (e.g. FFCA42)",30,901)
 local themeFile="AnonHub_Superpower_Theme.json"
 local function apply(hex)
- if not hex:match("^%x%x%x%x%x%x$") then return false end
+ if type(hex)~="string" or not hex:match("^%x%x%x%x%x%x$") then return false end
  accent=Color3.fromRGB(tonumber(hex:sub(1,2),16),tonumber(hex:sub(3,4),16),tonumber(hex:sub(5,6),16))
  float.BackgroundColor3=accent;mark.BackgroundColor3=accent;selectPage(current);for _,refresh in ipairs(checkRefresh) do refresh() end;for _,p in pairs(pages) do p.ScrollBarImageColor3=accent end;theme.Text=hex;return true
 end
-if type(readfile)=="function" then pcall(function() apply(Http:JSONDecode(readfile(themeFile)).hex) end) end
+-- Disk access is deliberately outside the panel opening path.
+ restoreTheme=function()
+  if type(readfile)=="function" then
+   local raw=readfile(themeFile)
+   if type(raw)=="string" and #raw<=2048 then
+    local saved=Http:JSONDecode(raw)
+    if alive and theme.Parent and type(saved)=="table" then apply(saved.hex) end
+   end
+  end
+ end
 listen(theme.FocusLost,function() local hex=theme.Text:gsub("#",""):upper();if apply(hex) and type(writefile)=="function" then pcall(writefile,themeFile,Http:JSONEncode({hex=hex})) end end)
-applyLayout()
-progress(1,"Tudo pronto. Escolha uma função para começar.","Ready. Choose a feature to get started.")
+end,5)
+if not alive then return end
+progress(.96,"Ajustando o painel à sua tela…","Fitting the panel to your screen…")
+local layoutOK,layoutError=pcall(applyLayout)
+if not layoutOK then
+ layoutConfig=table.clone(layoutDefaults)
+ pcall(applyLayout)
+end
+local warning
+if not settingsOK or not layoutOK then
+ warning=T("Ajustes visuais incompletos: ","Some display settings failed: ")..tostring(settingsError or layoutError)
+ footer.Text=warning
+ warn("[AnonHub "..BOOT_VERSION.."] "..warning)
+end
+-- BEGIN FINISH PANEL
+progress(1,"Painel pronto. As funções estão pausadas.","Panel ready. Features are paused.")
 loadingTitle.Text=T("Seu painel está pronto","Your panel is ready")
-hub.ready()
-task.delay(.35,function()
+-- Reveal the usable panel independently of the loader and optional disk access.
+task.delay(.25,function()
  if alive and loading.Parent then loading:Destroy() end
-end)]====]}
+end)
+pcall(hub.ready)
+-- END FINISH PANEL
+if restoreTheme then
+ task.defer(function()
+  boundedSetup(restoreTheme,2)
+ end)
+end
+]====]}
 -- Luau · AnonHub universal entry point
-local version="0.38.6"
+local version="0.38.7"
 local games={
-    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0386.lua",theme="carbon"},
+    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0387.lua",theme="carbon"},
     [10767408330]={name="Peel THE Potato",chapter="2",version="0.37.5",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
 local universal={name="Universal",version="0.37.5",path="universal/main.lua",cache="AnonHub_Universal_v1.luau"}
