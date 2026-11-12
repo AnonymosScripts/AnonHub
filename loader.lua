@@ -1,7 +1,7 @@
 -- Luau · AnonHub universal entry point
-local version="0.38.9"
+local version="0.38.10"
 local games={
-    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0389.lua",theme="carbon"},
+    [10770228857]={name="Steal a Superpower",world="1",online=true,place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_03810.lua",theme="carbon"},
     [10767408330]={name="Peel THE Potato",chapter="2",version="0.37.5",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
 local universal={name="Universal",version="0.37.5",path="universal/main.lua",cache="AnonHub_Universal_v1.luau"}
@@ -441,13 +441,13 @@ local function createUI(initialTheme)
             name.Position,name.Size=UDim2.fromOffset(73,9),UDim2.new(1,-85,0,26)
             name.Font,name.TextSize,name.TextXAlignment=Enum.Font.GothamBold,15,Enum.TextXAlignment.Left
             name.TextWrapped,name.TextTruncate=false,Enum.TextTruncate.AtEnd
-            local chapter=module.chapter and (pt and "Capítulo " or "Chapter ")..module.chapter
+            local chapter=module.world and (pt and "Mundo " or "World ")..module.world or module.chapter and (pt and "Capítulo " or "Chapter ")..module.chapter
                 or (pt and "Módulo dedicado" or "Dedicated module")
             local detail=label(card,"TextLabel",chapter,16,0)
             detail.Position,detail.Size=UDim2.fromOffset(73,34),UDim2.new(1,-85,0,16)
             detail.TextSize,detail.TextXAlignment=11,Enum.TextXAlignment.Left
             paint(detail,"TextColor3","muted")
-            local status=current and (pt and "JOGO ABERTO" or "CURRENT GAME") or (pt and "DISPONÍVEL" or "AVAILABLE")
+            local status=module.online and (current and (pt and "ONLINE · JOGO ABERTO" or "ONLINE · CURRENT GAME") or "ONLINE") or current and (pt and "JOGO ABERTO" or "CURRENT GAME") or (pt and "DISPONÍVEL" or "AVAILABLE")
             local badge=label(card,"TextLabel",status,17,0)
             badge.Position,badge.Size=UDim2.fromOffset(73,53),UDim2.new(1,-85,0,17)
             badge.Font,badge.TextSize,badge.TextXAlignment=Enum.Font.Code,10,Enum.TextXAlignment.Left
@@ -861,7 +861,7 @@ start=function(chooseLanguage)
 
     if not chooseLanguage and (language=="pt" or language=="en") then showAccess() return end
     local body
-    screen,body=panel(340,nil,not dedicated)
+    screen,body=panel(430,nil,not dedicated)
     local languageTitle=label(body,"TextLabel","Escolha seu idioma / Choose your language",48,1)
     languageTitle.Font=Enum.Font.GothamBold;languageTitle.TextSize=18
     local function selectLanguage(code)
@@ -872,12 +872,33 @@ start=function(chooseLanguage)
         dismiss()
         showAccess()
     end
-    local portuguese=button(body,"🇧🇷   Português  ·  Brasil",2)
-    portuguese.Size=UDim2.new(1,0,0,60);portuguese.TextSize=17
-    portuguese.Activated:Connect(function() selectLanguage("pt") end)
-    local english=button(body,"🇺🇸   English  ·  United States",3)
-    english.Size=UDim2.new(1,0,0,60);english.TextSize=17
-    english.Activated:Connect(function() selectLanguage("en") end)
+    local function languageCard(code,flag,title,subtitle,order)
+        local option=button(body,"",order)
+        option.Size=UDim2.new(1,0,0,72)
+        option.AutoButtonColor=false
+        local selected=preferences.language==code
+        skin.paint(option,"BackgroundColor3",selected and "edge" or "tile")
+        local emblem=label(option,"TextLabel",flag,44,0)
+        emblem.Position,emblem.Size=UDim2.fromOffset(12,14),UDim2.fromOffset(46,44)
+        emblem.TextSize=29
+        local name=label(option,"TextLabel",title,25,0)
+        name.Position,name.Size=UDim2.fromOffset(72,11),UDim2.new(1,-118,0,25)
+        name.Font,name.TextSize,name.TextXAlignment=Enum.Font.GothamBold,18,Enum.TextXAlignment.Left
+        local hint=label(option,"TextLabel",subtitle,20,0)
+        hint.Position,hint.Size=UDim2.fromOffset(73,39),UDim2.new(1,-120,0,20)
+        hint.TextSize,hint.TextXAlignment=11,Enum.TextXAlignment.Left
+        skin.paint(hint,"TextColor3","muted")
+        local indicator=label(option,"TextLabel",selected and "✓" or "›",30,0)
+        indicator.Position,indicator.Size=UDim2.new(1,-38,0,21),UDim2.fromOffset(28,30)
+        indicator.TextSize=22;skin.paint(indicator,"TextColor3","accent")
+        local tween=game:GetService("TweenService")
+        option.MouseEnter:Connect(function() tween:Create(option,TweenInfo.new(.15),{BackgroundColor3=color.edge}):Play() end)
+        option.MouseLeave:Connect(function() tween:Create(option,TweenInfo.new(.15),{BackgroundColor3=selected and color.edge or color.tile}):Play() end)
+        option.Activated:Connect(function() selectLanguage(code) end)
+    end
+    languageCard("pt","🇧🇷","Português","Brasil · Continuar em português",2)
+    languageCard("en","🇺🇸","English","United States · Continue in English",3)
+
     button(body,"Fechar  /  Close",4).Activated:Connect(state.close)
 end
 

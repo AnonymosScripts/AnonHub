@@ -1,5 +1,5 @@
 -- Luau · Superpower standalone · Roblox/Delta · Luau
-local BOOT_VERSION="0.38.9"
+local BOOT_VERSION="0.38.10"
 local hub=...
 assert(type(hub)=="table" and hub.access,"Abra pelo loader autenticado")
 local Players=game:GetService("Players")
@@ -296,6 +296,11 @@ end)
 listen(Input.InputBegan,function(i,processed)
  if not processed and i.KeyCode==Enum.KeyCode.RightControl then visibility(not panel.Visible) end
 end)
+local loadingStarted=os.clock()
+local loadingComplete,skipPresentation=false,false
+local function revealPanel()
+ return loadingComplete and (skipPresentation or os.clock()-loadingStarted>=2.5)
+end
 local loading=make("Frame",{Name="Loading",Size=UDim2.fromScale(1,1),BackgroundColor3=colors.dark,ZIndex=50},panel);round(loading,10)
 local loadingBrand=make("TextLabel",{Text="ANONHUB",Position=UDim2.fromScale(.1,.045),Size=UDim2.fromScale(.8,.12),BackgroundTransparency=1,Font=Enum.Font.GothamBlack,TextSize=28,TextColor3=accent,ZIndex=51},loading)
 local loadingTitle=make("TextLabel",{Text=T("Carregando funções","Loading features"),Position=UDim2.fromScale(.1,.59),Size=UDim2.fromScale(.8,.1),BackgroundTransparency=1,Font=Enum.Font.GothamBold,TextSize=18,TextWrapped=true,TextColor3=colors.text,ZIndex=51},loading)
@@ -316,6 +321,12 @@ shimmer:Play()
 listen(loading.Destroying,function() shimmer:Cancel() end)
 -- Thumbnail downloads never block feature initialization.
 task.spawn(function() pcall(function() game:GetService("ContentProvider"):PreloadAsync({cover}) end) end)
+local skip=make("TextButton",{Text=T("Pular animação","Skip animation"),Position=UDim2.fromScale(.3,.93),Size=UDim2.fromScale(.4,.055),BackgroundColor3=colors.tile,TextColor3=colors.text,Font=Enum.Font.GothamMedium,TextSize=11,ZIndex=52},loading);round(skip,8)
+listen(skip.Activated,function()
+ skipPresentation=true
+ if loadingComplete then loading:Destroy()
+ else skip.Text=T("Aguardando funções…","Waiting for features…");skip.Active=false end
+end)
 local loadingClose=make("TextButton",{Text=T("Fechar","Close"),Position=UDim2.new(1,-88,0,12),Size=UDim2.fromOffset(76,32),BackgroundColor3=colors.tile,TextColor3=colors.text,Font=Enum.Font.Gotham,TextSize=12,ZIndex=52},loading);round(loadingClose,8)
 listen(loadingClose.Activated,function() hub.unload() end)
 local function progress(value,pt,en)
@@ -543,7 +554,7 @@ return function(ctx)
     toggle("boss","Priorizar bosses","Prioritize bosses")
     toggle("abilities","Habilidades automáticas","Automatic abilities")
     page=ctx.section("Cartas")
-    toggle("open","Abrir packs","Open packs")
+    toggle("open","Abrir pacotes","Open packs")
     toggle("equip","Equipar melhor carta","Equip best card")
     toggle("place","Melhores cartas na base","Best cards on base")
     toggle("fuse","Fundir cartas","Fuse cards")
@@ -1043,6 +1054,11 @@ local restoreTheme
 local settingsOK,settingsError=boundedSetup(function()
 local settings=section("Ajustes")
 layoutControls(settings)
+local languageButton=ui.button(settings,T("🇧🇷  Idioma: Português  ·  Alterar","🇺🇸  Language: English  ·  Change"),870)
+listen(languageButton.Activated,function()
+ if type(hub.chooseLanguage)=="function" then hub.chooseLanguage() end
+end)
+ui.label(settings,"TextLabel",T("Trocar o idioma reabre o painel com as automações pausadas.","Changing language reopens the panel with automation paused."),44,871)
 ui.label(settings,"TextLabel",hub.language=="pt" and "Toque A: abrir/fechar. Segure 0,65s e solte: alternar progressao. Arraste: mover. RightCtrl: painel." or "Tap A: toggle panel. Hold 0.65s and release: toggle progression. Drag: move. RightCtrl: panel.",68,900)
 local theme=ui.label(settings,"TextBox","EBA5FF",40,902)
 theme.ClearTextOnFocus=false
@@ -1112,9 +1128,13 @@ end
 progress(1,"Painel pronto. As funções estão pausadas.","Panel ready. Features are paused.")
 loadingTitle.Text=T("Seu painel está pronto","Your panel is ready")
 -- Reveal the usable panel independently of the loader and optional disk access.
-task.delay(.25,function()
- if alive and loading.Parent then loading:Destroy() end
-end)
+loadingComplete=true
+if revealPanel() then loading:Destroy() else
+ task.spawn(function()
+  while alive and loading.Parent and not revealPanel() do task.wait(.05) end
+  if alive and loading.Parent then loading:Destroy() end
+ end)
+end
 pcall(hub.ready)
 -- END FINISH PANEL
 if restoreTheme then
