@@ -24,6 +24,26 @@ function Logic.sameList(a,b)
     for i,v in ipairs(a) do if b[i]~=v then return false end end
     return true
 end
+function Logic.sameArea(a,b)
+ if not a or not b or a.gate or b.gate then return false end
+ if a.minZ~=nil and a.maxZ~=nil and b.minZ~=nil and b.maxZ~=nil then return a.minZ==b.minZ and a.maxZ==b.maxZ end
+ return a.id==b.id
+end
+function Logic.carried(raw)
+ local ids,count={},0
+ if type(raw)=="string" then
+  for id in raw:gmatch("(%d+):[%w_]+") do if not ids[id] then ids[id]=true;count+=1 end end
+ end
+ return ids,count
+end
+function Logic.displayName(value)
+ return tostring(value or ""):gsub("_"," "):gsub("(%l)(%u)","%1 %2"):gsub("%s+"," "):match("^%s*(.-)%s*$")
+end
+function Logic.tripState(count,atHome,elapsed)
+ if count==0 then return atHome and "delivered" or "lost" end
+ if elapsed>15 then return "timeout" end
+ return "waiting"
+end
 -- END PURE LOGIC
 return function(ctx)
     assert(game.PlaceId==74183246285569 and game.GameId==10770228857,"Wrong game")
@@ -62,7 +82,7 @@ return function(ctx)
         if #log>30 then table.remove(log,1) end
         info.Text=tostring(text)
     end
-    local cfg={farm=false,progress=false,boss=false,open=false,equip=false,place=false,fuse=false,
+    local cfg={returnFull=false,farm=false,progress=false,boss=false,open=false,equip=false,place=false,fuse=false,
         sacrifice=false,tree=false,upgrades=false,abilities=false,boost=false,guard=false,stun=false,
         multiplier=1e12,reserve=1,maxRank=3,protected="",branch="Power",farmMode="Auto",bossId=2,npcId=1,rarities={Common=true,Uncommon=true,Rare=true}}
     local settingsFile="AnonHub_Superpower_"..player.UserId..".json"
@@ -172,7 +192,7 @@ return function(ctx)
             end
             cfg[key]=not cfg[key]
             if key=="progress" then
-                for _,k in ipairs({"farm","boss","open","equip","place","fuse","tree","upgrades","abilities"}) do cfg[k]=cfg.progress end
+                for _,k in ipairs({"farm","boss","open","equip","place","fuse","tree","upgrades","abilities","returnFull"}) do cfg[k]=cfg.progress end
                 for _,refresh in ipairs(updates) do refresh() end
             end
             if key=="abilities" or key=="progress" then pcall(setAuto,cfg.abilities) end
@@ -181,13 +201,14 @@ return function(ctx)
     end
     ctx.quick(function()
         cfg.progress=not cfg.progress
-        for _,k in ipairs({"farm","boss","open","equip","place","fuse","tree","upgrades","abilities"}) do cfg[k]=cfg.progress end
+        for _,k in ipairs({"farm","boss","open","equip","place","fuse","tree","upgrades","abilities","returnFull"}) do cfg[k]=cfg.progress end
         pcall(setAuto,cfg.abilities)
         for _,refresh in ipairs(updates) do refresh() end
         report(cfg.progress and T("Progressao ligada","Progression enabled") or T("Progressao desligada","Progression disabled"))
     end)
     toggle("progress","Progressão automática","Auto progression")
     toggle("farm","Farm de inimigos","Enemy farm")
+    toggle("returnFull","Mochila cheia: portal e retomar farm","Full bag: portal and resume farming")
     toggle("boss","Priorizar bosses","Prioritize bosses")
     toggle("abilities","Habilidades automáticas","Automatic abilities")
     page=ctx.section("Cartas")
@@ -198,13 +219,13 @@ return function(ctx)
     toggle("tree","Comprar nós da árvore","Buy skill tree nodes")
     toggle("upgrades","Upgrades com dinheiro do jogo","Upgrades with game cash")
     toggle("sacrifice","Sacrificar cartas excedentes","Sacrifice spares according to Settings")
-    label(T("Sacrificio preserva cartas equipadas, posicionadas, protegidas e a reserva. Desligado por padrao.","Sacrifice preserves equipped, placed, protected cards and the reserve. Off by default."),54)
+    label(T("Sacrifício preserva cartas equipadas, posicionadas, protegidas e a reserva. Desligado por padrão.","Sacrifice preserves equipped, placed, protected cards and the reserve. Off by default."),54)
     page=ctx.section("Combate")
     toggle("boost","Dano NPC local ampliado (experimental)","Boost local NPC damage (experimental)")
     toggle("guard","Bloquear dano local (experimental)","Block local damage (experimental)")
     toggle("stun","Bloquear stun local (experimental)","Block local stun (experimental)")
     label(T("Nao garante imunidade no servidor. Multiplicador atua em NPCs marcados Local.","Does not guarantee server immunity. Multiplier affects NPCs marked Local."),42)
-    label(T("Farm usa teleporte ate o alvo selecionado.","Farm teleports to the selected target."),36)
+    label(T("Farm usa teleporte até o alvo selecionado.","Farm teleports to the selected target."),36)
     page=ctx.section("Ajustes")
     local function textbox(key,caption,parse)
         label(caption,28); order=order+1
@@ -243,7 +264,7 @@ return function(ctx)
     if padRoot then for _,p in ipairs(padRoot:GetChildren()) do
         local a=p:GetAttributes()
         pads[#pads+1]={id=tonumber(p.Name),level=a.Level or 1,gate=a.Gate,enemy=a.Enemy,name=a.Name or a.Enemy,
-            respawn=a.RespawnTime or 90,cf=a.PadCFrame}
+            respawn=a.RespawnTime or 90,cf=a.PadCFrame,minZ=a.ZoneMinZ,maxZ=a.ZoneMaxZ}
     end end
     table.sort(pads,function(a,b) return a.level<b.level end)
     local padById={}; for _,p in ipairs(pads) do padById[p.id]=p end
@@ -272,10 +293,21 @@ return function(ctx)
         update()
     end
     selector(T("Modo de farm","Farm mode"),"farmMode",{{id="Auto",text=T("Progressão automática","Automatic progression")},{id="Boss",text=T("Boss escolhido","Selected boss")},{id="NPC",text=T("Área de NPCs escolhida","Selected NPC area")},{id="Mixed",text=T("NPCs + Boss (prioridade ao boss)","NPCs + Boss (boss priority)")}})
-    local bosses,areas={},{}
+    local bosses,areas,areaRepresentatives={},{},{}
     for _,pad in ipairs(pads) do
-        local option={id=pad.id,text=pad.name.." / "..pad.enemy.." · Lv "..pad.level.." · "..pad.respawn.."s"}
-        if pad.gate then bosses[#bosses+1]=option else areas[#areas+1]=option end
+        local option={id=pad.id,text=Logic.displayName(pad.name).." · Lv "..pad.level.." · "..pad.respawn.."s"}
+        if pad.gate then bosses[#bosses+1]=option else
+            local representative
+            for _,entry in ipairs(areaRepresentatives) do if Logic.sameArea(pad,entry) then representative=entry;break end end
+            if representative then
+                if cfg.npcId==pad.id then cfg.npcId=representative.id end
+            else
+                areaRepresentatives[#areaRepresentatives+1]=pad
+                local count=0;for _,other in ipairs(pads) do if Logic.sameArea(pad,other) then count+=1 end end
+                option.text=Logic.displayName(pad.name)..T(" · Área completa · "," · Full area · ")..count..T(" pontos"," spawn points")
+                areas[#areas+1]=option
+            end
+        end
     end
     selector("Boss","bossId",bosses)
     selector(T("Área de NPCs","NPC area"),"npcId",areas)
@@ -412,6 +444,80 @@ return function(ctx)
     local nextKey=1
     local lastKey=0
     local nextBossProbe,probeUntil=0,0
+    local patrolIndex,patrolAt,patrolSelection=0,0,nil
+    local function patrolPad(now,selectionId)
+        selectionId=selectionId or cfg.npcId
+        local selected=padById[selectionId]
+        local area={}
+        for _,pad in ipairs(pads) do if Logic.sameArea(pad,selected) then area[#area+1]=pad end end
+        if #area==0 then return selected end
+        if patrolSelection~=selectionId then patrolSelection=selectionId;patrolIndex=0;patrolAt=0 end
+        if now>=patrolAt then patrolIndex=patrolIndex%#area+1;patrolAt=now+8 end
+        return area[patrolIndex]
+    end
+    local bagInfo=label("",60)
+    bagInfo.LayoutOrder=799
+    local seenPacks=Logic.carried(player:GetAttribute("CarriedPacks"))
+    local collected,trips,bagCount=0,0,0
+    local trip,tripStarted,tripPosition,nextPortal,portalStatus=false,0,nil,0,""
+    local function syncBag()
+        local ids,count=Logic.carried(player:GetAttribute("CarriedPacks"))
+        for id in pairs(ids) do if not seenPacks[id] then seenPacks[id]=true;collected+=1 end end
+        bagCount=count
+    end
+    connect(player:GetAttributeChangedSignal("CarriedPacks"),syncBag);syncBag()
+    local function bagStep(root,humanoid,data)
+        local capacity=player:GetAttribute("CarryCapacity")
+        if type(capacity)~="number" or capacity<1 then capacity=modules.Progress.CarryCapacity(data) end
+        bagInfo.Text=T("Pacotes coletados: ","Packs collected: ")..collected..T(" · Mochila: "," · Bag: ")..bagCount.."/"..capacity..T(" · Viagens: "," · Trips: ")..trips.."\n"..portalStatus
+        if not cfg.returnFull or not (cfg.farm or cfg.boss) then trip=false;portalStatus="";return false end
+        if not root or not humanoid or humanoid.Health<=0 then trip=false;return false end
+        local home=player:GetAttribute("BaseSpawn")
+        local atHome=typeof(home)=="CFrame" and (root.Position-home.Position).Magnitude<45
+        if trip then
+            local state=Logic.tripState(bagCount,atHome,os.clock()-tripStarted)
+            if state=="delivered" or state=="lost" then
+                trip=false
+                if atHome then
+                    trips+=1;portalStatus=T("Entrega concluída. Retomando o farm.","Delivery complete. Resuming farming.")
+                    if tripPosition then root.CFrame=tripPosition end
+                    nextBossProbe=0;patrolAt=0
+                else portalStatus=T("Mochila vazia fora da base; viagem não contabilizada.","Bag emptied away from home; trip not counted.") end
+                return true
+            end
+            if state=="timeout" then
+                trip=false;nextPortal=os.clock()+5
+                portalStatus=T("Entrega não confirmada. Tentando o portal novamente.","Delivery not confirmed. Retrying the portal.")
+            end
+            return true
+        end
+        if bagCount<capacity then return false end
+        if os.clock()<nextPortal then return true end
+        nextPortal=os.clock()+3
+        local portalRoot=workspace:FindFirstChild("BossPortals")
+        local prompt,part,distance=nil,nil,math.huge
+        if portalRoot then for _,candidate in ipairs(portalRoot:GetDescendants()) do
+            if candidate:IsA("ProximityPrompt") and candidate.Name=="PortalPrompt" and candidate.Enabled then
+                local parent=candidate.Parent
+                local cf=parent:IsA("Attachment") and parent.WorldCFrame or parent:IsA("BasePart") and parent.CFrame
+                if cf then local d=(root.Position-cf.Position).Magnitude;if d<distance then prompt=candidate;part=cf;distance=d end end
+            end
+        end end
+        if not prompt then portalStatus=T("Mochila cheia. Aguardando um portal disponível.","Bag full. Waiting for an available portal.");return false end
+        tripPosition=root.CFrame;tripStarted=os.clock();trip=true
+        root.CFrame=part+Vector3.new(0,0,3)
+        portalStatus=T("Retornando pelo portal; aguardando confirmação da entrega.","Returning through the portal; waiting for delivery confirmation.")
+        task.spawn(function()
+            task.wait(.3)
+            if not alive or not trip or not cfg.returnFull or not prompt.Parent then return end
+            if type(fireproximityprompt)=="function" then pcall(fireproximityprompt,prompt)
+            else
+                prompt:InputHoldBegin();task.wait(prompt.HoldDuration+.1)
+                if prompt.Parent then prompt:InputHoldEnd() end
+            end
+        end)
+        return true
+    end
     local function step()
         local data=State.Data
         if not data then report(T("Aguardando dados replicados...","Waiting for replicated data...")); return end
@@ -422,8 +528,14 @@ return function(ctx)
         local char=player.Character
         local root=char and char:FindFirstChild("HumanoidRootPart")
         local humanoid=char and char:FindFirstChildOfClass("Humanoid")
-        local target,score=nil,math.huge
+        if bagStep(root,humanoid,data) then return end
         local level=modules.Power.Level(data.Power or 0)
+        local autoArea
+        if cfg.farmMode=="Auto" and cfg.farm then
+            for _,pad in ipairs(pads) do if not pad.gate and pad.level<=level then autoArea=pad end end
+        end
+        local patrolling=(cfg.farmMode=="NPC" or cfg.farmMode=="Mixed") and patrolPad(os.clock()) or autoArea and patrolPad(os.clock(),autoArea.id)
+        local target,targetBoss,score=nil,false,math.huge
         local livePads={}
         for _,enemy in ipairs(enemies) do
             watch(enemy)
@@ -436,24 +548,25 @@ return function(ctx)
                     local boss=enemy:GetAttribute("Boss")==true
                     local el=enemy:GetAttribute("Level") or 1
                     local available=cfg.boost or el<=level
-                    if cfg.farmMode~="Auto" then available=Logic.manualEligible(cfg.farmMode,boss,pid,cfg.bossId,cfg.npcId)
+                    if cfg.farmMode~="Auto" then available=Logic.manualEligible(cfg.farmMode,boss,pid,cfg.bossId,cfg.npcId) or (not boss and (cfg.farmMode=="NPC" or cfg.farmMode=="Mixed") and Logic.sameArea(padById[pid],padById[cfg.npcId]))
                     elseif cfg.progress and boss then available=available and currentBoss and pid==currentBoss.id end
                     if available and (cfg.farm or (cfg.boss and (boss or cfg.farmMode=="Mixed"))) then
                         local rank=(root.Position-er.Position).Magnitude
+                        if patrolling and not boss and pid~=patrolling.id then rank+=1000000 end
                         if (cfg.boss or cfg.farmMode=="Mixed") and boss then rank=rank-1000000000 end
-                        if rank<score then score=rank; target=er end
+                        if rank<score then score=rank; target=er;targetBoss=boss end
                     end
                 end
             end
         end
         for _,pad in ipairs(pads) do if pad.gate then
-            local state=livePads[pad.id] and T("VIVO","ALIVE") or (respawns[pad.id] and (math.ceil(math.max(0,respawns[pad.id]-os.clock()))..T("s estimados","s estimated")) or T("nao observado","not observed"))
-            bossLines[#bossLines+1]=pad.enemy..": "..state
+            local state=livePads[pad.id] and T("VIVO","ALIVE") or (respawns[pad.id] and (math.ceil(math.max(0,respawns[pad.id]-os.clock()))..T("s estimados","s estimated")) or T("não observado","not observed"))
+            bossLines[#bossLines+1]=Logic.displayName(pad.enemy)..": "..state
         end end
         bossInfo.Text=table.concat(bossLines," | ")
         local selected=(cfg.farmMode=="Boss" or cfg.farmMode=="Mixed" and livePads[cfg.bossId]) and padById[cfg.bossId] or (cfg.farmMode=="NPC" or cfg.farmMode=="Mixed") and padById[cfg.npcId] or currentBoss
         local modeLabel=cfg.farmMode=="Mixed" and "NPCs + Boss" or cfg.farmMode
-        targetInfo.Text=modeLabel.." · "..(selected and selected.name or T("Sem alvo","No target")).." · "..(target and T("Alvo encontrado","Target found") or T("Aguardando spawn/streaming ou liberacao da area","Waiting for spawn/streaming or area unlock"))
+        targetInfo.Text=modeLabel.." · "..(selected and Logic.displayName(selected.name) or T("Sem alvo","No target")).." · "..(target and T("Alvo encontrado","Target found") or T("Aguardando spawn/streaming ou liberacao da area","Waiting for spawn/streaming or area unlock"))
         if not (root and humanoid and humanoid.Health>0) or modules.Opening.Playing then return end
         if cfg.farm or cfg.boss then
             if cfg.farmMode=="Mixed" and not livePads[cfg.bossId] then
@@ -468,6 +581,11 @@ return function(ctx)
                     return
                 end
             end
+            if patrolling and not targetBoss and not livePads[patrolling.id] and not (cfg.farmMode=="Mixed" and livePads[cfg.bossId]) and typeof(patrolling.cf)=="CFrame" then
+                local destination=patrolling.cf+Vector3.new(0,4,0)
+                if (root.Position-destination.Position).Magnitude>15 then root.CFrame=destination end
+                return
+            end
             if target then
                 local delta=root.Position-target.Position
                 if delta.Magnitude>10 then
@@ -476,6 +594,7 @@ return function(ctx)
                 end
             else
                 local chosen=cfg.farmMode=="Boss" and padById[cfg.bossId] or (cfg.farmMode=="NPC" or cfg.farmMode=="Mixed") and padById[cfg.npcId] or cfg.progress and currentBoss
+                if patrolling then chosen=patrolling end
                 if chosen and typeof(chosen.cf)=="CFrame" and (cfg.farmMode~="Auto" or cfg.boost or chosen.level<=level) then
                     local destination=chosen.cf.Position+Vector3.new(0,4,0)
                     if (root.Position-destination).Magnitude>15 then root.CFrame=CFrame.new(destination) end
@@ -509,7 +628,7 @@ return function(ctx)
         for key,value in pairs(cfg) do if type(value)=="boolean" then cfg[key]=false end end
         pcall(setAuto,oldAuto)
         for _,update in ipairs(updates) do update() end
-        report(T("Automacoes paradas.","Automation stopped."))
+        report(T("Automações paradas.","Automation stopped."))
     end)
     order=order+1
     local export=ui.button(page,T("Exportar diagnóstico de teste","Export test diagnostics"),order)
@@ -520,6 +639,6 @@ return function(ctx)
             report(saved and name or tostring(err))
         end
     end)
-    report(T("Pronto para teste. Automacoes desligadas.","Ready for testing. Automation is off."))
+    report(T("Pronto para teste. Automações desligadas.","Ready for testing. Automation is off."))
     return cleanup
 end
