@@ -1,7 +1,7 @@
 -- Luau · AnonHub universal entry point
-local version="0.38.8"
+local version="0.38.9"
 local games={
-    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0388.lua",theme="carbon"},
+    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0389.lua",theme="carbon"},
     [10767408330]={name="Peel THE Potato",chapter="2",version="0.37.5",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
 local universal={name="Universal",version="0.37.5",path="universal/main.lua",cache="AnonHub_Universal_v1.luau"}
@@ -861,8 +861,9 @@ start=function(chooseLanguage)
 
     if not chooseLanguage and (language=="pt" or language=="en") then showAccess() return end
     local body
-    screen,body=panel(250,nil,not dedicated)
-    label(body,"TextLabel","Escolha o idioma  /  Choose a language",38,1)
+    screen,body=panel(340,nil,not dedicated)
+    local languageTitle=label(body,"TextLabel","Escolha seu idioma / Choose your language",48,1)
+    languageTitle.Font=Enum.Font.GothamBold;languageTitle.TextSize=18
     local function selectLanguage(code)
         if not current() then return end
         language=code
@@ -871,9 +872,13 @@ start=function(chooseLanguage)
         dismiss()
         showAccess()
     end
-    button(body,"🇧🇷  Português",2).Activated:Connect(function() selectLanguage("pt") end)
-    button(body,"🇺🇸  English",3).Activated:Connect(function() selectLanguage("en") end)
+    local portuguese=button(body,"🇧🇷   Português  ·  Brasil",2)
+    portuguese.Size=UDim2.new(1,0,0,60);portuguese.TextSize=17
+    portuguese.Activated:Connect(function() selectLanguage("pt") end)
+    local english=button(body,"🇺🇸   English  ·  United States",3)
+    english.Size=UDim2.new(1,0,0,60);english.TextSize=17
+    english.Activated:Connect(function() selectLanguage("en") end)
     button(body,"Fechar  /  Close",4).Activated:Connect(state.close)
 end
 
-start(false)
+start(true)

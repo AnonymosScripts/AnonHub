@@ -1,6 +1,6 @@
 -- Luau · authenticated standalone test · Roblox/Delta
 local localSources={["superpower/main.lua"]=[====[-- Luau · Superpower standalone · Roblox/Delta · Luau
-local BOOT_VERSION="0.38.8"
+local BOOT_VERSION="0.38.9"
 local hub=...
 assert(type(hub)=="table" and hub.access,"Abra pelo loader autenticado")
 local Players=game:GetService("Players")
@@ -11,8 +11,8 @@ local player=Players.LocalPlayer
 local links,painted={},{}
 local cleanup,quickAction
 local alive=true
-local colors={dark=Color3.fromRGB(35,31,25),tile=Color3.fromRGB(65,54,39),edge=Color3.fromRGB(116,88,49),text=Color3.fromRGB(252,246,226),muted=Color3.fromRGB(213,195,163),accent=Color3.fromRGB(255,202,66)}
-colors.sidebar=Color3.fromRGB(48,39,29)
+local colors={dark=Color3.fromRGB(12,12,16),tile=Color3.fromRGB(39,24,53),edge=Color3.fromRGB(150,60,220),text=Color3.fromRGB(255,245,255),muted=Color3.fromRGB(202,180,216),accent=Color3.fromRGB(235,165,255)}
+colors.sidebar=Color3.fromRGB(25,15,35)
 local themeBindings=setmetatable({}, {__mode="k"})
 local accent=colors.accent
 local function T(pt,en) return hub.language=="pt" and pt or en end
@@ -37,18 +37,43 @@ local function stroke(o) return make("UIStroke",{Color=colors.edge,Thickness=1,A
 local screen=make("ScreenGui",{Name="AnonHubSuperpower",ResetOnSpawn=false,DisplayOrder=10032,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},player:WaitForChild("PlayerGui"))
 local panel=make("Frame",{AnchorPoint=Vector2.new(.5,.5),Size=UDim2.fromScale(.94,.88),Position=UDim2.fromScale(.5,.5),BackgroundColor3=colors.dark,ClipsDescendants=true},screen)
 round(panel,9);stroke(panel)
-make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(73,53,35),colors.dark),Rotation=90},panel)
+make("UIGradient",{Color=ColorSequence.new(colors.tile,colors.dark),Rotation=90},panel)
 local sidebar=make("Frame",{Size=UDim2.new(0,174,1,0),BackgroundColor3=colors.sidebar},panel)
 make("TextLabel",{Text="ANONHUB",Position=UDim2.fromOffset(17,24),Size=UDim2.fromOffset(145,28),BackgroundTransparency=1,TextColor3=colors.text,Font=Enum.Font.GothamBold,TextSize=20,TextXAlignment=Enum.TextXAlignment.Left},sidebar)
 make("TextLabel",{Text="SUPERPOWER / CONTROL",Position=UDim2.fromOffset(18,56),Size=UDim2.fromOffset(146,20),BackgroundTransparency=1,TextColor3=accent,Font=Enum.Font.Code,TextSize=9,TextXAlignment=Enum.TextXAlignment.Left},sidebar)
 make("TextLabel",{Text=player.DisplayName,Position=UDim2.new(0,16,1,-62),Size=UDim2.new(1,-32,0,24),BackgroundTransparency=1,TextColor3=colors.text,Font=Enum.Font.GothamMedium,TextSize=12,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left},sidebar)
 local header=make("Frame",{Size=UDim2.new(1,0,0,68),BackgroundTransparency=1,Active=true},panel)
 local mark=make("TextLabel",{Text="A",Font=Enum.Font.GothamBlack,TextSize=20,TextColor3=colors.dark,BackgroundColor3=accent,Position=UDim2.fromOffset(16,16),Size=UDim2.fromOffset(36,36)},header);round(mark)
-if hub.decorateArtwork then
- local art=make("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1},mark);round(art);hub.decorateArtwork(art)
+-- Authenticated profile; no key value is displayed.
+mark.Text=string.upper(player.DisplayName:sub(1,1))
+mark.Size=UDim2.fromOffset(40,40);mark.Position=UDim2.fromOffset(14,16)
+local avatar=make("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image="rbxthumb://type=AvatarHeadShot&id="..player.UserId.."&w=150&h=150",ScaleType=Enum.ScaleType.Fit},mark);round(avatar,10)
+listen(avatar:GetPropertyChangedSignal("IsLoaded"),function() if avatar.IsLoaded then mark.TextTransparency=1 end end)
+local title=make("TextLabel",{Text=player.DisplayName,Size=UDim2.new(1,-154,0,22),Position=UDim2.fromOffset(64,8),BackgroundTransparency=1,TextColor3=colors.text,TextSize=15,Font=Enum.Font.GothamBold,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left},header)
+make("TextLabel",{Text="@"..player.Name,Position=UDim2.fromOffset(65,31),Size=UDim2.new(1,-154,0,16),BackgroundTransparency=1,TextColor3=colors.muted,TextSize=11,Font=Enum.Font.Gotham,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left},header)
+local profileAccess=make("TextLabel",{Text="",Position=UDim2.fromOffset(65,49),Size=UDim2.new(1,-82,0,18),BackgroundTransparency=1,TextColor3=accent,TextSize=10,Font=Enum.Font.GothamMedium,TextXAlignment=Enum.TextXAlignment.Left},header)
+-- BEGIN ACCESS FORMAT
+local function accessText(access,clockNow,unixNow)
+ local plan=access.plan=="Premium" and "Premium" or "Member"
+ local remaining=type(access.deadline)=="number" and access.deadline-clockNow or type(access.expiresAt)=="number" and access.expiresAt-unixNow
+ if remaining then
+  if remaining<=0 then return plan..T(" · Expirado"," · Expired") end
+  local seconds=math.floor(remaining)
+  local days=math.floor(seconds/86400);seconds=seconds%86400
+  local hours=math.floor(seconds/3600);local minutes=math.floor(seconds%3600/60)
+  local duration=(days>0 and days.."d " or "")..string.format("%02dh %02dm %02ds",hours,minutes,seconds%60)
+  return plan.." · "..duration
+ end
+ return plan..(access.lifetime==true and T(" · Vitalício"," · Lifetime") or T(" · Prazo não informado"," · Duration unavailable"))
 end
-local title=make("TextLabel",{Text="Superpower",Size=UDim2.new(1,-160,0,26),Position=UDim2.fromOffset(64,12),BackgroundTransparency=1,TextColor3=colors.text,TextSize=20,Font=Enum.Font.GothamBold,TextXAlignment=Enum.TextXAlignment.Left},header)
-make("TextLabel",{Text=T("≡  ARRASTE PARA MOVER","≡  DRAG TO MOVE"),Position=UDim2.fromOffset(65,39),Size=UDim2.new(1,-160,0,16),BackgroundTransparency=1,TextColor3=colors.muted,TextSize=10,Font=Enum.Font.Code,TextXAlignment=Enum.TextXAlignment.Left},header)
+-- END ACCESS FORMAT
+profileAccess.Text=accessText(hub.access,os.clock(),os.time())
+task.spawn(function()
+ while alive do
+  profileAccess.Text=accessText(hub.access,os.clock(),os.time())
+  task.wait(1)
+ end
+end)
 local footer=make("TextLabel",{Text=T("MÓDULO DO JOGO  /  PT","GAME MODULE  /  EN").." · v"..BOOT_VERSION,Size=UDim2.new(1,-32,0,30),Position=UDim2.new(0,16,1,-32),BackgroundTransparency=1,TextColor3=colors.muted,TextSize=10,Font=Enum.Font.Code,TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd},panel)
 local float=make("TextButton",{Text="A",Size=UDim2.fromOffset(52,52),Position=UDim2.fromScale(.02,.7),BackgroundColor3=accent,TextColor3=colors.dark,TextSize=20,Font=Enum.Font.GothamBlack},screen);round(float,16);stroke(float)
 if hub.decorateLauncher then hub.decorateLauncher(float) end
@@ -273,14 +298,25 @@ listen(Input.InputBegan,function(i,processed)
  if not processed and i.KeyCode==Enum.KeyCode.RightControl then visibility(not panel.Visible) end
 end)
 local loading=make("Frame",{Name="Loading",Size=UDim2.fromScale(1,1),BackgroundColor3=colors.dark,ZIndex=50},panel);round(loading,10)
-local loadingBrand=make("TextLabel",{Text="ANONHUB",Position=UDim2.fromScale(.1,.22),Size=UDim2.fromScale(.8,.12),BackgroundTransparency=1,Font=Enum.Font.GothamBlack,TextSize=28,TextColor3=accent,ZIndex=51},loading)
-local loadingTitle=make("TextLabel",{Text=T("Preparando seu painel","Preparing your panel"),Position=UDim2.fromScale(.1,.38),Size=UDim2.fromScale(.8,.1),BackgroundTransparency=1,Font=Enum.Font.GothamBold,TextSize=18,TextWrapped=true,TextColor3=colors.text,ZIndex=51},loading)
-local loadingDetail=make("TextLabel",{Text="",Position=UDim2.fromScale(.1,.5),Size=UDim2.fromScale(.8,.1),BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=13,TextWrapped=true,TextColor3=colors.muted,ZIndex=51},loading)
-local track=make("Frame",{Position=UDim2.fromScale(.15,.65),Size=UDim2.new(.7,0,0,10),BackgroundColor3=colors.edge,ZIndex=51},loading);round(track,4)
+local loadingBrand=make("TextLabel",{Text="ANONHUB",Position=UDim2.fromScale(.1,.045),Size=UDim2.fromScale(.8,.12),BackgroundTransparency=1,Font=Enum.Font.GothamBlack,TextSize=28,TextColor3=accent,ZIndex=51},loading)
+local loadingTitle=make("TextLabel",{Text=T("Carregando funções","Loading features"),Position=UDim2.fromScale(.1,.59),Size=UDim2.fromScale(.8,.1),BackgroundTransparency=1,Font=Enum.Font.GothamBold,TextSize=18,TextWrapped=true,TextColor3=colors.text,ZIndex=51},loading)
+local loadingDetail=make("TextLabel",{Text="",Position=UDim2.fromScale(.1,.69),Size=UDim2.fromScale(.8,.1),BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=13,TextWrapped=true,TextColor3=colors.muted,ZIndex=51},loading)
+local track=make("Frame",{Position=UDim2.fromScale(.15,.82),Size=UDim2.new(.7,0,0,10),BackgroundColor3=colors.edge,ZIndex=51},loading);round(track,4)
 local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=accent,ZIndex=52},track);round(fill,4)
-make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(255,171,47),Color3.fromRGB(255,230,136)),Rotation=0},fill)
-local stage=make("TextLabel",{Text="SUPERPOWER / ANONHUB  ·  v"..BOOT_VERSION,Position=UDim2.fromScale(.1,.15),Size=UDim2.fromScale(.8,.05),BackgroundTransparency=1,Font=Enum.Font.Code,TextSize=10,TextColor3=colors.muted,ZIndex=51},loading)
-local percent=make("TextLabel",{Text="",Position=UDim2.fromScale(.15,.7),Size=UDim2.fromScale(.7,.06),BackgroundTransparency=1,Font=Enum.Font.Code,TextSize=11,TextColor3=colors.muted,ZIndex=51},loading)
+make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(150,60,220),Color3.fromRGB(235,165,255)),Rotation=0},fill)
+local stage=make("TextLabel",{Text="SUPERPOWER / ANONHUB  ·  v"..BOOT_VERSION,Position=UDim2.fromScale(.1,.145),Size=UDim2.fromScale(.8,.05),BackgroundTransparency=1,Font=Enum.Font.Code,TextSize=10,TextColor3=colors.muted,ZIndex=51},loading)
+local percent=make("TextLabel",{Text="",Position=UDim2.fromScale(.15,.87),Size=UDim2.fromScale(.7,.06),BackgroundTransparency=1,Font=Enum.Font.Code,TextSize=11,TextColor3=colors.muted,ZIndex=51},loading)
+local coverFrame=make("Frame",{Name="GameCover",Position=UDim2.fromScale(.12,.22),Size=UDim2.fromScale(.76,.34),BackgroundColor3=colors.tile,ClipsDescendants=true,ZIndex=51},loading);round(coverFrame,14)
+make("UIStroke",{Color=accent,Thickness=2,Transparency=.15,ApplyStrokeMode=Enum.ApplyStrokeMode.Border},coverFrame)
+local cover=make("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image=hub.identity and hub.identity.cover or "rbxthumb://type=GameThumbnail&id=74183246285569&w=480&h=270",ScaleType=Enum.ScaleType.Crop,ZIndex=52},coverFrame);round(cover,14)
+make("TextLabel",{Text="STEAL A SUPERPOWER",Size=UDim2.new(1,0,0,30),Position=UDim2.new(0,0,1,-30),BackgroundColor3=colors.dark,BackgroundTransparency=.25,TextColor3=Color3.new(1,1,1),TextSize=12,Font=Enum.Font.GothamBold,ZIndex=53},coverFrame)
+local sheen=make("Frame",{Name="CoverReflection",Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(1,1,1),ZIndex=54,Active=false},coverFrame);round(sheen,14)
+local sheenGradient=make("UIGradient",{Rotation=20,Offset=Vector2.new(-1,0),Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,1),NumberSequenceKeypoint.new(.4,1),NumberSequenceKeypoint.new(.5,.65),NumberSequenceKeypoint.new(.6,1),NumberSequenceKeypoint.new(1,1)})},sheen)
+local shimmer=Tween:Create(sheenGradient,TweenInfo.new(1.6,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,-1,false,.6),{Offset=Vector2.new(1,0)})
+shimmer:Play()
+listen(loading.Destroying,function() shimmer:Cancel() end)
+-- Thumbnail downloads never block feature initialization.
+task.spawn(function() pcall(function() game:GetService("ContentProvider"):PreloadAsync({cover}) end) end)
 local loadingClose=make("TextButton",{Text=T("Fechar","Close"),Position=UDim2.new(1,-88,0,12),Size=UDim2.fromOffset(76,32),BackgroundColor3=colors.tile,TextColor3=colors.text,Font=Enum.Font.Gotham,TextSize=12,ZIndex=52},loading);round(loadingClose,8)
 listen(loadingClose.Activated,function() hub.unload() end)
 local function progress(value,pt,en)
@@ -613,6 +649,8 @@ return function(ctx)
     local enemyRoot=workspace:FindFirstChild("Enemies")
     local watched=setmetatable({}, {__mode="k"})
     local respawns={}
+    local requestStep
+    local recentSpawns=setmetatable({}, {__mode="k"})
     local function watch(enemy)
         if watched[enemy] then return end
         local h=enemy:FindFirstChildOfClass("Humanoid")
@@ -623,6 +661,7 @@ return function(ctx)
         list[#list+1]=h.Died:Connect(function()
             local pad=padById[enemy:GetAttribute("PadId")]
             if pad and pad.gate then respawns[pad.id]=os.clock()+pad.respawn end
+            if requestStep then requestStep() end
         end)
         list[#list+1]=enemy.AncestryChanged:Connect(function()
             if enemy.Parent~=enemyRoot then
@@ -831,7 +870,7 @@ return function(ctx)
             for _,pad in ipairs(pads) do if not pad.gate and pad.level<=level then autoArea=pad end end
         end
         local patrolling=(cfg.farmMode=="NPC" or cfg.farmMode=="Mixed") and patrolPad(os.clock()) or autoArea and patrolPad(os.clock(),autoArea.id)
-        local target,targetBoss,score=nil,false,math.huge
+        local target,targetBoss,targetFresh,score=nil,false,false,math.huge
         local livePads={}
         for _,enemy in ipairs(enemies) do
             watch(enemy)
@@ -848,9 +887,11 @@ return function(ctx)
                     elseif cfg.progress and boss then available=available and currentBoss and pid==currentBoss.id end
                     if available and (cfg.farm or (cfg.boss and (boss or cfg.farmMode=="Mixed"))) then
                         local rank=(root.Position-er.Position).Magnitude
+                        local fresh=os.clock()-(recentSpawns[enemy] or -10)<1
+                        if fresh then rank-=2000000 end
                         if patrolling and not boss and pid~=patrolling.id then rank+=1000000 end
                         if (cfg.boss or cfg.farmMode=="Mixed") and boss then rank=rank-1000000000 end
-                        if rank<score then score=rank; target=er;targetBoss=boss end
+                        if rank<score then score=rank; target=er;targetBoss=boss;targetFresh=fresh end
                     end
                 end
             end
@@ -877,7 +918,7 @@ return function(ctx)
                     return
                 end
             end
-            if patrolling and not targetBoss and not livePads[patrolling.id] and not (cfg.farmMode=="Mixed" and livePads[cfg.bossId]) and typeof(patrolling.cf)=="CFrame" then
+            if patrolling and not targetBoss and not targetFresh and not livePads[patrolling.id] and not (cfg.farmMode=="Mixed" and livePads[cfg.bossId]) and typeof(patrolling.cf)=="CFrame" then
                 local destination=patrolling.cf+Vector3.new(0,4,0)
                 if (root.Position-destination.Position).Magnitude>15 then root.CFrame=destination end
                 return
@@ -911,12 +952,40 @@ return function(ctx)
             end
         end
     end
-    task.spawn(function()
-        while alive do
+    local queued,running,lastStep=false,false,-1
+    requestStep=function()
+        if not alive or queued then return end
+        queued=true
+        task.delay(math.max(0,.05-(os.clock()-lastStep)),function()
+            queued=false
+            if not alive then return end
+            if running then requestStep();return end
+            running=true;lastStep=os.clock()
             local success,err=pcall(step)
+            running=false
             if not success then report(err) end
-            task.wait(0.4)
-        end
+        end)
+    end
+    local boundRoot,rootConnection
+    local function bindEnemies(folder)
+        if boundRoot==folder then return end
+        if rootConnection then rootConnection:Disconnect() end
+        boundRoot=folder
+        if not folder then return end
+        rootConnection=folder.DescendantAdded:Connect(function(object)
+            local enemy=object
+            while enemy and enemy.Parent~=folder do enemy=enemy.Parent end
+            if enemy and (object==enemy or object.Name=="HumanoidRootPart" or object:IsA("Humanoid")) and enemy:IsA("Model") and enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChildOfClass("Humanoid") then
+                recentSpawns[enemy]=os.clock()
+                requestStep()
+            end
+        end)
+        connections[#connections+1]=rootConnection
+    end
+    bindEnemies(enemyRoot)
+    connect(workspace.ChildAdded,function(child) if child.Name=="Enemies" then bindEnemies(child);requestStep() end end)
+    task.spawn(function()
+        while alive do requestStep();task.wait(.15) end
     end)
     order=order+1
     local stop=ui.button(page,T("Parar todas as automações","Stop all automation"),order)
@@ -976,13 +1045,14 @@ local settingsOK,settingsError=boundedSetup(function()
 local settings=section("Ajustes")
 layoutControls(settings)
 ui.label(settings,"TextLabel",hub.language=="pt" and "Toque A: abrir/fechar. Segure 0,65s e solte: alternar progressao. Arraste: mover. RightCtrl: painel." or "Tap A: toggle panel. Hold 0.65s and release: toggle progression. Drag: move. RightCtrl: panel.",68,900)
-local theme=ui.label(settings,"TextBox","FFCA42",40,902)
+local theme=ui.label(settings,"TextBox","EBA5FF",40,902)
 theme.ClearTextOnFocus=false
 ui.label(settings,"TextLabel",hub.language=="pt" and "Cor de destaque: hexadecimal (ex.: FFCA42)" or "Accent color: hexadecimal (e.g. FFCA42)",30,901)
 local themeFile="AnonHub_Superpower_Theme.json"
-local presetName="Potato"
+local presetName="Superpower"
 local presets={
- Potato={"231F19","413627","745831","FCF6E2","D5C3A3","FFCA42","30271D"},
+ Superpower={"0C0C10","271835","963CDC","FFF5FF","CAB4D8","EBA5FF","190F23"},
+ Potato={"231F19","413627","745831","FCF6E2","D5C3A3","EBA5FF","30271D"},
  Bloodmoon={"170C13","30131F","6B263D","FFEAF0","D2A0B0","FF4568","230F1A"},
  Midnight={"10131E","1D2436","354665","EDF3FF","A4B3CC","739FFF","151B2A"},
  Emerald={"0B1916","142E26","2B5947","E6FFF3","9EC6B3","56DDA0","10241E"},
@@ -1010,7 +1080,7 @@ local function applyPreset(name)
  apply(values[6])
 end
 ui.label(settings,"TextLabel",T("TEMAS PRONTOS","THEME PRESETS"),32,880)
-for i,name in ipairs({"Potato","Bloodmoon","Midnight","Emerald","Arctic"}) do
+for i,name in ipairs({"Superpower","Potato","Bloodmoon","Midnight","Emerald","Arctic"}) do
  local option=ui.button(settings,name,880+i)
  listen(option.Activated,function() applyPreset(name);persistTheme() end)
 end
@@ -1055,9 +1125,9 @@ if restoreTheme then
 end
 ]====]}
 -- Luau · AnonHub universal entry point
-local version="0.38.8"
+local version="0.38.9"
 local games={
-    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0388.lua",theme="carbon"},
+    [10770228857]={name="Steal a Superpower",place=74183246285569,path="superpower/main.lua",cache="AnonHub_SP_0389.lua",theme="carbon"},
     [10767408330]={name="Peel THE Potato",chapter="2",version="0.37.5",place=116701845804918,path="potato/chapter2.lua",cache="Evolvy_Chapter2_Main.luau"},
 }
 local universal={name="Universal",version="0.37.5",path="universal/main.lua",cache="AnonHub_Universal_v1.luau"}
@@ -1918,8 +1988,9 @@ start=function(chooseLanguage)
 
     if not chooseLanguage and (language=="pt" or language=="en") then showAccess() return end
     local body
-    screen,body=panel(250,nil,not dedicated)
-    label(body,"TextLabel","Escolha o idioma  /  Choose a language",38,1)
+    screen,body=panel(340,nil,not dedicated)
+    local languageTitle=label(body,"TextLabel","Escolha seu idioma / Choose your language",48,1)
+    languageTitle.Font=Enum.Font.GothamBold;languageTitle.TextSize=18
     local function selectLanguage(code)
         if not current() then return end
         language=code
@@ -1928,9 +1999,13 @@ start=function(chooseLanguage)
         dismiss()
         showAccess()
     end
-    button(body,"🇧🇷  Português",2).Activated:Connect(function() selectLanguage("pt") end)
-    button(body,"🇺🇸  English",3).Activated:Connect(function() selectLanguage("en") end)
+    local portuguese=button(body,"🇧🇷   Português  ·  Brasil",2)
+    portuguese.Size=UDim2.new(1,0,0,60);portuguese.TextSize=17
+    portuguese.Activated:Connect(function() selectLanguage("pt") end)
+    local english=button(body,"🇺🇸   English  ·  United States",3)
+    english.Size=UDim2.new(1,0,0,60);english.TextSize=17
+    english.Activated:Connect(function() selectLanguage("en") end)
     button(body,"Fechar  /  Close",4).Activated:Connect(state.close)
 end
 
-start(false)
+start(true)

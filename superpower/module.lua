@@ -317,6 +317,8 @@ return function(ctx)
     local enemyRoot=workspace:FindFirstChild("Enemies")
     local watched=setmetatable({}, {__mode="k"})
     local respawns={}
+    local requestStep
+    local recentSpawns=setmetatable({}, {__mode="k"})
     local function watch(enemy)
         if watched[enemy] then return end
         local h=enemy:FindFirstChildOfClass("Humanoid")
@@ -327,6 +329,7 @@ return function(ctx)
         list[#list+1]=h.Died:Connect(function()
             local pad=padById[enemy:GetAttribute("PadId")]
             if pad and pad.gate then respawns[pad.id]=os.clock()+pad.respawn end
+            if requestStep then requestStep() end
         end)
         list[#list+1]=enemy.AncestryChanged:Connect(function()
             if enemy.Parent~=enemyRoot then
@@ -535,7 +538,7 @@ return function(ctx)
             for _,pad in ipairs(pads) do if not pad.gate and pad.level<=level then autoArea=pad end end
         end
         local patrolling=(cfg.farmMode=="NPC" or cfg.farmMode=="Mixed") and patrolPad(os.clock()) or autoArea and patrolPad(os.clock(),autoArea.id)
-        local target,targetBoss,score=nil,false,math.huge
+        local target,targetBoss,targetFresh,score=nil,false,false,math.huge
         local livePads={}
         for _,enemy in ipairs(enemies) do
             watch(enemy)
@@ -552,9 +555,11 @@ return function(ctx)
                     elseif cfg.progress and boss then available=available and currentBoss and pid==currentBoss.id end
                     if available and (cfg.farm or (cfg.boss and (boss or cfg.farmMode=="Mixed"))) then
                         local rank=(root.Position-er.Position).Magnitude
+                        local fresh=os.clock()-(recentSpawns[enemy] or -10)<1
+                        if fresh then rank-=2000000 end
                         if patrolling and not boss and pid~=patrolling.id then rank+=1000000 end
                         if (cfg.boss or cfg.farmMode=="Mixed") and boss then rank=rank-1000000000 end
-                        if rank<score then score=rank; target=er;targetBoss=boss end
+                        if rank<score then score=rank; target=er;targetBoss=boss;targetFresh=fresh end
                     end
                 end
             end
@@ -581,7 +586,7 @@ return function(ctx)
                     return
                 end
             end
-            if patrolling and not targetBoss and not livePads[patrolling.id] and not (cfg.farmMode=="Mixed" and livePads[cfg.bossId]) and typeof(patrolling.cf)=="CFrame" then
+            if patrolling and not targetBoss and not targetFresh and not livePads[patrolling.id] and not (cfg.farmMode=="Mixed" and livePads[cfg.bossId]) and typeof(patrolling.cf)=="CFrame" then
                 local destination=patrolling.cf+Vector3.new(0,4,0)
                 if (root.Position-destination.Position).Magnitude>15 then root.CFrame=destination end
                 return
@@ -615,12 +620,40 @@ return function(ctx)
             end
         end
     end
-    task.spawn(function()
-        while alive do
+    local queued,running,lastStep=false,false,-1
+    requestStep=function()
+        if not alive or queued then return end
+        queued=true
+        task.delay(math.max(0,.05-(os.clock()-lastStep)),function()
+            queued=false
+            if not alive then return end
+            if running then requestStep();return end
+            running=true;lastStep=os.clock()
             local success,err=pcall(step)
+            running=false
             if not success then report(err) end
-            task.wait(0.4)
-        end
+        end)
+    end
+    local boundRoot,rootConnection
+    local function bindEnemies(folder)
+        if boundRoot==folder then return end
+        if rootConnection then rootConnection:Disconnect() end
+        boundRoot=folder
+        if not folder then return end
+        rootConnection=folder.DescendantAdded:Connect(function(object)
+            local enemy=object
+            while enemy and enemy.Parent~=folder do enemy=enemy.Parent end
+            if enemy and (object==enemy or object.Name=="HumanoidRootPart" or object:IsA("Humanoid")) and enemy:IsA("Model") and enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChildOfClass("Humanoid") then
+                recentSpawns[enemy]=os.clock()
+                requestStep()
+            end
+        end)
+        connections[#connections+1]=rootConnection
+    end
+    bindEnemies(enemyRoot)
+    connect(workspace.ChildAdded,function(child) if child.Name=="Enemies" then bindEnemies(child);requestStep() end end)
+    task.spawn(function()
+        while alive do requestStep();task.wait(.15) end
     end)
     order=order+1
     local stop=ui.button(page,T("Parar todas as automações","Stop all automation"),order)
