@@ -1,7233 +1,3505 @@
--- Luau · Anonymous_Potato_Hub.luau · Peel THE Potato 116701845804918 · Roblox / Delta · Luau 0.745
--- AnonHub 0.37.5 · Chapter 2 and lobby
-
-local hub=...
-if type(hub)~="table" or type(hub.access)~="table" then return end
-local strings={
-    ["Inicio"]="Home",
-    ["Coleta"]="Collect",
-    ["Corte"]="Cut",
-    ["Vendas"]="Sales",
-    ["Resfriar"]="Cooling",
-    ["Compras"]="Shop",
-    ["Missoes"]="Quests",
-    ["Ajustes"]="Settings",
-    ["Visao geral"]="Overview",
-    ["Coleta e alvos"]="Collection and targets",
-    ["Mesa de corte"]="Cutting table",
-    ["Controle de calor"]="Heat control",
-    ["Equipamentos"]="Equipment",
-    ["Preferencias"]="Preferences",
-    ["Missoes e passe"]="Quests and pass",
-    ["INICIO"]="HOME",
-    ["COLETA"]="COLLECT",
-    ["CORTE"]="CUT",
-    ["VENDER"]="SELL",
-    ["AGUA"]="COOL",
-    ["LOJA"]="SHOP",
-    ["MISSOES"]="QUESTS",
-    ["AJUSTE"]="SETTINGS",
-    ["IDIOMA"]="LANGUAGE",
-    ["Conta"]="Account",
-    ["PAUSAR TUDO"]="PAUSE ALL",
-    ["OCULTAR"]="HIDE",
-    ["RECUPERAR"]="RESTORE",
-    ["CAPÍTULO II / ANONHUB"]="CHAPTER II / ANONHUB",
-    ["≡   ARRASTE PARA MOVER"]="≡   DRAG TO MOVE",
-    ["ENCERRAR HUB"]="CLOSE HUB",
-    ["SALVAR"]="SAVE",
-    ["PAUSAR"]="PAUSE",
-    ["Salvar"]="Save",
-    ["Pausar"]="Pause",
-    ["Inicializando..."]="Starting…",
-    ["Pronto."]="Ready.",
-    ["≡   ANONHUB / POTATO   ·   ARRASTE"]="≡   ANONHUB / POTATO   ·   DRAG",
-    ["BARRA DE FERRAMENTAS DO JOGO"]="GAME TOOLBAR",
-    ["Use somente se sumirem a mao, a pa, a dinamite ou os prompts do jogo."]="Use if the game's tools or interaction prompts disappear.",
-    ["RECUPERAR MAO, PA E FERRAMENTAS"]="RESTORE TOOLS",
-    ["Recuperar ao iniciar e renascer"]="Restore on launch and respawn",
-    ["A interface e restaurada; as rotinas continuam pausadas depois de morrer."]="Restores the interface and keeps routines paused after a respawn.",
-    ["Nenhuma recuperacao solicitada nesta sessao."]="No restoration requested in this session.",
-    ["Alguns controles ainda não estão disponíveis."]="Some controls are still unavailable.",
-    ["Controles restaurados."]="Controls restored.",
-    ["MODOS / CAPITULO II"]="MODES / CHAPTER II",
-    ["OP: sugador MAX, coleta total, corte e saida. Auto Progress: ciclo normal."]="OP uses a maxed vacuum to clear the pile, cut and exit. Auto Progress runs the standard cycle.",
-    ["PAUSAR PROGRESS"]="PAUSE AUTO PROGRESS",
-    ["ATIVAR OP"]="START OP",
-    ["PAUSAR OP"]="PAUSE OP",
-    ["MODO  •  PAUSADO"]="MODE  •  PAUSED",
-    ["MODO  •  CONCLUIDO"]="MODE  •  COMPLETE",
-    ["MODO  •  OP ATIVO  /  "]="MODE  •  OP ACTIVE  /  ",
-    ["MODO  •  AUTO PROGRESS"]="MODE  •  AUTO PROGRESS",
-    ["MODO  •  PAUSADO / ROTINAS MANUAIS"]="MODE  •  PAUSED / MANUAL ROUTINES",
-    ["PERFIL DA PARTIDA"]="MATCH PROFILE",
-    ["Tipo de grupo"]="Group type",
-    ["Com o hub"]="Hub team",
-    ["Grupo misto"]="Mixed group",
-    ["Contas com o hub"]="Accounts using the hub",
-    ["2 contas"]="2 accounts",
-    ["3 contas"]="3 accounts",
-    ["4 contas"]="4 accounts",
-    ["Seu papel"]="Your role",
-    ["Lider OP"]="OP leader",
-    ["Coletar"]="Collect",
-    ["Cortar e vender"]="Cut and sell",
-    ["Sua mesa"]="Your table",
-    ["Mesa"]="Table",
-    ["Mesa 1"]="Table 1",
-    ["Mesa 2"]="Table 2",
-    ["Mesa 3"]="Table 3",
-    ["Mesa 4"]="Table 4",
-    ["INICIAR PERFIL"]="START PROFILE",
-    ["1 lider OP e 1 no corte/venda."]="1 OP leader and 1 player cutting and selling.",
-    ["1 lider OP, 1 na coleta e 1 no corte/venda."]="1 OP leader, 1 collector and 1 player cutting and selling.",
-    ["1 lider OP, 1 na coleta e 2 no corte/venda."]="1 OP leader, 1 collector and 2 players cutting and selling.",
-    [" Usem mesas diferentes. Venda paga a equipe. Corte e equipamentos sao individuais."]=" Use different tables. The team shares sales. Cutting and equipment are individual.",
-    ["Apoio com corte nativo, vendas e caminhada. Compra facas e ate dois niveis do upgrade de velocidade do jogo."]="Supports the team by cutting, selling and walking. Buys knives and up to two speed upgrades.",
-    ["Recomendado: OP. Uma conta financia as ferramentas, limpa a montanha, corta o estoque e usa a chave."]="Recommended: OP. One account funds tools, clears the pile, cuts the stock and uses the key.",
-    ["SEU EQUIPAMENTO"]="YOUR EQUIPMENT",
-    ["Niveis lidos do jogo. MAX aparece somente com todos os niveis confirmados."]="Equipment levels come from the game. MAX appears once all levels are confirmed.",
-    ["Aguardando dados"]="Waiting for data",
-    ["RENDA"]="FUND",
-    ["EQUIPAR"]="EQUIP",
-    ["LIMPAR"]="CLEAR",
-    ["SAIR"]="EXIT",
-    ["00:00  /  SORTE 0"]="00:00  /  LUCK 0",
-    ["VER MELHORIAS"]="VIEW UPGRADES",
-    ["ESTADO DA PARTIDA"]="MATCH STATUS",
-    ["Dinheiro: —\nBolsa: —\nCalor: —\nEstado: aguardando"]="Cash: —\nBag: —\nHeat: —\nStatus: waiting",
-    ["Filtro e selecao"]="Filters and selection",
-    ["Coletar automaticamente"]="Auto collect",
-    ["Entregar automaticamente"]="Auto deliver",
-    ["Batatas"]="Potatoes",
-    ["Qualquer"]="Any",
-    ["Diamante"]="Diamond",
-    ["Dourada"]="Golden",
-    ["Escolha"]="Selection",
-    ["Mais perto"]="Nearest",
-    ["Aleatoria"]="Random",
-    ["Coletar aboboras"]="Collect pumpkins",
-    ["Incluir gemas da pilha"]="Collect gems from the pile",
-    ["Priorizar gemas"]="Prioritize gems",
-    ["Priorizar aboboras"]="Prioritize pumpkins",
-    ["Priorizar maior valor"]="Prioritize higher value",
-    ["Na selecao por proximidade, procura variantes valiosas quando sua identidade estiver disponivel."]="With Nearest selected, looks for valuable variants when the game identifies them.",
-    ["Entregar por"]="Deliver by",
-    ["Quantidade"]="Amount",
-    ["Porcentagem"]="Percentage",
-    ["Destino"]="Destination",
-    ["Caixa"]="Crate",
-    ["Automatica"]="Automatic",
-    ["Entregar com a bolsa em"]="Deliver at bag capacity",
-    ["Quantidade por entrega"]="Amount per delivery",
-    ["Tenho bolsa infinita"]="I have an unlimited bag",
-    ["Usa o lote configurado no planejamento. Esta opcao nao concede a mochila no jogo."]="Uses your configured delivery amount for planning.",
-    ["Alcance de busca"]="Search range",
-    ["Mesa e ferramentas"]="Table and tools",
-    ["Alinhar a camera ao entrar na mesa"]="Align camera when entering the table",
-    ["Modo de corte"]="Cutting mode",
-    ["Rapido"]="Fast",
-    ["Nativo"]="Native",
-    ["Meta de tentativas por segundo"]="Target attempts per second",
-    ["Multiplicador com ferramentas"]="Tool multiplier",
-    ["Comprar no Auto Cut"]="Buy during Auto Cut",
-    ["Compra ferramentas de corte usando o orcamento configurado."]="Buys cutting tools within your budget.",
-    ["Girar cortador manual"]="Crank the manual cutter",
-    ["Aciona a maquina quando estiver carregada e liberada pelo jogo."]="Runs the machine when it is loaded and ready.",
-    ["Venda e retorno"]="Sell and return",
-    ["Vende o estoque cortado e retoma a rotina. A proxima ferramenta tem prioridade apos a venda."]="Sells cut stock and resumes. Prioritizes the next tool after a sale.",
-    ["Vender a partir de"]="Sell when stock reaches",
-    [" batatas"]=" potatoes",
-    ["Comprar ferramenta apos vender"]="Buy a tool after selling",
-    ["Voltar para a mesa"]="Return to the table",
-    ["Vender o restante no fim"]="Sell remaining stock at the end",
-    ["Valvula de agua"]="Water valve",
-    ["Confirma o resfriamento pela agua fluindo ou pela queda do calor."]="Confirms cooling when water flows or heat drops.",
-    ["Tempo segurando a valvula"]="Valve hold time",
-    ["Repetir duracao original se necessario"]="Retry with the original hold time if needed",
-    ["Se o toque curto nao resfriar, permite uma tentativa com o tempo original do jogo."]="Retries with the default game duration if a short hold fails.",
-    ["Comecar a resfriar em"]="Start cooling at",
-    ["Considerar frio em"]="Stop cooling at",
-    ["Espera entre tentativas"]="Retry delay",
-    ["Voltar ao ponto anterior"]="Return to the previous position",
-    ["MELHORIAS EM TEMPO REAL"]="LIVE UPGRADES",
-    ["Niveis confirmados pelo jogo. Consultar esta lista mantem a rotina em execucao."]="The game confirms these levels. Routines continue while you view this list.",
-    ["Aguardando niveis..."]="Waiting for upgrade levels…",
-    ["Velocidade"]="Speed",
-    ["Coleta continua"]="Continuous collection",
-    ["Carga"]="Charge",
-    ["Resfriamento"]="Cooling",
-    ["Valor da batata"]="Potato value",
-    ["Velocidade a pe"]="Walk speed",
-    ["Sorte"]="Luck",
-    ["Capacidade"]="Capacity",
-    ["Garra"]="Grip",
-    ["Voo"]="Flight",
-    ["MELHORAR"]="UPGRADE",
-    ["Orcamento"]="Budget",
-    ["Compras automaticas usam somente dinheiro comum do jogo. Reserva e limite por compra sao aplicados antes de cada acao."]="Automatic purchases use regular game cash and respect your reserve and spending cap.",
-    ["Ferramentas"]="Tools",
-    ["Melhorias"]="Upgrades",
-    ["Bolsas e capacidade"]="Bags and capacity",
-    ["Tenho mochila infinita"]="I have an unlimited bag",
-    ["Impede compras de mochilas e usa o limite de entrega por quantidade."]="Skips bag purchases and uses the delivery amount.",
-    ["Comprar cortadores manual e automatico"]="Buy manual and automatic cutters",
-    ["Depois de maximizar as duas melhorias de dinamite. O manual nao recebe melhorias."]="Buys after both dynamite upgrades are maxed. Upgrades apply to the automatic cutter.",
-    ["Lote para o automatico no maximo"]="Batch size for the maxed automatic cutter",
-    ["Corrigir desfoque ao fechar menus"]="Fix blur after closing menus",
-    ["Guardar para a proxima arma"]="Save for the next tool",
-    ["Oferecer compra do drone a cada partida"]="Offer a drone purchase each match",
-    ["Solicita confirmacao de 80 gemas; a oferta real tambem precisa confirmar esse valor."]="Asks you to confirm when the game offers the drone for 80 gems.",
-    ["Melhorar drone comprado"]="Upgrade an owned drone",
-    ["Limpar antes de cortar"]="Clear the pile before cutting",
-    ["Somente com dinamite, pa, automatico e sugador no maximo. Antes disso, continua usando a faca para gerar renda."]="Requires maxed dynamite, shovel, automatic cutter and vacuum. Cuts with a knife for income until then.",
-    ["Melhorar maquinas compradas"]="Upgrade owned machines",
-    ["Melhorias gerais do capitulo 2"]="General Chapter II upgrades",
-    ["Reserva de dinheiro"]="Cash reserve",
-    ["Limite por compra (0 = livre)"]="Spending cap per purchase (0 = unlimited)",
-    ["Escolha uma missao com progresso do jogo. O Auto Progress prioriza a tarefa e volta ao ciclo normal apos a confirmacao."]="Select a quest with game progress. Auto Progress prioritizes it and returns to the usual cycle after completion.",
-    ["Abra a tela de missoes ou do passe do jogo para carregar a lista."]="Open the game's quests or pass screen to load the list.",
-    ["Tela e toque"]="Display and touch",
-    ["Arraste o topo para mover o painel. O botao A tambem pode ser arrastado. Use o canto inferior para redimensionar."]="Drag the top to move the panel or drag the A button. Use the bottom corner to resize.",
-    ["Escala da interface"]="Interface scale",
-    ["Largura do painel"]="Panel width",
-    ["Altura do painel"]="Panel height",
-    ["Tamanho do botao A"]="A button size",
-    ["CENTRALIZAR E RESTAURAR TAMANHO"]="CENTER AND RESET SIZE",
-    ["Camera"]="Camera",
-    ["Forcar terceira pessoa"]="Force third person",
-    ["Distancia maxima da camera"]="Maximum camera distance",
-    ["Apontar automaticamente para a valvula"]="Aim at the valve automatically",
-    ["Alinha a camera durante a interacao e restaura a visao ao terminar."]="Aligns the camera during interaction and restores the view afterward.",
-    ["Execucao"]="Routines",
-    ["Atua por evento de inatividade enquanto alguma rotina estiver ativa; pausa junto das rotinas."]="Responds to idle events while a routine is running.",
-    ["Saida automatica manual"]="Auto exit",
-    ["Usa a chave real para procurar a saida. O OP e o Auto Progress ja coordenam sua propria saida."]="Uses the key to find the exit. OP and Auto Progress handle the exit automatically.",
-    ["Pular cena final"]="Skip ending scene",
-    ["Usa o botao Pular quando disponivel. Apos a fuga confirmada, tambem tenta a funcao Cancel da cena."]="Uses the Skip button if available and attempts to end the scene after escape is confirmed.",
-    ["Liberar camera apos vitoria"]="Restore camera after winning",
-    ["Se a cena nao oferecer um botao, tenta devolver a visao ao personagem depois da confirmacao da fuga."]="Returns the view to your character after escape when the scene has no skip button.",
-    ["Ritmo de limpeza"]="Pile clearing pace",
-    ["Com equipamentos no maximo, prefere alvos proximos e evita desvios por raridades."]="With maxed equipment, favors nearby targets and avoids detours for rare ones.",
-    ["Reduzir intervalo local da entrega"]="Reduce delivery interval",
-    ["Acelera entregas e restaura o intervalo normal se a entrega falhar."]="Speeds up deliveries when supported and restores normal timing if delivery fails.",
-    ["Intervalo local por colocacao"]="Interval per placement",
-    ["Deslocamento"]="Movement",
-    ["Teleporte"]="Teleport",
-    ["Caminhar"]="Walk",
-    ["Ritmo"]="Pace",
-    ["Coletas por rodada"]="Picks per cycle",
-    ["Coletar ao redor sem mirar"]="Collect nearby without aiming",
-    ["Usa IDs dos alvos proximos; teleporta quando necessario. O servidor ainda valida o alcance."]="Collects nearby targets within the game's reach.",
-    ["Raio local da coleta"]="Collection radius",
-    ["Ferramenta de coleta"]="Collection tool",
-    ["Melhor adquirida"]="Best owned tool",
-    ["Mao"]="Hand",
-    ["Pa"]="Shovel",
-    ["Especiais sem modelo visivel"]="Special targets outside view",
-    ["Usa os IDs e as posicoes atuais do jogo. Tentativas recusadas recebem uma pausa; recompensas dependem do servidor."]="Uses current game positions and waits before retrying a rejected target.",
-    ["Recuperar etapas automaticamente"]="Recover routines automatically",
-    ["Falhas de coleta e entrega adiam somente a etapa afetada."]="Delays only the step that failed to collect or deliver.",
-    ["RESTAURAR CONTROLES DO JOGO"]="RESTORE GAME CONTROLS",
-    ["Intervalo entre acoes"]="Action interval",
-    ["Tempo limite de acao"]="Action timeout",
-    ["Tempo limite de trajeto"]="Travel timeout",
-    ["Dinamite automatica"]="Auto dynamite",
-    ["Atua quando a ferramenta foi adquirida e o protocolo de lancamento foi identificado."]="Runs when the tool is owned and ready to throw.",
-    ["Intervalo acelerado"]="Faster interval",
-    ["Reduz a espera local; tentativas sem confirmacao recebem um intervalo maior."]="Shortens the local wait and backs off when a throw is unconfirmed.",
-    ["Intervalo da dinamite"]="Dynamite interval",
-    ["Pausar com movimento manual"]="Pause on manual movement",
-    ["Notificacoes"]="Notifications",
-    ["Atalhos"]="Shortcuts",
-    ["Entregar"]="Deliver",
-    ["Aboboras"]="Pumpkins",
-    ["Bolsas"]="Bags",
-    ["Cortador manual"]="Manual cutter",
-    ["Vender"]="Sell",
-    ["Dinamite"]="Dynamite",
-    ["Painel"]="Panel",
-    ["OP Alto Zerar"]="OP Fast Finish",
-    ["Giro %d confirmado: %s"]="Roll %d confirmed: %s",
-    ["Conexão perdida (%s). Tentando voltar ao lobby…"]="Connection lost (%s). Rejoining the lobby…",
-    ["Essa tecla ja esta em uso por %s."]="That key is already assigned to %s.",
-    ["Rotinas pausadas apos tres falhas em %s."]="Routines paused after three failures while %s.",
-    ["Ciclo completo com prioridade para limpar a montanha."]="Complete run that prioritizes clearing the pile.",
-    ["Sugador MAX inicia coleta continua ate acabar a montanha. Entrega ao encher se a bolsa for finita. O OP coordena seus servicos sem ligar os interruptores das rotinas manuais."]="A maxed vacuum collects continuously until the pile is clear. Finite bags are delivered when full.",
-    ["Vender lotes maiores no OP"]="Sell larger OP batches",
-    ["Usa lotes de 50, 90 ou 150 conforme o saldo que falta para a proxima compra, respeitando o limite de venda."]="Uses batches of 50, 90 or 150 based on the cash needed for the next purchase.",
-    ["Retentar mesa e venda mais cedo"]="Retry tables and sales sooner",
-    ["Quando o prompt e instantaneo, tenta outra forma de interacao mais cedo. O resultado ainda depende da confirmacao do jogo."]="Retries an instant interaction sooner if the game has yet to confirm it.",
-    ["Deseja mesmo comprar o drone?\nPreco: 80 gemas"]="Buy the drone?\nPrice: 80 gems",
-    ["COMPRAR: 80 GEMAS"]="BUY: 80 GEMS",
-    ["AGORA NAO"]="NOT NOW",
-    ["NAO ADQUIRIDO"]="NOT OWNED",
-    ["MAX  /  PRONTO"]="MAX  /  READY",
-    ["CONCLUIDA"]="DONE",
-    ["PRIORIZANDO"]="PRIORITIZED",
-    ["SELECIONAR"]="SELECT",
-    ["Validade nao informada"]="Expiry unknown",
-    ["Expirada"]="Expired",
-    ["CENTRAL DO LOBBY"]="LOBBY CENTER",
-    ["Pronto para configurar a fila."]="Ready to configure the queue.",
-    ["Configurar"]="Setup",
-    ["Configurar capítulo"]="Set up a chapter",
-    ["Escolha um capítulo para ver as opções da fila."]="Choose a chapter to view its queue settings.",
-    ["Capítulos"]="Chapters",
-    ["Capítulo I"]="Chapter I",
-    ["Capítulo II"]="Chapter II",
-    ["Capítulo III"]="Chapter III",
-    ["EM BREVE"]="COMING SOON",
-    ["Fila do Capítulo II"]="Chapter II queue",
-    ["As escolhas são reaplicadas na próxima rodada."]="Settings carry over to the next round.",
-    ["ENTRAR + OP"]="JOIN + OP",
-    ["CICLO COMPLETO"]="FULL LOOP",
-    ["JOGADORES"]="PLAYERS",
-    ["AMIGOS"]="FRIENDS",
-    ["INTRODUÇÃO"]="INTRO",
-    ["CENA FINAL"]="ENDING",
-    ["REPETIR"]="REPEAT",
-    ["AUTO MELHORIA"]="AUTO UPGRADE",
-    ["PARAR"]="STOP",
-    ["Recursos do lobby"]="Lobby resources",
-    ["Lendo o saldo do jogo…"]="Reading your game balance…",
-    ["Caixas"]="Crates",
-    ["Caixa do evento"]="Event crate",
-    ["O custo é de 80 abóboras por caixa. Escolha o tamanho do lote."]="Each crate costs 80 pumpkins. Choose your batch size.",
-    ["Saldo de abóboras"]="Pumpkin balance",
-    ["Aguardando o jogo…"]="Waiting for the game…",
-    ["AUTO CAIXAS"]="AUTO CRATES",
-    ["ABRIR LOTE"]="OPEN BATCH",
-    ["Alvo de classe"]="Class target",
-    ["Selecione um cartão. A rolagem para quando o jogo confirma a classe."]="Select a card. Rolls stop when the game confirms that class.",
-    ["Abra Classes no jogo para carregar o catálogo."]="Open Classes in the game to load the catalog.",
-    ["Classe atual"]="Current class",
-    ["□   USAR GEMAS PARA GIRAR"]="□   USE GEMS TO ROLL",
-    ["✓   USAR GEMAS PARA GIRAR"]="✓   USE GEMS TO ROLL",
-    ["GIRAR ATÉ O ALVO"]="ROLL UNTIL TARGET",
-    ["SELECIONAR MAIS RARA"]="SELECT RAREST",
-    ["JOGADORES  ·  "]="PLAYERS  ·  ",
-    ["SÓ AMIGOS  ·  SIM"]="FRIENDS ONLY  ·  YES",
-    ["SÓ AMIGOS  ·  NÃO"]="FRIENDS ONLY  ·  NO",
-    ["INTRO  ·  PULAR"]="INTRO  ·  SKIP",
-    ["INTRO  ·  VER"]="INTRO  ·  WATCH",
-    ["FINAL  ·  PULAR"]="ENDING  ·  SKIP",
-    ["FINAL  ·  VER"]="ENDING  ·  WATCH",
-    ["REPETIR  ·  SIM"]="REPEAT  ·  YES",
-    ["REPETIR  ·  NÃO"]="REPEAT  ·  NO",
-    ["MELHORIAS  ·  ON"]="UPGRADES  ·  ON",
-    ["MELHORIAS  ·  OFF"]="UPGRADES  ·  OFF",
-    ["AUTO CAIXAS  ·  ON"]="AUTO CRATES  ·  ON",
-    ["AUTO CAIXAS  ·  OFF"]="AUTO CRATES  ·  OFF",
-    ["AGUARDANDO O JOGO"]="WAITING FOR THE GAME",
-    ["PARAR GIROS"]="STOP ROLLING",
-    ["Abóboras  %s   ·   Gemas  %s"]="Pumpkins  %s   ·   Gems  %s",
-    ["%s no saldo   ·   %d caixa(s) = %d abóboras"]="%s available   ·   %d crate(s) = %d pumpkins",
-    ["%s   ·   Giros grátis: %s"]="%s   ·   Free rolls: %s",
-    ["%02d:%02d  /  SORTE %d%s"]="%02d:%02d  /  LUCK %d%s",
-    ["  /  CONCLUIDO"]="  /  COMPLETE",
-    ["indisponivel"]="unavailable",
-    ["somente aviso do jogo"]="game alert only",
-    ["coletar e cortar"]="collect and cut",
-    ["limpeza"]="clearing",
-    ["Aguardando rotina ou recurso disponivel"]="Waiting for a routine or resource",
-    ["EQUIPE  /  LIDER OP"]="TEAM  /  OP LEADER",
-    ["EQUIPE  /  COLETA E ENTREGA"]="TEAM  /  COLLECT AND DELIVER",
-    ["EQUIPE  /  CORTE E VENDA"]="TEAM  /  CUT AND SELL",
-    ["GRUPO MISTO  /  APOIO"]="MIXED GROUP  /  SUPPORT",
-    ["CAPITULO II CONCLUIDO  /  ROTINAS PAUSADAS"]="CHAPTER II COMPLETE  /  ROUTINES PAUSED",
-    ["LICENCA EXPIRADA  /  ROTINAS PAUSADAS"]="ACCESS EXPIRED  /  ROUTINES PAUSED",
-    ["VITORIA CONFIRMADA / AGUARDANDO RESULTADO PARA VOLTAR"]="VICTORY CONFIRMED / WAITING FOR RESULTS",
-    ["VITORIA CONFIRMADA / VOLTANDO AO LOBBY"]="VICTORY CONFIRMED / RETURNING TO LOBBY",
-    ["%s  |  Bolsa: %s\nEntrega: %s  |  Cortadas: %s/%d\nMeta: %s\nCalor: %s  |  Gemas: %d\n%.1f cortadas/s | %s | vendas: %d"]="%s  |  Bag: %s\nDelivery: %s  |  Cut: %s/%d\nGoal: %s\nHeat: %s  |  Gems: %d\n%.1f cut/s | %s | sales: %d",
-    ["Resfriando"]="Cooling",
-    ["Coletando"]="Collecting",
-    ["Entregando"]="Delivering",
-    ["Cortando"]="Cutting",
-    ["Indo para a mesa"]="Heading to the table",
-    ["Comprando"]="Buying",
-    ["Girando cortador"]="Cranking cutter",
-    ["Indexando e selecionando"]="Finding targets",
-    ["Abastecendo a mesa"]="Restocking the table",
-    ["Vendendo"]="Selling",
-    ["Retornando a mesa"]="Returning to the table",
-    ["Lancando dinamite"]="Throwing dynamite",
-    ["Indo para a saida com a chave"]="Heading to the exit with the key",
-    ["Comprando drone"]="Buying drone",
-    ["Rotina pausada."]="Routine paused.",
-    ["Rotinas pausadas."]="Routines paused.",
-    ["Já há uma rotina de lobby em andamento."]="A lobby routine is already running.",
-    ["O jogo interrompeu a rotina do lobby."]="The game interrupted the lobby routine.",
-    ["Ciclo do lobby parado."]="Lobby loop stopped.",
-    ["Retomada cancelada. O jogo já solicitou o teleporte."]="Resume canceled. The game has already requested teleport.",
-    ["As chances ainda não foram carregadas pelo jogo."]="The game has not loaded the odds yet.",
-    ["Escolha uma classe na barra."]="Choose a class from the list.",
-    ["O Roblox recusou o teleporte. Saia da fila atual e tente novamente."]="Roblox declined teleport. Leave the current queue and try again.",
-    ["Pare a rotina de lobby antes de entrar na fila."]="Stop the lobby routine before joining a queue.",
-    ["Abrindo o lote antes de entrar na fila…"]="Opening the batch before joining the queue…",
-    ["Juntando abóboras para o lote: %d/%d."]="Saving pumpkins for the batch: %d/%d.",
-    ["Localizando a fila do Capítulo II…"]="Finding the Chapter II queue…",
-    ["Nenhuma área de fila livre. Entre em uma área vazia manualmente."]="No open queue area. Enter an empty area manually.",
-    ["DEPLOY acionado. Aguardando o jogo…"]="Deploy requested. Waiting for the game…",
-    ["Falha no lobby. Tente novamente."]="The lobby routine failed. Try again.",
-    ["O Roblox não confirmou a reconexão."]="Roblox did not confirm the reconnect.",
-    ["O estado dos giros ainda não está disponível."]="Roll state is not available yet.",
-    ["Rolagem pausada."]="Rolling paused.",
-    ["O giro com preço em gemas não foi identificado. Abra Classes no jogo."]="The gem roll offer is unavailable. Open Classes in the game.",
-    ["O giro gratuito não foi identificado. Abra Classes no jogo."]="The free roll is unavailable. Open Classes in the game.",
-    ["Aguardando o saldo de gemas do jogo."]="Waiting for the game to report your gem balance.",
-    ["Sem giros gratuitos."]="No free rolls left.",
-    ["Gemas insuficientes para o próximo giro."]="You do not have enough gems for the next roll.",
-    ["O giro foi debitado, mas o próximo ainda não foi liberado."]="The last roll was charged. Waiting for the next roll to become available.",
-    ["O jogo não confirmou o débito. Rolagem parada."]="The game did not confirm the charge. Rolling stopped.",
-    ["Abra as melhorias do lobby uma vez para carregar precos e gemas."]="Open lobby upgrades once to load prices and your gem balance.",
-    ["Sem melhoria acessivel com as gemas atuais."]="No upgrades are affordable with your current gems.",
-    ["O jogo nao confirmou a melhoria de lobby."]="The game did not confirm the lobby upgrade.",
-    ["Abertura cancelada."]="Opening canceled.",
-    ["Falha ao enviar a abertura de evento."]="Could not request the event crate opening.",
-    ["A oferta de 80 abóboras não pôde ser confirmada."]="The offer for 80 pumpkins could not be confirmed.",
-    ["Lote inválido."]="Invalid batch.",
-    ["O jogo ainda não informou o saldo de abóboras."]="The game has yet to report your pumpkin balance.",
-    ["Saldo insuficiente para o lote. %d de %d abóboras."]="Not enough pumpkins for the batch. %d of %d pumpkins.",
-    ["Lote pausado."]="Batch paused.",
-    ["A caixa anterior ainda está aberta."]="The previous crate is still open.",
-    ["Saldo mudou durante o lote."]="Your balance changed during the batch.",
-    ["Abrindo caixa %d/%d…"]="Opening crate %d/%d…",
-    ["O jogo não mostrou a abertura da caixa. Lote interrompido."]="The game did not show the crate opening. Batch stopped.",
-    ["O jogo não confirmou o débito e o resultado. Lote interrompido."]="The game did not confirm the charge and result. Batch stopped.",
-    ["Caixa registrada, mas a tela da abertura ainda está ativa."]="The crate was confirmed, but its opening screen is still visible.",
-    ["%d caixa(s) confirmada(s)."]="%d crate(s) confirmed.",
-    ["Saia da fila atual para selecionar o Capitulo II."]="Leave the current queue to select Chapter II.",
-    ["O jogo nao abriu o seletor do capitulo."]="The game did not open the chapter selector.",
-    ["O jogo nao abriu a configuracao da fila."]="The game did not open queue settings.",
-    ["O botao DEPLOY nao esta disponivel."]="The Deploy button is unavailable.",
-    ["DEPLOY acionado. O jogo nao confirmou o teleporte."]="Deploy requested. The game did not confirm teleport.",
-    ["Transferencia confirmada. Carregando OP no destino."]="Transfer confirmed. OP will start on arrival.",
-    ["Transferencia confirmada. Abra o hub ao chegar. "]="Transfer confirmed. Open the hub on arrival. ",
-    ["Cancelado."]="Canceled.",
-    ["A licenca expirou."]="Your access expired.",
-    ["Licenca expirada. Valide uma key ativa para continuar."]="Access expired. Enter a valid key to continue.",
-    ["Licenca expirada; rotinas pausadas."]="Access expired. Routines paused.",
-    ["Capitulo 2 concluido; rotinas pausadas."]="Chapter II complete. Routines paused.",
-    ["Rotina pausada. Reative para tentar novamente."]="Routine paused. Turn it back on to retry.",
-    ["Atalho cancelado."]="Shortcut canceled.",
-    ["Atalho atualizado."]="Shortcut updated.",
-    ["Pressione uma tecla para o atalho; Esc cancela e Backspace remove."]="Press a key to bind. Esc cancels and Backspace clears.",
-    ["Use os controles por toque; atalhos sao opcionais para teclado."]="Use touch controls. Keyboard shortcuts are optional.",
-    ["Edicao de atalho cancelada."]="Shortcut editing canceled.",
-    ["Pausado pelo painel."]="Paused from the panel.",
-    ["Pausado pelo atalho."]="Paused by shortcut.",
-    ["Pausado por entrada manual de movimento."]="Paused by manual movement.",
-    ["Personagem recarregado; rotinas pausadas."]="Character respawned. Routines paused.",
-    ["O resfriamento faz parte do Auto Progress. Pause o ciclo para desliga-lo."]="Cooling is part of Auto Progress. Pause the cycle to turn it off.",
-    ["Uma melhoria ja esta na fila."]="An upgrade is already queued.",
-    ["Prioridade de missao removida."]="Quest priority cleared.",
-    ["O jogo ja confirmou essa missao."]="The game has already confirmed this quest.",
-    ["Objetivo sem rota automatica confirmada."]="This objective requires manual play.",
-    ["Missao concluida. Voltando ao Auto Progress normal."]="Quest complete. Resuming normal Auto Progress.",
-    ["Melhoria confirmada."]="Upgrade confirmed.",
-    ["Melhoria nao confirmada."]="Upgrade unconfirmed.",
-    ["O Roblox recusou a volta ao lobby. Retorne manualmente."]="Roblox declined the return to the lobby. Return manually.",
-    ["O relatorio final nao chegou. Volte ao lobby manualmente."]="The game did not show the results. Return to the lobby manually.",
-    ["A volta automatica falhou. Retorne ao lobby pelo jogo."]="The automatic return failed. Use the game's controls to return.",
-    ["O Roblox nao confirmou a volta ao lobby."]="Roblox did not confirm the return to the lobby.",
-    ["O Roblox nao confirmou a reconexao."]="Roblox did not confirm the reconnect.",
-    ["O hub nao encontrou o lobby nem a area de partida. Aguarde o mapa e execute novamente."]="The hub could not find the lobby or match. Wait for the map and launch it again.",
-    ["Falha de execucao; controles restaurados."]="The routine failed. Controls restored.",
-    ["Alvo selecionado: "]="Target selected: ",
-    ["Classe encontrada: "]="Class found: ",
-    ["Sem giros gratuitos. Última classe: "]="No free rolls left. Last class: ",
-    ["Melhoria de lobby confirmada: "]="Lobby upgrade confirmed: ",
-    ["Prioridade: "]="Priority: ",
-    ["Solicitada melhoria "]="Upgrade requested for ",
-    ["O Roblox recusou a reconexao."]="Roblox declined the reconnect.",
-    ["Limite de reconexoes atingido. Abra o jogo novamente."]="Reconnect limit reached. Reopen the game.",
-}
-local function T(value)
-    return hub.language=="en" and type(value)=="string" and strings[value] or value
-end
-
-local Lobby = (function()
--- Luau · potato_lobby.luau · Chapter II native lobby entry
-local Lobby={}
-
-local function get(root,...)
-    for index=1,select("#",...) do
-        if not root then return nil end
-        local name=select(index,...)
-        root=root:FindFirstChild(name)
-    end
-    return root
-end
-
-function Lobby.stage(world)
-    local zones=get(world,"Map","Zones","MatchmakingZones")
-    local stations=get(world,"Map","PeelingMachines")
-    if stations or not zones and world:FindFirstChild("PotatoPile") then return "chapter" end
-    if zones then return "lobby" end
-    return nil
-end
-
-function Lobby.deploy(io,options)
-    if not io.waitFor("chapter",1) then
-        if io.ready("setup") then return false,"Saia da fila atual para selecionar o Capitulo II." end
-        local moved,reason=io.approach()
-        if not moved then return false,reason end
-        if not io.waitFor("chapter",5) then return false,"O jogo nao abriu o seletor do capitulo." end
-    end
-    local clicked,reason=io.click("chapter")
-    if not clicked then return false,reason end
-    if not io.waitFor("setup",5) then return false,"O jogo nao abriu a configuracao da fila." end
-    clicked,reason=io.click("size")
-    if not clicked then return false,reason end
-    for _,entry in ipairs({{"friends",options.friends},{"skip",options.skip}}) do
-        local id,desired=entry[1],entry[2]
-        local current=io.flag(id)
-        if current==nil then return false,"O estado da opcao "..id.." nao foi encontrado." end
-        if current~=desired then
-            clicked,reason=io.click(id)
-            if not clicked then return false,reason end
-            if not io.waitFor(id,2,desired) then return false,"O jogo nao confirmou a opcao "..id.."." end
-        end
-    end
-    if not io.ready("deploy") then return false,"O botao DEPLOY nao esta disponivel." end
-    local resumable,resumeReason=io.arm(options)
-    clicked,reason=io.click("deploy")
-    if not clicked then return false,reason end
-    if not io.waitFor("transfer",25) then return false,"DEPLOY acionado. O jogo nao confirmou o teleporte." end
-    return true,resumable and "Transferencia confirmada. Carregando OP no destino."
-        or ("Transferencia confirmada. Abra o hub ao chegar. "..tostring(resumeReason or ""))
-end
-
-local function freePad(services,player)
-    local world=services.Workspace
-    local folder=get(world,"Map","Zones","MatchmakingZones")
-    local root=get(player.Character,"HumanoidRootPart")
-    if not folder or not root then return nil end
-    local best,distance=nil,math.huge
-    for _,zone in ipairs(folder:GetChildren()) do
-        local cube=zone:FindFirstChild("Cube")
-        if not cube or not cube:IsA("BasePart") then continue end
-        local pad=get(zone,"Model","Part")
-        local status=zone:GetAttribute("QueueState") or pad and pad:GetAttribute("QueueState") or cube:GetAttribute("QueueState")
-        local clear=status==nil or status=="Empty"
-        if clear then
-            for _,other in ipairs(services.Players:GetPlayers()) do
-                local otherRoot=other~=player and get(other.Character,"HumanoidRootPart")
-                if otherRoot then
-                    local offset=cube.CFrame:PointToObjectSpace(otherRoot.Position)
-                    local half=cube.Size/2
-                    if math.abs(offset.X)<=half.X and math.abs(offset.Y)<=half.Y+4 and math.abs(offset.Z)<=half.Z then
-                        clear=false
-                        break
-                    end
-                end
-            end
-        end
-        local delta=(cube.Position-root.Position).Magnitude
-        if clear and delta<distance then best,distance=cube,delta end
-    end
-    return best
-end
-
-function Lobby.cratePlan(options,balance)
-    if not options.autoCrates then return "disabled",0 end
-    local cost=options.crateCount*80
-    if type(balance)~="number" then return "unknown",cost end
-    return balance>=cost and "ready" or "saving",cost
-end
-
-function Lobby.open(services,lifecycle,gate,bridge,nav,handoff,normalize,resume,autoStart,runtime)
-    local player=services.Players.LocalPlayer
-    local playerGui=player:WaitForChild("PlayerGui")
-    local options=normalize(resume or runtime.settings.settings)
-    local transferred,busy=false,false
-    local token,featureToken=0,0
-    local feature=nil
-    local old=playerGui:FindFirstChild("EvolvyChapter2Lobby")
-    if old then old:Destroy() end
-    local gui=Instance.new("ScreenGui")
-    gui.Name="EvolvyChapter2Lobby" gui.ResetOnSpawn=false gui.DisplayOrder=10001 gui.Parent=playerGui
-    lifecycle.add(function() gui:Destroy() end)
-    local callbacks={decorateLauncher=hub.decorateLauncher}
-    local view=runtime.view(services,lifecycle,gui,callbacks)
-    local function refresh() view.options(options,busy,feature=="upgrade",feature=="roll") end
-    local function persist() runtime.settings.save(normalize(options)) end
-    local function stopFeature()
-        featureToken+=1 feature=nil refresh()
-    end
-    local function startFeature(kind,fn)
-        if busy or gate.expired() then return end
-        if feature then
-            if feature==kind then stopFeature() view.status("Rotina pausada.")
-            else view.status("Já há uma rotina de lobby em andamento.") end
-            return
-        end
-        featureToken+=1 feature=kind refresh()
-
-        local current=featureToken
-        task.spawn(function()
-            local function valid() return lifecycle.alive() and current==featureToken and not gate.expired() and not busy end
-            local ok,success,message=pcall(fn,valid)
-            if not valid() then return end
-
-            stopFeature()
-            view.status(ok and tostring(message or success) or "O jogo interrompeu a rotina do lobby.")
-        end)
-    end
-    local function stop()
-        stopFeature()
-        token+=1 busy=false nav.stop() handoff.clear()
-
-        refresh()
-        view.status(transferred and "Retomada cancelada. O jogo já solicitou o teleporte." or "Ciclo do lobby parado.")
-    end
-    callbacks.stop=stop
-    callbacks.language=runtime.language
-    callbacks.size=function()
-        if not busy then options.size=options.size%4+1 persist() refresh() end
-    end
-    for _,key in ipairs({"friends","skip","skipOutro","repeatRun","autoCrates"}) do
-        callbacks[key]=function()
-            if not busy then options[key]=not options[key] persist() refresh() end
-        end
-    end
-    callbacks.crateCount=function(count,save)
-        if busy or feature=="crate" then return end
-        options.crateCount=count
-        if save then persist() end
-        refresh()
-        view.resources(runtime.features.pumpkins(),count,runtime.features.gems())
-    end
-    callbacks.launcher=function(x,y)
-        options.launcherX,options.launcherY=x,y
-        persist()
-    end
-    callbacks.openBatch=function()
-        local count=options.crateCount
-        startFeature("crate",function(valid)
-            return runtime.features.openBatch(valid,count,view.status)
-        end)
-    end
-    callbacks.autoImprove=function()
-        startFeature("upgrade",function(valid)
-            while valid() do
-                local ok,message=runtime.features.upgrade(valid)
-                view.status(message)
-                task.wait(ok and 1 or 4)
-            end
-        end)
-    end
-    local function chooseTarget(id)
-        if busy or feature=="roll" then return end
-        for _,entry in ipairs(runtime.features.catalog()) do
-            if tostring(entry.id)==id then
-                options.classTarget=id
-                persist()
-                view.status(T("Alvo selecionado: ")..entry.name..".")
-                return entry
-            end
-        end
-    end
-    callbacks.target=chooseTarget
-    callbacks.rarest=function()
-        local entry=runtime.rarest(runtime.features.catalog())
-        if entry then chooseTarget(tostring(entry.id))
-        else view.status("As chances ainda não foram carregadas pelo jogo.") end
-    end
-    callbacks.roll=function(useGems)
-        startFeature("roll",function(valid)
-            local selected=nil
-            for _,entry in ipairs(runtime.features.catalog()) do
-                if tostring(entry.id)==options.classTarget then selected=entry break end
-            end
-            if not selected then return false,"Escolha uma classe na barra." end
-            return runtime.features.roll(valid,selected,useGems,view.status)
-        end)
-    end
-    local transferConnection=player.OnTeleport:Connect(function(state,place)
-        if place==game.PlaceId and (state.Name=="RequestedFromServer" or state.Name=="Started" or state.Name=="InProgress") then
-            transferred=true
-
-        end
-    end)
-    lifecycle.add(function() transferConnection:Disconnect() end)
-    local failedConnection=services.TeleportService.TeleportInitFailed:Connect(function(who,_,_,place)
-        if who~=player or place~=game.PlaceId or not busy then return end
-        transferred=false
-        stop()
-        view.status("O Roblox recusou o teleporte. Saia da fila atual e tente novamente.")
-    end)
-    lifecycle.add(function() failedConnection:Disconnect() end)
-
-    local function start()
-        if busy or transferred or gate.expired() then return end
-        if feature then view.status("Pare a rotina de lobby antes de entrar na fila.") return end
-        busy=true token+=1 refresh()
-        local run=token
-        local selected=normalize(options)
-
-        local function valid() return lifecycle.alive() and token==run and not gate.expired() end
-        local function control(id)
-            local queue=playerGui:FindFirstChild("Queue")
-            if id=="chapter" then return get(queue,"ChapterSelect","Content","Chapters","CHAPTER 2") end
-            local content=get(queue,"Setup","Content")
-            if id=="size" then return get(content,"Sizes",tostring(selected.size)) end
-            if id=="friends" then return get(content,"Options","FriendsOnly") end
-            if id=="skip" then return get(content,"Options","SkipIntro") end
-            if id=="deploy" or id=="setup" then return get(content,"CreateHolder","Create") end
-        end
-        local function flag(id)
-            local button=control(id)
-            local check=button and button:FindFirstChild("Check",true)
-            if check and check:IsA("GuiObject") then return check.Visible end
-        end
-        local function ready(id)
-            if id=="transfer" then return transferred end
-            local button=control(id)
-            return button and button:IsA("GuiButton") and button.Active and bridge.visible(button)
-        end
-        local function waitFor(id,timeout,expected)
-            local deadline=os.clock()+timeout
-            while valid() and os.clock()<deadline do
-                if expected~=nil then
-                    if flag(id)==expected then return true end
-                elseif ready(id) then return true end
-                task.wait(0.1)
-            end
-            return false
-        end
-        task.spawn(function()
-            local ran,success,message=pcall(function()
-                if selected.autoCrates then
-                    local balance=runtime.features.pumpkins()
-                    local deadline=os.clock()+3
-                    while balance==nil and valid() and os.clock()<deadline do
-                        task.wait(0.25)
-                        balance=runtime.features.pumpkins()
-                    end
-                    local plan,cost=Lobby.cratePlan(selected,balance)
-
-                    if plan=="ready" then
-                        view.status("Abrindo o lote antes de entrar na fila…")
-                        local ok,why=runtime.features.openBatch(valid,selected.crateCount,view.status)
-                        if not ok then return false,why end
-                    elseif plan=="saving" then
-                        view.status(string.format(T("Juntando abóboras para o lote: %d/%d."),balance,cost))
-                    end
-                end
-                if not valid() then return false,"Cancelado." end
-                view.status("Localizando a fila do Capítulo II…")
-                return Lobby.deploy({
-                    ready=ready,flag=flag,waitFor=waitFor,
-                    approach=function()
-                        local pad=freePad(services,player)
-                        if not pad then return false,"Nenhuma área de fila livre. Entre em uma área vazia manualmente." end
-
-                        local floor=pad.Position-Vector3.new(0,pad.Size.Y/2,0)
-                        local moved,why=nav.goTo(floor,function() return valid() and not ready("chapter") end)
-                        if ready("chapter") then return true end
-                        return moved,why
-                    end,
-                    click=function(id)
-                        if not valid() then return false,"Cancelado." end
-                        if id=="deploy" then view.status("DEPLOY acionado. Aguardando o jogo…") end
-                        local ok,why=bridge.activate(control(id))
-
-                        return ok,why
-                    end,
-                    arm=function(settings)
-                        if not valid() then return false,"Cancelado." end
-                        local ok,why=handoff.arm("chapter",settings)
-
-                        return ok,why
-                    end,
-                },selected)
-            end)
-            if not valid() then return end
-            if not ran or not success then
-
-                handoff.clear()
-                busy=false refresh()
-            end
-            view.status(ran and tostring(message) or "Falha no lobby. Tente novamente.")
-        end)
-    end
-    callbacks.launch=start
-    callbacks.cycle=function()
-        if busy or transferred then return end
-        options.repeatRun=true
-        options.reconnectCount=0
-        persist()
-        refresh()
-        start()
-    end
-    runtime.watch(function() return busy and options.repeatRun and not transferred end,function(code)
-        token+=1
-
-        nav.stop()
-        view.status(string.format(T("Conexão perdida (%s). Tentando voltar ao lobby…"),code))
-        local ok,why=runtime.reconnect(options)
-        if not ok then busy=false refresh() view.status(why) return end
-        local pending=token
-        task.delay(25,function()
-            if lifecycle.alive() and token==pending and busy and not transferred then
-                stop()
-                view.status("O Roblox não confirmou a reconexão.")
-            end
-        end)
-    end)
-    runtime.idle(function() return busy or feature~=nil end)
-    refresh()
-    task.spawn(function()
-        while lifecycle.alive() do
-            view.resources(runtime.features.pumpkins(),options.crateCount,runtime.features.gems())
-            if view.showingClasses() then
-                local current,free=runtime.features.classState()
-                view.classes(runtime.features.catalog(),options.classTarget,current,free)
-            end
-            task.wait(1.2)
-        end
-    end)
-    if autoStart then task.defer(start) end
-end
-return Lobby
-
-end)()
-
-local LobbyExtras = (function()
--- Luau · potato_lobby_extras.luau · native lobby offers and confirmed class rolls
-local Extras={}
-Extras.CRATE_COST=80
-
-local function get(root,...)
-    for index=1,select("#",...) do
-        if not root then return nil end
-        local name=select(index,...)
-        root=root:FindFirstChild(name)
-    end
-    return root
-end
-
-function Extras.uniqueButton(root,...)
-    local matches=root and {root} or {}
-    for index=1,select("#",...) do
-        local name=select(index,...)
-        local nextMatches={}
-        for _,parent in ipairs(matches) do
-            for _,child in ipairs(parent:GetChildren()) do
-                if child.Name==name then table.insert(nextMatches,child) end
-            end
-        end
-        matches=nextMatches
-        if #matches==0 then return nil end
-    end
-    if #matches==1 and matches[1]:IsA("GuiButton") and matches[1].Active then return matches[1] end
-end
-
-local function norm(value)
-    return type(value)=="string" and value:lower():gsub("[^%w]","") or ""
-end
-local nonClasses={
-    ["2xluck"]=true,["luck2x"]=true,["x2luck"]=true,doubleluck=true,["2xclassluck"]=true,
-    fastclassspin=true,fastclassspins=true,stopat=true,classstopat=true,stopatclass=true,
-}
-function Extras.isClass(value)
-    return not nonClasses[norm(value)]
-end
-function Extras.matchesTarget(target,current)
-    local key=norm(current)
-    return key~="" and (key==norm(target.name) or key==norm(target.id))
-end
-
-function Extras.rarest(catalog)
-    local best=nil
-    for _,class in ipairs(catalog) do
-        if type(class.chance)=="number" and class.chance>0
-            and (not best or class.chance<best.chance) then best=class end
-    end
-    return best
-end
-
-function Extras.confirmCrate(before,after,rewardSeen)
-    return type(before)=="number" and after==before-Extras.CRATE_COST and rewardSeen==true
-end
-
-function Extras.offerAmount(text)
-    local plain=text:gsub("<.->","")
-    local raw=plain:match("^%s*([%d][%d,.]*)%s*$") or plain:match("%f[%d]([%d][%d,.]*)%f[^%d]")
-    if not raw then return nil end
-    local tail=plain:gsub(raw:gsub("([^%w])","%%%1"),"",1)
-    if tail:find("%d") or tail:find("%%") then return nil end
-    if raw:find("[,.]") and not raw:match("^%d%d?%d?[,.]%d%d%d$") then return nil end
-    local value=tonumber((raw:gsub("[,.]","")))
-    return value and value>0 and value or nil
-end
-
-function Extras.crateAmount(text)
-    local plain=text:gsub("<.->",""):upper()
-    local quoted=plain:match("^%s*(%d+)%s+FREE%s+0%s*[X×]%s*$")
-    return tonumber(quoted) or Extras.offerAmount(plain)
-end
-
-function Extras.singleSpinPrice(text)
-    local plain=text:gsub("<.->",""):upper()
-    if plain:match("%f[%d][2-9]%s+CLASS%s+SPINS?") or plain:match("%f[%d]%d%d+%s+CLASS%s+SPINS?") then return nil end
-    return Extras.offerAmount((plain:gsub("%f[%d]1%s+CLASS%s+SPINS?","",1)))
-end
-
-function Extras.isGemOffer(label,price,nativeRow,gemMarker)
-    return type(price)=="number" and price>0
-        and (gemMarker==true or nativeRow==true and price==40 and label:match("^%s*40%s*$")~=nil)
-end
-
-function Extras.nativeRollPrice(text)
-    local plain=text:gsub("<.->","")
-    if not plain:match("^%s*[%d][%d,.]*%s*$") then return nil end
-    return Extras.offerAmount(plain)
-end
-
-function Extras.confirmRoll(before,after,cost,spentGems,resultSeen)
-    return type(before)=="number" and type(after)=="number" and resultSeen==true
-        and (spentGems and type(cost)=="number" and cost>0 and after==before-cost
-            or not spentGems and after==before-1)
-end
-
-function Extras.create(services,bridge,nav,lifecycle)
-    local player=services.Players.LocalPlayer
-    local gui=player:WaitForChild("PlayerGui")
-    local storage=services.ReplicatedStorage
-    local stateModule=nil
-    local nativePackets=nil
-    local classSignal=0
-    local crateSignal=0
-    local moduleCatalog={}
-    local lastCrateRoute=nil
-    local lastClassRoute=nil
-    local function imageId(value)
-        if type(value)=="number" and value>0 then return "rbxassetid://"..string.format("%.0f",value) end
-        if type(value)~="string" or value=="" then return nil end
-        if value:match("^%d+$") then return "rbxassetid://"..value end
-        if value:match("^rbxasset") or value:match("^https?://") then return value end
-    end
-    local function imageObject(item)
-        return item:IsA("ImageLabel") or item:IsA("ImageButton") or item:IsA("Decal")
-    end
-    local function load(module)
-        if not module or not module:IsA("ModuleScript") then return nil end
-        local ok,value=pcall(require,module)
-        return ok and type(value)=="table" and value or nil
-    end
-    task.spawn(function()
-        stateModule=load(get(storage,"Shared","PlayerStateShared"))
-        local packets=load(get(storage,"Modules","Resources","Packets"))
-        nativePackets=packets
-        local event=packets and packets.ClassRolled and packets.ClassRolled.OnClientEvent
-        if event and type(event.Connect)=="function" then
-            local ok,connection=pcall(event.Connect,event,function() classSignal+=1 end)
-            if ok and connection then lifecycle.add(function() connection:Disconnect() end) end
-        end
-        local opened=packets and packets.CrateOpened and packets.CrateOpened.OnClientEvent
-        if opened and type(opened.Connect)=="function" then
-            local ok,connection=pcall(opened.Connect,opened,function() crateSignal+=1 end)
-            if ok and connection then lifecycle.add(function() connection:Disconnect() end) end
-        end
-        local definition=load(get(storage,"Shared","ClassShared"))
-            or load(get(storage,"Shared","ClassesShared")) or load(get(storage,"Modules","Resources","Classes"))
-            or load(get(storage,"Modules","Resources","ClassConfig"))
-        local list=definition and (definition.Classes or definition.Definitions or definition.List or definition)
-        for id,row in pairs(list or {}) do
-            if type(row)=="table" then
-                local title=row.Name or row.DisplayName or (type(id)=="string" and id)
-                local chance=row.Chance or row.Weight or row.Probability
-                if type(title)=="string" and (type(chance)=="number" or row.Id~=nil) then
-                    local icon=imageId(row.Icon or row.IconId or row.Image or row.ImageId or row.Thumbnail or row.Texture)
-                    table.insert(moduleCatalog,{name=title,id=row.Id or title,chance=chance,
-                        icon=icon})
-                end
-            end
-        end
-    end)
-    local function state()
-        if not stateModule or type(stateModule.TryGetPlayerState)~="function" then return nil end
-        local ok,value=pcall(stateModule.TryGetPlayerState,player)
-        if ok and type(value)=="table" then return value end
-        ok,value=pcall(stateModule.TryGetPlayerState,player.UserId)
-        if ok and type(value)=="table" then return value end
-    end
-    local function number(value)
-        return type(value)=="number" and value>=0 and value or nil
-    end
-    local function gems()
-        local data=state()
-        local save=data and data.SaveData
-        local label=get(gui,"Diamonds","Counter","Value") or get(gui,"Gems","Counter","Value")
-        local written=label and label:IsA("TextLabel") and label.Text:match("^%s*([%d,%.]+)%s*$")
-        return number(data and (data.Diamonds or data.Gems)) or number(save and (save.Diamonds or save.Gems))
-            or written and tonumber((written:gsub("[,.]",""))) or nil
-    end
-    local function pumpkins()
-        local data=state()
-        local save=data and data.SaveData
-        local label=get(gui,"Pumpkins","Counter","Value") or get(gui,"Pumpkins","Value")
-        local written=label and label:IsA("TextLabel") and label.Text:match("^%s*([%d,%.]+)%s*$")
-        return number(save and save.Pumpkins) or number(data and data.Pumpkins)
-            or written and tonumber((written:gsub("[,.]",""))) or nil
-    end
-    local function classState()
-        local data=state()
-        local save=data and data.SaveData
-        if type(save)~="table" then return nil,nil end
-        local active=save.ActiveClassSlot==2 and save.ClassSlot2 or save.Class
-        return type(active)=="string" and active or nil,number(save.FreeRolls)
-    end
-    local function paid(text)
-        local upper=tostring(text):upper()
-        return upper:find("ROBUX",1,true) or upper:find("R$",1,true) or upper:find("PREMIUM",1,true)
-            or upper:find("PRODUCT",1,true) or upper:find("GAMEPASS",1,true)
-    end
-    local function shownText(control)
-        local result,seen={},{}
-        local function add(text)
-            if text~="" and not seen[text] then
-                seen[text]=true
-                table.insert(result,text)
-            end
-        end
-        if control:IsA("TextButton") then add(control.Text) end
-        for _,item in ipairs(control:GetDescendants()) do
-            if item:IsA("TextLabel") and bridge.visible(item) then add(item.Text) end
-        end
-        return table.concat(result," "):gsub("<.->","")
-    end
-    local function buttons(root,filter,visibleOnly)
-        local result={}
-        for _,item in ipairs(root and root:GetDescendants() or {}) do
-            if item:IsA("GuiButton") and item.Active and (not visibleOnly or bridge.visible(item)) then
-                local label=bridge.texts(item)
-                if not paid(label.." "..item.Name) and filter(item,label) then table.insert(result,item) end
-            end
-        end
-        return result
-    end
-    local function waitFor(valid,seconds,predicate)
-        local deadline=os.clock()+seconds
-        repeat
-            if not valid() then return false end
-            if predicate() then return true end
-            task.wait(0.13)
-        until os.clock()>=deadline
-        return false
-    end
-    local function readIcon(item)
-        if item:IsA("ImageLabel") or item:IsA("ImageButton") then
-            return imageId(item.Image),item.ImageRectOffset,item.ImageRectSize
-        end
-        if item:IsA("Decal") then return imageId(item.Texture) end
-    end
-    local function catalog()
-        local result,byName={},{}
-        local function register(entry)
-            local key=norm(entry.name)
-            if key=="" or byName[key] or not Extras.isClass(entry.name) or not Extras.isClass(entry.id) then return end
-            byName[key]=entry
-            table.insert(result,entry)
-        end
-        for _,entry in ipairs(moduleCatalog) do register(table.clone(entry)) end
-        local screen=gui:FindFirstChild("Classes")
-        for _,label in ipairs(screen and screen:GetDescendants() or {}) do
-            if not (label:IsA("TextLabel") or label:IsA("TextButton")) then continue end
-            local title=label.Text:gsub("<.->","")
-            if not Extras.isClass(title) then continue end
-            local ancestor=label
-            while ancestor and ancestor~=screen and Extras.isClass(ancestor.Name) do ancestor=ancestor.Parent end
-            if ancestor~=screen then continue end
-            local entry=byName[norm(title)]
-            local row=label.Parent
-            local labelName=norm(label.Name)
-            local isTitle=labelName=="classname" or labelName=="title" or labelName=="name"
-            for _=1,2 do
-                if not row or row==screen then break end
-                local chance,icon,offset,size=nil,nil,nil,nil
-                local images=0
-                for _,item in ipairs(row:GetDescendants()) do
-                    if item:IsA("TextLabel") and not chance then
-                        local value=item.Text:match("([%d.,]+)%s*%%")
-                        chance=value and tonumber((value:gsub(",",".")))
-                    elseif imageObject(item) then
-                        local key=norm(item.Name)
-                        if key=="classicon" or key=="portrait" or key=="icon" or key=="image" or key=="classimage" then
-                            local candidate,crop,extent=readIcon(item)
-                            if candidate then icon,offset,size=candidate,crop,extent images+=1 end
-                        end
-                    end
-                end
-                if not entry and chance and isTitle then
-                    entry={name=title,id=title,chance=chance}
-                    register(entry)
-                end
-                if entry and icon and images==1 then
-                    entry.icon,entry.iconOffset,entry.iconSize=icon,offset,size
-                    break
-                end
-                row=row.Parent
-            end
-        end
-        local assets=get(storage,"Assets","Classes") or get(storage,"Assets","ClassIcons")
-        if assets then
-            for _,item in ipairs(assets:GetChildren()) do
-                local entry=byName[norm(item.Name)]
-                if entry and not entry.icon then
-                    local visual=imageObject(item) and item or item:FindFirstChildWhichIsA("ImageLabel",true)
-                        or item:FindFirstChildWhichIsA("Decal",true)
-                    if visual then entry.icon,entry.iconOffset,entry.iconSize=readIcon(visual) end
-                end
-            end
-        end
-        table.sort(result,function(a,b)
-            if a.chance==b.chance then return a.name<b.name end
-            return (a.chance or 0)>(b.chance or 0)
-        end)
-        return result
-    end
-    local function currency(root,expected,sourceScreen)
-        local own=norm(root.Name.." "..bridge.texts(root))
-        for _,word in ipairs(expected) do
-            if own:find(word,1,true) then return true end
-        end
-        local hud=get(gui,sourceScreen,"Counter","Icon") or get(gui,sourceScreen,"Icon")
-        local icon=hud and readIcon(hud)
-        if not icon then return false end
-        for _,item in ipairs(root:GetDescendants()) do
-            if readIcon(item)==icon then return true end
-        end
-        return false
-    end
-    local function controlPrice(button,label,parse)
-        parse=parse or Extras.offerAmount
-        local price=nil
-        for _,item in ipairs(button:GetDescendants()) do
-            local key=norm(item.Name)
-            if item:IsA("TextLabel") and bridge.visible(item)
-                and (key=="price" or key=="cost" or key=="amount") then
-                local value=parse(item.Text)
-                if price and value and value~=price then return nil end
-                price=value or price
-            end
-        end
-        return price or parse(label)
-    end
-    local function rollOffer(screen,useGems)
-        local exact=Extras.uniqueButton(screen,"Content","Buttons","Roll")
-        if exact then
-            local label=bridge.visible(exact) and shownText(exact) or bridge.texts(exact)
-            if label=="" then label=bridge.texts(exact) end
-            if not paid(label) then
-                local price=Extras.nativeRollPrice(label)
-                local key=norm(label)
-                if useGems and price or not useGems and (key:find("free",1,true) or key:find("grati",1,true)) then
-                    return {button=exact,price=price,headless=not bridge.visible(exact)}
-                end
-            end
-        end
-        local choices,nativeChoices={},{}
-        local single=get(screen,"Choice","Single")
-        local native=get(screen,"Content","Buttons")
-        for _,button in ipairs(screen and screen:GetDescendants() or {}) do
-            if not button:IsA("GuiButton") or not button.Active or useGems and not bridge.visible(button) then continue end
-            local label=useGems and shownText(button) or bridge.texts(button)
-            if paid(label.." "..button.Name) then continue end
-            local key=norm(button.Name.." "..label)
-            local inNative=native and button:IsDescendantOf(native)
-            local action=key:find("roll",1,true) or key:find("spin",1,true)
-                or key:find("girar",1,true) or key:find("rolar",1,true)
-            local multiple=button.Name=="Bundle" or key:find("rollx",1,true) or key:find("spinbundle",1,true)
-            local withGems=currency(button,{"gem","diamond","gema","diamante"},"Diamonds")
-                or currency(button,{},"Gems")
-            local free=key:find("free",1,true) or key:find("grati",1,true)
-            local price=controlPrice(button,label,button==single and Extras.singleSpinPrice or nil)
-            if not multiple and (action or inNative or button==single)
-                and (useGems and not free and Extras.isGemOffer(label,price,inNative,withGems)
-                    or not useGems and not withGems and (free or inNative and action and not price)) then
-                local offers=inNative and nativeChoices or choices
-                table.insert(offers,{button=button,price=price,free=free})
-            end
-        end
-        if #nativeChoices>0 then choices=nativeChoices end
-        if not useGems and #choices>1 then
-            local freeChoices={}
-            for _,choice in ipairs(choices) do if choice.free then table.insert(freeChoices,choice) end end
-            choices=freeChoices
-        end
-        if #choices==1 then return choices[1] end
-    end
-    local function roll(valid,target,useGems,report)
-        lastClassRoute=nil
-        if type(target)~="table" or norm(target.name)=="" then return false,"Escolha uma classe na barra." end
-        local index=0
-        while valid() do
-            local current,free=classState()
-            if not current or not useGems and free==nil then return false,"O estado dos giros ainda não está disponível." end
-            if Extras.matchesTarget(target,current) then return true,T("Classe encontrada: ")..current.."." end
-            if not useGems and free<=0 then return true,T("Sem giros gratuitos. Última classe: ")..current.."." end
-            local offer
-            if not waitFor(valid,18,function()
-                offer=rollOffer(gui:FindFirstChild("Classes"),useGems)
-                return offer~=nil
-            end) then
-                if not valid() then return true,"Rolagem pausada." end
-                return false,useGems and "O giro com preço em gemas não foi identificado. Abra Classes no jogo."
-                    or "O giro gratuito não foi identificado. Abra Classes no jogo."
-            end
-            current,free=classState()
-            if current and Extras.matchesTarget(target,current) then return true,T("Classe encontrada: ")..current.."." end
-            local before=free
-            if useGems then before=gems() end
-            if before==nil then return false,"Aguardando o saldo de gemas do jogo." end
-            if not useGems and before<=0 then return true,"Sem giros gratuitos." end
-            if useGems and before<offer.price then return true,"Gemas insuficientes para o próximo giro." end
-            local seen=classSignal
-            lastClassRoute=offer.button:GetFullName()
-            local ok,why=bridge.activate(offer.button,offer.headless or not useGems)
-            if not ok then return false,why end
-            local nextClass=nil
-            local chargedAt=nil
-            if not waitFor(valid,12,function()
-                local class,remaining=classState()
-                local after=remaining
-                if useGems then after=gems() end
-                if not Extras.confirmRoll(before,after,offer.price,useGems,true) then return false end
-                local now=os.clock()
-                chargedAt=chargedAt or now
-                if class and (classSignal>seen or class~=current or now-chargedAt>=3
-                    and rollOffer(gui:FindFirstChild("Classes"),useGems)) then
-                    nextClass=class
-                    return true
-                end
-                return false
-            end) then
-                if not valid() then return true,"Rolagem pausada." end
-                return false,chargedAt and "O giro foi debitado, mas o próximo ainda não foi liberado."
-                    or "O jogo não confirmou o débito. Rolagem parada."
-            end
-            index+=1
-            report(string.format(T("Giro %d confirmado: %s"),index,tostring(nextClass)))
-            if Extras.matchesTarget(target,nextClass) then return true,T("Classe encontrada: ")..nextClass.."." end
-            task.wait(0.7)
-        end
-        return true,"Rolagem pausada."
-    end
-    local function upgrade(valid)
-        local root=get(gui,"LobbyUpgrades","Panel","Content","Upgrades")
-        local balance=gems()
-        if not root or balance==nil then return false,"Abra as melhorias do lobby uma vez para carregar precos e gemas." end
-        local best=nil
-        for _,row in ipairs(root:GetChildren()) do
-            local button=row:FindFirstChild("Upgrade")
-            if button and button:IsA("GuiButton") and button.Active then
-                local text=bridge.texts(button)
-                local price=nil
-                if not paid(text) and text:match("^%s*[%d,%.%s]+$") then
-                    for amount in text:gmatch("[%d,%.]+") do
-                        local value=tonumber((amount:gsub("[,.]","")))
-                        if not value or price and value~=price then price=nil break end
-                        price=value
-                    end
-                end
-                if price and price>0 and price<=balance and (not best or price<best.price) then
-                    best={button=button,price=price,name=row.Name,text=text}
-                end
-            end
-        end
-        if not best then return false,"Sem melhoria acessivel com as gemas atuais." end
-        local ok,why=bridge.activate(best.button,true)
-        if not ok then return false,why end
-        if not waitFor(valid,3,function()
-            local after=gems()
-            return after and after<balance or best.button.Parent and bridge.texts(best.button)~=best.text
-        end) then return false,"O jogo nao confirmou a melhoria de lobby." end
-        return true,T("Melhoria de lobby confirmada: ")..best.name..".",best.name
-    end
-    local function eventContext(text)
-        local key=norm(text)
-        return key:find("pumpkin",1,true) or key:find("halloween",1,true) or key:find("abobora",1,true)
-            or key:find("eventcrate",1,true) or key:find("caixadoevento",1,true)
-    end
-    local function eventButtons()
-        local screen=gui:FindFirstChild("Crates")
-        return buttons(screen,function(item,label)
-            local name=norm(item.Name)
-            local key=norm(label)
-            local parent=item.Parent
-            local action=name:find("open",1,true) or name:find("buy",1,true) or name:find("purchase",1,true)
-                or key:find("open",1,true) or key:find("abrir",1,true) or key:find("comprar",1,true)
-            local quoted=controlPrice(item,label)
-            local pumpkin=currency(item,{"pumpkin","abobora"},"Pumpkins")
-            if parent and parent~=screen then
-                for _,child in ipairs(parent:GetChildren()) do
-                    if child:IsA("TextLabel") and bridge.visible(child) then
-                        local childName=norm(child.Name)
-                        if not quoted and (childName:find("price",1,true) or childName:find("cost",1,true)) then
-                            quoted=Extras.offerAmount(child.Text)
-                        end
-                        pumpkin=pumpkin or eventContext(child.Text)
-                    end
-                end
-                pumpkin=pumpkin or eventContext(parent.Name)
-            end
-            local multiple=name:match("^open%d+$") or key:match("openx%d") or key:match("abrirx%d") or key:match("x%d+open")
-            return not multiple and quoted==Extras.CRATE_COST and (action or pumpkin)
-                and (pumpkin or eventContext(item.Name))
-        end,true)
-    end
-    local function eventZone()
-        return get(services.Workspace,"Map","Zones","HalloweenZone")
-    end
-    local function exactCrate()
-        local buy=Extras.uniqueButton(gui:FindFirstChild("Crates"),"Menu","Panel","Content","Frame","Frame","Pumpkins","Buy")
-        if not buy then return nil end
-        local label=bridge.texts(buy)
-        if paid(label) then return nil end
-        local price=Extras.crateAmount(label)
-        if not price and bridge.visible(buy) then price=controlPrice(buy,shownText(buy)) end
-        return price==Extras.CRATE_COST and buy or nil
-    end
-    local function eventPrompt(zone)
-        local matches,fallback={},{}
-        for _,item in ipairs(zone and zone:GetDescendants() or {}) do
-            if item:IsA("ProximityPrompt") and item.Enabled and not paid(item.ActionText.." "..item.ObjectText) then
-                local description=item.Name.." "..item.ActionText.." "..item.ObjectText
-                local key=norm(description)
-                if eventContext(description) or key:find("crate",1,true) or key:find("caixa",1,true) then
-                    table.insert(matches,item)
-                elseif key:find("open",1,true) or key:find("abrir",1,true) or key:find("interact",1,true) then
-                    table.insert(fallback,item)
-                end
-            end
-        end
-        if #matches==1 then return matches[1] end
-        if #matches==0 and #fallback==1 then return fallback[1] end
-    end
-    local function eventDetector(zone)
-        local match=nil
-        for _,item in ipairs(zone and zone:GetDescendants() or {}) do
-            if item:IsA("ClickDetector") and item.MaxActivationDistance>0 then
-                if match then return nil end
-                match=item
-            end
-        end
-        return match
-    end
-    local function fireEventPacket(valid)
-        local packet=nativePackets and nativePackets.CrateOpenPumpkins
-        if type(packet)~="table" or type(packet.Fire)~="function"
-            or type(packet.Writes)~="table" or #packet.Writes~=0
-            or type(packet.Reads)~="table" or #packet.Reads~=0 then return nil end
-        if not valid() then return false,"Abertura cancelada." end
-        lastCrateRoute="CrateOpenPumpkins"
-        local ok=pcall(packet.Fire,packet)
-        return ok,ok and nil or "Falha ao enviar a abertura de evento."
-    end
-    local function requestEvent(valid)
-        lastCrateRoute=nil
-        local exact=exactCrate()
-        if exact then
-            if not valid() then return false,"Abertura cancelada." end
-            lastCrateRoute=exact:GetFullName()
-            return bridge.activate(exact,not bridge.visible(exact))
-        end
-        local choices=eventButtons()
-        if #choices==0 then
-            local zone=eventZone()
-            local prompt=eventPrompt(zone)
-            local detector=not prompt and eventDetector(zone) or nil
-            local startBalance,startSignal=pumpkins(),crateSignal
-            if prompt then
-                lastCrateRoute=prompt:GetFullName()
-                local ok,why=nav.trigger(prompt,valid)
-                if not ok then return false,why end
-            else
-                local anchor=zone and zone:FindFirstChild("stylematchstone",true)
-                if anchor and anchor:IsA("BasePart") then
-                    local floor=anchor.Position-Vector3.new(0,anchor.Size.Y/2,0)
-                    lastCrateRoute=anchor:GetFullName()
-                    nav.goTo(floor,valid)
-                end
-                if detector and type(fireclickdetector)=="function" and valid() then
-                    local host=detector.Parent
-                    local root=nav.actor()
-                    local position=host and (host:IsA("BasePart") and host.Position
-                        or host:IsA("Model") and host:GetPivot().Position)
-                    if root and position and (root.Position-position).Magnitude<=detector.MaxActivationDistance then
-                        local ok=pcall(fireclickdetector,detector)
-                        if ok then lastCrateRoute=detector:GetFullName() end
-                    end
-                end
-            end
-            if prompt or lastCrateRoute then
-                waitFor(valid,2.5,function()
-                    choices=eventButtons()
-                    return #choices>0 or crateSignal>startSignal or pumpkins()~=startBalance
-                end)
-                if crateSignal>startSignal or pumpkins()~=startBalance then return true end
-            end
-            if #choices==0 and not prompt and not detector then
-                local ok,why=fireEventPacket(valid)
-                if ok~=nil then return ok,why end
-            end
-        end
-        if #choices~=1 then return false,"A oferta de 80 abóboras não pôde ser confirmada." end
-        if not valid() then return false,"Abertura cancelada." end
-        lastCrateRoute=choices[1]:GetFullName()
-        return bridge.activate(choices[1])
-    end
-    local function settleRoll(valid)
-        local roll=get(gui,"Crates","Roll")
-        if not roll or not bridge.visible(roll) then return true end
-        local lastAttempt=0
-        local attempts=0
-        return waitFor(valid,12,function()
-            if not bridge.visible(roll) then return true end
-            local now=os.clock()
-            if attempts<8 and now-lastAttempt>=0.6 then
-                for _,name in ipairs({"Skip","Continue","Close"}) do
-                    local button=roll:FindFirstChild(name,true)
-                    if button and button:IsA("GuiButton") and button.Active and bridge.visible(button) then
-                        lastAttempt=now
-                        attempts+=1
-                        bridge.activate(button)
-                        break
-                    end
-                end
-            end
-            return false
-        end)
-    end
-    local function openBatch(valid,count,onProgress)
-        if type(count)~="number" or count%1~=0 or count<1 or count>10 then return false,"Lote inválido.",0 end
-        local balance=pumpkins()
-        if balance==nil then return false,"O jogo ainda não informou o saldo de abóboras.",0 end
-        if balance<count*Extras.CRATE_COST then
-            return false,string.format(T("Saldo insuficiente para o lote. %d de %d abóboras."),balance,count*Extras.CRATE_COST),0
-        end
-        local opened=0
-        for index=1,count do
-            if not valid() then return false,"Lote pausado.",opened end
-            if not settleRoll(valid) then return false,"A caixa anterior ainda está aberta.",opened end
-            local before=pumpkins()
-            if before==nil or before<Extras.CRATE_COST then return false,"Saldo mudou durante o lote.",opened end
-            local serial=crateSignal
-            if onProgress then onProgress(string.format(T("Abrindo caixa %d/%d…"),index,count)) end
-            local ok,why=requestEvent(valid)
-            if not ok then return false,why,opened end
-            local sawRoll=false
-            local closedRoll=false
-            local rewardAt=nil
-            if not waitFor(valid,10,function()
-                local roll=get(gui,"Crates","Roll")
-                sawRoll=roll~=nil and bridge.visible(roll)
-                if sawRoll then return true end
-                if crateSignal>serial then
-                    local now=os.clock()
-                    rewardAt=rewardAt or now
-                    return now-rewardAt>=2
-                end
-                return false
-            end) then return false,"O jogo não mostrou a abertura da caixa. Lote interrompido.",opened end
-            if sawRoll then closedRoll=settleRoll(valid) end
-            if not waitFor(valid,8,function()
-                return Extras.confirmCrate(before,pumpkins(),crateSignal>serial or closedRoll)
-            end) then return false,"O jogo não confirmou o débito e o resultado. Lote interrompido.",opened end
-            opened+=1
-            if sawRoll and not closedRoll then return false,"Caixa registrada, mas a tela da abertura ainda está ativa.",opened end
-            if index<count then task.wait(0.45) end
-        end
-        return true,string.format(T("%d caixa(s) confirmada(s)."),opened),opened
-    end
-    local function diagnostic()
-        local info={buttons={}}
-        info.class,info.freeRolls=classState()
-        info.gems=gems()
-        info.pumpkins=pumpkins()
-        local packet=nativePackets and nativePackets.CrateOpenPumpkins
-        info.eventCrateFields=type(packet)=="table" and type(packet.Writes)=="table" and #packet.Writes or nil
-        info.crateRoute=lastCrateRoute
-        info.classRoute=lastClassRoute
-        info.eventOffers=exactCrate() and 1 or #eventButtons()
-        info.eventPrompts={}
-        local zone=eventZone()
-        for _,item in ipairs(zone and zone:GetDescendants() or {}) do
-            if item:IsA("ProximityPrompt") and #info.eventPrompts<18 then
-                table.insert(info.eventPrompts,{path=item:GetFullName(),action=item.ActionText,object=item.ObjectText,enabled=item.Enabled})
-            elseif item:IsA("ClickDetector") and #info.eventPrompts<18 then
-                table.insert(info.eventPrompts,{path=item:GetFullName(),distance=item.MaxActivationDistance})
-            end
-        end
-        for _,name in ipairs({"Classes","Crates","LobbyUpgrades"}) do
-            local screen=gui:FindFirstChild(name)
-            local count=0
-            for _,control in ipairs(screen and screen:GetDescendants() or {}) do
-                if control:IsA("GuiButton") then
-                    table.insert(info.buttons,{screen=name,path=control:GetFullName(),name=control.Name,
-                        label=bridge.texts(control):sub(1,140),shown=shownText(control):sub(1,140),
-                        active=control.Active,visible=bridge.visible(control)})
-                    count+=1
-                    if count>=28 then break end
-                end
-            end
-        end
-        return info
-    end
-    return {upgrade=upgrade,openBatch=openBatch,roll=roll,catalog=catalog,classState=classState,
-        pumpkins=pumpkins,gems=gems,diagnostic=diagnostic}
-end
-
-return Extras
-
-end)()
-
-local LobbyView = (function()
--- Luau · potato_lobby_view.luau · mobile lobby control panel
-local View={}
-
-function View.create(services,lifecycle,gui,callbacks)
-    local input=services.UserInputService
-    local tween=services.TweenService
-    local base=Color3.fromRGB(35,31,25)
-    local surface=Color3.fromRGB(65,54,39)
-    local border=Color3.fromRGB(25,21,16)
-    local bright=Color3.fromRGB(252,246,226)
-    local dim=Color3.fromRGB(213,195,163)
-    local green=Color3.fromRGB(128,205,55)
-    local blue=Color3.fromRGB(46,141,236)
-    local gold=Color3.fromRGB(255,202,66)
-    local red=Color3.fromRGB(187,47,39)
-    local tabs,buttons,pages={}, {}, {}
-    local function make(class,props,parent)
-        local item=Instance.new(class)
-        for key,value in pairs(props) do item[key]=key=="Text" and T(value) or value end
-        if props.Text~=nil then item.AutoLocalize=false end
-        item.Parent=parent
-        return item
-    end
-    local function round(item,radius)
-        make("UICorner",{CornerRadius=UDim.new(0,radius or 5)},item)
-    end
-    local function stroke(item,color)
-        return make("UIStroke",{Color=color or border,Thickness=2,ApplyStrokeMode=Enum.ApplyStrokeMode.Border},item)
-    end
-    local function gradient(item,left,right,angle)
-        return make("UIGradient",{Color=ColorSequence.new(left,right),Rotation=angle or 0},item)
-    end
-    local function label(parent,content,size,color,bold)
-        return make("TextLabel",{Text=content,TextSize=size,TextColor3=color or bright,
-            BackgroundTransparency=1,Font=bold and Enum.Font.GothamBlack or Enum.Font.Gotham,
-            TextXAlignment=Enum.TextXAlignment.Left,TextWrapped=true},parent)
-    end
-    local function call(name,...)
-        if callbacks[name] then callbacks[name](...) end
-    end
-    local function button(parent,key,title,primary)
-        local b=make("TextButton",{Text=title,TextSize=15,TextColor3=bright,
-            TextStrokeColor3=border,TextStrokeTransparency=0.2,
-            BackgroundColor3=primary and green or surface,BorderSizePixel=0,
-            Font=Enum.Font.GothamBlack,TextWrapped=true},parent)
-        round(b) stroke(b)
-        gradient(b,Color3.new(1,1,1),Color3.fromRGB(183,169,145),90)
-        if key then buttons[key]=b b.Activated:Connect(function() call(key) end) end
-        return b
-    end
-    local canvas=make("Frame",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1},gui)
-    local panel=make("Frame",{AnchorPoint=Vector2.new(0.5,0),Size=UDim2.fromOffset(760,570),
-        Position=UDim2.new(0.5,0,0,8),BackgroundColor3=base,BorderSizePixel=0,ClipsDescendants=true},canvas)
-    round(panel,8) stroke(panel,Color3.fromRGB(116,88,49))
-    local scaler=make("UIScale",{Scale=0.65},panel)
-    local header=make("Frame",{Size=UDim2.new(1,0,0,74),BackgroundColor3=Color3.fromRGB(111,77,44),
-        BorderSizePixel=0,ClipsDescendants=true,Active=true},panel)
-    gradient(header,Color3.new(1,1,1),Color3.fromRGB(137,107,78),90)
-    make("Frame",{Position=UDim2.new(0,0,1,-3),Size=UDim2.new(1,0,0,3),BackgroundColor3=border,BorderSizePixel=0},header)
-    make("ImageLabel",{Position=UDim2.fromOffset(13,11),Size=UDim2.fromOffset(49,49),BackgroundTransparency=1,
-        Image="rbxassetid://103225914639722",ScaleType=Enum.ScaleType.Fit},header)
-    local brand=label(header,"ANONHUB",28,bright,true)
-    brand.TextStrokeColor3,brand.TextStrokeTransparency=border,0
-    brand.Position,brand.Size=UDim2.fromOffset(73,6),UDim2.new(1,-146,0,34)
-    local tagline=label(header,"CENTRAL DO LOBBY",13,gold,true)
-    tagline.Position,tagline.Size=UDim2.fromOffset(74,40),UDim2.new(1,-147,0,22)
-    local hide=button(header,nil,"X")
-    hide.Position,hide.Size=UDim2.new(1,-54,0,15),UDim2.fromOffset(40,41)
-    hide.BackgroundColor3,hide.TextSize=red,22
-    local launcher=button(canvas,nil,"A")
-    launcher.Position,launcher.Size=UDim2.new(0,10,1,-64),UDim2.fromOffset(47,47)
-    launcher.TextSize=26 launcher.ZIndex=6 launcher.BackgroundColor3=surface
-    if callbacks.decorateLauncher then callbacks.decorateLauncher(launcher) end
-
-    local nav=make("ScrollingFrame",{Position=UDim2.fromOffset(9,83),Size=UDim2.new(0,129,1,-139),
-        BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.fromOffset(0,0),
-        AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=2},panel)
-    make("UIListLayout",{Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder},nav)
-    local body=make("Frame",{Position=UDim2.fromOffset(146,83),Size=UDim2.new(1,-155,1,-139),
-        BackgroundTransparency=1,ClipsDescendants=true},panel)
-    local footer=label(panel,"Pronto para configurar a fila.",14,dim,false)
-    footer.Position,footer.Size=UDim2.new(0,13,1,-47),UDim2.new(1,-26,0,40)
-    local activePage="config"
-    local function showPage(key)
-        activePage=key
-        for name,page in pairs(pages) do page.Visible=name==key end
-        for name,b in pairs(tabs) do
-            b.BackgroundColor3=name==key and gold or surface
-            b.TextColor3=name==key and border or bright
-            b.TextStrokeTransparency=name==key and 1 or 0.2
-        end
-        local page=pages[key]
-        if page then
-            page.Position=UDim2.fromOffset(7,0)
-            tween:Create(page,TweenInfo.new(0.18,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),
-                {Position=UDim2.fromOffset(0,0)}):Play()
-        end
-    end
-    local function page(key,title,index)
-        local buttonItem=button(nav,nil,title)
-        buttonItem.Size=UDim2.new(1,-3,0,45)
-        buttonItem.LayoutOrder=index
-        buttonItem.TextSize=14
-        buttonItem.Activated:Connect(function() showPage(key) end)
-        tabs[key]=buttonItem
-        local target=make("ScrollingFrame",{Size=UDim2.fromScale(1,1),Visible=false,BackgroundTransparency=1,
-            BorderSizePixel=0,CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,
-            ScrollingDirection=Enum.ScrollingDirection.Y,ScrollBarThickness=3,ScrollBarImageColor3=gold},body)
-        make("UIPadding",{PaddingTop=UDim.new(0,1),PaddingBottom=UDim.new(0,6),PaddingRight=UDim.new(0,5)},target)
-        make("UIListLayout",{Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder},target)
-        pages[key]=target
-        return target
-    end
-    local function block(parent,title,description,height)
-        local frame=make("Frame",{Size=UDim2.new(1,0,0,height or 82),
-            BackgroundColor3=surface,BorderSizePixel=0},parent)
-        round(frame) stroke(frame)
-        local h=label(frame,title,19,bright,true)
-        h.Position,h.Size=UDim2.fromOffset(11,7),UDim2.new(1,-22,0,25)
-        local d=label(frame,description,14,dim,false)
-        d.Position,d.Size=UDim2.fromOffset(11,33),UDim2.new(1,-22,1,-38)
-        return frame,d
-    end
-    local function row(parent)
-        return make("Frame",{Size=UDim2.new(1,0,0,46),BackgroundTransparency=1},parent)
-    end
-    local function rowButton(parent,key,title,x,width,primary)
-        local item=button(parent,key,title,primary)
-        item.Position,item.Size=UDim2.new(x,0,0,0),UDim2.new(width,-5,1,0)
-        return item
-    end
-    local settings=page("config","Configurar",1)
-    block(settings,"Configurar capítulo","Escolha um capítulo para ver as opções da fila.",73)
-    local chapterNames={"Capítulo I","Capítulo II","Capítulo III"}
-    local expanded,selectedChapter=false,nil
-    local function chapterRow(parent,text)
-        local item=button(parent,nil,"")
-        item.Size=UDim2.new(1,0,0,43)
-        local title=label(item,text,15,bright,true)
-        title.Position,title.Size=UDim2.fromOffset(12,0),UDim2.new(1,-130,1,0)
-        return item
-    end
-    local selector=chapterRow(settings,"Capítulos")
-    local caret=label(selector,"⌄",17,dim,true)
-    caret.Position,caret.Size=UDim2.new(1,-23,0,0),UDim2.fromOffset(18,43)
-    local choices=make("Frame",{BackgroundTransparency=1,Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,Visible=false},settings)
-    make("UIListLayout",{Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder},choices)
-    local chapterOptions=make("Frame",{BackgroundTransparency=1,Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,Visible=false},settings)
-    make("UIListLayout",{Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder},chapterOptions)
-    local function showChapter()
-        caret.Text=expanded and "⌃" or "⌄"
-        choices.Visible=expanded
-        chapterOptions.Visible=selectedChapter==2
-    end
-    selector.Activated:Connect(function() expanded=not expanded showChapter() end)
-    for index,name in ipairs(chapterNames) do
-        local item=chapterRow(choices,name)
-        item.LayoutOrder=index
-        local online=index==2
-        local color=online and green or dim
-        local dot=make("Frame",{Size=UDim2.fromOffset(7,7),Position=UDim2.new(1,-108,0.5,-3),
-            BackgroundColor3=color,BorderSizePixel=0},item)
-        round(dot,5)
-        local badge=label(item,online and "ONLINE" or "EM BREVE",11,color,true)
-        badge.Position,badge.Size=UDim2.new(1,-94,0,0),UDim2.fromOffset(73,43)
-        item.Activated:Connect(function() selectedChapter=index expanded=false showChapter() end)
-    end
-    block(chapterOptions,"Fila do Capítulo II","As escolhas são reaplicadas na próxima rodada.",69)
-    local launch=row(chapterOptions)
-    rowButton(launch,"launch","ENTRAR + OP",0,0.42,true)
-    rowButton(launch,"cycle","CICLO COMPLETO",0.43,0.57)
-    local first=row(chapterOptions)
-    rowButton(first,"size","JOGADORES",0,0.47)
-    rowButton(first,"friends","AMIGOS",0.48,0.52)
-    local scenes=row(chapterOptions)
-    rowButton(scenes,"skip","INTRODUÇÃO",0,0.47)
-    rowButton(scenes,"skipOutro","CENA FINAL",0.48,0.52)
-    local actions=row(chapterOptions)
-    rowButton(actions,"repeatRun","REPETIR",0,0.47)
-    rowButton(actions,"autoImprove","AUTO MELHORIA",0.48,0.52)
-    local queueRow=row(settings)
-    rowButton(queueRow,"stop","PARAR",0,0.34).BackgroundColor3=red
-    rowButton(queueRow,"language","IDIOMA",0.35,0.65)
-    local _,balance=block(settings,"Recursos do lobby","Lendo o saldo do jogo…",69)
-
-    local event=page("event","Caixas",2)
-    block(event,"Caixa do evento","O custo é de 80 abóboras por caixa. Escolha o tamanho do lote.",78)
-    local _,eventBalance=block(event,"Saldo de abóboras","Aguardando o jogo…",69)
-    local countBox=row(event)
-    local track=make("Frame",{Position=UDim2.new(0,11,0.5,-5),Size=UDim2.new(1,-116,0,10),
-        BackgroundColor3=border,BorderSizePixel=0},countBox)
-    round(track)
-    local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=gold,BorderSizePixel=0},track)
-    round(fill)
-    local knob=make("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0,0.5),
-        Size=UDim2.fromOffset(26,26),BackgroundColor3=gold,BorderSizePixel=0},track)
-    round(knob,13)
-    local hit=make("Frame",{Position=UDim2.fromOffset(0,0),Size=UDim2.new(1,-95,1,0),
-        BackgroundTransparency=1,Active=true,ZIndex=5},countBox)
-    local amount=label(countBox,"10",19,gold,true)
-    amount.Position,amount.Size=UDim2.new(1,-91,0,0),UDim2.fromOffset(86,46)
-    amount.TextXAlignment=Enum.TextXAlignment.Center
-    local eventButtons=row(event)
-    rowButton(eventButtons,"autoCrates","AUTO CAIXAS",0,0.54)
-    local openBatch= rowButton(eventButtons,"openBatch","ABRIR LOTE",0.55,0.45,true)
-    openBatch.BackgroundColor3,openBatch.TextColor3,openBatch.TextStrokeTransparency=gold,border,1
-
-    local classes=page("classes","Classes",3)
-    block(classes,"Alvo de classe","Selecione um cartão. A rolagem para quando o jogo confirma a classe.",79)
-    local strip=make("ScrollingFrame",{Size=UDim2.new(1,0,0,112),CanvasSize=UDim2.fromOffset(0,0),
-        AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum.ScrollingDirection.X,
-        ScrollBarThickness=4,ScrollBarImageColor3=gold,BorderSizePixel=0,BackgroundTransparency=1},classes)
-    make("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,8),
-        SortOrder=Enum.SortOrder.LayoutOrder},strip)
-    local empty=label(strip,"Abra Classes no jogo para carregar o catálogo.",14,dim,false)
-    empty.Size=UDim2.fromOffset(260,90)
-    local _,classStatus=block(classes,"Classe atual","Aguardando o jogo…",70)
-    local useGems,rollingNow=false,false
-    local gemCheck=button(classes,nil,"□   USAR GEMAS PARA GIRAR")
-    gemCheck.Size=UDim2.new(1,-5,0,42)
-    gemCheck.Activated:Connect(function()
-        if rollingNow then return end
-        useGems=not useGems
-        gemCheck.Text=T(useGems and "✓   USAR GEMAS PARA GIRAR" or "□   USAR GEMAS PARA GIRAR")
-        gemCheck.TextColor3=useGems and green or bright
-    end)
-    local rollRow=row(classes)
-    local rollButton=rowButton(rollRow,nil,"GIRAR ATÉ O ALVO",0,0.60,true)
-    rollButton.BackgroundColor3=blue
-    rollButton.Activated:Connect(function() call("roll",useGems) end)
-    rowButton(rollRow,"rarest","SELECIONAR MAIS RARA",0.61,0.39)
-    local classItems={}
-    local classKey=""
-
-    local open=true
-    local offset=Vector2.zero
-    local launcherFraction=Vector2.new(0,1)
-    local currentTween=nil
-    local function launcherRange()
-        local size=canvas.AbsoluteSize
-        return Vector2.new(math.max(1,size.X-63),math.max(1,size.Y-63))
-    end
-    local function placeLauncher()
-        local range=launcherRange()
-        launcher.Position=UDim2.fromOffset(8+launcherFraction.X*range.X,8+launcherFraction.Y*range.Y)
-    end
-    local function position()
-        local size=canvas.AbsoluteSize
-        if size.X<80 or size.Y<80 then return end
-        local unit=math.min(0.65,(size.Y-14)/280)
-        scaler.Scale=unit
-        local w=math.min(760,(size.X-16)/unit)
-        local h=math.min(570,(size.Y-14)/unit)
-        panel.Size=UDim2.fromOffset(w,h)
-        local range=math.max(0,(size.X-w*unit)/2-5)
-        offset=Vector2.new(math.clamp(offset.X,-range,range),math.clamp(offset.Y,0,math.max(0,size.Y-h*unit-14)))
-        panel.Position=UDim2.new(0.5,offset.X,0,7+offset.Y)
-        placeLauncher()
-    end
-    local function toggle()
-        open=not open
-        if currentTween then currentTween:Cancel() currentTween=nil end
-        panel.Visible=open
-        launcher.BackgroundColor3=open and surface or Color3.fromRGB(154,101,34)
-        if open then
-            position()
-            local target=panel.Position
-            panel.Position=UDim2.new(0.5,offset.X,0,1+offset.Y)
-            currentTween=tween:Create(panel,TweenInfo.new(0.18),{Position=target})
-            currentTween:Play()
-        end
-    end
-    hide.Activated:Connect(toggle)
-    local pointer,dragStart,offsetStart,slider=nil,nil,nil,nil
-    local launcherPointer,launcherStart,launcherOrigin=nil,nil,nil
-    local launcherMoved=false
-    local function pointerType(eventInput)
-        return eventInput.UserInputType==Enum.UserInputType.Touch or eventInput.UserInputType==Enum.UserInputType.MouseButton1
-    end
-    local function matching(origin,changed)
-        return origin and (origin.UserInputType==Enum.UserInputType.Touch and changed==origin
-            or origin.UserInputType==Enum.UserInputType.MouseButton1 and changed.UserInputType==Enum.UserInputType.MouseMovement)
-    end
-    local function slide(x,save)
-        local ratio=math.clamp((x-track.AbsolutePosition.X)/math.max(1,track.AbsoluteSize.X),0,1)
-        call("crateCount",1+math.floor(ratio*9+0.5),save)
-    end
-    header.InputBegan:Connect(function(eventInput)
-        if pointerType(eventInput) then
-            pointer=eventInput dragStart=Vector2.new(eventInput.Position.X,eventInput.Position.Y) offsetStart=offset
-        end
-    end)
-    hit.InputBegan:Connect(function(eventInput)
-        if pointerType(eventInput) then slider=eventInput slide(eventInput.Position.X,false) end
-    end)
-    launcher.InputBegan:Connect(function(eventInput)
-        if not pointerType(eventInput) or launcherPointer then return end
-        launcherPointer=eventInput
-        launcherStart=Vector2.new(eventInput.Position.X,eventInput.Position.Y)
-        launcherOrigin=launcherFraction
-        launcherMoved=false
-    end)
-    local moved=input.InputChanged:Connect(function(eventInput)
-        if matching(launcherPointer,eventInput) then
-            local delta=Vector2.new(eventInput.Position.X,eventInput.Position.Y)-launcherStart
-            if delta.Magnitude>=7 then launcherMoved=true end
-            if launcherMoved then
-                local range=launcherRange()
-                launcherFraction=Vector2.new(math.clamp(launcherOrigin.X+delta.X/range.X,0,1),
-                    math.clamp(launcherOrigin.Y+delta.Y/range.Y,0,1))
-                placeLauncher()
-            end
-        elseif matching(slider,eventInput) then slide(eventInput.Position.X,false)
-        elseif matching(pointer,eventInput) then
-            offset=offsetStart+Vector2.new(eventInput.Position.X,eventInput.Position.Y)-dragStart
-            position()
-        end
-    end)
-    local ended=input.InputEnded:Connect(function(eventInput)
-        if eventInput==launcherPointer then
-            launcherPointer=nil
-            if launcherMoved then call("launcher",launcherFraction.X,launcherFraction.Y)
-            elseif eventInput.UserInputState==Enum.UserInputState.End then toggle() end
-        end
-        if eventInput==pointer then pointer=nil end
-        if eventInput==slider then slider=nil slide(eventInput.Position.X,true) end
-    end)
-    local resized=canvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(position)
-    lifecycle.add(function() moved:Disconnect() ended:Disconnect() resized:Disconnect() end)
-    task.defer(position)
-    showPage("config")
-
-    return {
-        status=function(message) footer.Text=T(tostring(message)) end,
-        showingClasses=function() return open and activePage=="classes" end,
-        options=function(value,busy,improving,rolling)
-            rollingNow=rolling
-            if not launcherPointer then
-                launcherFraction=Vector2.new(value.launcherX,value.launcherY)
-                placeLauncher()
-            end
-            buttons.size.Text=T("JOGADORES  ·  ")..value.size
-            buttons.friends.Text=T(value.friends and "SÓ AMIGOS  ·  SIM" or "SÓ AMIGOS  ·  NÃO")
-            buttons.skip.Text=T(value.skip and "INTRO  ·  PULAR" or "INTRO  ·  VER")
-            buttons.skipOutro.Text=T(value.skipOutro and "FINAL  ·  PULAR" or "FINAL  ·  VER")
-            buttons.repeatRun.Text=T(value.repeatRun and "REPETIR  ·  SIM" or "REPETIR  ·  NÃO")
-            buttons.autoImprove.Text=T(improving and "MELHORIAS  ·  ON" or "MELHORIAS  ·  OFF")
-            buttons.autoCrates.Text=T(value.autoCrates and "AUTO CAIXAS  ·  ON" or "AUTO CAIXAS  ·  OFF")
-            buttons.cycle.Text=T(busy and "AGUARDANDO O JOGO" or "CICLO COMPLETO")
-            rollButton.Text=T(rolling and "PARAR GIROS" or "GIRAR ATÉ O ALVO")
-            rollButton.BackgroundColor3=rolling and red or blue
-            amount.Text=tostring(value.crateCount)
-            local ratio=(value.crateCount-1)/9
-            fill.Size=UDim2.fromScale(ratio,1)
-            knob.Position=UDim2.fromScale(ratio,0.5)
-        end,
-        resources=function(value,count,gems)
-            balance.Text=string.format(T("Abóboras  %s   ·   Gemas  %s"),tostring(value or "—"),tostring(gems or "—"))
-            eventBalance.Text=string.format(T("%s no saldo   ·   %d caixa(s) = %d abóboras"),tostring(value or "—"),count,count*80)
-        end,
-        classes=function(list,selected,current,free)
-            classStatus.Text=string.format(T("%s   ·   Giros grátis: %s"),current or "—",tostring(free or "—"))
-            if activePage~="classes" or not open then return end
-            local signature={}
-            for index=1,math.min(#list,30) do
-                local item=list[index]
-                signature[index]=tostring(item.id)..":"..tostring(item.name)..":"..tostring(item.icon)
-                    ..":"..tostring(item.iconOffset)..":"..tostring(item.iconSize)
-            end
-            local key=table.concat(signature,"|")
-            if key~=classKey then
-                classKey=key
-                for _,item in pairs(classItems) do item.button:Destroy() end
-                table.clear(classItems)
-                empty.Visible=#list==0
-                for index=1,math.min(#list,30) do
-                    local entry=list[index]
-                    local id=tostring(entry.id)
-                    local tile=button(strip,nil,"")
-                    tile.Size,tile.LayoutOrder=UDim2.fromOffset(105,101),index
-                    local line=tile:FindFirstChildOfClass("UIStroke")
-                    if type(entry.icon)=="string" and entry.icon~="" then
-                        make("ImageLabel",{Position=UDim2.fromOffset(29,6),Size=UDim2.fromOffset(47,47),
-                            BackgroundTransparency=1,Image=entry.icon,ScaleType=Enum.ScaleType.Fit,
-                            ImageRectOffset=entry.iconOffset or Vector2.zero,ImageRectSize=entry.iconSize or Vector2.zero},tile)
-                    else
-                        local letter=label(tile,string.sub(entry.name,1,1),31,blue,true)
-                        letter.Position,letter.Size=UDim2.fromOffset(6,3),UDim2.new(1,-12,0,49)
-                        letter.TextXAlignment=Enum.TextXAlignment.Center
-                    end
-                    local name=label(tile,entry.name,12,bright,true)
-                    name.Position,name.Size=UDim2.fromOffset(4,53),UDim2.new(1,-8,0,40)
-                    name.TextXAlignment=Enum.TextXAlignment.Center
-                    tile.Activated:Connect(function() call("target",id) end)
-                    classItems[id]={button=tile,line=line}
-                end
-            end
-            for id,entry in pairs(classItems) do
-                entry.line.Color=id==selected and gold or border
-                entry.button.BackgroundColor3=id==selected and Color3.fromRGB(105,74,34) or surface
-            end
-        end,
-    }
-end
-
-return View
-
-end)()
-
-local function lobbySettings(io,account)
-    local path="AnonHub_Lobby_"..tostring(account)..".json"
-    local function read(name)
-        if type(io.read)~="function" then return end
-        local ok,value=pcall(function()
-            local raw=io.read(name)
-            if type(raw)=="string" and #raw<=180000 then return io.decode(raw) end
-        end)
-        if ok and type(value)=="table" and value.schema==1 and type(value.settings)=="table" then
-            return value.settings
-        end
-    end
-    return {
-        settings=read(path) or read("Evolvy_History_"..tostring(account)..".json"),
-        save=function(settings)
-            if type(io.write)=="function" then pcall(function() io.write(path,io.encode({schema=1,settings=settings})) end) end
-        end,
-    }
-end
-
-local Quests = (function()
--- Luau · potato_quests.luau · native quest progress and supported objectives
-local Quests={}
-
-function Quests.progress(value)
-    if type(value)~="string" then return nil end
-    local clean=value:gsub("<.->",""):gsub("[,.]","")
-    local current,goal=clean:match("(%d+)%s*/%s*(%d+)")
-    current,goal=tonumber(current),tonumber(goal)
-    if current and goal and goal>0 and goal<100000000 then return current,goal end
-end
-
-function Quests.action(title)
-    local label=tostring(title):lower()
-    local function has(...)
-        for _,word in ipairs({...}) do if label:find(word,1,true) then return true end end
-        return false
-    end
-    if has("secret","secreta","???"," with "," using "," usando "," com a "," com o ",
-        "chapter 1","chapter 3","capitulo 1","capitulo 3","golden potatoes","rainbow potatoes","diamond potatoes") then
-        return nil
-    end
-    if has("escape","escap","fuja","fugir") then return "escape" end
-    if has("cool","resfri","esfri") then return "cool" end
-    if has("dynamite","dinamite") then return "dynamite" end
-    if has("sell","vend") then return "sell" end
-    if has("peel","slice","cut","cort","descas") then return "cut" end
-    if has("collect","pick","colet","peg","gather") then
-        if has("gem","diamond","diamante") then return "gem" end
-        if has("potato","batata") then return "collect" end
-    end
-end
-
-local names={"Title","TaskName","Objective","Description","ChallengeName","QuestName","Task","Name"}
-local roots={quest=true,quests=true,questtracker=true,questtasks=true,mission=true,missions=true,
-    battlepass=true,battlepasschallenges=true,challenges=true,dailyquests=true,weeklyquests=true}
-
-function Quests.scan(gui)
-    local result={}
-    local seen={}
-    for _,screen in ipairs(gui:GetChildren()) do
-        local n=screen.Name:lower():gsub("[^%w]","")
-        if not roots[n] then continue end
-        for _,label in ipairs(screen:GetDescendants()) do
-            if #result>=28 then break end
-            if not label:IsA("TextLabel") then continue end
-            local current,goal=Quests.progress(label.Text)
-            if current==nil then continue end
-            local container=label.Parent
-            local title=nil
-            local row=nil
-            for _=1,3 do
-                if not container or container==screen then break end
-                for _,name in ipairs(names) do
-                    local item=container:FindFirstChild(name)
-                    if item and item~=label and item:IsA("TextLabel") and #item.Text>=3 then
-                        title=item.Text:gsub("<.->","")
-                        row=container
-                        break
-                    end
-                end
-                if title then break end
-                container=container.Parent
-            end
-            if title and #title<=140 then
-                local action=Quests.action(title)
-                local path=string.lower(row:GetFullName())
-                local taskRow=path:find("challenge",1,true) or path:find("quest",1,true) or path:find("task",1,true)
-                if n~="battlepass" or taskRow or action then
-                    local id=screen.Name.."|"..title
-                    if not seen[id] then
-                        seen[id]=true
-                        table.insert(result,{id=id,title=title,source=n:find("battlepass",1,true) and "Passe" or "Missao",
-                            current=current,goal=goal,action=action,done=current>=goal})
-                    end
-                end
-            end
-        end
-    end
-    table.sort(result,function(a,b) return a.id<b.id end)
-    return result
-end
-
-return Quests
-
-end)()
-
-local Handoff = (function()
--- Luau · potato_handoff.luau · one-use handoff between lobby and round
-local Handoff={}
-
-function Handoff.options(values)
-    if type(values)~="table" then values={} end
-    local size=tonumber(values.size)
-    if not size or size~=size or size<1 or size>4 or size%1~=0 then size=1 end
-    local failures=tonumber(values.reconnectCount) or 0
-    if failures~=1 and failures~=2 then failures=0 end
-    local crates=tonumber(values.crateCount)
-    if not crates or crates~=crates or crates<1 or crates>10 or crates%1~=0 then crates=10 end
-    local function fraction(value,default)
-        if type(value)~="number" or value~=value then return default end
-        return math.clamp(value,0,1)
-    end
-    return {size=size,friends=values.friends==true,skip=values.skip~=false,skipOutro=values.skipOutro~=false,repeatRun=values.repeatRun==true,
-        reconnectCount=failures,autoCrates=values.autoCrates==true,crateCount=crates,
-        launcherX=fraction(values.launcherX,0),launcherY=fraction(values.launcherY,1),
-        classTarget=type(values.classTarget)=="string" and #values.classTarget<=72 and values.classTarget or nil}
-end
-
-function Handoff.create(io,identity,bootstrap,checkLicense)
-    local file="Evolvy_Chapter2_Transfer_v1.json"
-    local queued=false
-    local hasFiles=type(io.read)=="function" and type(io.write)=="function"
-    local available=hasFiles and type(io.queue)=="function"
-    local function load()
-        if type(io.read)~="function" then return nil end
-        local ok,result=pcall(function()
-            local content=io.read(file)
-            if type(content)~="string" or #content>3000 then return nil end
-            return io.decode(content)
-        end)
-        return ok and type(result)=="table" and result or nil
-    end
-    local function save(value)
-        if type(io.write)~="function" then return false end
-        local ok,result=pcall(function()
-            return io.write(file,io.encode(value))
-        end)
-        return ok and result~=false
-    end
-    local function clear()
-        local record=load()
-        if record and record.account==identity.account and record.game==identity.game then
-            return save({schema=1})
-        end
-        return false
-    end
-    local function pending()
-        local record=load()
-        if not record or record.schema~=1 or record.account~=identity.account or record.game~=identity.game
-            or type(record.from)~="string" or record.from=="" or record.from==identity.job
-            or (record.to~="chapter" and record.to~="lobby")
-            or type(record.untilTime)~="number" or record.untilTime<io.clock()
-            or record.untilTime>io.clock()+180 then return nil end
-        return record
-    end
-    local function take(phase)
-        local record=pending()
-        if not record or record.to~=phase then return nil end
-        if not clear() then return nil end
-        local license=checkLicense and checkLicense(record.license) or nil
-        if record.license~=nil and not license then return nil end
-        return Handoff.options(record.options),license
-    end
-    local function arm(destination,options,license)
-        if not hasFiles or identity.job=="" then return false,"O executor nao disponibilizou retomada entre servidores." end
-        if destination~="lobby" and destination~="chapter" then return false,"Destino invalido." end
-        local record={schema=1,account=identity.account,game=identity.game,from=identity.job,
-            to=destination,untilTime=io.clock()+150,options=Handoff.options(options),
-            license=checkLicense and checkLicense(license) or nil}
-        if not save(record) then return false,"Nao foi possivel salvar a retomada." end
-        local saved=load()
-        if not saved or saved.from~=record.from or saved.to~=destination or saved.untilTime~=record.untilTime then
-            clear()
-            return false,"Nao foi possivel confirmar a retomada."
-        end
-        if not available then return false,"Retomada salva para abrir o loader manualmente." end
-        if not queued then
-            local ok,result=pcall(io.queue,bootstrap)
-            if not ok or result==false then return false,"O executor recusou a abertura automatica; retomada salva." end
-            queued=true
-        end
-        return true
-    end
-    return {available=available,take=take,arm=arm,clear=clear,destination=function()
-        local record=pending()
-        return record and record.to
-    end}
-end
-return Handoff
-
-end)()
-
-local Reconnect = (function()
--- Luau · potato_reconnect.luau · bounded recovery for native connection errors
-local Reconnect={}
-
-function Reconnect.code(text)
-    if type(text)~="string" then return nil end
-    local number=tonumber(text:match("%([^()%c]-:%s*(%d+)%s*%)")
-        or text:lower():match("error%s+code%s*:%s*(%d+)"))
-    if number==266 or number==277 or number==279 then return number end
-end
-
-function Reconnect.watch(services,lifecycle,active,onError)
-    local core=services.CoreGui
-    if not core then return end
-    task.spawn(function()
-        local handled=false
-        while lifecycle.alive() do
-            if active() and not handled then
-                local ok,code=pcall(function()
-                    local prompts=core:FindFirstChild("RobloxPromptGui")
-                    local layer=prompts and prompts:FindFirstChild("promptOverlay")
-                    local prompt=layer and layer:FindFirstChild("ErrorPrompt")
-                    if not prompt or not prompt:IsA("GuiObject") or not prompt.Visible then return nil end
-                    for _,object in ipairs(prompt:GetDescendants()) do
-                        if object:IsA("TextLabel") and object.Visible then
-                            local found=Reconnect.code(object.Text)
-                            if found then return found end
-                        end
-                    end
-                end)
-                if ok and code then handled=true onError(code) end
-            end
-            task.wait(1.5)
-        end
-    end)
-end
-
-return Reconnect
-
-end)()
-
-local Membership = (function()
--- Luau · potato_membership.luau · display metadata from the access provider · Roblox / CLI · Luau 0.745
-local Membership={}
-local avatars={}
-local function clean(value,limit)
-    return type(value)=="string" and string.sub(string.gsub(value,"[%c]",""),1,limit) or nil
-end
-function Membership.normalize(options,key,metadata)
-    options=options or {}
-    local external=type(options.validate)=="function"
-    local data=external and (type(metadata)=="table" and metadata or {}) or options
-    local expires=data.expiresAt
-    local validExpiry=type(expires)=="number" and expires==expires and expires>0 and expires<253402300800 and expires%1==0
-    local label
-    if external then
-        label=clean(data.keyLabel,24) or type(key)=="string" and ("•••• "..string.sub(key,-4)) or "—"
-    else label=clean(key or options.key,48) or "—" end
-    if #label>20 then label=string.sub(label,1,4).."…"..string.sub(label,-4) end
-    return {plan=clean(data.plan,24) or "Member",keyLabel=label,
-        expiresAt=validExpiry and expires or nil,lifetime=expires==nil and data.lifetime==true,
-        invalid=expires~=nil and not validExpiry,source=external and "Licenca validada" or "Acesso local"}
-end
-function Membership.expired(data,now)
-    return data~=nil and (data.invalid==true or type(data.expiresAt)=="number" and now>=data.expiresAt)
-end
-function Membership.describe(data,now)
-    data=data or {}
-    local expired=Membership.expired(data,now)
-    local validity="Validade nao informada"
-    if data.invalid then validity="Validade invalida"
-    elseif expired then validity="Expirada"
-    elseif type(data.expiresAt)=="number" then
-        local seconds=math.max(0,data.expiresAt-now)
-        local days=math.floor(seconds/86400)
-        local hours=math.floor(seconds%86400/3600)
-        local minutes=math.floor(seconds%3600/60)
-        validity=days>0 and string.format("%dd %02dh %02dm",days,hours,minutes) or hours>0 and string.format("%dh %02dm",hours,minutes) or string.format("%dm %02ds",minutes,math.floor(seconds%60))
-    elseif data.lifetime then validity="Life time" end
-    return {plan=data.plan or "Member",keyLabel=data.keyLabel or "—",validity=validity,
-        expired=expired==true,expiresAt=data.expiresAt,lifetime=data.lifetime==true,source=data.source or "Acesso local"}
-end
-function Membership.requestAvatar(players,userId,onReady)
-    if avatars[userId] then onReady(avatars[userId]) return end
-    task.spawn(function()
-        local ok,content,ready=pcall(players.GetUserThumbnailAsync,players,userId,Enum.ThumbnailType.HeadShot,Enum.ThumbnailSize.Size150x150)
-        if ok and ready~=false and type(content)=="string" and #content>0 then avatars[userId]=content onReady(content) end
-    end)
-end
-return Membership
-
-end)()
-
-local AntiIdle = (function()
--- Luau · potato_anti_idle.luau · event-driven idle handling · Roblox / CLI · Luau 0.745
-local AntiIdle={}
-function AntiIdle.create(signal,enabled,pulse,log,clock)
-    clock=clock or os.clock
-    local closed,nextAt=false,0
-    local stats={events=0,handled=0,failures=0,available=signal~=nil}
-    local connection=nil
-    if signal then connection=signal:Connect(function()
-        stats.events+=1
-        if closed or not enabled() or clock()<nextAt then return end
-        nextAt=clock()+60
-        local ok,why=pcall(pulse)
-        if ok then stats.handled+=1 stats.lastError=nil
-        else stats.failures+=1 stats.lastError=tostring(why) if log then log("Anti-AFK indisponivel: "..tostring(why),"error") end end
-    end) end
-    return {stats=stats,close=function() closed=true if connection then connection:Disconnect() connection=nil end end}
-end
-return AntiIdle
-
-end)()
-
-local NativeMap = (function()
--- Luau · potato_native_map.luau · bounded read-only native closure discovery · Roblox / CLI · Luau 0.745
-local NativeMap={}
-function NativeMap.discover(controller,folder,options)
-    options=options or {}
-    local typeOf=options.typeOf or typeof
-    local getters=options.getters or {}
-    if not options.getters then
-        if type(getupvalues)=="function" then table.insert(getters,getupvalues) end
-        if debug and type(debug.getupvalues)=="function" then table.insert(getters,debug.getupvalues) end
-    end
-    local info={api=#getters>0,visited=0,samples=0}
-    if #getters==0 then info.reason="upvalue getter unavailable" return nil,nil,info end
-    local queue,seen={},{}
-    for _,name in ipairs({"SetUseHeld","GetParts","GetRemovedFraction","Start","Init"}) do
-        if type(controller[name])=="function" then table.insert(queue,{fn=controller[name],depth=0}) end
-    end
-    local found,state=nil,nil
-    local cursor=1
-    while cursor<=#queue and info.visited<32 do
-        local current=queue[cursor] cursor+=1
-        if not seen[current.fn] then
-            seen[current.fn]=true info.visited+=1
-            local values=nil
-            for _,getter in ipairs(getters) do
-                local ok,result=pcall(getter,current.fn)
-                if ok and type(result)=="table" then values=result break end
-            end
-            local inspected=0
-            for _,value in pairs(values or {}) do
-                inspected+=1 if inspected>64 then break end
-                if type(value)=="function" and current.depth<3 and #queue<64 then
-                    table.insert(queue,{fn=value,depth=current.depth+1})
-                elseif type(value)=="table" then
-                    if rawget(value,"PotatoSlots")~=nil and type(rawget(value,"Seed"))=="number" then state=value end
-                    if not found then
-                        local checked,valid,unique=0,0,{}
-                        for part,id in pairs(value) do
-                            checked+=1 if checked>16 then break end
-                            if typeOf(part)=="Instance" and type(id)=="number" and id%1==0 and id>=1 and id<=30009 then
-                                local ok,match=pcall(function() return part:IsA("BasePart") and part:IsDescendantOf(folder) end)
-                                if ok and match and not unique[id] then valid+=1 unique[id]=true end
-                            end
-                        end
-                        if valid>=3 and valid>=math.min(16,checked)*0.8 then found=value info.samples=valid end
-                    end
-                end
-            end
-        end
-    end
-    info.found=found~=nil info.state=state~=nil
-    info.reason=found and "native part-to-ID table" or "no matching native table"
-    return found,state,info
-end
-function NativeMap.id(map,part,folder,typeOf)
-    typeOf=typeOf or typeof
-    if type(map)~="table" or typeOf(part)~="Instance" then return nil end
-    local id=rawget(map,part)
-    if type(id)~="number" or id%1~=0 or id<1 or id>30009 then return nil end
-    local ok,valid=pcall(function() return part.Parent~=nil and part:IsA("BasePart") and part:IsDescendantOf(folder) end)
-    return ok and valid and id or nil
-end
-return NativeMap
-
-end)()
-
-local Burst = (function()
--- Luau · potato_burst.luau · bounded acknowledged collection experiment · Roblox / CLI · Luau 0.745
-local Burst={}
-function Burst.new()
-    local stats={waves=0,requests=0,inventory_gain=0,timeouts=0,cancelled=0,limit=2,pending=0,successes=0}
-    local pending=nil
-    local retryAt=0
-    local seen={}
-    local started=nil
-    return {
-        stats=stats,
-        cancel=function()
-            if pending then stats.cancelled+=1 end
-            pending=nil stats.pending=0
-        end,
-        observe=function(now,count)
-            if started then stats.elapsed=math.max(0,now-started) stats.gain_per_second=stats.inventory_gain/math.max(1,stats.elapsed) end
-            if not pending then return 0,false end
-            local gain=type(count)=="number" and count-pending.before or 0
-            if gain>0 then
-                stats.inventory_gain+=gain stats.successes+=1
-                -- Progress does not confirm that every requested ID was accepted.
-                if stats.successes%3==0 then stats.limit=math.min(16,stats.limit+1) end
-                pending=nil stats.pending=0 retryAt=now+0.08
-                return gain,false
-            end
-            if now>=pending.deadline then
-                stats.timeouts+=1 stats.limit=math.max(1,math.floor(stats.limit/2))
-                pending=nil stats.pending=0 retryAt=now+math.min(0.6,0.08*stats.timeouts)
-                return 0,true
-            end
-            return 0,false
-        end,
-        budget=function(now,carried,capacity)
-            if pending or now<retryAt or type(carried)~="number" or type(capacity)~="number" or carried~=carried or capacity~=capacity or carried<0 or carried==math.huge then return 0 end
-            return math.max(0,math.min(stats.limit,math.floor(capacity-carried)))
-        end,
-        available=function(id,now) return type(id)=="number" and now>=(seen[id] or 0) end,
-        begin=function(now,count,ids)
-            if pending or now<retryAt or type(count)~="number" or count<0 or count~=count or count==math.huge or #ids==0 or #ids>stats.limit then return false end
-            local unique={}
-            for _,id in ipairs(ids) do
-                if type(id)~="number" or id%1~=0 or id<0 or id>=4294967296 or unique[id] or now<(seen[id] or 0) then return false end
-                unique[id]=true
-            end
-            for id in pairs(unique) do seen[id]=now+1 end
-            if not started then started=now end
-            if stats.waves%64==0 then for id,untilTime in pairs(seen) do if untilTime<=now then seen[id]=nil end end end
-            pending={before=count,deadline=now+0.35}
-            stats.waves+=1 stats.requests+=#ids stats.pending=#ids
-            return true
-        end,
-    }
-end
-return Burst
-
-end)()
-
-local Exit = (function()
--- Luau · potato_exit.luau · observed key and native vehicle prompts · Roblox · Luau 0.745
-local Exit={}
-function Exit.create(services,modules,nav,log)
-    local player=services.Players.LocalPlayer
-    local shared=modules["Shared.PlayerStateShared"] or {}
-    local packets=modules["Modules.Resources.Packets"] or {}
-    local target,scanAt=nil,0
-    local started,finished=false,false
-    local finishedAt=nil
-    local attempts,lastError=0,nil
-    local connections={}
-    local candidates={}
-    local function keyTool()
-        for _,parent in ipairs({player:FindFirstChild("Backpack") or false,player.Character or false}) do
-            if parent then for _,tool in ipairs(parent:GetChildren()) do
-                local name=string.lower(tool.Name)
-                if tool:IsA("Tool") and (name=="key" or name:find("chave",1,true) or name:find("crane",1,true) and name:find("key",1,true)) then return tool end
-            end end
-        end
-    end
-    local function hasKey()
-        if type(shared.TryGetPlayerState)=="function" then
-            local ok,data=pcall(shared.TryGetPlayerState,player)
-            if ok and type(data)=="table" and data.HasKey==true then return true end
-        end
-        return keyTool()~=nil
-    end
-    local function scan()
-        if os.clock()<scanAt then return target end
-        scanAt=os.clock()+2 target=nil candidates={}
-        local map=services.Workspace:FindFirstChild("Map")
-        local root=nav.actor()
-        local best=-math.huge
-        for _,prompt in ipairs(map and map:GetDescendants() or {}) do
-            if prompt:IsA("ProximityPrompt") and prompt.Enabled then
-                local path=string.upper(prompt:GetFullName())
-                local action=string.upper(prompt.ActionText.." "..prompt.ObjectText)
-                local vehicle=path:find("TRUCK",1,true) or path:find("CRANE",1,true) or path:find("GUINDASTE",1,true) or path:find("CAMINH",1,true) or path:find("WRECK",1,true)
-                local key=action:find("KEY",1,true) or action:find("CHAVE",1,true)
-                local use=action:find("UNLOCK",1,true) or action:find("USE",1,true) or action:find("ENTER",1,true) or action:find("DRIVE",1,true) or action:find("ESCAPE",1,true)
-                local buy=action:find("BUY",1,true) or action:find("LOCKED",1,true) or action:find("SOLD",1,true)
-                local shop=path:find("STOREITEMS",1,true) or path:find("PEELINGMACHINES",1,true)
-                if not shop and not buy and (key or vehicle and use) then
-                    local position=nav.promptPosition(prompt)
-                    local distance=root and position and (root.Position-position).Magnitude or 0
-                    local score=(vehicle and 10000 or 0)+(key and 1000 or 0)-distance
-                    table.insert(candidates,{path=prompt:GetFullName(),action=prompt.ActionText,object=prompt.ObjectText})
-                    if score>best then best=score target=prompt end
-                end
-            end
-        end
-        return target
-    end
-    local escaped=packets.Escaped and packets.Escaped.OnClientEvent
-    if escaped and type(escaped.Connect)=="function" then
-        local ok,connection=pcall(escaped.Connect,escaped,function(first)
-            if not finished and (first==nil or first==player or first==player.UserId) then
-                finished=true finishedAt=os.clock() lastError=nil
-            end
-        end)
-        if ok then table.insert(connections,connection) end
-    end
-    return {
-        ready=function() return not finished and (started or hasKey()) end,
-        step=function(valid)
-            local prompt=scan()
-            if not prompt then lastError="Nenhum prompt de chave/saida verificavel esta habilitado." return false,lastError end
-            local tool=keyTool()
-            local character=player.Character
-            local humanoid=character and character:FindFirstChildOfClass("Humanoid")
-            if tool and humanoid then pcall(humanoid.EquipTool,humanoid,tool) end
-            nav.aim(prompt,true)
-            local ok,success,message=pcall(nav.trigger,prompt,valid)
-            nav.clearAim()
-            attempts+=1 scanAt=0
-            if finished then return true end
-            if not ok then lastError=tostring(success) return false,lastError end
-            if not success then lastError=message return false,message end
-            started=true lastError=nil
-            log("Interacao de saida acionada: "..prompt:GetFullName())
-            nav.waitFor(0.4,valid)
-            return true
-        end,
-        finishTime=function() return finishedAt end,
-        diagnostic=function() return {has_key=hasKey(),started=started,finished=finished,attempts=attempts,last_error=lastError,candidates=candidates} end,
-        close=function() for _,connection in ipairs(connections) do connection:Disconnect() end end,
-    }
-end
-function Exit.endingSkipper(gui,bridge,clock,cameraFallback,cameraMode)
-    clock=clock or os.clock
-    local started,nextAt,pressed=nil,0,nil
-    local victoryAt,nextRelease,lastCameraMode=nil,0,nil
-    local stats={attempts=0,sent=false,button_gone=false,camera_attempts=0,events={},screens={}}
-    local seenScreens={}
-    local roots={escape=true,outro=true,outrocutscene=true,endcutscene=true,endingcutscene=true,
-        victory=true,escapecutscene=true,cutscene=true,runreport=true,runresults=true,escapereport=true}
-    local actions={skip=true,skipscene=true,skipcutscene=true,skipoutro=true,skipending=true,
-        skipoutrocutscene=true,skipanimation=true,pular=true,pularcena=true}
-    local function normalized(value) return string.lower((tostring(value):gsub("[^%w]",""))) end
-    local function inEnding(button,screen)
-        local current=button
-        local recognized=false
-        while current do
-            local name=normalized(current.Name)
-            if name:find("intro",1,true) or name:find("tutorial",1,true) then return false end
-            recognized=recognized or roots[name]==true
-            if current==screen then return recognized end
-            current=current.Parent
-        end
-        return false
-    end
-    local function event(name)
-        if not started or #stats.events>=20 or clock()-started>60 then return end
-        table.insert(stats.events,{name=name,seconds=math.floor((clock()-started)*100)/100})
-    end
-    local function poll(armed,enabled)
-        if not armed or not enabled then return end
-        local now=clock()
-        started=started or now
-        if now-started<=60 and cameraMode then
-            local mode=cameraMode()
-            if mode and mode~=lastCameraMode then lastCameraMode=mode event("camera:"..mode) end
-        end
-        if pressed then stats.button_gone=pressed.Parent==nil or not bridge.visible(pressed) return end
-        if now-started>math.max(20,victoryAt and victoryAt-started+20 or 0) then
-            stats.reason=stats.reason or "no visible native skip control" return
-        end
-        if now<nextAt or stats.attempts>=2 then return end
-        nextAt=now+0.5
-        local choices={}
-        for _,screen in ipairs(gui:GetChildren()) do
-            if screen:IsA("ScreenGui") and screen.Enabled then
-                if not seenScreens[screen.Name] and #stats.screens<24 then
-                    seenScreens[screen.Name]=true table.insert(stats.screens,screen.Name)
-                end
-                for _,button in ipairs(screen:GetDescendants()) do
-                    if button:IsA("GuiButton") and button.Active and inEnding(button,screen)
-                        and bridge.visible(button) and button.AbsoluteSize.X>0 and button.AbsoluteSize.Y>0
-                        and (actions[normalized(button.Name)] or actions[normalized(bridge.texts(button))]) then
-                        table.insert(choices,button)
-                    end
-                end
-            end
-        end
-        stats.candidates=#choices
-        if #choices~=1 then stats.reason=#choices>1 and "ambiguous native skip controls" or nil return end
-        stats.attempts+=1 stats.path=choices[1]:GetFullName()
-        local ok,message=bridge.activate(choices[1])
-        stats.sent=ok==true stats.reason=message
-        if ok then pressed=choices[1] else nextAt=now+2 end
-    end
-    local function afterVictory(confirmed,enabled)
-        if not confirmed then return end
-        local now=clock()
-        if not victoryAt then victoryAt=now event("escape_confirmed") end
-        if not enabled or not cameraFallback or stats.sent or stats.camera_attempts>=2 then return end
-        if now-victoryAt<1 or now-victoryAt>12 or now<nextRelease then return end
-        if cameraMode and cameraMode()~="Scriptable" then return end
-        if stats.camera_released and not cameraMode then return end
-        nextRelease=now+1.5
-        stats.camera_attempts+=1
-        local ok,released=pcall(cameraFallback)
-        stats.camera_released=stats.camera_released or ok and released==true
-        stats.camera_result=ok and released==true and "local camera returned after confirmed escape"
-            or ok and "no scriptable camera with active character" or "camera reset failed"
-        if ok and released then event("camera_released") end
-    end
-    return {poll=poll,afterVictory=afterVictory,event=event,stats=stats}
-end
-return Exit
-
-end)()
-
-local Recovery = (function()
--- Luau · potato_recovery.luau · explicit native UI recovery · Roblox / CLI · Luau 0.745
-local Recovery={}
-local allowed={Cash=true,Bag=true,Hotbar=true,ToolHotbar=true,ToolBar=true,Toolbar=true,Tools=true,ToolSelection=true,Interactions=true,Interaction=true,ProximityPrompts=true}
-function Recovery.restore(services,modules)
-    modules=modules or {}
-    local report={restored=0,errors=0,names={},cloned={},missing={},screens={}}
-    local function attempt(callback)
-        local ok=pcall(callback)
-        if not ok then report.errors+=1 end
-    end
-    local function call(path,name,...)
-        local module=modules[path]
-        if type(module)=="table" and type(module[name])=="function" then
-            local args=table.pack(...)
-            attempt(function() module[name](table.unpack(args,1,args.n)) end)
-        end
-    end
-    call("Controllers.CuttingController","SetHeld",false)
-    call("Controllers.CuttingController","SetAuto",false)
-    call("Controllers.PotatoPileController","SetUseHeld",false)
-    local peeling=modules["Controllers.PeelingController"]
-    if peeling and peeling.IsPeeling==true then
-        local packets=modules["Modules.Resources.Packets"] or {}
-        if packets.PeelingCancel and type(packets.PeelingCancel.Fire)=="function" then attempt(function() packets.PeelingCancel:Fire() end) end
-        call("Controllers.PeelingController","StopPeeling")
-    end
-    call("Controllers.StoreViewController","Close")
-    call("Controllers.ToolUpgradeController","SetOpen",false)
-    local player=services.Players.LocalPlayer
-    local gui=player:FindFirstChild("PlayerGui")
-    if gui then
-        local starter=services.StarterGui
-        if starter and type(starter.GetChildren)=="function" and type(gui.FindFirstChild)=="function" then
-            for _,template in ipairs(starter:GetChildren()) do
-                if template:IsA("ScreenGui") and allowed[template.Name] and not gui:FindFirstChild(template.Name,true) then
-                    attempt(function()
-                        local copy=template:Clone()
-                        copy.Enabled=true copy.Parent=gui
-                        table.insert(report.cloned,copy.Name)
-                    end)
-                end
-            end
-        end
-        for _,object in ipairs(gui:GetDescendants()) do
-            if allowed[object.Name] then
-                attempt(function()
-                    if object:IsA("ScreenGui") then object.Enabled=true
-                    elseif object:IsA("GuiObject") then
-                        local ancestor=object.Parent
-                        local screen=nil
-                        while ancestor and ancestor~=gui do
-                            if ancestor:IsA("ScreenGui") then screen=ancestor break end
-                            ancestor=ancestor.Parent
-                        end
-                        if screen and (screen.Name=="ToolUpgrades" or screen.Name=="StoreView" or screen.Name:find("Cutscene",1,true)) then return end
-                        object.Visible=true
-                        if screen then screen.Enabled=true end
-                    else return end
-                    report.restored+=1 table.insert(report.names,object.Name)
-                end)
-            end
-        end
-    end
-    if gui and type(gui.FindFirstChild)=="function" then
-        for _,name in ipairs({"Hotbar","Bag"}) do if not gui:FindFirstChild(name,true) then table.insert(report.missing,name) end end
-        for _,screen in ipairs(gui:GetChildren()) do
-            if screen:IsA("ScreenGui") then table.insert(report.screens,{name=screen.Name,enabled=screen.Enabled}) end
-        end
-    end
-    if services.ProximityPromptService then attempt(function() services.ProximityPromptService.Enabled=true end) end
-    local scripts=player:FindFirstChild("PlayerScripts")
-    local module=scripts and scripts:FindFirstChild("PlayerModule")
-    if module then
-        attempt(function()
-            local controls=require(module):GetControls()
-            controls:Enable()
-        end)
-    end
-    local character=player.Character
-    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
-    if humanoid then attempt(function() humanoid.AutoRotate=true end) end
-    return report
-end
-return Recovery
-
-end)()
-
-local Core = (function()
--- Luau · potato_core.luau · configuration and task coordination · Roblox / CLI · Luau 0.745
-local Core = {}
-
-Core.defaults = {
-    opAutoFinish=false,opKeyShortcut=true,antiAfk=true,coolHoldSeconds=5,coolHoldFallback=true,skipEndingScene=true,
-    releaseEndingCamera=true,opBatchFunding=true,opFastPrompts=true,partyProfile="Solo",partyRole="Leader",partySize=4,partySlot=1,
-    teamFunding=false,teamLead=false,supportCut=false,
-    nativeWalkUpgrade=false,
-    fastDelivery=true,placementDelay=0.01,throughputMode=true,
-    autoRepairGui=true,aimTable=true,autoEscape=false,productionBatch=500,
-    autoProgress = false, autoCut = false, autoFarm = false, autoDeliver = false,
-    autoCool = false, autoSell = false, autoDynamite = false, autoCrank = false, autoBuyTools = false, autoBuyUpgrades = false,
-    autoBuyStorage = false, collectPumpkins = false, pumpkinPriority = true, priorityValue = true,
-    cutBuyTools = true, rarity = "Any", selection = "Nearest", tableChoice = "Nearest",
-    deliveryMode = "Amount", deliveryTarget = "Crate",
-    movement = "Teleport", speedMode = "Turbo", cutMode = "Fast", teleportSettle = 0.10,
-    pickBatch = 8, cutBurst = 3,cutTargetRate=20,cutToolMultiplier=4,
-    auraCollect=true,auraRadius=16,collectTool="Auto",logicalSpecials=true,autoRecover=true,
-    sellThreshold=500,sellRemainder=true,buyAfterSell=true,returnAfterSell=true,
-    infiniteBag=false,collectGems=true,gemPriority=true,
-    upgradeDrone=true,upgradeMachines=true,upgradeGeneral=true,saveForNextTool=true,
-    dynamiteInterval=1,dynamiteAggressive=false,
-    maintainCutBuffer=true,cutBuffer=400,fixMenuBlur=true,buyMachines=true,clearPileFirst=true,autoBuyDrone=false,worthEarlyLimit=3,forceThirdPerson=false,cameraDistance=20,aimCooling=true,keyPriority=true,
-    uiWidth = 760, uiHeight = 580, uiScale = 65, uiX = 0.5, uiY = 0.5,
-    buttonX = 0.03, buttonY = 0.22, buttonSize = 56,
-    deliveryFill = 90, deliveryBatch = 1000, heatStart = 60, heatStop = 25, coolingRetry = 12,
-    reserveCash = 0, maxPurchase = 0, actionDelay = 0.04, actionTimeout = 10,
-    travelTimeout = 30, maxDistance = 250, returnAfterCooling = true,
-    showStatus = true, notifications = true,
-    pauseOnMovement = true,
-    keyProgress = "F6", keyCut = "F7", keyFarm = "F8", keyCool = "F9",
-    keyBuy = "F10", keyMenu = "Insert", keyPause = "End",
-    keyDeliver = "None", keyPumpkin = "None", keyStorage = "None", keyUpgrades = "None",
-    keyCrank = "None",
-    keySell="None",keyDynamite="None",
-}
-
-local ranges = {
-    partySlot={1,4},partySize={2,4},
-    coolHoldSeconds={1,5},
-    deliveryFill = {10,100}, deliveryBatch = {1,1000000}, heatStart = {15,100}, heatStop = {0,90},
-    coolingRetry = {5,120}, reserveCash = {0,100000000}, maxPurchase = {0,100000000},
-    actionDelay = {0.02,5}, actionTimeout = {2,60}, travelTimeout = {5,120}, maxDistance = {10,1000},
-    teleportSettle={0.05,1}, uiWidth={300,1100}, uiHeight={340,900}, uiScale={65,150},
-    uiX={0,1},uiY={0,1},buttonX={0,1},buttonY={0,1},buttonSize={44,88},
-    pickBatch={1,16},cutBurst={1,6},
-    placementDelay={0.005,0.08},
-    productionBatch={50,10000},
-    auraRadius={5,18},
-    cutBuffer={1,10000},
-    worthEarlyLimit={1,10},cameraDistance={8,100},
-    cutTargetRate={1,40},cutToolMultiplier={1,4},
-    sellThreshold={1,1000000},dynamiteInterval={0.1,15},
-}
-local choices = {
-    partyProfile={Solo=true,Team=true,Mixed=true},
-    partyRole={Leader=true,Collect=true,Cut=true},
-    rarity = {Any=true,Rainbow=true,Diamond=true,Golden=true},
-    selection = {Nearest=true,Random=true},
-    deliveryMode = {Amount=true,Percent=true},
-    deliveryTarget = {Crate=true,Table=true,Manual=true,Auto=true},
-    movement={Walk=true,Teleport=true},speedMode={Turbo=true,Standard=true},cutMode={Fast=true,Native=true},
-    collectTool={Auto=true,Hand=true,Shovel=true,PotatoSucker=true},
-    tableChoice = {Nearest=true,PeelingTable1=true,PeelingTable2=true,PeelingTable3=true,PeelingTable4=true},
-}
-local automation = {"opAutoFinish","autoProgress","autoCut","autoFarm","autoDeliver","autoCool","autoCrank","autoSell","autoDynamite",
-    "autoBuyTools","autoBuyUpgrades","autoBuyStorage","collectPumpkins","autoEscape"}
-
-function Core.clone(value)
-    if type(value) ~= "table" then return value end
-    local result = {}
-    for key, item in pairs(value) do result[key] = Core.clone(item) end
-    return result
-end
-
-function Core.validate(values, resetActive)
-    local config = Core.clone(Core.defaults)
-    if type(values) == "table" then
-        for key, default in pairs(Core.defaults) do
-            local value = values[key]
-            if type(value) == type(default) then
-                if type(value) == "number" then
-                    if value == value and value ~= math.huge and value ~= -math.huge then
-                        local range = ranges[key]
-                        config[key] = range and math.clamp(value,range[1],range[2]) or value
-                    end
-                elseif choices[key] then
-                    if choices[key][value] then config[key] = value end
-                elseif type(value)=="string" and string.sub(key,1,3) == "key" then
-                    if #value > 0 and #value < 24 and string.match(value,"^[%w]+$") then config[key] = value end
-                else
-                    config[key] = value
-                end
-            end
-        end
-    end
-    config.heatStop = math.min(config.heatStop,config.heatStart - 5)
-    config.deliveryBatch=math.floor(config.deliveryBatch)
-    config.pickBatch=math.floor(config.pickBatch) config.cutBurst=math.floor(config.cutBurst)
-    config.sellThreshold=math.floor(config.sellThreshold)
-    config.partySlot=math.floor(config.partySlot)
-    config.partySize=math.floor(config.partySize)
-    if config.opAutoFinish then config.autoProgress=false end
-    if resetActive then
-        for _, key in ipairs(automation) do config[key] = false end
-    end
-    return config
-end
-
-function Core.pause(config)
-    for _, key in ipairs(automation) do config[key] = false end
-end
-
-function Core.applyPartyProfile(config)
-    Core.pause(config)
-    local mixed=config.partyProfile=="Mixed"
-    local team=config.partyProfile=="Team"
-    local collector=team and config.partyRole=="Collect"
-    local cutter=team and config.partyRole=="Cut"
-    config.teamFunding=collector
-    config.teamLead=team and config.partyRole=="Leader"
-    config.supportCut=mixed or cutter
-    config.nativeWalkUpgrade=mixed
-    config.tableChoice=team and "PeelingTable"..config.partySlot or "Nearest"
-    config.movement=mixed and "Walk" or "Teleport"
-    config.cutMode=mixed and "Native" or "Fast"
-    config.speedMode=mixed and "Standard" or "Turbo"
-    config.fastDelivery=not mixed
-    config.aimTable=not mixed
-    config.auraCollect=not mixed
-    config.logicalSpecials=not mixed
-    config.forceThirdPerson=false
-    config.deliveryTarget="Crate"
-    config.cutBuyTools=true
-    if not mixed and not collector and not cutter then
-        config.opAutoFinish=true
-    elseif collector then
-        config.deliveryMode="Amount"
-        config.deliveryBatch=100
-        config.collectTool="Auto"
-        config.rarity="Any"
-        config.autoFarm=true
-        config.autoDeliver=true
-        config.autoDynamite=true
-        config.autoBuyTools=true
-        config.autoBuyStorage=true
-        config.autoBuyUpgrades=true
-    else
-        config.autoCut=true
-        config.autoSell=true
-        config.autoBuyTools=true
-        config.autoBuyUpgrades=true
-        config.autoEscape=cutter
-    end
-end
-
-function Core.progress(config) return config.autoProgress or config.opAutoFinish end
-function Core.batchCollect(config) return config.opAutoFinish or config.teamFunding and config.autoFarm end
-function Core.anyActive(config)
-    for _,name in ipairs(automation) do if config[name] then return true end end
-    return false
-end
-function Core.displayed(config,name)
-    if type(config[name])~="boolean" then return config[name] end
-    if name=="opAutoFinish" or name=="autoProgress" then return config[name]==true end
-    if config.opAutoFinish then return config[name] end
-    return Core.effective(config,name)
-end
-
-function Core.effective(config, name)
-    if name=="autoCrank" and Core.progress(config) and config.deliveryTarget=="Manual" then return true end
-    if name == "autoFarm" and config.collectPumpkins then return true end
-    if name == "autoCool" or name == "autoFarm" or name == "autoDeliver"
-        or name == "autoBuyTools" or name == "autoBuyUpgrades" or name == "autoBuyStorage" or name=="autoSell" or name=="autoDynamite" or name=="autoEscape" then
-        if Core.progress(config) then return true end
-    end
-    if name == "autoCut" then return Core.progress(config) or config.autoCut end
-    if name == "autoBuyTools" and config.autoCut and config.cutBuyTools then return true end
-    return config[name] == true
-end
-
-function Core.acceptVariant(config, kind, isPumpkin,isGem)
-    if config.opAutoFinish then return not isPumpkin or config.collectPumpkins end
-    if isPumpkin then return config.collectPumpkins end
-    if isGem and config.collectGems then return true end
-    if not config.autoProgress and not config.autoFarm and not config.autoDynamite then return false end
-    if config.rarity == "Any" then return true end
-    return kind ~= nil and string.lower(tostring(kind)) == string.lower(config.rarity)
-end
-
-function Core.affordable(config, cash, price, currency)
-    if currency ~= "Cash" then return false,"currency" end
-    if type(cash) ~= "number" or type(price) ~= "number" or cash ~= cash or price ~= price
-        or cash == math.huge or price == math.huge or price <= 0 then return false,"unconfirmed" end
-    if config.maxPurchase > 0 and price > config.maxPurchase then return false,"purchase_limit" end
-    if cash - price < config.reserveCash then return false,"reserve" end
-    return true
-end
-
-function Core.parseAmount(text)
-    if type(text) ~= "string" then return nil end
-    local trimmed = string.gsub(text,"%s","")
-    if string.find(string.upper(trimmed),"R$",1,true) or string.find(string.upper(trimmed),"ROBUX",1,true) then return nil end
-    local value = string.match(trimmed,"%-?[%d][%d%.,]*")
-    if not value then return nil end
-    local lastComma, lastDot
-    for i = 1,#value do
-        local c = string.sub(value,i,i)
-        if c == "," then lastComma = i elseif c == "." then lastDot = i end
-    end
-    if lastComma and lastDot then
-        if lastComma > lastDot then
-            value = string.gsub(string.gsub(value,"%.",""),",",".")
-        else
-            value = string.gsub(value,",","")
-        end
-    elseif lastComma then
-        local tail = #value-lastComma
-        value = string.gsub(value,",",tail == 3 and "" or ".")
-    elseif lastDot and #value-lastDot == 3 then
-        value = string.gsub(value,"%.","")
-    end
-    local amount = tonumber(value)
-    if not amount or amount < 0 then return nil end
-    local suffix = string.upper(string.match(trimmed,"[%d][%d%.,]*([KkMmBbTt])") or "")
-    local multiplier = ({K=1000,M=1000000,B=1000000000,T=1000000000000})[suffix] or 1
-    amount = amount * multiplier
-    return amount
-end
-
-function Core.purchaseReady(config,cash,price,level,blocked)
-    if not Core.affordable(config,cash,price,"Cash") then return false end
-    return not blocked or cash>=blocked.cash or level~=blocked.level
-end
-
-function Core.parseCapacity(text)
-    if type(text) ~= "string" then return nil,nil end
-    local left,right=string.match(text,"^(.-)/(.-)$")
-    if not left or not right then return nil,nil end
-    local current=Core.parseAmount(left)
-    local capacity=string.find(right,"∞",1,true) and math.huge or Core.parseAmount(right)
-    if not current or not capacity or capacity<=0 or current%1~=0 then return nil,nil end
-    return current,capacity
-end
-
-function Core.bagCount(data,text)
-    local value=type(data)=="table" and data.Potatoes or nil
-    if type(value)=="number" and value>=0 and value%1==0 and value<math.huge then return value,true end
-    local count=Core.parseCapacity(text)
-    return count,false
-end
-
-function Core.coolingLatch(wasCooling, heatPercent, config, alarm)
-    if type(heatPercent) == "number" and heatPercent == heatPercent then
-        if wasCooling then return heatPercent > config.heatStop end
-        return heatPercent >= config.heatStart
-    end
-    return alarm == true
-end
-
-function Core.deliveryGoal(config,capacity)
-    if type(capacity)~="number" or capacity<=0 or capacity~=capacity then return nil end
-    if capacity==math.huge then return config.deliveryBatch end
-    if config.deliveryMode=="Percent" then return math.max(1,math.ceil(capacity*config.deliveryFill/100)) end
-    return math.min(capacity,config.deliveryBatch)
-end
-
-function Core.productionGoal(config,capacity,crate)
-    if config.opAutoFinish and config.teamLead and type(crate)=="number" and crate<100 then
-        return math.min(capacity or 100,100)
-    end
-    if config.opAutoFinish then return capacity end
-    return math.min(capacity or config.productionBatch,config.productionBatch)
-end
-
-function Core.tickInterval(config)
-    return config.speedMode=="Turbo" and math.min(config.actionDelay,0.02) or config.actionDelay
-end
-
-function Core.pickLimit(config,carried,capacity,pumpkin)
-    if pumpkin or config.speedMode~="Turbo" then return 1 end
-    local goal=Core.deliveryGoal(config,capacity)
-    return math.max(1,math.min(config.pickBatch,math.max(1,capacity-carried),math.max(1,(goal or capacity)-carried)))
-end
-
-function Core.choose(config, state, now)
-    local function ready(action) return now>=((state.retryAt or {})[action] or 0) end
-    local bulkOnly=config.opAutoFinish and state.bulkOnly==true
-    local quest=state.questAction
-    local exhausted=state.mountainEmpty and (quest=="collect" or quest=="gem" or quest=="dynamite"
-        or not state.tableReady and not state.cutting and (state.stock or 0)==0 and (state.carried or 0)==0)
-    if Core.effective(config,"autoEscape") and state.hasKey and (not quest or quest=="escape" or exhausted) and ready("escape") then return "escape" end
-    if Core.effective(config,"autoCool") and state.needCooling and now >= (state.coolingRetryAt or 0) and ready("cool") then return "cool" end
-    if quest=="cool" and type(state.heat)=="number" and state.heat>config.heatStop and not state.flowing
-        and now>=(state.coolingRetryAt or 0) and ready("cool") then return "cool" end
-    if quest=="sell" and (state.stock or 0)>0 and now>=(state.sellRetryAt or 0) and ready("sell") then return "sell" end
-    if quest=="cut" or quest=="sell" then
-        if state.cutting and ready("cut") then return "cut" end
-        if state.tableReady and ready("enterCut") then return "enterCut" end
-        if (state.carried or 0)>0 and state.canStageCut and ready("stageCut") then return "stageCut" end
-    end
-    if quest=="dynamite" and state.dynamiteReady and not state.cutting and ready("dynamite") then return "dynamite" end
-    if (quest=="collect" or quest=="gem") and not state.mountainEmpty and state.hasCandidate
-        and type(state.carried)=="number" and type(state.capacity)=="number" and state.carried<state.capacity
-        and ready("collect") then return "collect" end
-    if config.opAutoFinish and config.opKeyShortcut and state.keyProbeReady and ready("keyProbe") then return "keyProbe" end
-    if state.postClearUnload and Core.effective(config,"autoDeliver") and ready("deliver") then return "deliver" end
-    if config.teamFunding and state.mountainEmpty and state.carried and state.carried>0
-        and Core.effective(config,"autoDeliver") and ready("deliver") then return "deliver" end
-    if not bulkOnly and state.droneReady and ready("drone") then return "drone" end
-    if state.deliveryPending and (Core.effective(config,"autoDeliver") or Core.effective(config,"autoCut")) and ready("deliver") then return "deliver" end
-    if not bulkOnly and Core.effective(config,"autoSell") and state.sellReady and now>=(state.sellRetryAt or 0) and ready("sell") then return "sell" end
-    if state.needBuffer and state.carried and state.carried>0 and state.carried>=(state.bufferDeliveryGoal or 1) and ready("deliver") and Core.effective(config,"autoDeliver") then return "deliver" end
-    if not bulkOnly and state.returnToTable and state.postSaleWeaponBought and ready("returnTable") then return "returnTable" end
-    if not bulkOnly and state.canBuy and now >= (state.buyRetryAt or 0) and ready("buy") then
-        if Core.effective(config,"autoBuyTools") or Core.effective(config,"autoBuyUpgrades")
-            or Core.effective(config,"autoBuyStorage") or state.afterSale and config.buyAfterSell then return "buy" end
-    end
-    if not bulkOnly and state.returnToTable and ready("returnTable") then return "returnTable" end
-    if not state.mountainEmpty and Core.effective(config,"autoDynamite") and state.dynamiteReady and not state.cutting and ready("dynamite") then return "dynamite" end
-    if not bulkOnly and Core.effective(config,"autoCrank") and state.crankReady and ready("crank") then return "crank" end
-    local soloCut=config.autoCut and not Core.effective(config,"autoFarm")
-    if Core.effective(config,"autoCut") and state.cutting and (soloCut or not state.focusClear and not state.needBuffer) and ready("cut") then return "cut" end
-    if Core.effective(config,"autoCut") and not Core.effective(config,"autoFarm") and state.carried and state.carried>0 and state.canStageCut and not state.tableReady and ready("stageCut") then return "stageCut" end
-    if Core.effective(config,"autoDeliver") and state.carried and state.carried > 0 then
-        local goal=state.deliveryGoal or Core.deliveryGoal(config,state.capacity)
-        local full=goal and state.carried>=goal
-        local noTargets=state.noCandidate and not (config.opAutoFinish and state.focusClear)
-        if (full or noTargets or not Core.effective(config,"autoFarm")) and ready("deliver") then return "deliver" end
-    end
-    if Core.effective(config,"autoCut") and state.tableReady and (soloCut or not state.focusClear and not state.needBuffer) and ready("enterCut") then return "enterCut" end
-    if not state.mountainEmpty and Core.effective(config,"autoFarm") and state.hasCandidate
-        and type(state.capacity)=="number" and type(state.carried)=="number"
-        and state.capacity>0 and (state.carried < state.capacity or state.candidatePumpkin) and ready("collect") then return "collect" end
-    return "idle"
-end
-
-function Core.newCancellation()
-    local generation = 0
-    return {
-        current = function() return generation end,
-        valid = function(token) return token == generation end,
-        cancel = function() generation = generation + 1 return generation end,
-    }
-end
-
-return Core
-
-end)()
-
-local Layout = (function()
--- Luau · potato_layout.luau · screen bounds and touch layout · Roblox / CLI · Luau 0.745
-local Layout={}
-function Layout.access(width,height)
-    local w,h=math.min(480,math.max(1,width-24)),math.min(520,math.max(1,height-24))
-    return {width=w,height=h,x=(width-w)/2,y=(height-h)/2,compact=h<430}
-end
-function Layout.resolve(width,height,config)
-    local margin=8
-    local availableW,availableH=math.max(1,width-2*margin),math.max(1,height-2*margin)
-    local scale=math.min(config.uiScale/100,availableW/300,availableH/340)
-    scale=math.max(0.1,scale)
-    local baseW=math.min(config.uiWidth,availableW/scale)
-    local baseH=math.min(config.uiHeight,availableH/scale)
-    local visualW,visualH=baseW*scale,baseH*scale
-    return {width=baseW,height=baseH,scale=scale,
-        x=margin+math.clamp(config.uiX,0,1)*math.max(0,availableW-visualW),
-        y=margin+math.clamp(config.uiY,0,1)*math.max(0,availableH-visualH),
-        visualWidth=visualW,visualHeight=visualH,compact=baseW<580}
-end
-function Layout.normalized(x,y,width,height,objectW,objectH)
-    return math.clamp((x-8)/math.max(1,width-objectW-16),0,1),
-        math.clamp((y-8)/math.max(1,height-objectH-16),0,1)
-end
-function Layout.launcher(width,height,config)
-    local size=math.min(config.buttonSize,width-16,height-16)
-    return {size=size,x=8+config.buttonX*math.max(0,width-size-16),y=8+config.buttonY*math.max(0,height-size-16)}
-end
-return Layout
-
-end)()
-
-local Observer = (function()
--- Luau · potato_observer.luau · transparent getter observation · Roblox / CLI · Luau 0.745
-local Observer={}
-function Observer.create(target,names,onCall)
-    local installed={}
-    local probing=0
-    local closed=false
-    local disabled={}
-    local stats={installed=0,observed=0,perName={}}
-    for _,name in ipairs(names) do
-        local original=target[name]
-        if type(original)=="function" then
-            local wrapper
-            wrapper=function(...)
-                if closed or disabled[name] then return original(...) end
-                local args=table.pack(...)
-                local results=table.pack(original(...))
-                if not closed and probing==0 then
-                    stats.observed+=1
-                    stats.perName[name]=(stats.perName[name] or 0)+1
-                    local ok,done=pcall(onCall,name,args,results)
-                    if ok and done==true or stats.perName[name]>=24 then
-                        disabled[name]=true
-                        pcall(function() if target[name]==wrapper then target[name]=original end end)
-                    end
-                end
-                return table.unpack(results,1,results.n)
-            end
-            if pcall(function() target[name]=wrapper end) then
-                table.insert(installed,{name=name,original=original,wrapper=wrapper})
-                stats.installed+=1
-            end
-        end
-    end
-    return {
-        read=function(fn,...)
-            probing+=1
-            local results=table.pack(pcall(fn,...))
-            probing-=1
-            return table.unpack(results,1,results.n)
-        end,
-        close=function()
-            closed=true
-            for _,item in ipairs(installed) do
-                pcall(function() if target[item.name]==item.wrapper then target[item.name]=item.original end end)
-            end
-            table.clear(installed)
-        end,
-        stats=stats,
-        unwrap=function(fn)
-            for _,item in ipairs(installed) do if item.wrapper==fn then return item.original end end
-            return fn
-        end,
-    }
-end
-return Observer
-
-end)()
-
-local Spatial = (function()
--- Luau · potato_spatial.luau · sparse index for live pile geometry · Roblox / CLI · Luau 0.745
-local Spatial={}
-function Spatial.new(tolerance)
-    local cells={}
-    local size=math.max(0.1,(tolerance or 0.08)*2)
-    local distanceLimit=(tolerance or 0.08)^2
-    local count=0
-    local function add(position,value)
-        local x,y,z=math.floor(position.X/size),math.floor(position.Y/size),math.floor(position.Z/size)
-        cells[x]=cells[x] or {} cells[x][y]=cells[x][y] or {} cells[x][y][z]=cells[x][y][z] or {}
-        table.insert(cells[x][y][z],{p=position,value=value}) count+=1
-    end
-    local function find(position)
-        local x,y,z=math.floor(position.X/size),math.floor(position.Y/size),math.floor(position.Z/size)
-        local best,bestDistance,ambiguous=nil,distanceLimit+1e-12,false
-        for dx=-1,1 do
-            local column=cells[x+dx]
-            if column then for dy=-1,1 do
-                local row=column[y+dy]
-                if row then for dz=-1,1 do
-                    for _,item in ipairs(row[z+dz] or {}) do
-                        local px,py,pz=position.X-item.p.X,position.Y-item.p.Y,position.Z-item.p.Z
-                        local d=px*px+py*py+pz*pz
-                        if d<=distanceLimit then
-                            if d<bestDistance-1e-10 then best,bestDistance,ambiguous=item.value,d,false
-                            elseif math.abs(d-bestDistance)<1e-10 and best~=item.value then ambiguous=true end
-                        end
-                    end
-                end end
-            end end end
-        return not ambiguous and best or nil
-    end
-    return {add=add,find=find,count=function() return count end}
-end
-return Spatial
-
-end)()
-
-local TopK = (function()
--- Luau · potato_topk.luau · retain the best targets without sorting the entire pile · Roblox / CLI · Luau 0.745
-local TopK={}
-function TopK.new(limit)
-    local heap={}
-    local function down(index)
-        while index*2<=#heap do
-            local child=index*2
-            if child+1<=#heap and heap[child+1].score>heap[child].score then child+=1 end
-            if heap[index].score>=heap[child].score then break end
-            heap[index],heap[child]=heap[child],heap[index] index=child
-        end
-    end
-    return {add=function(item)
-        if #heap<limit then
-            table.insert(heap,item)
-            local index=#heap
-            while index>1 do
-                local parent=math.floor(index/2)
-                if heap[parent].score>=heap[index].score then break end
-                heap[parent],heap[index]=heap[index],heap[parent] index=parent
-            end
-        elseif item.score<heap[1].score then heap[1]=item down(1) end
-    end,values=function()
-        table.sort(heap,function(a,b) return a.score<b.score end)
-        return heap
-    end}
-end
-return TopK
-
-end)()
-
-local Chapter = (function()
--- Luau · potato_chapter2.luau · owned upgrades and progression for chapter 2 · Roblox / CLI · Luau 0.745
-local Chapter={}
-Chapter.allowed={
-    Hand={"PickAmount","PickSpeed","HoldPick"},Shovel={"PickAmount","PickSpeed","HoldPick"},
-    Dynamite={"PickAmount","PickSpeed"},PotatoSucker={"PickAmount","Cooling","Charge"},
-    Body={"PotatoWorth","Luck","WalkSpeed"},General={"PotatoWorth","Luck","WalkSpeed"},
-    Drone={"Capacity","Grasp","FlySpeed"},AutoPeeler={"PeelAmount","PeelSpeed"},HandPeeler={},
-}
-function Chapter.owns(data,id)
-    if type(data)~="table" then return false end
-    if id=="Hand" or id=="Body" or id=="General" then return true end
-    if id=="Drone" then return data.HasDrone==true end
-    if id=="AutoPeeler" then return data.HasAutoPeeler==true end
-    if id=="HandPeeler" then return data.HasHandPeeler==true end
-    for key,value in pairs(data.Tools or {}) do if value==id or key==id and value~=false and value~=nil then return true end end
-    return false
-end
-function Chapter.canUpgrade(data,tool,id,config)
-    local list=Chapter.allowed[tool]
-    if not list or not Chapter.owns(data,tool) then return false end
-    if config.teamFunding and (tool=="Body" or tool=="General" or tool=="AutoPeeler" or tool=="Drone") then return false end
-    if config.supportCut and not config.opAutoFinish and not config.autoProgress and tool~="Body" and tool~="General" then return false end
-    if tool=="Drone" and not config.upgradeDrone then return false end
-    if (tool=="AutoPeeler" or tool=="HandPeeler") and not config.upgradeMachines then return false end
-    if (tool=="Body" or tool=="General") and not config.upgradeGeneral then return false end
-    if id=="WalkSpeed" and not config.nativeWalkUpgrade then return false end
-    if tool=="Hand" and Chapter.owns(data,"Shovel") then return false end
-    for _,name in ipairs(list) do if name==id then return true end end
-    return false
-end
-function Chapter.level(shared,data,tool,id)
-    local values=data and data.Upgrades and data.Upgrades[tool]
-    local direct=type(values)=="table" and values[id] or nil
-    if type(direct)=="number" and direct>=0 then return direct end
-    local best=nil
-    if type(shared.GetLevel)=="function" then
-        local ok,value=pcall(shared.GetLevel,data,tool,id)
-        if ok and type(value)=="number" and value>=0 and value%1==0 then best=value end
-        if data and type(data.Upgrades)=="table" then
-            ok,value=pcall(shared.GetLevel,data.Upgrades,tool,id)
-            if ok and type(value)=="number" and value>=0 and value%1==0 then best=math.max(best or 0,value) end
-        end
-    end
-    return best
-end
-function Chapter.rank(tool,id)
-    local order={Shovel=1,Dynamite=2,PotatoSucker=3,Hand=4,AutoPeeler=5,HandPeeler=6,Drone=7,Body=8,General=8}
-    local rank=order[tool] or 100
-    return rank*10+(id=="PickAmount" and 0 or id=="PickSpeed" and 1 or 2)
-end
-function Chapter.limit(tool,id,cutRank,lastRank,earlyLimit,nativeWalkUpgrade)
-    if id=="WalkSpeed" then return nativeWalkUpgrade and 2 or 0 end
-    if (tool=="Body" or tool=="General") and id=="PotatoWorth" then
-        return math.huge
-    end
-    return math.huge
-end
-function Chapter.definition(shared,tool,id)
-    local native=nil
-    if type(shared.GetUpgrade)=="function" then local ok,value=pcall(shared.GetUpgrade,tool,id) if ok then native=value end end
-    if type(native)=="table" and (native.Id==id or native.Values~=nil or native.MaxLevel~=nil) then return native end
-    local definition=nil
-    if type(shared.GetUpgradeable)=="function" then local ok,value=pcall(shared.GetUpgradeable,tool) if ok and type(value)=="table" then definition=value end end
-    if not definition then
-        for _,list in ipairs({shared.Tools or {},shared.Machines or {}}) do
-            for _,value in pairs(list) do if type(value)=="table" and value.Id==tool then definition=value break end end
-        end
-        definition=definition or shared[tool]
-    end
-    if type(definition)=="table" then
-        for key,value in pairs(definition.Upgrades or {}) do
-            if type(value)=="table" and (value.Id==id or key==id) then return value end
-        end
-        if type(shared.GetUpgrade)=="function" then
-            local ok,value=pcall(shared.GetUpgrade,definition,id)
-            if ok and type(value)=="table" then return value end
-        end
-    end
-    return native
-end
-function Chapter.maximum(shared,definition)
-    if type(shared.GetMaxLevel)=="function" then
-        for _,input in ipairs({definition,type(definition)=="table" and definition.Values or false}) do
-            local ok,value=pcall(shared.GetMaxLevel,input)
-            if ok and type(value)=="number" and value>0 and value%1==0 then return value end
-        end
-    end
-    if type(definition)=="table" and type(definition.MaxLevel)=="number" then return definition.MaxLevel end
-    return nil
-end
-function Chapter.upgradeGuard()
-    local refusals={}
-    return {
-        allowed=function(key,level) local entry=refusals[key] return not entry or entry.level~=level or entry.count<2 end,
-        result=function(key,level,success)
-            if success then refusals[key]=nil return end
-            local previous=refusals[key]
-            refusals[key]={level=level,count=previous and previous.level==level and previous.count+1 or 1}
-        end,
-        reset=function() table.clear(refusals) end,
-        records=refusals,
-    }
-end
-function Chapter.maxed(shared,data,tool)
-    if not Chapter.owns(data,tool) then return false end
-    for _,id in ipairs(Chapter.allowed[tool] or {}) do
-        local definition=Chapter.definition(shared,tool,id)
-        if definition==nil then return false end
-        local maximum=Chapter.maximum(shared,definition)
-        local good=maximum~=nil
-        local current=Chapter.level(shared,data,tool,id)
-        if not good or type(maximum)~="number" or maximum<=0 or current==nil or current<maximum then return false end
-    end
-    return true
-end
-function Chapter.luckAllowed(shared,data)
-    return Chapter.maxed(shared,data,"PotatoSucker")
-end
-function Chapter.placementTiming(shared)
-    local original=shared and shared.PLACEMENT_STAGGER
-    local last=nil
-    local stats={available=type(original)=="number" and original>=0.005,original=original}
-    local function apply(enabled,delay)
-        if not stats.available then return end
-        local value=enabled and math.clamp(delay,0.005,original) or original
-        if last~=value then
-            local ok,why=pcall(function() shared.PLACEMENT_STAGGER=value end)
-            if not ok then stats.available=false stats.enabled=false stats.error=tostring(why) return end
-            last=value
-        end
-        stats.applied=value stats.enabled=enabled
-    end
-    return {apply=apply,stats=stats,close=function()
-        if stats.available and shared.PLACEMENT_STAGGER==last then pcall(function() shared.PLACEMENT_STAGGER=original end) end
-    end}
-end
-function Chapter.productionReady(shared,data)
-    return Chapter.maxed(shared,data,"Dynamite") and Chapter.maxed(shared,data,"Shovel")
-        and Chapter.maxed(shared,data,"AutoPeeler") and Chapter.maxed(shared,data,"PotatoSucker")
-end
-function Chapter.clearReady(config,shared,data)
-    if config.opAutoFinish then return Chapter.owns(data,"Dynamite") or Chapter.owns(data,"PotatoSucker") end
-    return Chapter.productionReady(shared,data)
-end
-function Chapter.opBulkReady(shared,data) return Chapter.maxed(shared,data,"PotatoSucker") end
-function Chapter.fundingPlan(Core,config,balance,goal,crate,stock,capacity,complete)
-    local plan={needed=false,cut=false,sell=false}
-    if not config.opAutoFinish or complete or type(goal)~="table" or type(balance)~="number" or type(goal.price)~="number" then return plan end
-    if goal.price<=0 or goal.price~=goal.price or goal.price==math.huge or config.maxPurchase>0 and goal.price>config.maxPurchase then return plan end
-    plan.needed=balance<goal.price+config.reserveCash
-    if not plan.needed then return plan end
-    plan.cut=type(crate)=="number" and crate>0
-    local shortfall=goal.price+config.reserveCash-balance
-    local batch=50
-    if config.opBatchFunding then batch=shortfall>=3 and 150 or shortfall>=1 and 90 or 50 end
-    plan.sellTarget=math.min(batch,config.sellThreshold)
-    plan.sell=type(stock)=="number" and stock>0 and (stock>=plan.sellTarget or not plan.cut)
-    plan.deliveryGoal=math.min(type(capacity)=="number" and capacity>0 and capacity or batch,plan.sellTarget)
-    return plan
-end
-function Chapter.pickTiming(shared,controller,pileController,data,tool)
-    local remaining,interval,source=0,nil,"unavailable"
-    if type(pileController.GetPickCooldown)=="function" then
-        local ok,first,second=pcall(pileController.GetPickCooldown,tool)
-        if ok and type(first)=="number" and first>=0 and first<=60 then remaining=first source="GetPickCooldown(tool ID)" end
-        if ok and type(second)=="number" and second>=0.02 and second<=60 then interval=second end
-    end
-    local upgrades=data and data.Upgrades
-    if type(controller.GetEquippedUpgrades)=="function" then local ok,value=pcall(controller.GetEquippedUpgrades) if ok and type(value)=="table" then upgrades=value end end
-    local class=data and data.SaveData and data.SaveData.Class
-    if type(controller.GetClassId)=="function" then local ok,value=pcall(controller.GetClassId) if ok then class=value end end
-    if type(shared.GetPickInterval)=="function" and upgrades then
-        local ok,value=pcall(shared.GetPickInterval,upgrades,tool,class,false)
-        if ok and type(value)=="number" and value>=0.02 and value<=60 then interval=value source="GetPickInterval(native upgrades, tool ID, class)" end
-    end
-    return remaining,interval,source
-end
-function Chapter.keyProbeGuard()
-    local records={}
-    local function token(item,empty)
-        if type(item)~="table" or type(item.slot)~="number" or item.slot%1~=0 or item.slot<1 or item.slot>=4294967296 then return nil end
-        return tostring(item.slot)..":"..tostring(item.revision or 0)..":"..tostring(empty==true)
-    end
-    local function allowed(item,empty,now)
-        local key=token(item,empty)
-        if not key then return false end
-        local entry=records[key]
-        return not entry or entry.attempts<2 and now>=entry.retryAt
-    end
-    return {records=records,allowed=allowed,begin=function(item,empty,now)
-        if not allowed(item,empty,now) then return false end
-        local key=token(item,empty)
-        local entry=records[key] or {attempts=0}
-        entry.attempts+=1 entry.retryAt=now+10 records[key]=entry
-        return true
-    end}
-end
-function Chapter.purchasePriority(offer,config,processing)
-    if config and config.teamFunding then
-        if offer.id=="Shovel" then return 1 end
-        if offer.group=="storage" and type(offer.capacity)=="number" and offer.capacity<=50 then return 2 end
-        if offer.id=="Dynamite" then return 3 end
-        if offer.tool=="Dynamite" then return 4+(offer.level or 0)/100 end
-        if offer.id=="P0T4T0-3000" then return 5 end
-        if offer.tool=="PotatoSucker" then return 6 end
-        if offer.group=="storage" then return 7 end
-    end
-    if config and config.opAutoFinish then
-        if processing and offer.group=="cut" then return 0.1+(offer.tier or 0)/100 end
-        -- Fund the first useful knife, a small bag and explosives before luxury knives.
-        if offer.upgrade=="PotatoWorth" and (offer.level or 0)<3 then return 1 end
-        if offer.group=="cut" and offer.tier==2 then return 2 end
-        if offer.group=="storage" and type(offer.capacity)=="number" and offer.capacity<=50 then return 3 end
-        if offer.id=="Shovel" then return 4 end
-        if offer.id=="Dynamite" then return 5 end
-        if offer.tool=="Dynamite" then return 6+(offer.level or 0)/100+(offer.upgrade=="PickAmount" and 0 or 0.001) end
-        if offer.id=="P0T4T0-3000" or offer.id=="PotatoSucker" then return 7 end
-        if offer.tool=="PotatoSucker" then return 8 end
-        if offer.tool=="Drone" then return 9 end
-        if offer.id=="Shovel" or offer.tool=="Shovel" then return 10 end
-        if offer.group=="machine" or offer.tool=="AutoPeeler" then return 11 end
-        if offer.group=="cut" then return 12+(offer.tier or 0)/100 end
-        if offer.upgrade=="PotatoWorth" then return 13 end
-        if offer.group=="storage" then return 14 end
-        if offer.upgrade=="Luck" then return 15 end
-        return 90
-    end
-    if offer.upgrade=="PotatoWorth" then
-        return config and config.nativeWalkUpgrade and (offer.level or 0)>=3 and 12 or 1
-    end
-    if offer.upgrade=="WalkSpeed" then return 10.025 end
-    if offer.group=="cut" then return 10+(offer.tier or 0)/100 end
-    if offer.id=="Dynamite" or offer.tool=="Dynamite" then return 20 end
-    if offer.tool=="Drone" then return 30 end
-    if offer.id=="Shovel" or offer.tool=="Shovel" then return 40 end
-    if offer.group=="storage" then return 90 end
-    return 50
-end
-function Chapter.selectPurchase(Core,config,balance,offers,processing)
-    table.sort(offers,function(a,b)
-        local left,right=Chapter.purchasePriority(a,config,processing),Chapter.purchasePriority(b,config,processing)
-        if left~=right then return left<right end
-        return (a.name or "")<(b.name or "")
-    end)
-    for _,offer in ipairs(offers) do
-        if type(offer.price)=="number" and offer.price>0 then
-            local affordable=Core.affordable(config,balance,offer.price,"Cash")
-            return offer,affordable
-        end
-    end
-    return nil,false
-end
-function Chapter.profilePrice(profile,tool,id,level)
-    if type(profile)~="table" or type(profile.Upgrades)~="table" or type(level)~="number" then return nil end
-    local list=profile.Upgrades[tool=="Body" and "General" or tool]
-    local values=type(list)=="table" and list[id] or nil
-    local price=type(values)=="table" and values[level+1] or nil
-    if type(price)=="number" and price>0 then return price end
-    return nil
-end
-function Chapter.sellReady(config,stock,state)
-    if type(stock)~="number" or stock<=0 then return false end
-    if stock>=config.sellThreshold then return true end
-    return config.sellRemainder and not state.cutting and state.crate==0 and state.carried==0 and state.exhausted==true
-end
-return Chapter
-
-end)()
-
-local Protocol = (function()
--- Luau · potato_protocol.luau · compare the live packet writers before direct actions · Roblox / CLI · Luau 0.745
-local Protocol={}
-function Protocol.create(packets,types)
-    local reverse={}
-    for name,writer in pairs(type(types)=="table" and types.Writes or {}) do if type(writer)=="function" then reverse[writer]=name end end
-    local function schema(name)
-        local packet=packets[name]
-        if type(packet)~="table" or type(packet.Writes)~="table" then return nil end
-        local result={}
-        for i,writer in ipairs(packet.Writes) do result[i]=reverse[writer] or "Unknown" end
-        return result
-    end
-    local function matches(name,expected)
-        local actual=schema(name)
-        if not actual or #actual~=#expected then return false end
-        for i,wanted in ipairs(expected) do
-            if wanted=="String" then
-                if actual[i]~="String" and actual[i]~="StringLong" then return false end
-            elseif wanted=="Vector3" then
-                if not string.match(actual[i],"^Vector3") then return false end
-            elseif wanted=="Boolean" then
-                if actual[i]~="Boolean" and actual[i]~="Boolean8" then return false end
-            elseif actual[i]~=wanted then return false end
-        end
-        return true
-    end
-    return {schema=schema,matches=matches,fire=function(name,...)
-        local packet=packets[name]
-        if not packet or type(packet.Fire)~="function" then return false,"Pacote indisponivel: "..name end
-        return pcall(packet.Fire,packet,...)
-    end}
-end
-return Protocol
-
-end)()
-
-local CutEngine = (function()
--- Luau · potato_cut_engine.luau · paced server acknowledgements · Roblox / CLI · Luau 0.745
-local CutEngine={}
-function CutEngine.create(config,io)
-    local epoch,lastSent=0,-1
-    local active,serverSeen,native=false,false,false
-    local progressAt,lastFingerprint,lastCash=io.clock(),nil,nil
-    local sentAt,nextAt=0,0
-    local pending,recovery=0,0
-    local scheduled=false
-    local generation=0
-    local lastTool=nil
-    local stats={attempted=0,accepted=0,epochs=0,native=false,pending=0,throttled=false,targetRate=20,ackRate=0,timeouts=0}
-    local rateWindow,rateCount=io.clock(),0
-    local tick
-    local function allowed() return not io.allowed or io.allowed() end
-    local function drive(value)
-        if native~=value then io.native(value) native=value stats.native=value end
-    end
-    local function target(tool)
-        local toolRate=type(tool)=="table" and tonumber(tool.AutoCutRate) or 1.5
-        return math.clamp(config.cutTargetRate or 20,1,40)*math.clamp((toolRate or 1.5)/1.5,1,config.cutToolMultiplier or 4)
-    end
-    local function schedule()
-        if not io.schedule or scheduled or not active or not allowed() then return end
-        scheduled=true
-        local token=generation
-        io.schedule(math.max(0,nextAt-io.clock()),function()
-            if token~=generation then return end
-            scheduled=false
-            if active and allowed() then tick(true,lastFingerprint,lastCash,lastTool) end
-        end)
-    end
-    local function advance(ack)
-        if ack and pending>0 then
-            pending=0 stats.pending=0 stats.accepted+=1 recovery+=1 rateCount+=1
-            if recovery>=4 then stats.throttled=false recovery=0 end
-        end
-        local now=io.clock()
-        if now-rateWindow>=1 then stats.ackRate=rateCount/(now-rateWindow) rateWindow=now rateCount=0 end
-        epoch+=1 stats.epochs=epoch progressAt=now
-    end
-    local function event(name)
-        serverSeen=true
-        if name=="start" then
-            pending=0 stats.pending=0 active=true lastSent=-1 advance(false)
-        elseif name=="next" then active=true advance(true)
-        elseif name=="stop" then
-            active=false pending=0 stats.pending=0 generation+=1 scheduled=false drive(false)
-        end
-        if name~="stop" then schedule() end
-    end
-    tick=function(isActive,fingerprint,cash,tool)
-        local now=io.clock()
-        if not isActive or not allowed() then
-            active=false pending=0 stats.pending=0 generation+=1 scheduled=false drive(false) lastFingerprint=nil
-            return true
-        end
-        lastTool=tool or lastTool
-        stats.targetRate=target(lastTool)
-        if not active then active=true lastSent=-1 advance(false) lastFingerprint=fingerprint end
-        if not serverSeen and fingerprint~=nil and lastFingerprint~=nil and fingerprint~=lastFingerprint then advance(true) end
-        if cash~=nil and lastCash~=nil and cash~=lastCash then progressAt=now end
-        lastFingerprint,lastCash=fingerprint,cash
-        if pending>0 and now-sentAt>math.max(0.35,4/stats.targetRate) then
-            pending=0 stats.pending=0 stats.throttled=true stats.timeouts+=1 recovery=0 lastSent=-1
-            nextAt=math.max(nextAt,now+0.10)
-        end
-        if config.cutMode=="Fast" and pending==0 and lastSent~=epoch and type(io.finish)=="function" then
-            if now>=nextAt then
-                -- One current potato per acknowledgement. Old multi-finish bursts
-                -- waited for replies the server never sent and permanently throttled.
-                lastSent=epoch sentAt=now nextAt=now+1/stats.targetRate
-                pending=1 stats.pending=1
-                local ok,message=io.finish()
-                if not ok then pending=0 stats.pending=0 drive(true) return false,message end
-                stats.attempted+=1
-            else schedule() end
-        end
-        drive(config.cutMode=="Native" or pending>0 and now-sentAt>=0.12)
-        if now-progressAt>math.max(4,math.min(config.actionTimeout or 10,8)) then
-            progressAt=now
-            return false,"Corte sem avancar; reabrindo a mesa automaticamente."
-        end
-        return true
-    end
-    return {event=event,tick=tick,pause=function()
-        generation+=1 scheduled=false active=false pending=0 stats.pending=0 lastSent=-1 drive(false)
-    end,stats=stats,epoch=function() return epoch end,serverActive=function() return active end}
-end
-return CutEngine
-
-end)()
-
-local Session = (function()
--- Luau · potato_session.luau · local configuration and lifecycle · Roblox / Delta · Luau 0.745
-local Session = {}
-
-function Session.create(Core, json, files)
-    local filename = "Anonymous_Potato_Config_v1.json"
-    local available = type(files.read)=="function" and type(files.write)=="function"
-    local function decode(content)
-        if type(content)~="string" or #content>65536 then return nil,"configuracao invalida" end
-        local ok,value=pcall(json.decode,content)
-        if not ok or type(value)~="table" or (value.schema~=1 and value.schema~=2) or type(value.config)~="table" then
-            return nil,"formato de configuracao invalido"
-        end
-        if value.schema==1 and value.config.uiScale==100 and value.config.uiWidth==760 then value.config.uiScale=65 end
-        return Core.validate(value.config,true)
-    end
-    local function read(path)
-        if not available then return nil,"arquivos indisponiveis" end
-        local ok,content=pcall(files.read,path)
-        if not ok then return nil,"arquivo ausente" end
-        return decode(content)
-    end
-    local function load()
-        local config,message=read(filename)
-        if config then return config,"Configuracao carregada; rotinas pausadas." end
-        local backup=read(filename..".backup")
-        if backup then return backup,"Configuracao recuperada do backup; rotinas pausadas." end
-        return Core.validate({},true),available and "Nova sessao; rotinas pausadas." or "Sem arquivos: ajustes apenas nesta sessao."
-    end
-    local function save(config)
-        if not available then return false,"Este executor nao disponibilizou leitura e escrita de arquivos." end
-        local sanitized=Core.validate(config,true)
-        local encodedOk,encoded=pcall(json.encode,{schema=2,config=sanitized})
-        if not encodedOk then return false,"Falha ao codificar ajustes." end
-        local oldOk,old=pcall(files.read,filename)
-        if oldOk and decode(old) then
-            local backupOk=pcall(files.write,filename..".backup",old)
-            if not backupOk then return false,"Nao foi possivel preservar o backup." end
-        end
-        local written,why=pcall(files.write,filename,encoded)
-        if not written then return false,"Falha ao gravar: "..tostring(why) end
-        local checked=read(filename)
-        if not checked then
-            if oldOk and decode(old) then pcall(files.write,filename,old) end
-            return false,"Falha na verificacao do arquivo; tente salvar novamente."
-        end
-        return true,"Ajustes salvos; ativacoes nao sao restauradas automaticamente."
-    end
-    return {load=load,save=save,filename=filename,available=available}
-end
-
-function Session.lifecycle()
-    local alive=true
-    local disposables={}
-    return {
-        alive=function() return alive end,
-        add=function(cleanup)
-            if alive then table.insert(disposables,cleanup) else pcall(cleanup) end
-        end,
-        close=function()
-            if not alive then return end
-            alive=false
-            for i=#disposables,1,-1 do pcall(disposables[i]) end
-            table.clear(disposables)
-        end,
-    }
-end
-
-return Session
-
-end)()
-
-local UI = (function()
--- Luau · potato_ui.luau · Anonymous native control panel · Roblox client · Luau 0.745
-local UI = {}
-
-function UI.create(services, config, callbacks, Layout, Membership)
-    local Players, TweenService, Input = services.Players, services.TweenService, services.UserInputService
-    local player = Players.LocalPlayer
-    local access = callbacks.membership and callbacks.membership() or {plan="Member",keyLabel="—",validity="Validade nao informada",source="Acesso local"}
-    local connections, bindings, pages, navButtons = {}, {}, {}, {}
-    local closed, activePage, isOpen = false,"Inicio",true
-    local palette = {
-        background=Color3.fromRGB(35,31,25), sidebar=Color3.fromRGB(48,39,29),
-        card=Color3.fromRGB(65,54,39), line=Color3.fromRGB(116,88,49),
-        text=Color3.fromRGB(252,246,226), muted=Color3.fromRGB(213,195,163),
-        accent=Color3.fromRGB(255,202,66), mint=Color3.fromRGB(128,205,55),
-    }
-    local function make(class, properties, parent)
-        local result = Instance.new(class)
-        for k,v in pairs(properties or {}) do result[k]=k=="Text" and T(v) or v end
-        if properties and properties.Text~=nil then result.AutoLocalize=false end
-        result.Parent=parent
-        return result
-    end
-    local function corner(parent,radius) make("UICorner",{CornerRadius=UDim.new(0,radius or 10)},parent) end
-    local function stroke(parent,color) make("UIStroke",{Color=color or palette.line,Thickness=1},parent) end
-    local function text(parent,content,size,color,bold)
-        return make("TextLabel",{BackgroundTransparency=1,Text=content,TextSize=size or 13,
-            TextColor3=color or palette.text,Font=bold and Enum.Font.GothamBold or Enum.Font.Gotham,
-            TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Center},parent)
-    end
-    local function button(parent,content)
-        local result=make("TextButton",{BackgroundColor3=palette.card,Text=content,TextSize=12,
-            TextColor3=palette.text,Font=Enum.Font.GothamBold,BorderSizePixel=0,AutoButtonColor=true},parent)
-        corner(result,8)
-        return result
-    end
-    local uiParent=player.PlayerGui
-    if type(gethui)=="function" then
-        local ok,parent=pcall(gethui)
-        if ok and typeof(parent)=="Instance" then uiParent=parent end
-    end
-    local old=uiParent:FindFirstChild("AnonymousPotatoHub")
-    if old then old:Destroy() end
-    local gui=make("ScreenGui",{Name="AnonymousPotatoHub",ResetOnSpawn=false,
-        DisplayOrder=10000,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},uiParent)
-    table.insert(connections,gui:GetPropertyChangedSignal("Enabled"):Connect(function()
-        if not closed and not gui.Enabled then gui.Enabled=true end
-    end))
-    local canvas=make("Frame",{Name="SafeCanvas",Size=UDim2.fromScale(1,1),BackgroundTransparency=1},gui)
-    local panel=make("Frame",{Name="Panel",Position=UDim2.fromOffset(8,8),
-        Size=UDim2.fromOffset(760,580),Visible=false,BackgroundColor3=palette.background,BorderSizePixel=0,ClipsDescendants=true},canvas)
-    local panelScale=make("UIScale",{Scale=1},panel)
-    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(73,53,35),palette.background),Rotation=90},panel)
-    corner(panel,9) stroke(panel)
-    local sidebar=make("Frame",{Size=UDim2.new(0,174,1,0),BackgroundColor3=palette.sidebar,BorderSizePixel=0},panel)
-    local brand=text(sidebar,"ANONHUB",20,palette.text,true)
-    brand.Position,brand.Size=UDim2.fromOffset(17,21),UDim2.new(1,-32,0,28)
-    local edition=text(sidebar,"POTATO / CONTROL",10,palette.accent,true)
-    edition.Position,edition.Size=UDim2.fromOffset(18,51),UDim2.new(1,-32,0,16) edition.Text=T("CAPÍTULO II / ANONHUB")
-    local nav=make("ScrollingFrame",{BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=2,
-        AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.fromOffset(0,0),
-        Position=UDim2.fromOffset(12,90),Size=UDim2.new(1,-24,1,-165)},sidebar)
-    local navLayout=make("UIListLayout",{Padding=UDim.new(0,7),SortOrder=Enum.SortOrder.LayoutOrder},nav)
-    local content=make("Frame",{BackgroundTransparency=1,Position=UDim2.fromOffset(196,22),
-        Size=UDim2.new(1,-218,1,-44)},panel)
-    local heading=text(content,"Inicio",23,palette.text,true)
-    heading.Size=UDim2.new(1,-110,0,34)
-    local hide=button(content,"OCULTAR")
-    hide.Position,hide.Size=UDim2.new(1,-100,0,0),UDim2.fromOffset(100,31)
-    local status=text(content,"Inicializando...",11,palette.muted,false)
-    status.Position,status.Size=UDim2.fromOffset(0,40),UDim2.new(1,0,0,35)
-    status.TextWrapped=true status.BackgroundTransparency=0.12 status.BackgroundColor3=palette.card
-    corner(status,8)
-    local pageArea=make("Frame",{BackgroundTransparency=1,Position=UDim2.fromOffset(0,87),
-        Size=UDim2.new(1,0,1,-146)},content)
-    local footer=make("Frame",{BackgroundTransparency=1,Position=UDim2.new(0,0,1,-91),Size=UDim2.new(1,0,0,38)},content)
-    local profile=make("Frame",{Size=UDim2.new(1,0,0,46),Position=UDim2.new(0,0,1,-50),
-        BackgroundColor3=palette.card,BorderSizePixel=0},content)
-    corner(profile,11) stroke(profile)
-    local portrait=make("ImageLabel",{Size=UDim2.fromOffset(34,34),Position=UDim2.fromOffset(8,6),
-        BackgroundColor3=palette.background,BorderSizePixel=0,Image=""},profile)
-    corner(portrait,17) stroke(portrait,palette.mint)
-    local initial=text(portrait,string.upper(string.sub(player.Name,1,1)),16,palette.mint,true)
-    initial.Size=UDim2.fromScale(1,1) initial.TextXAlignment=Enum.TextXAlignment.Center
-    local display=text(profile,player.DisplayName or player.Name,12,palette.text,true)
-    display.Position,display.Size=UDim2.fromOffset(51,3),UDim2.new(1,-61,0,19)
-    display.TextTruncate=Enum.TextTruncate.AtEnd
-    local memberLine=text(profile,"",10,palette.mint,false)
-    memberLine.Position,memberLine.Size=UDim2.fromOffset(51,23),UDim2.new(1,-61,0,18)
-    memberLine.TextTruncate=Enum.TextTruncate.AtEnd
-    local function showMembership(info)
-        memberLine.Text=info.plan.."  ·  "..info.keyLabel.."  ·  "..T(info.validity)
-        memberLine.TextColor3=info.expired and Color3.fromRGB(255,160,150)
-            or info.plan=="Premium" and Color3.fromRGB(248,208,130) or palette.mint
-    end
-    showMembership(access)
-    if Membership then Membership.requestAvatar(Players,player.UserId,function(image)
-        if not closed then portrait.Image=image initial.Visible=false end
-    end) end
-    local save=button(footer,"SALVAR")
-    save.Size=UDim2.fromOffset(100,35)
-    local pause=button(footer,"PAUSAR TUDO")
-    pause.Size,pause.Position=UDim2.fromOffset(143,35),UDim2.fromOffset(111,0)
-    local footerRestore=button(footer,"RECUPERAR")
-    footerRestore.TextSize=11
-    table.insert(connections,footerRestore.Activated:Connect(function() if callbacks.restore then callbacks.restore() end end))
-    local mini=button(canvas,"A")
-    mini.Position,mini.Size=UDim2.fromOffset(13,72),UDim2.fromOffset(56,56)
-    mini.BackgroundColor3=palette.accent mini.TextColor3=palette.background mini.TextSize=27 mini.Visible=true mini.ZIndex=20
-    if callbacks.decorateLauncher then callbacks.decorateLauncher(mini) end
-    local dragBar=make("Frame",{Name="MoveHandle",Size=UDim2.new(1,-18,0,33),BackgroundTransparency=1,Active=true},panel)
-    local dragHint=text(dragBar,"≡   ANONHUB / POTATO   ·   ARRASTE",10,palette.muted,true)
-    dragHint.Position,dragHint.Size=UDim2.fromOffset(15,3),UDim2.new(1,-30,1,-6)
-    local grip=button(panel,"↘") grip.Position,grip.Size=UDim2.new(1,-25,1,-25),UDim2.fromOffset(23,23)
-    grip.BackgroundTransparency=1 grip.TextColor3=palette.accent grip.TextSize=20 grip.ZIndex=10
-    local suppressMiniUntil=0
-    local applyLayout=nil
-    local function layoutChange(values)
-        if callbacks.layout then callbacks.layout(values)
-        else for key,value in pairs(values) do config[key]=value end end
-        if applyLayout then applyLayout() end
-    end
-    local function draggable(handle,target,kind)
-        local captured,origin,position,startW,startH,startScale=nil,nil,nil,nil,nil,nil
-        table.insert(connections,handle.InputBegan:Connect(function(event)
-            if event.UserInputType~=Enum.UserInputType.Touch and event.UserInputType~=Enum.UserInputType.MouseButton1 then return end
-            captured=event origin=Vector2.new(event.Position.X,event.Position.Y)
-            position=target.AbsolutePosition-canvas.AbsolutePosition
-            startScale=panelScale.Scale
-            startW,startH=panel.Size.X.Offset,panel.Size.Y.Offset
-        end))
-        table.insert(connections,Input.InputChanged:Connect(function(event)
-            if not captured then return end
-            local touch=captured.UserInputType==Enum.UserInputType.Touch
-            if touch and event~=captured or not touch and event.UserInputType~=Enum.UserInputType.MouseMovement then return end
-            local delta=Vector2.new(event.Position.X,event.Position.Y)-origin
-            if delta.Magnitude<5 then return end
-            if kind=="resize" then
-                layoutChange({uiWidth=math.clamp(startW+delta.X/startScale,300,1100),uiHeight=math.clamp(startH+delta.Y/startScale,340,900)})
-            else
-                local nextPosition=position+delta
-                local x,y=Layout.normalized(nextPosition.X,nextPosition.Y,canvas.AbsoluteSize.X,canvas.AbsoluteSize.Y,target.AbsoluteSize.X,target.AbsoluteSize.Y)
-                if kind=="launcher" then suppressMiniUntil=os.clock()+0.25 layoutChange({buttonX=x,buttonY=y})
-                else layoutChange({uiX=x,uiY=y}) end
-            end
-        end))
-        table.insert(connections,Input.InputEnded:Connect(function(event)
-            if captured and (event==captured or captured.UserInputType==Enum.UserInputType.MouseButton1 and event.UserInputType==Enum.UserInputType.MouseButton1) then captured=nil end
-        end))
-    end
-    draggable(dragBar,panel,"panel") draggable(grip,panel,"resize") draggable(mini,mini,"launcher")
-
-    local function setOpen(value)
-        isOpen=value panel.Visible=value mini.Visible=true
-    end
-    table.insert(connections,hide.Activated:Connect(function() setOpen(false) end))
-    table.insert(connections,mini.Activated:Connect(function() if os.clock()>suppressMiniUntil then setOpen(not isOpen) end end))
-    table.insert(connections,save.Activated:Connect(function() if callbacks.save then callbacks.save() end end))
-    table.insert(connections,pause.Activated:Connect(function() callbacks.pause() end))
-    local function page(name)
-        activePage=name heading.Text=T(({Inicio="Visao geral",Coleta="Coleta e alvos",Corte="Mesa de corte",Vendas="Vendas",Resfriar="Controle de calor",Compras="Equipamentos",Ajustes="Preferencias",Missoes="Missoes e passe"})[name] or name)
-        for key,frame in pairs(pages) do frame.Visible=key==name end
-        for key,item in pairs(navButtons) do
-            local marker=item:FindFirstChild("SelectedMark") if marker then marker.Visible=key==name end
-            item.BackgroundColor3=key==name and palette.accent or palette.sidebar
-            item.TextColor3=key==name and palette.background or palette.text
-        end
-    end
-    local function newPage(name,index)
-        local area=make("ScrollingFrame",{Name=name,Size=UDim2.fromScale(1,1),BackgroundTransparency=1,
-            BorderSizePixel=0,ScrollBarThickness=4,ScrollBarImageColor3=palette.accent,
-            AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.fromOffset(0,0),Visible=false},pageArea)
-        local list=make("UIListLayout",{Padding=UDim.new(0,13),SortOrder=Enum.SortOrder.LayoutOrder},area)
-        make("UIPadding",{PaddingRight=UDim.new(0,9),PaddingBottom=UDim.new(0,12)},area)
-        pages[name]=area
-        local b=button(nav,string.format("%02d   %s",index,T(name)))
-        b.Size=UDim2.new(1,0,0,39) b.LayoutOrder=index b.TextXAlignment=Enum.TextXAlignment.Left
-        make("UIPadding",{PaddingLeft=UDim.new(0,10)},b)
-        local mark=make("Frame",{Name="SelectedMark",BackgroundColor3=palette.accent,BorderSizePixel=0,Position=UDim2.new(0,0,0.2,0),Size=UDim2.new(0,3,0.6,0),Visible=false},b) corner(mark,2)
-        navButtons[name]=b
-        table.insert(connections,b.Activated:Connect(function() page(name) end))
-        return area,list
-    end
-    local function card(parent,title,description)
-        local frame=make("Frame",{BackgroundColor3=palette.card,BorderSizePixel=0,
-            Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y},parent)
-        corner(frame,12) stroke(frame)
-        make("UIPadding",{PaddingTop=UDim.new(0,16),PaddingBottom=UDim.new(0,15),
-            PaddingLeft=UDim.new(0,15),PaddingRight=UDim.new(0,15)},frame)
-        make("UIListLayout",{Padding=UDim.new(0,10),SortOrder=Enum.SortOrder.LayoutOrder},frame)
-        local titleLabel=text(frame,title,15,palette.text,true)
-        titleLabel.Size=UDim2.new(1,0,0,23) titleLabel.LayoutOrder=0
-        if description then
-            local descriptionLabel=text(frame,description,11,palette.muted,false)
-            descriptionLabel.Size=UDim2.new(1,0,0,0) descriptionLabel.AutomaticSize=Enum.AutomaticSize.Y
-            descriptionLabel.TextWrapped=true descriptionLabel.TextYAlignment=Enum.TextYAlignment.Top descriptionLabel.LayoutOrder=1
-        end
-        return frame
-    end
-    local nextOrder=10
-    local function row(parent,title,description,height)
-        nextOrder=nextOrder+1
-        local r=make("Frame",{BackgroundTransparency=1,Size=UDim2.new(1,0,0,height or 80),LayoutOrder=nextOrder},parent)
-        local name=text(r,title,12,palette.text,false)
-        name.Size=UDim2.new(1,-115,0,36) name.TextWrapped=true
-        if description then
-            local desc=text(r,description,10,palette.muted,false)
-            desc.Position,desc.Size=UDim2.fromOffset(0,41),UDim2.new(1,-5,0,32)
-            desc.TextWrapped=true desc.TextYAlignment=Enum.TextYAlignment.Top
-        end
-        return r
-    end
-    local function bindField(field,refresh)
-        bindings[field]=bindings[field] or {}
-        table.insert(bindings[field],refresh)
-        refresh(config[field])
-    end
-    local function toggle(parent,field,title,description)
-        local r=row(parent,title,description,description and 82 or 44)
-        local control=button(r,"")
-        control.Size,control.Position=UDim2.fromOffset(54,34),UDim2.new(1,-54,0,1)
-        local knob=make("Frame",{BackgroundColor3=Color3.fromRGB(244,238,255),BorderSizePixel=0,
-            Size=UDim2.fromOffset(24,24),Position=UDim2.fromOffset(5,5)},control)
-        corner(knob,20)
-        bindField(field,function(value)
-            control.BackgroundColor3=value and palette.accent or Color3.fromRGB(63,59,78)
-            knob.Position=UDim2.fromOffset(value and 25 or 5,5)
-        end)
-        table.insert(connections,control.Activated:Connect(function()
-            local value=callbacks.value and callbacks.value(field) or config[field]
-            callbacks.change(field,not value)
-        end))
-    end
-    local function choice(parent,field,title,options)
-        local r=row(parent,title,nil,46)
-        local control=button(r,"")
-        control.Size,control.Position=UDim2.fromOffset(112,36),UDim2.new(1,-112,0,0)
-        bindField(field,function(value)
-            for _, option in ipairs(options) do if option[1]==value then control.Text=T(option[2]).." >" return end end
-        end)
-        table.insert(connections,control.Activated:Connect(function()
-            local current=1
-            for i,option in ipairs(options) do if option[1]==config[field] then current=i break end end
-            callbacks.change(field,options[current % #options + 1][1])
-        end))
-        return r
-    end
-    local function number(parent,field,title,low,high,step,suffix)
-        suffix=T(suffix)
-        local r=row(parent,title,nil,80)
-        local input=make("TextBox",{Size=UDim2.fromOffset(100,34),Position=UDim2.new(1,-100,0,0),
-            BackgroundColor3=palette.background,TextColor3=palette.accent,BorderSizePixel=0,
-            TextSize=12,Font=Enum.Font.Gotham,ClearTextOnFocus=false},r)
-        corner(input,6)
-        local track=make("TextButton",{Text="",AutoButtonColor=false,Position=UDim2.fromOffset(0,46),
-            Size=UDim2.new(1,0,0,28),BackgroundColor3=Color3.fromRGB(57,53,74),BackgroundTransparency=1,BorderSizePixel=0},r)
-        local rail=make("Frame",{Position=UDim2.fromOffset(0,11),Size=UDim2.new(1,0,0,6),BackgroundColor3=Color3.fromRGB(57,53,74),BorderSizePixel=0},track)
-        corner(track,4)
-        local fill=make("Frame",{Size=UDim2.fromScale(0,1),BackgroundColor3=palette.accent,BorderSizePixel=0},rail) corner(fill,4)
-        local dragging=false
-        local touchPointer,touchStart=nil,nil
-        local inputOnly=high>=10000
-        if inputOnly then
-            track.Visible=false r.Size=UDim2.new(1,0,0,55)
-        end
-        bindField(field,function(value)
-            input.Text=string.format(step<1 and "%.2f%s" or "%.0f%s",value,suffix or "")
-            fill.Size=UDim2.fromScale(math.clamp((value-low)/(high-low),0,1),1)
-        end)
-        local function fromPosition(x)
-            local ratio=math.clamp((x-track.AbsolutePosition.X)/math.max(1,track.AbsoluteSize.X),0,1)
-            callbacks.change(field,math.clamp(math.floor((low+ratio*(high-low))/step+0.5)*step,low,high))
-        end
-        table.insert(connections,input.FocusLost:Connect(function()
-            local value=callbacks.parseNumber and callbacks.parseNumber(input.Text) or tonumber(string.match(input.Text,"%-?[%d%.]+"))
-            if value then callbacks.change(field,math.clamp(value,low,high)) else callbacks.change(field,config[field]) end
-        end))
-        table.insert(connections,track.InputBegan:Connect(function(event)
-            if event.UserInputType==Enum.UserInputType.MouseButton1 then dragging=true fromPosition(event.Position.X)
-            elseif event.UserInputType==Enum.UserInputType.Touch then touchPointer=event touchStart=event.Position dragging=false end
-        end))
-        table.insert(connections,Input.InputChanged:Connect(function(event)
-            if touchPointer and event==touchPointer then
-                local delta=event.Position-touchStart
-                if not dragging and math.abs(delta.Y)>10 and math.abs(delta.Y)>math.abs(delta.X) then touchPointer=nil return end
-                if math.abs(delta.X)>8 and math.abs(delta.X)>math.abs(delta.Y)*1.4 then dragging=true end
-            end
-            if dragging and (event.UserInputType==Enum.UserInputType.MouseMovement or event==touchPointer) then fromPosition(event.Position.X) end
-        end))
-        table.insert(connections,Input.InputEnded:Connect(function(event)
-            if event.UserInputType==Enum.UserInputType.MouseButton1 or event==touchPointer then dragging=false touchPointer=nil end
-        end))
-    end
-
-    local home=newPage("Inicio",1)
-    local recovery=card(home,"BARRA DE FERRAMENTAS DO JOGO","Use somente se sumirem a mao, a pa, a dinamite ou os prompts do jogo.")
-    recovery.LayoutOrder=20
-    local recover=button(recovery,"RECUPERAR MAO, PA E FERRAMENTAS")
-    recover.Size=UDim2.new(1,0,0,48) recover.BackgroundColor3=Color3.fromRGB(18,113,100) recover.LayoutOrder=3
-    table.insert(connections,recover.Activated:Connect(function() if callbacks.restore then callbacks.restore() end end))
-    toggle(recovery,"autoRepairGui","Recuperar ao iniciar e renascer","A interface e restaurada; as rotinas continuam pausadas depois de morrer.")
-    local recoveryResult=text(recovery,"Nenhuma recuperacao solicitada nesta sessao.",11,palette.muted,false)
-    recoveryResult.Size=UDim2.new(1,0,0,60) recoveryResult.TextWrapped=true recoveryResult.LayoutOrder=999
-    local hero=card(home,"MODOS / CAPITULO II","OP: sugador MAX, coleta total, corte e saida. Auto Progress: ciclo normal.")
-    hero.LayoutOrder=-40
-    make("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(118,82,45),palette.card),Rotation=25},hero)
-    local modeButtons=make("Frame",{Size=UDim2.new(1,0,0,48),BackgroundTransparency=1,LayoutOrder=2},hero)
-    local start=button(modeButtons,"AUTO PROGRESS") start.Size=UDim2.new(0.5,-5,1,0)
-    start.BackgroundColor3=palette.accent start.TextColor3=palette.background start.TextSize=13
-    bindField("autoProgress",function(value) start.Text=T(value and "PAUSAR PROGRESS" or "AUTO PROGRESS") end)
-    table.insert(connections,start.Activated:Connect(function() callbacks.change("autoProgress",not callbacks.value("autoProgress")) end))
-    local opStart=button(modeButtons,"ATIVAR OP") opStart.Position=UDim2.new(0.5,5,0,0) opStart.Size=UDim2.new(0.5,-5,1,0) opStart.BackgroundColor3=palette.mint opStart.TextColor3=palette.background opStart.TextSize=13
-    bindField("opAutoFinish",function(value) opStart.Text=T(value and "PAUSAR OP" or "ATIVAR OP") end)
-    table.insert(connections,opStart.Activated:Connect(function() callbacks.change("opAutoFinish",not callbacks.value("opAutoFinish")) end))
-    local modeLine=text(hero,"MODO  •  PAUSADO",11,palette.mint,true) modeLine.Size=UDim2.new(1,0,0,0) modeLine.AutomaticSize=Enum.AutomaticSize.Y modeLine.LayoutOrder=3 modeLine.TextWrapped=true
-    local party=card(home,"PERFIL DA PARTIDA")
-    party.LayoutOrder=-35
-    choice(party,"partyProfile","Tipo de grupo",{{"Solo","Solo"},{"Team","Com o hub"},{"Mixed","Grupo misto"}})
-    local teamSize=choice(party,"partySize","Contas com o hub",{{2,"2 contas"},{3,"3 contas"},{4,"4 contas"}})
-    local role=choice(party,"partyRole","Seu papel",{{"Leader","Lider OP"},{"Collect","Coletar"},{"Cut","Cortar e vender"}})
-    local station=choice(party,"partySlot","Sua mesa",{{1,"Mesa 1"},{2,"Mesa 2"},{3,"Mesa 3"},{4,"Mesa 4"}})
-    local recommendation=text(party,"",12,palette.muted,false)
-    recommendation.Size=UDim2.new(1,0,0,0)
-    recommendation.AutomaticSize=Enum.AutomaticSize.Y
-    recommendation.TextWrapped=true
-    recommendation.LayoutOrder=90
-    local applyParty=button(party,"INICIAR PERFIL")
-    applyParty.Size=UDim2.new(1,0,0,42) applyParty.LayoutOrder=91
-    applyParty.BackgroundColor3=palette.mint applyParty.TextColor3=palette.background
-    table.insert(connections,applyParty.Activated:Connect(callbacks.startProfile))
-    local function showRecommendation()
-        local team=config.partyProfile=="Team"
-        teamSize.Visible=team
-        role.Visible=team
-        station.Visible=team and config.partyRole~="Collect"
-        if team then
-            local split=({[2]="1 lider OP e 1 no corte/venda.",[3]="1 lider OP, 1 na coleta e 1 no corte/venda.",
-                [4]="1 lider OP, 1 na coleta e 2 no corte/venda."})[config.partySize]
-            recommendation.Text=T(split)..T(" Usem mesas diferentes. Venda paga a equipe. Corte e equipamentos sao individuais.")
-        elseif config.partyProfile=="Mixed" then
-            recommendation.Text=T("Apoio com corte nativo, vendas e caminhada. Compra facas e ate dois niveis do upgrade de velocidade do jogo.")
-        else
-            recommendation.Text=T("Recomendado: OP. Uma conta financia as ferramentas, limpa a montanha, corta o estoque e usa a chave.")
-        end
-    end
-    bindField("partyProfile",showRecommendation)
-    bindField("partyRole",showRecommendation)
-    bindField("partySize",showRecommendation)
-    local equipment=card(home,"SEU EQUIPAMENTO","Niveis lidos do jogo. MAX aparece somente com todos os niveis confirmados.")
-    equipment.LayoutOrder=1
-    local toolGrid=make("Frame",{Size=UDim2.new(1,0,0,192),BackgroundTransparency=1,LayoutOrder=3},equipment)
-    make("UIGridLayout",{CellSize=UDim2.new(0.5,-5,0,90),CellPadding=UDim2.fromOffset(10,10),SortOrder=Enum.SortOrder.LayoutOrder},toolGrid)
-    local toolWidgets={}
-    for index,id in ipairs({"Dynamite","Shovel","AutoPeeler","PotatoSucker"}) do
-        local tile=make("Frame",{BackgroundColor3=palette.sidebar,BorderSizePixel=0,LayoutOrder=index},toolGrid)
-        corner(tile,12) stroke(tile)
-        local tint=({Dynamite=Color3.fromRGB(66,40,34),Shovel=Color3.fromRGB(27,48,72),AutoPeeler=Color3.fromRGB(43,37,70),PotatoSucker=Color3.fromRGB(20,57,54)})[id]
-        make("UIGradient",{Color=ColorSequence.new(tint,palette.background),Rotation=25},tile)
-        local icon=make("ImageLabel",{BackgroundTransparency=1,Position=UDim2.fromOffset(10,13),Size=UDim2.fromOffset(36,36),Visible=false},tile)
-        local letter=text(tile,({Dynamite="D",Shovel="P",AutoPeeler="A",PotatoSucker="S"})[id],22,palette.accent,true)
-        letter.Position,letter.Size=UDim2.fromOffset(12,12),UDim2.fromOffset(32,38) letter.TextXAlignment=Enum.TextXAlignment.Center
-        local title=text(tile,id,10,palette.text,true) title.Position,title.Size=UDim2.fromOffset(53,13),UDim2.new(1,-60,0,18)
-        local level=text(tile,"Aguardando dados",10,palette.muted,false) level.Position,level.Size=UDim2.fromOffset(53,35),UDim2.new(1,-60,0,18)
-        local track=make("Frame",{BackgroundColor3=palette.line,BorderSizePixel=0,Position=UDim2.new(0,12,1,-17),Size=UDim2.new(1,-24,0,5)},tile) corner(track,3)
-        local fill=make("Frame",{BackgroundColor3=palette.accent,BorderSizePixel=0,Size=UDim2.fromScale(0,1)},track) corner(fill,3)
-        toolWidgets[id]={title=title,level=level,icon=icon,letter=letter,fill=fill}
-    end
-    local timeline=make("Frame",{Size=UDim2.new(1,0,0,33),BackgroundTransparency=1,LayoutOrder=4},equipment)
-    make("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,5)},timeline)
-    local phaseLabels={}
-    for _,name in ipairs({"RENDA","EQUIPAR","LIMPAR","SAIR"}) do
-        local chip=make("TextLabel",{Size=UDim2.new(0.25,-4,1,0),BackgroundColor3=palette.background,Text=name,TextSize=9,Font=Enum.Font.GothamBold,TextColor3=palette.muted,BorderSizePixel=0},timeline)
-        corner(chip,7) table.insert(phaseLabels,chip)
-    end
-    local runBadge=text(equipment,"00:00  /  SORTE 0",11,palette.muted,true)
-    runBadge.Size=UDim2.new(1,0,0,24) runBadge.LayoutOrder=5
-    local upgradesLink=button(equipment,"VER MELHORIAS")
-    upgradesLink.Size=UDim2.new(1,0,0,38) upgradesLink.LayoutOrder=6
-    upgradesLink.BackgroundColor3=palette.line
-    table.insert(connections,upgradesLink.Activated:Connect(function()
-        page("Compras")
-        pages.Compras.CanvasPosition=Vector2.zero
-    end))
-    local counters=card(home,"ESTADO DA PARTIDA") counters.LayoutOrder=5
-    local summary=text(counters,"Dinheiro: —\nBolsa: —\nCalor: —\nEstado: aguardando",12,palette.muted,false)
-    summary.Size=UDim2.new(1,0,0,145) summary.LayoutOrder=3 summary.TextYAlignment=Enum.TextYAlignment.Top summary.TextWrapped=true
-    local farm=newPage("Coleta",2)
-    local f=card(farm,"Filtro e selecao")
-    toggle(f,"autoFarm","Coletar automaticamente")
-    toggle(f,"autoDeliver","Entregar automaticamente")
-    choice(f,"rarity","Batatas",{{"Any","Qualquer"},{"Rainbow","Rainbow"},{"Diamond","Diamante"},{"Golden","Dourada"}})
-    choice(f,"selection","Escolha",{{"Nearest","Mais perto"},{"Random","Aleatoria"}})
-    toggle(f,"collectPumpkins","Coletar aboboras")
-    toggle(f,"collectGems","Incluir gemas da pilha")
-    toggle(f,"gemPriority","Priorizar gemas")
-    toggle(f,"pumpkinPriority","Priorizar aboboras")
-    toggle(f,"priorityValue","Priorizar maior valor","Na selecao por proximidade, procura variantes valiosas quando sua identidade estiver disponivel.")
-    choice(f,"deliveryMode","Entregar por",{{"Amount","Quantidade"},{"Percent","Porcentagem"}})
-    choice(f,"deliveryTarget","Destino",{{"Crate","Caixa"},{"Table","Mesa"},{"Manual","Manual"},{"Auto","Automatica"}})
-    number(f,"deliveryFill","Entregar com a bolsa em",10,100,5,"%")
-    number(f,"deliveryBatch","Quantidade por entrega",1,1000000,1,"")
-    nextOrder+=1
-    local presets=make("Frame",{BackgroundTransparency=1,Size=UDim2.new(1,0,0,44),LayoutOrder=nextOrder},f)
-    make("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,6)},presets)
-    for _,amount in ipairs({100,500,1000,5000}) do
-        local preset=button(presets,tostring(amount)) preset.Size=UDim2.new(0.25,-5,0,38)
-        table.insert(connections,preset.Activated:Connect(function() callbacks.change("deliveryBatch",amount) end))
-    end
-    toggle(f,"infiniteBag","Tenho bolsa infinita","Usa o lote configurado no planejamento. Esta opcao nao concede a mochila no jogo.")
-    number(f,"maxDistance","Alcance de busca",10,1000,10," studs")
-    local cut=newPage("Corte",3)
-    local c=card(cut,"Mesa e ferramentas")
-    toggle(c,"autoCut","Auto Cut")
-    toggle(c,"aimTable","Alinhar a camera ao entrar na mesa")
-    choice(c,"cutMode","Modo de corte",{{"Fast","Rapido"},{"Native","Nativo"}})
-    number(c,"cutTargetRate","Meta de tentativas por segundo",1,40,1,"/s")
-    number(c,"cutToolMultiplier","Multiplicador com ferramentas",1,4,0.5,"x")
-    choice(c,"tableChoice","Mesa",{{"Nearest","Mais perto"},{"PeelingTable1","Mesa 1"},{"PeelingTable2","Mesa 2"},{"PeelingTable3","Mesa 3"},{"PeelingTable4","Mesa 4"}})
-    toggle(c,"cutBuyTools","Comprar no Auto Cut","Compra ferramentas de corte usando o orcamento configurado.")
-    toggle(c,"autoCrank","Girar cortador manual","Aciona a maquina quando estiver carregada e liberada pelo jogo.")
-    local sales=newPage("Vendas",4)
-    local saleCard=card(sales,"Venda e retorno","Vende o estoque cortado e retoma a rotina. A proxima ferramenta tem prioridade apos a venda.")
-    toggle(saleCard,"autoSell","Auto Sell")
-    number(saleCard,"sellThreshold","Vender a partir de",1,1000000,1," batatas")
-    toggle(saleCard,"buyAfterSell","Comprar ferramenta apos vender")
-    toggle(saleCard,"returnAfterSell","Voltar para a mesa")
-    toggle(saleCard,"sellRemainder","Vender o restante no fim")
-    local thermal=newPage("Resfriar",5)
-    local t=card(thermal,"Valvula de agua","Confirma o resfriamento pela agua fluindo ou pela queda do calor.")
-    toggle(t,"autoCool","Auto Cooling")
-    number(t,"coolHoldSeconds","Tempo segurando a valvula",1,5,1," s")
-    toggle(t,"coolHoldFallback","Repetir duracao original se necessario","Se o toque curto nao resfriar, permite uma tentativa com o tempo original do jogo.")
-    number(t,"heatStart","Comecar a resfriar em",15,100,5,"%")
-    number(t,"heatStop","Considerar frio em",0,90,5,"%")
-    number(t,"coolingRetry","Espera entre tentativas",5,120,1," s")
-    toggle(t,"returnAfterCooling","Voltar ao ponto anterior")
-    local purchases=newPage("Compras",6)
-    local levelsCard=card(purchases,"MELHORIAS EM TEMPO REAL","Niveis confirmados pelo jogo. Consultar esta lista mantem a rotina em execucao.")
-    levelsCard.LayoutOrder=-10
-    local upgradeList=make("ScrollingFrame",{Size=UDim2.new(1,0,0,260),LayoutOrder=2,
-        CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,
-        ScrollingDirection=Enum.ScrollingDirection.Y,ScrollBarThickness=4,ScrollBarImageColor3=palette.mint,
-        BackgroundColor3=palette.background,BorderSizePixel=0},levelsCard)
-    corner(upgradeList,10)
-    make("UIPadding",{PaddingTop=UDim.new(0,6),PaddingBottom=UDim.new(0,6),
-        PaddingLeft=UDim.new(0,6),PaddingRight=UDim.new(0,9)},upgradeList)
-    make("UIListLayout",{Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder},upgradeList)
-    local levelDetails=text(upgradeList,"Aguardando niveis...",12,palette.muted,false)
-    levelDetails.Size=UDim2.new(1,0,0,24)
-    local upgradeWidgets={}
-    local upgradeNames={PickAmount="Quantidade",PickSpeed="Velocidade",HoldPick="Coleta continua",
-        Charge="Carga",Cooling="Resfriamento",PeelAmount="Quantidade",PeelSpeed="Velocidade",
-        PotatoWorth="Valor da batata",WalkSpeed="Velocidade a pe",Luck="Sorte",Capacity="Capacidade",Grasp="Garra",FlySpeed="Voo"}
-    local function upgradeWidget(entry)
-        local key=entry.toolId.."/"..entry.id
-        if upgradeWidgets[key] then return upgradeWidgets[key] end
-        local frame=make("Frame",{Size=UDim2.new(1,0,0,58),BackgroundColor3=palette.card,BorderSizePixel=0},upgradeList)
-        corner(frame,9)
-        local icon=make("ImageLabel",{Position=UDim2.fromOffset(7,9),Size=UDim2.fromOffset(37,37),
-            BackgroundColor3=palette.background,BorderSizePixel=0,ScaleType=Enum.ScaleType.Fit},frame)
-        corner(icon,7)
-        local label=text(frame,upgradeNames[entry.id] or entry.id,12,palette.text,true)
-        label.Position,label.Size=UDim2.fromOffset(51,8),UDim2.new(1,-142,0,18)
-        label.TextTruncate=Enum.TextTruncate.AtEnd
-        local detail=text(frame,"",10,palette.muted,false)
-        detail.Position,detail.Size=UDim2.fromOffset(51,30),UDim2.new(1,-142,0,16)
-        detail.TextTruncate=Enum.TextTruncate.AtEnd
-        local buy=button(frame,"MELHORAR")
-        buy.Position,buy.Size=UDim2.new(1,-86,0,11),UDim2.fromOffset(79,36)
-        buy.TextSize=10
-        table.insert(connections,buy.Activated:Connect(function()
-            if buy.Active then callbacks.manualUpgrade(entry.toolId,entry.id) end
-        end))
-        local widget={frame=frame,icon=icon,detail=detail,buy=buy}
-        upgradeWidgets[key]=widget
-        return widget
-    end
-    local p=card(purchases,"Orcamento","Compras automaticas usam somente dinheiro comum do jogo. Reserva e limite por compra sao aplicados antes de cada acao.")
-    toggle(p,"autoBuyTools","Ferramentas")
-    toggle(p,"autoBuyUpgrades","Melhorias")
-    toggle(p,"autoBuyStorage","Bolsas e capacidade")
-    toggle(p,"infiniteBag","Tenho mochila infinita","Impede compras de mochilas e usa o limite de entrega por quantidade.")
-    toggle(p,"buyMachines","Comprar cortadores manual e automatico","Depois de maximizar as duas melhorias de dinamite. O manual nao recebe melhorias.")
-    number(p,"productionBatch","Lote para o automatico no maximo",50,10000,50," batatas")
-    toggle(p,"fixMenuBlur","Corrigir desfoque ao fechar menus")
-    toggle(p,"saveForNextTool","Guardar para a proxima arma")
-    toggle(p,"autoBuyDrone","Oferecer compra do drone a cada partida","Solicita confirmacao de 80 gemas; a oferta real tambem precisa confirmar esse valor.")
-    toggle(p,"upgradeDrone","Melhorar drone comprado")
-    toggle(p,"clearPileFirst","Limpar antes de cortar","Somente com dinamite, pa, automatico e sugador no maximo. Antes disso, continua usando a faca para gerar renda.")
-    toggle(p,"upgradeMachines","Melhorar maquinas compradas")
-    toggle(p,"upgradeGeneral","Melhorias gerais do capitulo 2")
-    number(p,"reserveCash","Reserva de dinheiro",0,100000,0.01," $")
-    number(p,"maxPurchase","Limite por compra (0 = livre)",0,100000,0.01," $")
-    local missionPage=newPage("Missoes",7)
-    local missions=card(missionPage,"AUTO QUEST","Escolha uma missao com progresso do jogo. O Auto Progress prioriza a tarefa e volta ao ciclo normal apos a confirmacao.")
-    local questHint=text(missions,"Abra a tela de missoes ou do passe do jogo para carregar a lista.",12,palette.muted,false)
-    questHint.Size=UDim2.new(1,0,0,35)
-    questHint.TextWrapped=true questHint.LayoutOrder=2
-    local questWidgets={}
-    local function questWidget(row)
-        if questWidgets[row.id] then return questWidgets[row.id] end
-        local control=button(missions,"")
-        control.Size=UDim2.new(1,0,0,48)
-        control.TextWrapped=true
-        control.TextXAlignment=Enum.TextXAlignment.Left
-        make("UIPadding",{PaddingLeft=UDim.new(0,9),PaddingRight=UDim.new(0,9)},control)
-        table.insert(connections,control.Activated:Connect(function() callbacks.selectQuest(row.id) end))
-        questWidgets[row.id]=control
-        return control
-    end
-    local settings=newPage("Ajustes",8)
-    local account=card(settings,"Conta")
-    local language=button(account,"IDIOMA")
-    language.Size=UDim2.new(1,0,0,40)
-    language.LayoutOrder=3
-    table.insert(connections,language.Activated:Connect(callbacks.language))
-    local unload=button(account,"ENCERRAR HUB")
-    unload.Size=UDim2.new(1,0,0,40)
-    unload.LayoutOrder=4
-    table.insert(connections,unload.Activated:Connect(function() gui:Destroy() end))
-    local appearance=card(settings,"Tela e toque","Arraste o topo para mover o painel. O botao A tambem pode ser arrastado. Use o canto inferior para redimensionar.")
-    number(appearance,"uiScale","Escala da interface",65,150,5,"%")
-    number(appearance,"uiWidth","Largura do painel",300,1100,10," px")
-    number(appearance,"uiHeight","Altura do painel",340,900,10," px")
-    number(appearance,"buttonSize","Tamanho do botao A",44,88,2," px")
-    local resetLayout=button(appearance,"CENTRALIZAR E RESTAURAR TAMANHO") resetLayout.Size=UDim2.new(1,0,0,44) resetLayout.LayoutOrder=1000
-    table.insert(connections,resetLayout.Activated:Connect(function()
-        layoutChange({uiX=0.5,uiY=0.5,uiWidth=760,uiHeight=580,uiScale=65,buttonX=0.03,buttonY=0.22,buttonSize=56})
-    end))
-    local cameraCard=card(settings,"Camera")
-    toggle(cameraCard,"forceThirdPerson","Forcar terceira pessoa")
-    number(cameraCard,"cameraDistance","Distancia maxima da camera",8,100,1," studs")
-    toggle(cameraCard,"aimCooling","Apontar automaticamente para a valvula","Alinha a camera durante a interacao e restaura a visao ao terminar.")
-    local s=card(settings,"Execucao")
-    toggle(s,"antiAfk","Anti-AFK","Atua por evento de inatividade enquanto alguma rotina estiver ativa; pausa junto das rotinas.")
-    toggle(s,"autoEscape","Saida automatica manual","Usa a chave real para procurar a saida. O OP e o Auto Progress ja coordenam sua propria saida.")
-    toggle(s,"skipEndingScene","Pular cena final","Usa o botao Pular quando disponivel. Apos a fuga confirmada, tambem tenta a funcao Cancel da cena.")
-    toggle(s,"releaseEndingCamera","Liberar camera apos vitoria","Se a cena nao oferecer um botao, tenta devolver a visao ao personagem depois da confirmacao da fuga.")
-    toggle(s,"throughputMode","Ritmo de limpeza","Com equipamentos no maximo, prefere alvos proximos e evita desvios por raridades.")
-    toggle(s,"fastDelivery","Reduzir intervalo local da entrega","Acelera entregas e restaura o intervalo normal se a entrega falhar.")
-    number(s,"placementDelay","Intervalo local por colocacao",0.005,0.08,0.005," s")
-    choice(s,"movement","Deslocamento",{{"Teleport","Teleporte"},{"Walk","Caminhar"}})
-    choice(s,"speedMode","Ritmo",{{"Turbo","Turbo"},{"Standard","Normal"}})
-    number(s,"pickBatch","Coletas por rodada",1,16,1,"")
-    toggle(s,"auraCollect","Coletar ao redor sem mirar","Usa IDs dos alvos proximos; teleporta quando necessario. O servidor ainda valida o alcance.")
-    number(s,"auraRadius","Raio local da coleta",5,18,1," studs")
-    choice(s,"collectTool","Ferramenta de coleta",{{"Auto","Melhor adquirida"},{"Hand","Mao"},{"Shovel","Pa"},{"PotatoSucker","P0T4T0-3000"}})
-    toggle(s,"logicalSpecials","Especiais sem modelo visivel","Usa os IDs e as posicoes atuais do jogo. Tentativas recusadas recebem uma pausa; recompensas dependem do servidor.")
-    toggle(s,"autoRecover","Recuperar etapas automaticamente","Falhas de coleta e entrega adiam somente a etapa afetada.")
-    local restore=button(s,"RESTAURAR CONTROLES DO JOGO") restore.Size=UDim2.new(1,0,0,40) restore.LayoutOrder=1000
-    table.insert(connections,restore.Activated:Connect(function() if callbacks.restore then callbacks.restore() end end))
-    number(s,"actionDelay","Intervalo entre acoes",0.02,5,0.01," s")
-    number(s,"actionTimeout","Tempo limite de acao",2,60,1," s")
-    number(s,"travelTimeout","Tempo limite de trajeto",5,120,1," s")
-    toggle(s,"autoDynamite","Dinamite automatica","Atua quando a ferramenta foi adquirida e o protocolo de lancamento foi identificado.")
-    toggle(s,"dynamiteAggressive","Intervalo acelerado","Reduz a espera local; tentativas sem confirmacao recebem um intervalo maior.")
-    number(s,"dynamiteInterval","Intervalo da dinamite",0.1,15,0.1," s")
-    toggle(s,"pauseOnMovement","Pausar com movimento manual")
-    toggle(s,"notifications","Notificacoes")
-    local shortcuts=card(settings,"Atalhos")
-    for _, item in ipairs({{"keyProgress","Auto Progress"},{"keyCut","Auto Cut"},{"keyFarm","Coleta"},
-        {"keyCool","Resfriamento"},{"keyBuy","Ferramentas"},{"keyDeliver","Entregar"},
-        {"keyPumpkin","Aboboras"},{"keyStorage","Bolsas"},{"keyUpgrades","Melhorias"},
-        {"keyCrank","Cortador manual"},
-        {"keySell","Vender"},{"keyDynamite","Dinamite"},
-        {"keyMenu","Painel"},{"keyPause","Pausar"}}) do
-        local field,title=item[1],item[2]
-        local r=row(shortcuts,title,nil,36)
-        local b=button(r,config[field]) b.Position,b.Size=UDim2.new(1,-96,0,0),UDim2.fromOffset(96,27)
-        bindField(field,function(value) b.Text=value end)
-        table.insert(connections,b.Activated:Connect(function() callbacks.bind(field) end))
-    end
-    local op=card(settings,"OP Alto Zerar","Ciclo completo com prioridade para limpar a montanha.")
-    toggle(op,"opAutoFinish","OP Alto Zerar","Sugador MAX inicia coleta continua ate acabar a montanha. Entrega ao encher se a bolsa for finita. O OP coordena seus servicos sem ligar os interruptores das rotinas manuais.")
-    toggle(op,"opBatchFunding","Vender lotes maiores no OP","Usa lotes de 50, 90 ou 150 conforme o saldo que falta para a proxima compra, respeitando o limite de venda.")
-    toggle(op,"opFastPrompts","Retentar mesa e venda mais cedo","Quando o prompt e instantaneo, tenta outra forma de interacao mais cedo. O resultado ainda depende da confirmacao do jogo.")
-    applyLayout=function()
-        if closed then return end
-        if canvas.AbsoluteSize.X<100 or canvas.AbsoluteSize.Y<100 then return end
-        local bounds=Layout.resolve(canvas.AbsoluteSize.X,canvas.AbsoluteSize.Y,config)
-        panel.Size=UDim2.fromOffset(bounds.width,bounds.height)
-        panelScale.Scale=bounds.scale
-        panel.Position=UDim2.fromOffset(bounds.x,bounds.y)
-        panel.Visible=isOpen
-        local launcher=Layout.launcher(canvas.AbsoluteSize.X,canvas.AbsoluteSize.Y,config)
-        mini.Size=UDim2.fromOffset(launcher.size,launcher.size)
-        mini.Position=UDim2.fromOffset(launcher.x,launcher.y)
-        local compact=bounds.compact
-        local width=compact and 66 or 174
-        sidebar.Size=UDim2.new(0,width,1,0)
-        sidebar.Visible=not compact
-        content.Position=UDim2.fromOffset(compact and 16 or width+16,43)
-        content.Size=UDim2.new(1,compact and -32 or -width-32,1,-59)
-        pageArea.Size=UDim2.new(1,0,1,compact and -224 or -185)
-        nav.Parent=compact and panel or sidebar
-        nav.Position=compact and UDim2.new(0,12,1,-150) or UDim2.fromOffset(12,90)
-        nav.Size=compact and UDim2.new(1,-24,0,40) or UDim2.new(1,-24,1,-108)
-        nav.AutomaticCanvasSize=compact and Enum.AutomaticSize.X or Enum.AutomaticSize.Y
-        nav.ScrollingDirection=compact and Enum.ScrollingDirection.X or Enum.ScrollingDirection.Y
-        navLayout.FillDirection=compact and Enum.FillDirection.Horizontal or Enum.FillDirection.Vertical
-        dragHint.Text=T(compact and "≡   ANONHUB / POTATO   ·   ARRASTE" or "≡   ARRASTE PARA MOVER")
-        dragHint.TextXAlignment=compact and Enum.TextXAlignment.Left or Enum.TextXAlignment.Right
-        brand.Text=compact and "A" or "ANONHUB"
-        brand.TextSize=compact and 27 or 20
-        edition.Visible=not compact
-        for name,b in pairs(navButtons) do
-            local index=({Inicio=1,Coleta=2,Corte=3,Vendas=4,Resfriar=5,Compras=6,Missoes=7,Ajustes=8})[name]
-            b.Text=compact and T(({Inicio="INICIO",Coleta="COLETA",Corte="CORTE",Vendas="VENDER",Resfriar="AGUA",Compras="LOJA",Missoes="MISSOES",Ajustes="AJUSTE"})[name]) or string.format("%02d   %s",index,T(name))
-            b.TextSize=compact and 11 or 12
-            b.Size=compact and UDim2.fromOffset(76,38) or UDim2.new(1,0,0,43)
-            b.TextXAlignment=compact and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
-            local padding=b:FindFirstChildOfClass("UIPadding")
-            if padding then padding.PaddingLeft=UDim.new(0,compact and 0 or 10) end
-        end
-        save.Size=UDim2.new(0.24,-4,0,35)
-        pause.TextSize=10
-        pause.Position,pause.Size=UDim2.new(0.24,2,0,0),UDim2.new(0.40,-5,0,35)
-        footerRestore.Position,footerRestore.Size=UDim2.new(0.64,4,0,0),UDim2.new(0.36,-4,0,35)
-    end
-    table.insert(connections,canvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(applyLayout))
-    task.defer(applyLayout)
-    page("Inicio")
-    local function destroy()
-        if closed then return end
-        closed=true
-        for _, connection in ipairs(connections) do connection:Disconnect() end
-        if callbacks.close then callbacks.close() end
-    end
-    gui.Destroying:Connect(destroy)
-    return {
-        confirmDrone=function(answer)
-            local shade=make("Frame",{Name="DroneConfirmation",Size=UDim2.fromScale(1,1),BackgroundColor3=palette.background,BackgroundTransparency=0.1,ZIndex=100},canvas)
-            local box=make("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),Size=UDim2.new(0.85,0,0,180),BackgroundColor3=palette.card,ZIndex=101},shade)
-            corner(box,12)
-            local title=text(box,"Deseja mesmo comprar o drone?\nPreco: 80 gemas",17,palette.text,true)
-            title.Position,title.Size=UDim2.fromOffset(15,15),UDim2.new(1,-30,0,80) title.TextWrapped=true title.ZIndex=102
-            local yes,no=button(box,"COMPRAR: 80 GEMAS"),button(box,"AGORA NAO")
-            yes.Position,yes.Size=UDim2.new(0.04,0,1,-65),UDim2.new(0.45,0,0,48)
-            no.Position,no.Size=UDim2.new(0.51,0,1,-65),UDim2.new(0.45,0,0,48)
-            yes.ZIndex=102 no.ZIndex=102
-            local answered=false
-            local function finish(value) if answered then return end answered=true shade:Destroy() answer(value) end
-            yes.Activated:Connect(function() finish(true) end) no.Activated:Connect(function() finish(false) end)
-        end,
-        refresh=function(field)
-            if closed then return end
-            for key,list in pairs(bindings) do
-                if not field or key==field then
-                    local value=callbacks.value and callbacks.value(key)
-                    if value==nil then value=config[key] end
-                    for _, update in ipairs(list) do update(value) end
-                end
-            end
-            if applyLayout then applyLayout() end
-        end,
-        recoveryInfo=function(report)
-            if closed or not report then return end
-            recoveryResult.Text=T(#(report.missing or {})>0 and "Alguns controles ainda não estão disponíveis." or "Controles restaurados.")
-            recoveryResult.TextColor3=#(report.missing or {})>0 and Color3.fromRGB(255,192,110) or palette.mint
-        end,
-        dashboard=function(data,elapsed)
-            if closed or not data then return end
-            if activePage=="Compras" and data.details then
-                local seen={}
-                for index,entry in ipairs(data.details) do
-                    local widget=upgradeWidget(entry)
-                    seen[widget]=true
-                    widget.frame.Visible=true widget.frame.LayoutOrder=index
-                    widget.icon.Image=type(entry.icon)=="string" and entry.icon or "rbxassetid://103225914639722"
-                    widget.detail.Text=string.format("%s  ·  %s/%s",entry.tool,tostring(entry.level or "—"),tostring(entry.maximum or "—"))
-                    local known=type(entry.level)=="number" and type(entry.maximum)=="number"
-                    local maxed=known and entry.level>=entry.maximum
-                    widget.buy.Active=known and not maxed
-                    widget.buy.Text=maxed and "MAX" or type(entry.price)=="number" and string.format("$%.2f",entry.price) or T("MELHORAR")
-                    widget.buy.BackgroundColor3=widget.buy.Active and palette.line or palette.background
-                end
-                for _,widget in pairs(upgradeWidgets) do if not seen[widget] then widget.frame.Visible=false end end
-                levelDetails.Visible=#data.details==0
-            end
-            for _,tool in ipairs(data.tools) do
-                local widget=toolWidgets[tool.id]
-                if widget then
-                    local ratio=tool.total>0 and math.clamp(tool.current/tool.total,0,1) or 0
-                    widget.title.Text=T(tool.title)
-                    widget.level.Text=not tool.owned and T("NAO ADQUIRIDO") or ratio==1 and T("MAX  /  PRONTO") or tostring(tool.current).." / "..tostring(tool.total)
-                    widget.level.TextColor3=ratio==1 and palette.mint or palette.muted
-                    widget.fill.Size=UDim2.fromScale(tool.owned and ratio or 0,1)
-                    widget.fill.BackgroundColor3=ratio==1 and palette.mint or palette.accent
-                    local hasIcon=type(tool.icon)=="string" and tool.icon:find("rbxasset",1,true)~=nil
-                    widget.icon.Visible=hasIcon widget.letter.Visible=not hasIcon
-                    if hasIcon then widget.icon.Image=tool.icon end
-                end
-            end
-            local active=data.finished and 4 or data.hasKey and 4 or data.production and 3 or (data.cash or 0)>0 and 2 or 1
-            modeLine.Text=data.finished and T("MODO  •  CONCLUIDO") or T(data.role)
-                or data.op and T("MODO  •  OP ATIVO  /  ")..tostring(T(data.phase or "limpeza"))
-                or data.progress and T("MODO  •  AUTO PROGRESS") or T("MODO  •  PAUSADO / ROTINAS MANUAIS")
-            for index,chip in ipairs(phaseLabels) do chip.BackgroundColor3=index==active and palette.accent or palette.background chip.TextColor3=index==active and palette.background or palette.muted end
-            runBadge.Text=string.format(T("%02d:%02d  /  SORTE %d%s"),math.floor(elapsed/60),math.floor(elapsed%60),data.gemLuck,data.finished and T("  /  CONCLUIDO") or "")
-        end,
-        membership=function(info)
-            if closed or not info then return end
-            showMembership(info)
-        end,
-        quests=function(rows,selected)
-            if closed then return end
-            local seen={}
-            for index,row in ipairs(rows) do
-                local control=questWidget(row)
-                seen[control]=true
-                control.LayoutOrder=10+index
-                control.Visible=true
-                local active=row.id==selected
-                local state=row.done and "CONCLUIDA" or active and "PRIORIZANDO" or row.action and "SELECIONAR" or "MANUAL"
-                control.Text=string.format("%s  ·  %s   [%d/%d]\n%s",row.source,row.title,row.current,row.goal,T(state))
-                control.BackgroundColor3=active and palette.line or palette.background
-                control.TextColor3=active and palette.mint or palette.text
-            end
-            for _,control in pairs(questWidgets) do if not seen[control] then control.Visible=false end end
-            questHint.Visible=#rows==0
-        end,
-        status=function(message) if not closed then status.Text=T(message) end end,
-        summary=function(message) if not closed then summary.Text=message end end,
-        show=function() setOpen(true) end,
-        toggle=function() setOpen(not isOpen) end,
-        close=function() if gui.Parent then gui:Destroy() end end,
-        gui=gui,
-    }
-end
-
-return UI
-
-end)()
-
-local Navigation = (function()
--- Luau · potato_navigation.luau · cancellable movement and prompt interactions · Roblox · Luau 0.745
-local Navigation = {}
-
-function Navigation.create(services, config, log,runtime)
-    local clock=runtime and runtime.clock or os.clock
-    local player = services.Players.LocalPlayer
-    local nativePrompt=runtime and runtime.nativePrompt or type(fireproximityprompt)=="function" and fireproximityprompt or nil
-    local controls, controlDepth, previousEnabled = nil,0,true
-    local activeHumanoid = nil
-    local heldPrompt=nil
-    local aimCleanup=nil
-    local cameraBefore=nil
-    local promptStats={attempts=0,held=0,native=0,lastMethod="none",lastPath="none"}
-    local function actor()
-        local character = player.Character
-        local root = character and character:FindFirstChild("HumanoidRootPart")
-        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-        if not root or not humanoid or humanoid.Health <= 0 then return nil,nil end
-        return root,humanoid
-    end
-    local function lockControls()
-        if controlDepth > 0 then controlDepth = controlDepth+1 return end
-        if not controls then
-            local module = player:FindFirstChild("PlayerScripts") and player.PlayerScripts:FindFirstChild("PlayerModule")
-            if module then
-                local ok,result = pcall(require,module)
-                if ok and type(result)=="table" and type(result.GetControls)=="function" then
-                    local controlsOk,controller = pcall(result.GetControls,result)
-                    if controlsOk then controls = controller end
-                end
-            end
-        end
-        previousEnabled = not controls or controls.controlsEnabled ~= false
-        if controls and type(controls.Disable)=="function" then pcall(controls.Disable,controls) end
-        controlDepth = 1
-    end
-    local function unlockControls(force)
-        controlDepth = force and 0 or math.max(0,controlDepth-1)
-        if controlDepth==0 and controls and previousEnabled and type(controls.Enable)=="function" then
-            pcall(controls.Enable,controls)
-        end
-    end
-    local function stop()
-        if aimCleanup then aimCleanup() end
-        if heldPrompt then pcall(heldPrompt.InputHoldEnd,heldPrompt) heldPrompt=nil end
-        local root,humanoid = actor()
-        if humanoid and root then humanoid:MoveTo(root.Position) end
-        activeHumanoid = nil
-        unlockControls(true)
-    end
-    local function waitFor(seconds,valid)
-        local deadline = clock()+seconds
-        while clock()<deadline do
-            if not valid() then return false end
-            services.RunService.Heartbeat:Wait()
-        end
-        return true
-    end
-    local function moveWaypoints(waypoints,valid,deadline)
-        for _,point in ipairs(waypoints) do
-            local root,humanoid = actor()
-            if not root or not valid() or clock()>deadline then return false,"trajeto interrompido" end
-            activeHumanoid = humanoid
-            if point.Action==Enum.PathWaypointAction.Jump then humanoid.Jump=true end
-            humanoid:MoveTo(point.Position)
-            local previousDistance,lastImprovement = math.huge,clock()
-            while Vector2.new(root.Position.X-point.Position.X,root.Position.Z-point.Position.Z).Magnitude>2.5
-                or math.abs(root.Position.Y-point.Position.Y)>7 do
-                if not valid() or humanoid.Health<=0 or not root.Parent or clock()>deadline then return false,"trajeto interrompido" end
-                local distance=Vector2.new(root.Position.X-point.Position.X,root.Position.Z-point.Position.Z).Magnitude
-                if distance<previousDistance-0.15 then previousDistance,lastImprovement=distance,clock() end
-                if clock()-lastImprovement>3 then return false,"caminho bloqueado" end
-                services.RunService.Heartbeat:Wait()
-            end
-        end
-        return true
-    end
-    local function goTo(destination,valid,rootTarget)
-        local root,humanoid=actor()
-        if not root then return false,"personagem indisponivel" end
-        if not valid() then return false,"cancelado" end
-        if config.movement=="Teleport" then
-            local character=player.Character
-            local height=rootTarget and 0 or math.max(2,humanoid.HipHeight+root.Size.Y/2)
-            local target=CFrame.new(destination+Vector3.new(0,height,0))*root.CFrame.Rotation
-            local ok,message=pcall(function()
-                local pivotOffset=character:GetPivot():ToObjectSpace(root.CFrame)
-                character:PivotTo(target*pivotOffset:Inverse())
-                root.AssemblyLinearVelocity=Vector3.zero root.AssemblyAngularVelocity=Vector3.zero
-            end)
-            if not ok then return false,tostring(message) end
-            if not waitFor(config.teleportSettle,valid) then return false,"cancelado" end
-            local current=actor()
-            if not current or (current.Position-target.Position).Magnitude>8 then return false,"O servidor reposicionou o personagem apos o teleporte." end
-            return true
-        end
-        lockControls()
-        local success,message
-        local ok,reason=pcall(function()
-            local path=services.PathfindingService:CreatePath({AgentRadius=1.6,AgentHeight=5,
-                AgentCanJump=true,AgentCanClimb=true,WaypointSpacing=3})
-            path:ComputeAsync(root.Position,destination)
-            if not valid() then success,message=false,"cancelado" return end
-            if path.Status~=Enum.PathStatus.Success then success,message=false,"sem caminho navegavel" return end
-            success,message=moveWaypoints(path:GetWaypoints(),valid,clock()+config.travelTimeout)
-        end)
-        if not ok then success,message=false,tostring(reason) end
-        unlockControls()
-        if not success then
-            local currentRoot,currentHumanoid=actor()
-            if currentRoot and currentHumanoid then currentHumanoid:MoveTo(currentRoot.Position) end
-        end
-        activeHumanoid=nil
-        return success,message
-    end
-    local function promptPosition(prompt)
-        local parent=prompt and prompt.Parent
-        if not parent then return nil end
-        if parent:IsA("Attachment") then return parent.WorldPosition end
-        if parent:IsA("BasePart") then return parent.Position end
-        if parent:IsA("Model") then return parent:GetPivot().Position end
-        return nil
-    end
-    local function approach(prompt,valid)
-        local position=promptPosition(prompt)
-        local root=actor()
-        if not position or not root then return false,"prompt indisponivel" end
-        local range=math.max(1,prompt.MaxActivationDistance-1)
-        if (root.Position-position).Magnitude<=range then return true end
-        local delta=Vector3.new(root.Position.X-position.X,0,root.Position.Z-position.Z)
-        local toward=delta.Magnitude>0.01 and delta.Unit or Vector3.new(0,0,1)
-        local perpendicular=Vector3.new(-toward.Z,0,toward.X)
-        local directions={toward,perpendicular,-perpendicular,-toward}
-        if config.movement=="Teleport" then
-            local near=position+toward*math.min(3,range*0.45)+Vector3.new(0,1.4,0)
-            return goTo(near,valid,true)
-        end
-        local params=RaycastParams.new()
-        params.FilterType=Enum.RaycastFilterType.Exclude
-        params.FilterDescendantsInstances={player.Character,prompt:FindFirstAncestorOfClass("Model") or prompt.Parent}
-        for _,direction in ipairs(directions) do
-            if not valid() then return false,"cancelado" end
-            local near=position+direction*math.min(4,range*0.6)
-            local ground=workspace:Raycast(near+Vector3.new(0,8,0),Vector3.new(0,-80,0),params)
-            if ground then
-                local success=goTo(ground.Position,valid)
-                local currentRoot=actor()
-                if success and currentRoot and (currentRoot.Position-position).Magnitude<=range then return true end
-            end
-        end
-        return false,"nao foi possivel chegar ao prompt"
-    end
-    local function triggerRaw(prompt,valid,options)
-        options=options or {}
-        if not prompt or not prompt.Parent then return false,"prompt removido" end
-        local reached,message=approach(prompt,valid)
-        if not reached then return false,message end
-        if not valid() then return false,"cancelado" end
-        local position=promptPosition(prompt)
-        local root=actor()
-        if not root or not position or (root.Position-position).Magnitude>prompt.MaxActivationDistance then return false,"fora do alcance" end
-        promptStats.attempts+=1 promptStats.lastPath=prompt:GetFullName()
-        local holdFirst=options.method~="native" and (prompt.HoldDuration>0 or options.method=="hold")
-        if nativePrompt and not holdFirst then
-            local fired,why=pcall(nativePrompt,prompt)
-            if fired then
-                promptStats.native+=1 promptStats.lastMethod="native"
-                return true
-            end
-            log("Acionamento nativo do prompt falhou: "..tostring(why),"error")
-        end
-        local begun,errorMessage=pcall(prompt.InputHoldBegin,prompt)
-        if not begun then
-            if nativePrompt then
-                local fired,why=pcall(nativePrompt,prompt)
-                if fired then promptStats.native+=1 promptStats.lastMethod="native fallback" return true end
-                return false,tostring(why)
-            end
-            return false,tostring(errorMessage)
-        end
-        heldPrompt=prompt promptStats.held+=1 promptStats.lastMethod="continuous hold"
-        local completed,finished=pcall(waitFor,prompt.HoldDuration>0 and prompt.HoldDuration+0.20 or 0.08,valid)
-        pcall(prompt.InputHoldEnd,prompt)
-        if heldPrompt==prompt then heldPrompt=nil end
-        if not completed then return false,tostring(finished) end
-        if not finished then return false,"interacao interrompida" end
-        return true
-    end
-    local function trigger(prompt,valid,options)
-        if not prompt or not prompt.Parent then return false,"prompt removido" end
-        local beforeEnabled,beforeSight,beforeHold=prompt.Enabled,prompt.RequiresLineOfSight,prompt.HoldDuration
-        local holdOverride=nil
-        local ok,success,message=pcall(function()
-            prompt.Enabled=true prompt.RequiresLineOfSight=false
-            if options and type(options.holdSeconds)=="number" and options.holdSeconds==options.holdSeconds then
-                holdOverride=math.clamp(options.holdSeconds,1,5) prompt.HoldDuration=holdOverride
-            end
-            return triggerRaw(prompt,valid,options)
-        end)
-        if prompt.Parent then
-            pcall(function() prompt.RequiresLineOfSight=beforeSight end)
-            if holdOverride then pcall(function() if prompt.HoldDuration==holdOverride then prompt.HoldDuration=beforeHold end end) end
-            if not beforeEnabled then pcall(function() prompt.Enabled=false end) end
-        end
-        if not ok then return false,tostring(success) end
-        return success,message
-    end
-    local function updateCamera()
-        if config.forceThirdPerson then
-            if not cameraBefore then cameraBefore={mode=player.CameraMode,min=player.CameraMinZoomDistance,max=player.CameraMaxZoomDistance} end
-            player.CameraMode=Enum.CameraMode.Classic
-            player.CameraMaxZoomDistance=math.max(8,config.cameraDistance)
-            player.CameraMinZoomDistance=6
-        elseif cameraBefore then
-            player.CameraMinZoomDistance=0.5
-            player.CameraMaxZoomDistance=cameraBefore.max
-            player.CameraMinZoomDistance=cameraBefore.min player.CameraMode=cameraBefore.mode cameraBefore=nil
-        end
-    end
-    local function clearAim() if aimCleanup then aimCleanup() end end
-    local function aim(prompt,enabled)
-        clearAim()
-        if not enabled then return end
-        local camera=services.Workspace.CurrentCamera
-        if not camera then return end
-        local before={mode=player.CameraMode,min=player.CameraMinZoomDistance,max=player.CameraMaxZoomDistance,frame=camera.CFrame,focus=camera.Focus}
-        local name="AnonymousPotatoWaterAim"
-        local done=false
-        aimCleanup=function()
-            if done then return end done=true
-            services.RunService:UnbindFromRenderStep(name)
-            pcall(function()
-                player.CameraMinZoomDistance=0.5 player.CameraMaxZoomDistance=before.max
-                player.CameraMinZoomDistance=before.min player.CameraMode=before.mode
-                if camera.Parent then camera.CFrame=before.frame camera.Focus=before.focus end
-            end)
-            aimCleanup=nil updateCamera()
-        end
-        services.RunService:BindToRenderStep(name,Enum.RenderPriority.Camera.Value+1,function()
-            local position=promptPosition(prompt)
-            local root=actor()
-            if not position or not root then return end
-            player.CameraMode=Enum.CameraMode.Classic
-            player.CameraMaxZoomDistance=math.max(12,config.cameraDistance)
-            player.CameraMinZoomDistance=6
-            local away=root.Position-position
-            away=Vector3.new(away.X,0,away.Z)
-            if away.Magnitude<0.1 then away=Vector3.new(0,0,1) end
-            local eye=position+away.Unit*math.min(12,config.cameraDistance)+Vector3.new(0,4,0)
-            camera.CFrame=CFrame.lookAt(eye,position) camera.Focus=CFrame.new(position)
-        end)
-    end
-    return {actor=actor,goTo=goTo,approach=approach,trigger=trigger,promptPosition=promptPosition,stop=stop,waitFor=waitFor,stats=promptStats,aim=aim,clearAim=clearAim,updateCamera=updateCamera,close=function() stop() config.forceThirdPerson=false updateCamera() end}
-end
-
-return Navigation
-
-end)()
-
-local Resolver = (function()
--- Luau · potato_resolver.luau · bounded contracts and spatial pile index · Roblox / Delta · Luau 0.745
-local Resolver={}
-function Resolver.create(modules,services,log,Observer,Spatial,runtime,NativeMap)
-    local valueType=runtime and runtime.typeOf or typeof
-    local pile=modules["Shared.PotatoPileShared"] or {}
-    local packets=modules["Modules.Resources.Packets"] or {}
-    local world=services.Workspace
-    local names={"GetSlotPosition","GetRotation","GetKind","GetPotatoSlot","GetPotatoInSlot","IsPumpkin","IsDiamond"}
-    local originals,samples,bindings={},{},{}
-    local direct=setmetatable({},{__mode="k"})
-    local theoretical=nil
-    local worldPositions={}
-    local directPositions=setmetatable({},{__mode="k"})
-    local indexedFolder=nil
-    local lastSync=-math.huge
-    local preparing=false
-    local nextPrepare=0
-    local closed=false
-    local keyInputs={}
-    local keyEventId=nil
-    local keyRevision=0
-    local keyConnections={}
-    local observer=nil
-    local nativeMap,nativeState,nativeFolder=nil,nil,nil
-    local nativeScanAt=0
-    local nativeTransform=nil
-    local stats={slot="pending spatial index",kind="pending captured arguments",generation=0,
-        mapped=0,parts=0,syncRequests=0,contracts={},scores={},upvalues=false}
-    for _,name in ipairs(names) do originals[name]=pile[name] samples[name]={} end
-    local function validId(value)
-        return type(value)=="number" and value%1==0 and value>=1 and value<=(pile.SLOT_COUNT or 30009)
-    end
-    local function point(value,second,third)
-        local kind=valueType(value)
-        if kind=="Vector3" then return value end
-        if kind=="CFrame" then return value.Position end
-        if type(value)=="table" and valueType(value.Position)=="Vector3" then return value.Position end
-        if type(value)=="number" and type(second)=="number" and type(third)=="number" then
-            return Vector3.new(value,second,third)
-        end
-        return nil
-    end
-    local function normalize(value)
-        if type(value)=="table" then value=value.Name or value.Id end
-        if type(value)=="number" then return ({"Normal","Golden","Diamond","Rainbow","Key","Charred"})[value] end
-        if type(value)=="string" then
-            for _,name in ipairs({"Normal","Golden","Diamond","Rainbow","Key","Charred"}) do
-                if string.lower(value)==string.lower(name) then return name end
-            end
-        end
-        return nil
-    end
-    local function summary(value)
-        local kind=valueType(value)
-        if type(value)=="number" or type(value)=="string" then return value end
-        local p=point(value)
-        if p then return {type=kind,x=p.X,y=p.Y,z=p.Z} end
-        return {type=kind}
-    end
-    local function infer(name)
-        local list=samples[name]
-        if #list<3 then return nil end
-        local best,bestCount=nil,0
-        for argument=1,list[1].args.n do
-            local distinct={}
-            local valid=true
-            for _,sample in ipairs(list) do
-                local value=sample.args[argument]
-                if not validId(value) then valid=false break end
-                distinct[value]=true
-            end
-            local count=0 for _ in pairs(distinct) do count+=1 end
-            if valid and count>bestCount then best,bestCount=argument,count end
-        end
-        if not best or bestCount<2 then return nil end
-        local template=table.clone(list[#list].args)
-        local original=originals[name]
-        bindings[name]=function(index)
-            local args=table.clone(template) args[best]=index
-            return pcall(original,table.unpack(args,1,args.n))
-        end
-        local shape={index_argument=best,samples=#list,arguments={}}
-        for i=1,template.n do shape.arguments[i]=summary(template[i]) end
-        shape.result=summary(list[#list].result[1])
-        stats.contracts[name]=shape
-        if name=="GetKind" then stats.kind="captured changing slot argument" end
-        return best
-    end
-    observer=Observer.create(pile,names,function(name,args,result)
-        if closed then return true end
-        for i=1,args.n do
-            local input=args[i]
-            if type(input)=="table" and (rawget(input,"PotatoSlots")~=nil or type(rawget(input,"Seed"))=="number" or rawget(input,"KeyPotatoId")~=nil) then keyInputs[input]=true end
-        end
-        if name=="GetPotatoSlot" and validId(result[1]) then
-            local folder=world:FindFirstChild("PotatoPile")
-            for i=1,args.n do
-                local value=args[i]
-                if valueType(value)=="Instance" and value:IsA("BasePart") and folder and value:IsDescendantOf(folder) then
-                    direct[value]=result[1]
-                end
-            end
-        end
-        local list=samples[name]
-        if #list<16 then table.insert(list,{args=table.clone(args),result=table.clone(result)}) end
-        return infer(name)~=nil or #list>=16
-    end)
-    stats.observer=observer.stats
-
-    local fire=modules["Shared.FireShared"] or {}
-    local originalHeat=fire.GetHeat
-    local heatInput=nil
-    local heatWrapper=nil
-    if type(originalHeat)=="function" then
-        heatWrapper=function(input)
-            heatInput=input
-            return originalHeat(input)
-        end
-        pcall(function() fire.GetHeat=heatWrapper end)
-    end
-    local nextHeatScan=0
-    local heatObjects={}
-    local function heat()
-        if heatInput~=nil and type(originalHeat)=="function" then
-            local ok,value=pcall(originalHeat,heatInput)
-            if ok and type(value)=="number" and value>=0 and value<=1 then
-                local flowing=false
-                if type(fire.IsFlowing)=="function" then local good,flag=pcall(fire.IsFlowing,heatInput) flowing=good and flag==true end
-                return value*100,flowing,"captured native FireShared input"
-            end
-        end
-        if os.clock()>=nextHeatScan then
-            nextHeatScan=os.clock()+5 heatObjects={}
-            local map=world:FindFirstChild("Map")
-            for _,name in ipairs({"Fire","Water"}) do
-                local area=map and map:FindFirstChild(name)
-                if area then
-                    table.insert(heatObjects,area)
-                    for _,object in ipairs(area:GetDescendants()) do table.insert(heatObjects,object) end
-                end
-            end
-        end
-        local flowing=false
-        for _,object in ipairs(heatObjects) do
-            if object.Parent then
-                flowing=flowing or object:GetAttribute("Flowing")==true
-                local value=object:GetAttribute("Heat")
-                if type(value)=="number" and value>=0 and value<=1 then
-                    return value*100,flowing,"replicated Heat attribute"
-                end
-            end
-        end
-        return nil,flowing,"alarm only"
-    end
-    local function requestSync()
-        if stats.syncRequests>=2 or os.clock()-lastSync<10 then return false end
-        local packet=packets.PotatoPileRequest
-        if not packet or type(packet.Fire)~="function" then return false end
-        lastSync=os.clock() stats.syncRequests+=1
-        return pcall(packet.Fire,packet)
-    end
-    local function transforms()
-        if runtime and runtime.transforms then return runtime.transforms end
-        local result={{name="world",apply=function(p) return p end}}
-        local map=world:FindFirstChild("Map")
-        local marker=map and map:FindFirstChild("PotatoPile")
-        if marker and marker:IsA("BasePart") then
-            local frame=marker.CFrame
-            table.insert(result,{name="marker-local",apply=function(p) return frame:PointToWorldSpace(p) end})
-            if type(pile.GetPileCFrame)=="function" then
-                local ok,frame2=pcall(pile.GetPileCFrame,marker)
-                if ok and valueType(frame2)=="CFrame" and frame2~=frame then
-                    table.insert(result,{name="pile-local",apply=function(p) return frame2:PointToWorldSpace(p) end})
-                end
-            end
-        end
-        return result
-    end
-    local function discoverNative()
-        local folder=world:FindFirstChild("PotatoPile")
-        if NativeMap and folder then
-            if nativeFolder~=folder then nativeMap=nil nativeState=nil nativeFolder=folder nativeScanAt=0 nativeTransform=nil end
-            if not nativeMap and os.clock()>=nativeScanAt then
-                nativeScanAt=os.clock()+5
-                local info
-                nativeMap,nativeState,info=NativeMap.discover(modules["Controllers.PotatoPileController"] or {},folder,runtime and runtime.nativeOptions)
-                stats.upvalues=info.api stats.native_discovery=info stats.native_map=nativeMap~=nil
-                if nativeState then keyInputs[nativeState]=true end
-                if nativeMap then log("Mapa nativo de batatas identificado.") end
-            end
-            if nativeMap then stats.slot="native part-to-ID map" return true end
-        end
-        return false
-    end
-    local function prepare(valid)
-        local folder=world:FindFirstChild("PotatoPile")
-        if discoverNative() then return true end
-        if indexedFolder==folder and theoretical then return true end
-        if preparing or os.clock()<nextPrepare then return false,"Preparando os indices da pilha." end
-        if not bindings.GetSlotPosition then
-            requestSync() nextPrepare=os.clock()+1
-            return false,"Aguardando os argumentos de posicao usados pelo jogo."
-        end
-        if not folder then return false,"Pilha indisponivel." end
-        preparing=true
-        local ok,message=pcall(function()
-            local parts={}
-            local physical=Spatial.new(0.09)
-            for _,part in ipairs(folder:GetChildren()) do
-                if part:IsA("BasePart") then table.insert(parts,part) physical.add(part.Position,part) end
-            end
-            stats.parts=#parts
-            local frames=transforms()
-            local maps,scores,records={},{},{}
-            for i=1,#frames do maps[i]={} scores[i]=0 end
-            local deadline=os.clock()+0.003
-            for index=1,(pile.SLOT_COUNT or 30009) do
-                if not valid() or closed then error("cancelado") end
-                local readOk,value,b,c=bindings.GetSlotPosition(index)
-                local p=readOk and point(value,b,c)
-                if p then
-                    records[index]=p
-                    for i,frame in ipairs(frames) do
-                        local transformed=frame.apply(p)
-                        local part=physical.find(transformed)
-                        if part and maps[i][part]==nil then maps[i][part]=index scores[i]+=1 end
-                    end
-                end
-                if os.clock()>deadline then services.RunService.Heartbeat:Wait() deadline=os.clock()+0.003 end
-            end
-            local best,bestScore=1,0
-            for i,score in ipairs(scores) do
-                stats.scores[frames[i].name]=score
-                if score>bestScore then best,bestScore=i,score end
-            end
-            if #parts==0 or bestScore<math.max(1,math.ceil(#parts*0.70)) then
-                stats.slot="geometry mismatch"
-                stats.position_samples={}
-                for index,p in pairs(records) do
-                    table.insert(stats.position_samples,{slot=index,x=p.X,y=p.Y,z=p.Z})
-                    if #stats.position_samples==4 then break end
-                end
-                error("Posicoes nao coincidem com a pilha: "..bestScore.."/"..#parts)
-            end
-            local selected=frames[best]
-            theoretical=Spatial.new(0.09)
-            worldPositions={}
-            for index,p in pairs(records) do
-                local position=selected.apply(p)
-                theoretical.add(position,index) worldPositions[index]=position
-            end
-            for part,index in pairs(maps[best]) do direct[part]=index directPositions[part]=part.Position end
-            indexedFolder=folder stats.mapped=bestScore stats.slot="spatial / "..selected.name stats.generation+=1
-            log("Indices confirmados por geometria: "..bestScore.."/"..#parts..".")
-        end)
-        preparing=false nextPrepare=os.clock()+(ok and 0 or 5)
-        return ok,ok and nil or tostring(message)
-    end
-    local function physicalSlot(part)
-        if not part or not part.Parent then return nil end
-        local previous=directPositions[part]
-        local position=part.Position
-        if direct[part] and previous and previous.X==position.X and previous.Y==position.Y and previous.Z==position.Z then return direct[part] end
-        if theoretical then
-            local index=theoretical.find(position)
-            if index then direct[part]=index directPositions[part]=position return index end
-        end
-        return nil
-    end
-    local function potatoInSlot(index)
-        if not bindings.GetPotatoInSlot then return nil end
-        local ok,id=bindings.GetPotatoInSlot(index)
-        if not ok or not validId(id) then return nil end
-        return id
-    end
-    local preferred="geometry"
-    local votes={geometry=0,permuted=0}
-    local orientationCache=setmetatable({},{__mode="k"})
-    local function rotationError(part,id)
-        if not id or not part.CFrame or not bindings.GetRotation then return nil end
-        local ok,rotation=bindings.GetRotation(id)
-        if not ok or valueType(rotation)~="CFrame" then return nil end
-        local actual={part.CFrame:GetComponents()}
-        local expected={rotation:GetComponents()}
-        local error=0
-        for i=4,12 do error+=math.abs(actual[i]-expected[i]) end
-        return error
-    end
-    local function slot(part)
-        if nativeMap then return NativeMap.id(nativeMap,part,nativeFolder,valueType) end
-        local index=physicalSlot(part)
-        if not index then return nil end
-        local cached=orientationCache[part]
-        if cached and cached.frame==part.CFrame then return cached.id end
-        local permuted=potatoInSlot(index)
-        if part.CFrame and permuted and permuted~=index then
-            local rawError,permutedError=rotationError(part,index),rotationError(part,permuted)
-            if rawError and permutedError then
-                local chosen=nil
-                if rawError<0.02 and permutedError>0.1 then chosen=index
-                elseif permutedError<0.02 and rawError>0.1 then chosen=permuted end
-                if chosen then
-                    orientationCache[part]={frame=part.CFrame,id=chosen}
-                    stats.rotation_matches=(stats.rotation_matches or 0)+1
-                    return chosen
-                end
-            end
-        end
-        if preferred=="permuted" then return permuted end
-        return index
-    end
-    local function alternate(part,id)
-        if nativeMap then return nil end
-        local index=physicalSlot(part)
-        local other=index and (id==index and potatoInSlot(index) or index)
-        return other~=id and other or nil
-    end
-    local function confirm(part,id,originalIndex)
-        local index=originalIndex or physicalSlot(part)
-        if not index then return end
-        local mode=id==index and "geometry" or "permuted"
-        votes[mode]+=1
-        if votes[mode]>=3 and votes[mode]>votes[preferred] then preferred=mode end
-        stats.identity={mode=preferred,confirmed_geometry=votes.geometry,confirmed_permuted=votes.permuted}
-    end
-    local function live(id) return validId(id) end
-    local function kind(part,index)
-        index=index or slot(part)
-        if not index then return nil,part and part.Name=="Pumpkin" or false,false end
-        local name,pumpkin,gem=nil,part and part.Name=="Pumpkin" or false,false
-        if bindings.GetKind then local ok,value=bindings.GetKind(index) if ok then name=normalize(value) end
-        elseif nativeState and type(originals.GetKind)=="function" then local ok,value=pcall(originals.GetKind,nativeState,index) if ok then name=normalize(value) end end
-        if bindings.IsPumpkin then local ok,value=bindings.IsPumpkin(index) pumpkin=pumpkin or ok and value==true end
-        if bindings.IsDiamond then local ok,value=bindings.IsDiamond(index) gem=ok and value==true end
-        if nativeState and not bindings.IsPumpkin and type(originals.IsPumpkin)=="function" then local ok,value=pcall(originals.IsPumpkin,nativeState,index) pumpkin=pumpkin or ok and value==true end
-        if nativeState and not bindings.IsDiamond and type(originals.IsDiamond)=="function" then local ok,value=pcall(originals.IsDiamond,nativeState,index) gem=ok and value==true end
-        return name,pumpkin,gem
-    end
-    local function exposed(part,id)
-        if not nativeState or type(originals.GetPotatoSlot)~="function" or type(pile.IsExposed)~="function" then return nil end
-        local ok,index=pcall(originals.GetPotatoSlot,nativeState,id)
-        if not ok or not validId(index) then return nil end
-        local good,value=pcall(pile.IsExposed,nativeState,index)
-        if good and type(value)=="boolean" then return value end
-        return nil
-    end
-    local function specialTargets(valid)
-        local result={}
-        if not theoretical or not bindings.GetPotatoSlot or not bindings.GetPotatoInSlot then return result end
-        local deadline=os.clock()+0.002
-        for index=1,(pile.SLOT_COUNT or 30009) do
-            if closed or not valid() then return {} end
-            local id=potatoInSlot(index)
-            if id then
-                local name,pumpkin,gem=kind(nil,id)
-                if (pumpkin or gem) and worldPositions[index] then
-                    table.insert(result,{slot=id,position=worldPositions[index],kind=name,pumpkin=pumpkin,gem=gem,logical=true})
-                end
-            end
-            if os.clock()>deadline then services.RunService.Heartbeat:Wait() deadline=os.clock()+0.002 end
-        end
-        return result
-    end
-    local keyEvent=packets.PotatoKeyMoved and packets.PotatoKeyMoved.OnClientEvent
-    if keyEvent and type(keyEvent.Connect)=="function" then
-        local ok,connection=pcall(keyEvent.Connect,keyEvent,function(id)
-            if id==0 or validId(id) then
-                if keyEventId~=id then keyRevision+=1 end
-                keyEventId=id
-            end
-        end)
-        if ok and connection then table.insert(keyConnections,connection) end
-    end
-    local revealed=packets.KeyRevealed and packets.KeyRevealed.OnClientEvent
-    if revealed and type(revealed.Connect)=="function" then
-        local ok,connection=pcall(revealed.Connect,revealed,function() keyRevision+=1 end)
-        if ok and connection then table.insert(keyConnections,connection) end
-    end
-    local function keyTarget()
-        local id=keyEventId
-        local source=id~=nil and "PotatoKeyMoved" or nil
-        local nativeKey=nativeState and rawget(nativeState,"KeyPotatoId")
-        if (id==nil or id==0) and validId(nativeKey) then id=nativeKey source="native controller KeyPotatoId" end
-        if id==nil then
-            for input in pairs(keyInputs) do
-                local value=rawget(input,"KeyPotatoId")
-                if validId(value) then id=value source="captured native KeyPotatoId" break end
-            end
-        end
-        stats.key={known=validId(id),source=source,id=validId(id) and id or nil}
-        if not validId(id) then stats.key.reason="client has not disclosed a valid key ID" return nil end
-        if nativeMap then
-            for part,value in pairs(nativeMap) do
-                if value==id and NativeMap.id(nativeMap,part,nativeFolder,valueType)==id then
-                    return {slot=id,part=part,position=part.Position,logical=true,key=true,source=source,revision=keyRevision}
-                end
-            end
-            if nativeState and type(originals.GetPotatoSlot)=="function" and type(originals.GetSlotPosition)=="function" then
-                if not nativeTransform then
-                    for _,frame in ipairs(transforms()) do
-                        local matches,tested=0,0
-                        for part,value in pairs(nativeMap) do
-                            if NativeMap.id(nativeMap,part,nativeFolder,valueType) then
-                                tested+=1
-                                local ok,index=pcall(originals.GetPotatoSlot,nativeState,value)
-                                local good,raw=pcall(originals.GetSlotPosition,nativeState,ok and index or 0)
-                                local p=good and point(raw)
-                                if p then
-                                    local position=frame.apply(p)
-                                    local actual=part.Position
-                                    if math.abs(position.X-actual.X)+math.abs(position.Y-actual.Y)+math.abs(position.Z-actual.Z)<0.15 then matches+=1 end
-                                end
-                                if tested>=8 or matches>=3 then break end
-                            end
-                        end
-                        if matches>=3 then nativeTransform=frame stats.native_key_transform=frame.name break end
-                    end
-                end
-                if nativeTransform then
-                    local ok,index=pcall(originals.GetPotatoSlot,nativeState,id)
-                    if ok and validId(index) then
-                        local good,raw=pcall(originals.GetSlotPosition,nativeState,index)
-                        local p=good and point(raw)
-                        if p then return {slot=id,position=nativeTransform.apply(p),logical=true,key=true,source=source,revision=keyRevision} end
-                    end
-                end
-            end
-        end
-        if not bindings.GetPotatoSlot then stats.key.reason="native slot mapping unavailable" return nil end
-        local ok,index=bindings.GetPotatoSlot(id)
-        local position=ok and validId(index) and worldPositions[index] or nil
-        if not position then stats.key.reason="key position unavailable" return nil end
-        return {slot=id,position=position,logical=true,key=true,source=source,revision=keyRevision}
-    end
-    local function close()
-        closed=true observer.close()
-        for _,connection in ipairs(keyConnections) do pcall(function() connection:Disconnect() end) end
-        if heatWrapper then pcall(function() if fire.GetHeat==heatWrapper then fire.GetHeat=originalHeat end end) end
-    end
-    return {slot=slot,alternate=alternate,confirm=confirm,physicalSlot=physicalSlot,live=live,specialTargets=specialTargets,keyTarget=keyTarget,exposed=exposed,kind=kind,heat=heat,prepare=prepare,discover=discoverNative,requestSync=requestSync,stats=stats,close=close,
-        ready=function() return bindings.GetKind~=nil and bindings.GetSlotPosition~=nil and bindings.GetPotatoInSlot~=nil end,
-        refresh=function() nextPrepare=0 end}
-end
-return Resolver
-
-end)()
-
-local Bridge = (function()
--- Luau · potato_bridge.luau · existing game UI input and cash checks · Roblox / Delta · Luau 0.745
-local Bridge={}
-
-function Bridge.create(services,Core)
-    local gui=services.Players.LocalPlayer:WaitForChild("PlayerGui")
-    local signalFire=type(firesignal)=="function" and firesignal or nil
-    local connectionsGet=type(getconnections)=="function" and getconnections or nil
-    local function visible(object)
-        local current=object
-        while current and current~=gui do
-            if current:IsA("GuiObject") and not current.Visible then return false end
-            if current:IsA("ScreenGui") and not current.Enabled then return false end
-            current=current.Parent
-        end
-        return current==gui
-    end
-    local function texts(object)
-        local result={}
-        if object:IsA("TextLabel") or object:IsA("TextButton") or object:IsA("TextBox") then table.insert(result,object.Text) end
-        for _,item in ipairs(object:GetDescendants()) do
-            if item:IsA("TextLabel") or item:IsA("TextButton") then table.insert(result,item.Text) end
-        end
-        return table.concat(result," "):gsub("<.->","")
-    end
-    local function cash(text)
-        if type(text)~="string" then return nil end
-        local upper=string.upper(text)
-        if upper:find("R$",1,true) or upper:find("ROBUX",1,true) then return nil end
-        local raw=text:match("%$%s*[%d][%d%.,]*[KkMmBbTt]?")
-        return raw and Core.parseAmount(raw) or nil
-    end
-    local function activate(button,headless)
-        if not button or not button:IsA("GuiButton") or not headless and (not visible(button) or not button.Active) then
-            return false,"botao indisponivel"
-        end
-        if not signalFire then return false,"firesignal nao disponibilizado pelo executor" end
-        local signal=button.Activated
-        if connectionsGet then
-            local ok,items=pcall(connectionsGet,signal)
-            if ok and #items==0 then
-                local clickOk,clicks=pcall(connectionsGet,button.MouseButton1Click)
-                if clickOk and #clicks>0 then signal=button.MouseButton1Click end
-            end
-        end
-        local ok,why=pcall(signalFire,signal)
-        return ok,ok and nil or tostring(why)
-    end
-    local function buyButton(expected)
-        local screen=gui:FindFirstChild("StoreView")
-        if not screen then return nil,"janela StoreView ausente" end
-        local matches={}
-        for _,item in ipairs(screen:GetDescendants()) do
-            if item:IsA("GuiButton") and visible(item) and item.Active then
-                local own=texts(item)
-                local upper=string.upper(own.." "..item.Name)
-                local rejected=upper:find("SOLD",1,true) or upper:find("OWNED",1,true) or upper:find("LOCKED",1,true)
-                    or upper:find("ROBUX",1,true) or upper:find("R$",1,true) or upper:find("PERMANENT",1,true)
-                if not rejected and (upper:find("BUY",1,true) or upper:find("PURCHASE",1,true) or upper:find("COMPRAR",1,true)) then
-                    local context=own
-                    local price=cash(context)
-                    if not price and item.Parent then context=texts(item.Parent) price=cash(context) end
-                    if not price and item.Parent then
-                        for _,label in ipairs(item.Parent:GetChildren()) do
-                            if label:IsA("TextLabel") then
-                                local value=cash(label.Text)
-                                if value and math.abs(value-expected)<0.005 then price=value break end
-                            end
-                        end
-                    end
-                    if price and math.abs(price-expected)<0.005 then table.insert(matches,item) end
-                end
-            end
-        end
-        if #matches~=1 then return nil,"compra sem botao unico com o preco em dinheiro esperado" end
-        return matches[1]
-    end
-    local function diagnostic()
-        local result={}
-        for _,name in ipairs({"StoreView","ToolUpgrades"}) do
-            local screen=gui:FindFirstChild(name)
-            if screen then
-                for _,item in ipairs(screen:GetDescendants()) do
-                    if item:IsA("GuiButton") and visible(item) and #result<40 then
-                        table.insert(result,{path=item:GetFullName(),text=texts(item),active=item.Active})
-                    end
-                end
-            end
-        end
-        return result
-    end
-    return {available=signalFire~=nil,visible=visible,texts=texts,cash=cash,activate=activate,
-        buyButton=buyButton,diagnostic=diagnostic}
-end
-
-return Bridge
-
-end)()
-
-local Adapter = (function()
--- Luau · potato_adapter.luau · gameplay coordination for PlaceId 116701845804918 · Roblox / Delta · Luau 0.745
-local Adapter={}
-
-function Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,CutEngine,Chapter,Protocol,TopK,Burst)
-    local player=services.Players.LocalPlayer
-    local questMode=nil
-    local playerGui=player:WaitForChild("PlayerGui")
-    local world=services.Workspace
-    local packets=modules["Modules.Resources.Packets"] or {}
-    local protocol=Protocol.create(packets,modules["ModifiedPackages.Packet._Types"])
-    local afterSale,postSaleWeaponBought=false,false
-    local resumePosition,lastTable=nil,nil
-    local sellRetryAt,dynamiteAt,dynamiteSerial=0,0,0
-    local offerRetry={}
-    local deniedOffers={}
-    local upgradeGuard=Chapter.upgradeGuard()
-    local nativeVacuum=false
-    local vacuumRetryAt=0
-    local vacuumMisses=0
-    local heatUiAt,heatReadAt=0,0
-    local heatLabels={}
-    local vacuumHot=false
-    local upgradeAudit={}
-    local phaseGoal=nil
-    local phaseNeedsIncome=false
-    local bombPending=nil
-    local bombBackoff=0.1
-    local tableRetry=setmetatable({},{__mode="k"})
-    local progressGoal=nil
-    local snapshotAt=0
-    local peeling=modules["Controllers.PeelingController"] or {}
-    local cutting=modules["Controllers.CuttingController"] or {}
-    local pileController=modules["Controllers.PotatoPileController"] or {}
-    local toolController=modules["Controllers.ToolEquipController"] or {}
-    local storeView=modules["Controllers.StoreViewController"] or {}
-    local upgradeController=modules["Controllers.ToolUpgradeController"] or {}
-    local stateShared=modules["Shared.PlayerStateShared"] or {}
-    local cutShared=modules["Shared.CutToolShared"] or {}
-    local carryShared=modules["Shared.CarryUpgradeShared"] or {}
-    local connections={}
-    local openedUpgrade=false
-    local restoreHeadless=nil
-    local rejected=setmetatable({},{__mode="k"})
-    local variantCache=setmetatable({},{__mode="k"})
-    local variantEpoch=0
-    local candidate,findAt=nil,0
-    local queue,queueIndex,queueExpires={},1,0
-    local searchEmpty=false
-    local cooling=false
-    local coolingRetryAt,buyRetryAt,nextPickAt=0,0,0
-    local warmupAt=0
-    local adaptivePickDelay=0.04
-    local cachedPurchase,purchaseCacheAt,purchaseCash=nil,0,nil
-    local exactBagBound=false
-    local pumpkinSerial,gemSerial=0,0
-    local counts={collected=0,pumpkins=0,gems=0,sold=0,sales=0,throws=0,delivered=0,cuts=0,cooled=0,purchases=0}
-    local purchases={}
-    local cutEngine=nil
-    local last={}
-    local retryAt={}
-    local deliveryPending=nil
-    local cutGuiSnapshot=nil
-    local droneConsent,droneAsked,droneRound=false,false,nil
-    local masteryAt,mastered=0,false
-    local dynamiteMax=false
-    local productionReady=false
-    local opBulkReady=false
-    local bulkAt=nil
-    local bulkStats={entered=0,seconds=0,completed=false}
-    local pileBaseline=nil
-    local keyProbeAt=0
-    local keyProbeStats={attempts=0,confirmed=false}
-    local keyProbeGuard=Chapter.keyProbeGuard()
-    local bombTiming={remaining=0,source="unavailable"}
-    local autoFeedRetryAt=0
-    local nextBlurCheck=0
-    local placement=Chapter.placementTiming(modules["Shared.PotatoTableShared"])
-    local fastDeliverySuppressed=false
-    local actionTimings={}
-    local burst=Burst.new()
-    local dashboardAt,dashboardCache=0,nil
-    local upgradeMenuAt=nil
-    local upgradeMenuStats={opens=0,closed_seconds=0}
-    local cutDriving,closed=false,false
-    local equippedTool=nil
-    local specialCache,specialAt={},0
-    local logicalAttemptAt=0
-    local rejectedIds={}
-    local rateAt,stockBefore,cutUnits,cutRate=os.clock(),nil,0,0
-    local function itemPosition(item) return item.part and item.part.Position or item.position end
-    local function itemAlive(item)
-        return item and (item.part and item.part.Parent~=nil and item.part.Transparency<0.99 or item.logical and resolver.live(item.slot))
-    end
-    local function get(root,path)
-        for _,name in ipairs(path) do root=root and root:FindFirstChild(name) end
-        return root
-    end
-    local function safeCall(module,name,...)
-        if type(module[name])~="function" then return false,nil end
-        return pcall(module[name],...)
-    end
-    local function state()
-        local ok,value=safeCall(stateShared,"TryGetPlayerState",player)
-        if ok and type(value)=="table" and (value.Cash~=nil or value.CarryLevel~=nil) then return value end
-        ok,value=safeCall(stateShared,"TryGetPlayerState",player.UserId)
-        if ok and type(value)=="table" and (value.Cash~=nil or value.CarryLevel~=nil) then return value end
-        return nil
-    end
-    local function cash()
-        local data=state()
-        if data and type(data.Cash)=="number" and data.Cash==data.Cash then return data.Cash end
-        local label=get(playerGui,{"Cash","Counter","Value"})
-        return label and Core.parseAmount(label.Text) or nil
-    end
-    local function inventory()
-        local label=get(playerGui,{"Bag","Counter","Value"})
-        local count,capacity=Core.parseCapacity(label and label.Text)
-        local data=state()
-        count,exactBagBound=Core.bagCount(data,label and label.Text)
-        if data then
-            if type(data.Potatoes)=="number" and data.Potatoes>=0 and data.Potatoes%1==0 then
-                count=data.Potatoes exactBagBound=true
-            end
-            local ok,infinite=safeCall(carryShared,"HasInfiniteStorage",data)
-            if ok and infinite==true then capacity=math.huge end
-            if not capacity and type(data.CarryLevel)=="number" then
-                local level=carryShared.Levels and carryShared.Levels[data.CarryLevel]
-                if type(level)=="table" and type(level.Capacity)=="number" then capacity=level.Capacity end
-            end
-        end
-        if config.infiniteBag and not config.opAutoFinish then capacity=math.huge end
-        return count,capacity
-    end
-    local function alarm()
-        local quest=playerGui:FindFirstChild("QuestCard")
-        local label=quest and get(quest,{"PileHolder","Heat","Label"})
-        if not label then return nil end
-        local text=string.upper(label.Text)
-        return text:find("CHARRING",1,true)~=nil or text:find("COOL IT",1,true)~=nil
-            or text:find("BURNING",1,true)~=nil
-    end
-    local function isCutting()
-        if type(peeling.IsPeeling)=="boolean" then return peeling.IsPeeling end
-        local ok,value=safeCall(cutting,"GetPotato")
-        if ok and value~=nil and value~=false then return true end
-        local screen=playerGui:FindFirstChild("Peeling")
-        local cancel=screen and screen:FindFirstChild("Cancel",true)
-        return cancel~=nil and bridge.visible(cancel) and cancel.AbsoluteSize.X>0
-    end
-    cutEngine=CutEngine.create(config,{
-        clock=os.clock,
-        allowed=function() return not closed and cutDriving and Core.effective(config,"autoCut") end,
-        schedule=function(delay,callback) task.delay(delay,callback) end,
-        finish=function()
-            if not isCutting() then return false,"A mesa nao esta ativa." end
-            if not packets.PeelingFinished or type(packets.PeelingFinished.Fire)~="function" then return false,"Conclusao de corte indisponivel." end
-            return pcall(packets.PeelingFinished.Fire,packets.PeelingFinished)
-        end,
-        native=function(enabled)
-            local autoOk=safeCall(cutting,"SetAuto",enabled)
-            local heldOk=safeCall(cutting,"SetHeld",enabled)
-            if enabled and not autoOk and not heldOk then error("Controlador de movimento de corte indisponivel.") end
-        end,
-    })
-    local function release()
-        burst.cancel()
-        safeCall(toolController,"SetUsing",false)
-        cutDriving=false
-        equippedTool=nil
-        if cutEngine then cutEngine.pause() end
-        safeCall(cutting,"SetHeld",false)
-        safeCall(cutting,"SetAuto",false)
-        nativeVacuum=false
-        safeCall(pileController,"SetUseHeld",false)
-        if protocol.matches("ToolUsing",{"Boolean"}) then protocol.fire("ToolUsing",false) end
-    end
-    local function cancelCut()
-        release()
-        if isCutting() then
-            if type(packets.PeelingCancel)=="table" and type(packets.PeelingCancel.Fire)=="function" then
-                pcall(packets.PeelingCancel.Fire,packets.PeelingCancel)
-            end
-            safeCall(peeling,"StopPeeling")
-        end
-        if cutGuiSnapshot and peeling.IsPeeling~=true then
-            for object,value in pairs(cutGuiSnapshot) do
-                if object.Parent then pcall(function() if object:IsA("ScreenGui") then object.Enabled=value else object.Visible=value end end) end
-            end
-            cutGuiSnapshot=nil
-        end
-    end
-    local function waitUntil(predicate,timeout,valid)
-        local deadline=os.clock()+timeout
-        repeat
-            if not valid() then return false,"cancelado" end
-            if predicate() then return true end
-            services.RunService.Heartbeat:Wait()
-        until os.clock()>=deadline
-        return false,"o jogo nao confirmou a acao no tempo configurado"
-    end
-    local function equip(tool)
-        if tool==equippedTool then return end
-        local activated=false
-        if type(toolController.Equip)=="function" then
-            local ok=safeCall(toolController,"Equip",tool)
-            local read,current=safeCall(toolController,"GetEquippedTool")
-            activated=ok and (not read or current==tool)
-        end
-        local hotbar=playerGui:FindFirstChild("Hotbar")
-        local aliases={PotatoSucker="P0T4T0-3000",Shovel="Shovel",Dynamite="Dynamite",Hand="Hand"}
-        local wantedIcon=nil
-        for _,definition in ipairs((modules["Shared.ToolUpgradeShared"] or {}).Tools or {}) do if definition.Id==tool then wantedIcon=definition.Icon end end
-        if hotbar and not activated then
-            for _,button in ipairs(hotbar:GetDescendants()) do
-                local identified=button.Name==tool or button:GetAttribute("ToolId")==tool
-                if button:IsA("GuiButton") and not identified then
-                    for _,child in ipairs(button:GetDescendants()) do
-                        if child:IsA("TextLabel") and child.Text==aliases[tool] or wantedIcon and (child:IsA("ImageLabel") or child:IsA("ImageButton")) and child.Image==wantedIcon then identified=true break end
-                    end
-                end
-                if button:IsA("GuiButton") and identified then
-                    activated=bridge.activate(button,true)
-                    if activated then break end
-                end
-            end
-        end
-        if not activated and protocol.matches("ToolEquip",{"String"}) then activated=protocol.fire("ToolEquip",tool) end
-        if activated then equippedTool=tool end
-    end
-    local function interactionTool()
-        cancelCut() equip("Hand")
-    end
-    local function suckerOverheated()
-        if os.clock()<heatReadAt then return vacuumHot end
-        heatReadAt=os.clock()+0.3
-        local data=state()
-        vacuumHot=data and (data.SuckerOverheated==true or data.PotatoSuckerOverheated==true) or player:GetAttribute("SuckerOverheated")==true
-        if os.clock()>=heatUiAt then
-            heatLabels={} heatUiAt=os.clock()+5
-            for _,screen in ipairs(playerGui:GetChildren()) do
-                if screen.Name~="AnonymousPotatoHub" then
-                    for _,object in ipairs(screen:GetDescendants()) do if object:IsA("TextLabel") or object:IsA("TextButton") then table.insert(heatLabels,object) end end
-                end
-            end
-        end
-        if not vacuumHot then
-            for _,label in ipairs(heatLabels) do
-                if label.Parent and bridge.visible(label) then
-                    local text=string.upper(label.Text)
-                    if text:find("OVERHEAT",1,true) or text:find("SUPERAQUEC",1,true) then vacuumHot=true break end
-                end
-            end
-        end
-        return vacuumHot
-    end
-    local function collectTool()
-        local data=state()
-        local chosen=config.opAutoFinish and "Auto" or config.collectTool
-        if chosen=="Auto" and data and Chapter.owns(data,"PotatoSucker") then chosen="PotatoSucker" end
-        if chosen=="Auto" and config.clearPileFirst and dynamiteMax and data and Chapter.owns(data,"Shovel") then chosen="Shovel" end
-        if chosen=="Auto" then chosen=data and Chapter.owns(data,"PotatoSucker") and "PotatoSucker" or data and Chapter.owns(data,"Shovel") and "Shovel" or "Hand" end
-        if chosen=="PotatoSucker" and (suckerOverheated() or os.clock()<vacuumRetryAt) then
-            chosen=data and Chapter.owns(data,"Shovel") and "Shovel" or "Hand"
-        end
-        if chosen~="Hand" and not (data and Chapter.owns(data,chosen)) then chosen="Hand" end
-        equip(chosen)
-        nativeVacuum=not config.opAutoFinish and not config.auraCollect and chosen=="PotatoSucker" and config.rarity=="Any" and Core.effective(config,"autoFarm")
-        safeCall(pileController,"SetUseHeld",nativeVacuum)
-    end
-    local function tables()
-        local result={}
-        local machines=get(world,{"Map","PeelingMachines"})
-        for i=1,4 do
-            local model=machines and machines:FindFirstChild("PeelingTable"..i)
-            if model and (config.tableChoice=="Nearest" or config.tableChoice==model.Name) then
-                local prompt=get(model,{"TabelTop","PeelPrompt","Peel"})
-                if prompt and prompt:IsA("ProximityPrompt") then table.insert(result,prompt) end
-            end
-        end
-        local root=nav.actor()
-        if root then table.sort(result,function(a,b)
-            local pa,pb=nav.promptPosition(a),nav.promptPosition(b)
-            return (pa and (pa-root.Position).Magnitude or math.huge)<(pb and (pb-root.Position).Magnitude or math.huge)
-        end) end
-        return result
-    end
-    local function crateCount()
-        local area=get(world,{"Map","PeelingMachines","PotatoCrate","PotatoArea"})
-        return area and tonumber(area:GetAttribute("PotatoCount")) or 0
-    end
-    local function selectedTable(allowStock)
-        local options=tables()
-        for _,prompt in ipairs(options) do if prompt.Enabled and os.clock()>=(tableRetry[prompt] or 0) then return prompt end end
-        if allowStock and crateCount()>0 then
-            for _,prompt in ipairs(options) do if os.clock()>=(tableRetry[prompt] or 0) then return prompt end end
-        end
-        return nil
-    end
-    local function promptFor(category,id)
-        local model=get(world,{"Map","StoreItems",category,id})
-        return model and get(model,{"Price","PromptAttachment","ProximityPrompt"})
-    end
-    local function shopItem(category,id,group,rank)
-        if os.clock()<(offerRetry[id] or 0) then return nil end
-        local prompt=promptFor(category,id)
-        if not prompt or not prompt.Enabled or string.upper(prompt.ActionText)~="BUY" then return nil end
-        local price=bridge.cash(prompt.ObjectText)
-        if not price then return nil end
-        return {id=id,category=category,group=group,rank=rank,prompt=prompt,price=price,name=id}
-    end
-    local function owns(list,id)
-        if type(list)~="table" then return false end
-        if list[id]==true then return true end
-        for key,value in pairs(list) do if value==id or key==id and value~=false and value~=nil then return true end end
-        return false
-    end
-    local function bestCutRank(data)
-        local rank=1
-        local current=player:GetAttribute("CutToolId")
-        local ok,best=safeCall(cutShared,"GetBestTool",data)
-        if ok then current=type(best)=="table" and best.Id or best end
-        for index,tool in ipairs(cutShared.Tools or {}) do
-            local ownOk,owned=safeCall(cutShared,"OwnsTool",data,tool.Id)
-            if tool.Id==current or owns(data.CutTools,tool.Id) or ownOk and owned==true then rank=math.max(rank,index) end
-        end
-        return rank
-    end
-    local function upgradePrice(data,tool,id,level,button)
-        local shared=modules["Shared.ToolUpgradeShared"] or {}
-        if type(shared.GetUpgradeCost)=="function" then
-            local ok,value=pcall(shared.GetUpgradeCost,data,tool,id)
-            if ok and type(value)=="number" and value>0 then return value end
-        end
-        local prices=modules["Modules.Resources.Prices"] or {}
-        local loaded,profile=safeCall(prices,"Get",player)
-        if loaded then
-            local price=Chapter.profilePrice(profile,tool,id,level)
-            if price then return price end
-        end
-        if button and button.Parent then return bridge.cash(bridge.texts(button)) end
-        return nil
-    end
-    local function upgradeOffers(data,balance,includeUnaffordable)
-        local result={}
-        upgradeAudit={}
-        local shared=modules["Shared.ToolUpgradeShared"] or {}
-        for _,tool in ipairs({"Shovel","Dynamite","PotatoSucker","Hand","AutoPeeler","HandPeeler","Drone","Body"}) do
-            for _,id in ipairs(Chapter.allowed[tool] or {}) do
-                if Chapter.canUpgrade(data,tool,id,config) and (id~="Luck" or Chapter.luckAllowed(shared,data)) then
-                    local level=Chapter.level(shared,data,tool,id)
-                    local definition=Chapter.definition(shared,tool,id)
-                    local ok=definition~=nil
-                    local maxLevel=ok and Chapter.maximum(shared,definition) or nil
-                    local buttonOk,button=safeCall(upgradeController,"GetUpgradeButton",tool,id)
-                    if not buttonOk or typeof(button)~="Instance" or not button:IsA("GuiButton") then button=nil end
-                    local price=upgradePrice(data,tool,id,level,button)
-                    upgradeAudit[tool.."/"..id]={level=level,maximum=maxLevel,price=price,
-                        reason=level==nil and "level unavailable" or maxLevel==nil and "maximum unavailable" or level>=maxLevel and "maximum reached" or price==nil and "price unavailable" or not upgradeGuard.allowed(tool.."/"..id,level) and "refused without progress" or "eligible"}
-                    local maxed=button and button:FindFirstChild("Maxed")
-                    if level~=nil and maxLevel~=nil and upgradeGuard.allowed(tool.."/"..id,level) and level<Chapter.limit(tool,id,bestCutRank(data),#(cutShared.Tools or {}),config.worthEarlyLimit,config.nativeWalkUpgrade) and not (maxLevel and level>=maxLevel)
-                        and (button or protocol.matches("ToolUpgradePurchase",{"String","String"})) then
-                        local key=tool.."/"..id
-                        if os.clock()>=(offerRetry[key] or 0) and type(price)=="number" and (includeUnaffordable or Core.purchaseReady(config,balance,price,level,deniedOffers[key])) then
-                            table.insert(result,{group="upgrade",name=key,tool=tool,upgrade=id,button=button,
-                                price=price,level=level,rank=id=="PotatoWorth" and (level<config.worthEarlyLimit and -300 or -80) or tool=="Dynamite" and -200+Chapter.rank(tool,id) or tool=="Shovel" and -150 or tool=="Drone" and -175 or id=="Luck" and -50 or Chapter.rank(tool,id)})
-                        end
-                    end
-                end
-            end
-        end
-        table.sort(result,function(a,b) return a.rank<b.rank end)
-        return result
-    end
-    local function machineOffer(data,balance,includeUnaffordable)
-        if not config.buyMachines then return nil end
-        local shared=modules["Shared.ToolUpgradeShared"] or {}
-        if not Chapter.maxed(shared,data,"Dynamite") then return nil end
-        for _,spec in ipairs({{"PeelingMachine","HandPeeler","HasHandPeeler"},{"AutoPeelingMachine","AutoPeeler","HasAutoPeeler"}}) do
-            if data[spec[3]]~=true then
-                local model=get(world,{"Map","PeelingMachines",spec[1]})
-                local pricePart=model and model:FindFirstChild("Price")
-                local prompt=pricePart and get(pricePart,{"PromptAttachment","ProximityPrompt"})
-                local price=prompt and (bridge.cash(prompt.ObjectText) or bridge.cash(bridge.texts(pricePart)))
-                if prompt and string.upper(prompt.ActionText)=="BUY" and price and (includeUnaffordable or Core.affordable(config,balance,price,"Cash")) then
-                    return {id=spec[2],name=spec[2],group="machine",unlock=spec[3],prompt=prompt,price=price,rank=-75}
-                end
-            end
-        end
-        return nil
-    end
-    local function clearMenuBlur()
-        if not config.fixMenuBlur or isCutting() then return end
-        local good,open=safeCall(upgradeController,"IsOpen")
-        local storeGood,storeOpen=safeCall(storeView,"IsOpen")
-        if not good or not storeGood then return end
-        for _,parent in ipairs({services.Lighting,world.CurrentCamera}) do
-            if parent then
-                for _,effect in ipairs(parent:GetChildren()) do
-                    if effect:IsA("BlurEffect") and effect.Size>0 then effect.Size=0 end
-                end
-            end
-        end
-    end
-    local function nextPurchase()
-        local balance=cash()
-        local data=state()
-        if not balance or not data then return nil end
-        local shared=modules["Shared.ToolUpgradeShared"] or {}
-        phaseGoal=nil phaseNeedsIncome=false
-        if config.opAutoFinish and Chapter.opBulkReady(shared,data) and last.mountainEmpty~=true then progressGoal=nil return nil end
-        if not config.opAutoFinish and not config.teamFunding and config.clearPileFirst and Chapter.maxed(shared,data,"Dynamite") then
-            local goal=machineOffer(data,balance,true)
-            if not goal and data.HasAutoPeeler and Core.effective(config,"autoBuyUpgrades") then
-                for _,offer in ipairs(upgradeOffers(data,balance,true)) do if offer.tool=="AutoPeeler" then goal=offer break end end
-            end
-            if not goal and not Chapter.owns(data,"PotatoSucker") then goal=shopItem("Tools","P0T4T0-3000","collect",1) end
-            if not goal and not Chapter.owns(data,"Shovel") then goal=shopItem("Tools","Shovel","collect",40) end
-            if not goal and Chapter.owns(data,"PotatoSucker") and Core.effective(config,"autoBuyUpgrades") then
-                for _,offer in ipairs(upgradeOffers(data,balance,true)) do
-                    if offer.tool=="PotatoSucker" and (not goal or offer.upgrade=="PickAmount") then goal=offer end
-                end
-            end
-            if not goal and Core.effective(config,"autoBuyUpgrades") then
-                for _,offer in ipairs(upgradeOffers(data,balance,true)) do
-                    if offer.tool=="Shovel" or offer.tool=="Dynamite" or offer.tool=="AutoPeeler" or offer.tool=="PotatoSucker" or offer.tool=="Drone" or offer.tool=="Body" and offer.upgrade=="Luck" then goal=offer break end
-                end
-            end
-            phaseGoal=goal progressGoal=goal
-            if goal then
-                local blocked=deniedOffers[goal.name]
-                local budgetReady=Core.affordable(config,balance,goal.price,"Cash") and (not blocked or blocked.level~=goal.level or balance>=blocked.cash)
-                phaseNeedsIncome=not budgetReady
-                if budgetReady then return goal end
-            end
-            return nil
-        end
-        local options={}
-        if Core.effective(config,"autoBuyUpgrades") then
-            local available=upgradeOffers(data,balance,true)
-            local worth=upgradeAudit["Body/PotatoWorth"]
-            if worth and (worth.level==nil or worth.maximum==nil or worth.level<worth.maximum and worth.price==nil) then
-                progressGoal={name="Body/PotatoWorth: "..worth.reason}
-                return nil
-            end
-            for _,offer in ipairs(available) do
-                local blocked=deniedOffers[offer.name]
-                if not blocked or blocked.level~=offer.level or balance>=blocked.cash then table.insert(options,offer) end
-            end
-        end
-        if Core.effective(config,"autoBuyTools") or afterSale and config.buyAfterSell then
-            local best=bestCutRank(data)
-            if not config.teamFunding then
-                for index,tool in ipairs(cutShared.Tools or {}) do
-                    if index>best then local offer=shopItem("Knives",tool.Id,"cut",10) if offer then offer.tier=index table.insert(options,offer) end end
-                end
-            end
-            if Core.effective(config,"autoFarm") then
-                for _,id in ipairs({"Dynamite","Shovel","P0T4T0-3000"}) do
-                    local ownedId=id=="P0T4T0-3000" and "PotatoSucker" or id
-                    if not Chapter.owns(data,ownedId) then local offer=shopItem("Tools",id,"collect",20) if offer then table.insert(options,offer) end end
-                end
-            end
-        end
-        local _,capacity=inventory()
-        if config.opAutoFinish then
-            local machine=machineOffer(data,balance,true)
-            if machine then table.insert(options,machine) end
-        end
-        if Core.effective(config,"autoBuyStorage") and not config.infiniteBag and capacity~=math.huge and type(data.CarryLevel)=="number" then
-            local level=carryShared.Levels and carryShared.Levels[data.CarryLevel+1]
-            if type(level)=="table" and level.ItemName then local offer=shopItem("Storage",level.ItemName,"storage",90) if offer then offer.capacity=level.Capacity table.insert(options,offer) end end
-        end
-        local processing=config.opAutoFinish and last.mountainEmpty==true and Chapter.opBulkReady(shared,data)
-        local goal,affordable=Chapter.selectPurchase(Core,config,balance,options,processing)
-        progressGoal=goal
-        if affordable then return goal end
-        return nil
-    end
-
-    local function stockCount()
-        local area=get(world,{"Map","PeelingMachines","SellCrate","PotatoArea"})
-        local value=area and area:GetAttribute("PotatoCount")
-        return type(value)=="number" and value>=0 and value or nil
-    end
-    local function snapshot()
-        if os.clock()<snapshotAt then return last end
-        snapshotAt=os.clock()+0.12
-        placement.apply(config.fastDelivery and not fastDeliverySuppressed,config.placementDelay)
-        if bombPending and os.clock()>=bombPending.deadline then
-            bombPending=nil bombBackoff=math.min(12,math.max(0.5,bombBackoff*1.75)) dynamiteAt=os.clock()+bombBackoff
-        end
-        local count,capacity=inventory()
-        local gained,missed=burst.observe(os.clock(),count)
-        counts.collected+=gained
-        if missed and equippedTool=="PotatoSucker" then vacuumRetryAt=os.clock()+2 end
-        local heat,flowing,heatSource=resolver.heat()
-        cooling=Core.coolingLatch(cooling,heat,config,alarm())
-        local balance=cash()
-        if os.clock()>=purchaseCacheAt then
-            cachedPurchase=nextPurchase() purchaseCacheAt=os.clock()+0.7 purchaseCash=balance
-        end
-        local purchase=os.clock()>=buyRetryAt and cachedPurchase or nil
-        local crank=get(world,{"Map","PeelingMachines","PeelingMachine","CrankPromptPart","Crank"})
-        last={cash=balance,carried=count,capacity=capacity,heat=heat,flowing=flowing,heatSource=heatSource,
-            needCooling=cooling and not flowing,cutting=isCutting(),tableReady=selectedTable(true)~=nil,retryAt=retryAt,deliveryPending=deliveryPending~=nil,
-            hasCandidate=itemAlive(candidate) or queueIndex<=#queue and os.clock()<queueExpires,
-            noCandidate=searchEmpty,candidatePumpkin=candidate~=nil and candidate.pumpkin==true,
-            purchase=purchase,canBuy=purchase~=nil,buyRetryAt=buyRetryAt,coolingRetryAt=coolingRetryAt}
-        last.crankReady=crank~=nil and crank.Enabled
-        last.stock=stockCount()
-        if last.stock and stockBefore and last.stock>stockBefore then cutUnits+=last.stock-stockBefore end
-        stockBefore=last.stock
-        if os.clock()-rateAt>=1 then cutRate=cutUnits/(os.clock()-rateAt) cutUnits=0 rateAt=os.clock() end
-        last.cutRate=cutRate
-        local removedOk,removed=safeCall(pileController,"GetRemovedFraction")
-        last.mountainEmpty=removedOk and type(removed)=="number" and removed>=1
-        last.sellReady=Chapter.sellReady(config,last.stock,{cutting=last.cutting,crate=crateCount(),carried=count,exhausted=searchEmpty or last.mountainEmpty})
-        if not config.opAutoFinish and progressGoal and progressGoal.price and balance and balance<progressGoal.price+config.reserveCash and last.stock and last.stock>=math.min(50,config.sellThreshold) then last.sellReady=true end
-        last.sellRetryAt=sellRetryAt
-        last.afterSale=afterSale
-        last.returnToTable=afterSale and resumePosition~=nil
-        last.postSaleWeaponBought=postSaleWeaponBought
-        last.goal=progressGoal
-        local data=state()
-        if os.clock()>=masteryAt then
-            local shared=modules["Shared.ToolUpgradeShared"] or {}
-            dynamiteMax=Chapter.maxed(shared,data,"Dynamite")
-            mastered=Chapter.maxed(shared,data,"Shovel") and dynamiteMax
-            productionReady=Chapter.productionReady(shared,data)
-            opBulkReady=Chapter.opBulkReady(shared,data)
-            masteryAt=os.clock()+1
-        end
-        local clearReady=Chapter.clearReady(config,modules["Shared.ToolUpgradeShared"] or {},data)
-        last.focusClear=Core.effective(config,"autoFarm") and (config.clearPileFirst or config.opAutoFinish) and clearReady and removedOk and type(removed)=="number" and removed<1
-        local funding=Chapter.fundingPlan(Core,config,balance,progressGoal,crateCount(),last.stock,capacity,config.opAutoFinish and opBulkReady or productionReady)
-        last.opFunding=funding
-        if funding.needed and funding.cut then last.focusClear=false end
-        if funding.sell then last.sellReady=true end
-        last.bulkOnly=config.opAutoFinish and opBulkReady and last.focusClear
-        last.postClearUnload=config.opAutoFinish and opBulkReady and last.mountainEmpty and count and count>0
-        if last.bulkOnly then
-            if not bulkAt then
-                bulkAt=os.clock() bulkStats.entered+=1 bulkStats.completed=false
-                log("Sugador MAX: iniciando coleta continua ate esvaziar a montanha.")
-            end
-            bulkStats.seconds=os.clock()-bulkAt
-        elseif bulkAt then
-            bulkStats.seconds=os.clock()-bulkAt bulkStats.completed=last.mountainEmpty bulkAt=nil
-            if bulkStats.completed then log("Montanha vazia: retomando entrega e corte para a chave.") end
-        end
-        if config.opAutoFinish and removedOk and type(removed)=="number" and removed==removed and removed>=0 and removed<=1 then
-            if not pileBaseline then pileBaseline={time=os.clock(),fraction=removed} end
-            last.pileProgress={source="native GetRemovedFraction",removed_fraction=removed,
-                delta_fraction=math.max(0,removed-pileBaseline.fraction),elapsed=os.clock()-pileBaseline.time}
-        end
-        last.phase=dynamiteMax and (phaseGoal and "equipment: "..phaseGoal.name or "clear pile") or "fund dynamite"
-        if config.opAutoFinish then last.phase=funding.needed and "OP: renda para "..tostring(progressGoal and progressGoal.name) or opBulkReady and last.focusClear and "OP: coleta continua / sugador MAX" or last.focusClear and "OP: limpeza e melhorias" or last.mountainEmpty and "OP: cortar estoque e buscar chave" or "OP: preparar equipamentos" end
-        last.productionReady=productionReady
-        last.deliveryGoal=last.focusClear and Core.productionGoal(config,capacity,crateCount()) or nil
-        if funding.needed and not funding.cut then last.deliveryGoal=funding.deliveryGoal end
-        last.opBurst=burst.stats
-        local keyTarget=config.opAutoFinish and config.opKeyShortcut and resolver.keyTarget and resolver.keyTarget() or nil
-        last.keyProbeReady=keyTarget~=nil and data and data.HasKey~=true and count and capacity and count<capacity and os.clock()>=keyProbeAt and keyProbeGuard.allowed(keyTarget,last.mountainEmpty,os.clock())
-        if last.focusClear and os.clock()<autoFeedRetryAt and capacity==math.huge then last.deliveryGoal=math.huge end
-        local finalKnife=data and #(cutShared.Tools or {})>1 and bestCutRank(data)>=#cutShared.Tools
-        local remaining=math.max(0,config.cutBuffer-crateCount())
-        last.needBuffer=false
-        last.bufferDeliveryGoal=last.needBuffer and math.min(remaining,Core.deliveryGoal(config,capacity) or remaining) or nil
-        if os.clock()>=nextBlurCheck then nextBlurCheck=os.clock()+1 clearMenuBlur() end
-        last.drone=data and data.HasDrone==true
-        local round=data and data.RunStartTime or 0
-        if droneRound~=round then droneRound=round droneConsent=false droneAsked=false upgradeGuard.reset() end
-        last.droneReady=config.autoBuyDrone and droneConsent and not last.drone and Core.effective(config,"autoFarm")
-        last.askDrone=not last.bulkOnly and config.autoBuyDrone and not droneAsked and not last.drone and Core.effective(config,"autoFarm")
-        last.dynamiteReady=data and Chapter.owns(data,"Dynamite") and os.clock()>=dynamiteAt
-            and not bombPending and protocol.matches("DynamiteThrow",{"NumberU32"}) and itemAlive(candidate)
-        if last.dynamiteReady then
-            bombTiming.remaining,bombTiming.interval,bombTiming.source=Chapter.pickTiming(modules["Shared.ToolUpgradeShared"] or {},toolController,pileController,data,"Dynamite")
-            last.dynamiteReady=bombTiming.remaining<=0
-        end
-
-        last.canStageCut=get(world,{"Map","PeelingMachines","PotatoCrate","PotatoArea","PlacePrompt"})~=nil
-        return last
-    end
-    local function popQueue(valid,onlyPumpkins)
-        local folder=world:FindFirstChild("PotatoPile")
-        if not folder then return nil end
-        local params=RaycastParams.new()
-        params.FilterType=Enum.RaycastFilterType.Include params.FilterDescendantsInstances={folder}
-        local checked=0
-        while queueIndex<=#queue and os.clock()<queueExpires do
-            if not valid() then return nil end
-            local item=queue[queueIndex] queueIndex+=1
-            local rejectedAt=item.part and rejected[item.part] or rejectedIds[item.slot] or 0
-            if itemAlive(item) and os.clock()>=rejectedAt and (not onlyPumpkins or item.pumpkin) then
-                if item.part then item.slot=resolver.slot(item.part) end
-                local exposed=resolver.exposed and resolver.exposed(item.part,item.slot)
-                local hit=exposed==nil and item.part and world:Raycast(item.part.Position+Vector3.new(0,25,0),Vector3.new(0,-25.5,0),params)
-                if item.slot and (item.logical or exposed==true or hit and hit.Instance==item.part) then candidate=item searchEmpty=false snapshotAt=0 return item end
-            end
-            checked+=1
-            if checked%24==0 then services.RunService.Heartbeat:Wait() end
-        end
-        return nil
-    end
-
-    local function findCandidate(valid)
-        snapshotAt=0
-        local batch=Core.batchCollect(config)
-        local bulk=batch or productionReady and config.throughputMode and config.rarity=="Any"
-        local prepared,prepareError=resolver.prepare(valid)
-        if not prepared then return nil,prepareError end
-        local held,capacity=inventory()
-        local onlyPumpkins=held~=nil and capacity~=nil and held>=capacity and not Core.effective(config,"autoDynamite")
-        if variantEpoch~=resolver.stats.generation then
-            variantEpoch=resolver.stats.generation variantCache=setmetatable({},{__mode="k"})
-            candidate=nil queue={} queueIndex=1 queueExpires=0
-        end
-        if itemAlive(candidate) and os.clock()>=(candidate.part and rejected[candidate.part] or rejectedIds[candidate.slot] or 0) and (not onlyPumpkins or candidate.pumpkin) then return candidate end
-        if os.clock()<queueExpires then
-            local nextItem=popQueue(valid,onlyPumpkins)
-            if nextItem then return nextItem end
-        end
-        if os.clock()<findAt then return nil end
-        candidate=nil findAt=os.clock()+0.4
-        local root=nav.actor()
-        if not root then return nil end
-        local folder=world:FindFirstChild("PotatoPile")
-        if not folder then return nil end
-        local parts=folder:GetChildren()
-        local selected=TopK.new(256)
-        local unresolved=false
-        local attempts=0
-        if variantEpoch~=resolver.stats.generation then
-            variantEpoch=resolver.stats.generation variantCache=setmetatable({},{__mode="k"})
-        end
-        for index,part in ipairs(parts) do
-            if not valid() then return nil end
-            if part:IsA("BasePart") and part.Transparency<0.99 and os.clock()>=(rejected[part] or 0) then
-                local distance=(part.Position-root.Position).Magnitude
-                if distance<=config.maxDistance then
-                    local pumpkin=part.Name=="Pumpkin"
-                    local kind,slot,isGem
-                    local needKind=not batch
-                    if needKind then
-                        local cached=variantCache[part]
-                        if cached and resolver.slot(part)==cached.slot then kind,pumpkin,slot,isGem=cached.kind,cached.pumpkin,cached.slot,cached.gem
-                        else
-                            if attempts<8 or resolver.stats.kind~="unresolved" then
-                                attempts+=1
-                                slot=resolver.slot(part)
-                                if slot then kind,pumpkin,isGem=resolver.kind(part,slot) end
-                            end
-                            if kind then variantCache[part]={kind=kind,pumpkin=pumpkin,slot=slot,gem=isGem} end
-                        end
-                        if not kind and not pumpkin then unresolved=true end
-                    end
-                    if (questMode=="gem" and isGem or Core.acceptVariant(config,kind,pumpkin,isGem)) and (not onlyPumpkins or pumpkin) then
-                        local worth=({Normal=1,Golden=3,Diamond=6,Rainbow=10,Key=1,Charred=0.5})[kind] or 1
-                        local score=not config.opAutoFinish and config.selection=="Random" and math.random()*1000 or distance
-                        if config.keyPriority and kind=="Key" then score-=10000000000 end
-                        if config.pumpkinPriority and pumpkin then score-=1000000000 end
-                        if isGem and (questMode=="gem" or not bulk and config.gemPriority and config.collectGems) then score-=1000000 end
-                        if not bulk and config.priorityValue and config.rarity=="Any" then score-=worth*10000 end
-                        selected.add({part=part,kind=kind,pumpkin=pumpkin,gem=isGem,slot=slot,distance=distance,worth=worth,score=score})
-                    end
-                end
-            end
-            if index%700==0 then services.RunService.Heartbeat:Wait() end
-        end
-        if not bulk and (questMode=="gem" or config.logicalSpecials and (config.collectPumpkins or config.collectGems)) then
-            if os.clock()>=specialAt then specialCache=resolver.specialTargets(valid) specialAt=os.clock()+20 end
-            local seen={}
-            for _,entry in ipairs(selected.values()) do if entry.slot then seen[entry.slot]=true end end
-            for _,item in ipairs(specialCache) do
-                if not valid() then return nil end
-                if os.clock()>=logicalAttemptAt and not seen[item.slot] and os.clock()>=(rejectedIds[item.slot] or 0) and resolver.live(item.slot)
-                    and (questMode=="gem" and item.gem or Core.acceptVariant(config,item.kind,item.pumpkin,item.gem))
-                    and (not onlyPumpkins or item.pumpkin) then
-                    local distance=(item.position-root.Position).Magnitude
-                    if distance<=config.maxDistance then
-                        item.score=distance-(item.pumpkin and config.pumpkinPriority and 1000000000
-                            or item.gem and (config.gemPriority or questMode=="gem") and 1000000 or 0)
-                        selected.add(item)
-                    end
-                end
-            end
-        end
-        local choices=selected.values()
-        queue,queueIndex,queueExpires=choices,1,os.clock()+5
-        candidate=popQueue(valid,onlyPumpkins)
-        searchEmpty=candidate==nil
-        if not candidate and unresolved and config.rarity~="Any" then
-            return nil,"Raridade indisponivel: o cliente nao expos um vinculo verificavel entre peca, indice e estado."
-        end
-        return candidate
-    end
-    local function approachPart(item,valid)
-        local root=nav.actor()
-        if not root or not itemAlive(item) then return false,"alvo indisponivel" end
-        local position=itemPosition(item)
-        if (root.Position-position).Magnitude<=math.min(18,config.auraRadius) then return true end
-        if config.movement=="Teleport" then return nav.goTo(position+Vector3.new(0,3.5,0),valid,true) end
-        local delta=root.Position-position
-        local horizontal=Vector3.new(delta.X,0,delta.Z)
-        local near=position+(horizontal.Magnitude>0.1 and horizontal.Unit or Vector3.new(0,0,1))*5
-        local params=RaycastParams.new() params.FilterType=Enum.RaycastFilterType.Exclude
-        params.FilterDescendantsInstances={player.Character,world:FindFirstChild("PotatoPile")}
-        local hit=world:Raycast(near+Vector3.new(0,12,0),Vector3.new(0,-120,0),params)
-        if not hit then return false,"sem piso proximo da batata" end
-        local ok,message=nav.goTo(hit.Position,valid)
-        root=nav.actor()
-        if not ok then return false,message end
-        return root~=nil and itemAlive(item) and (root.Position-position).Magnitude<=18,"alvo fora do alcance"
-    end
-    local dynamite
-    local function keyProbe(valid)
-        local item=resolver.keyTarget and resolver.keyTarget()
-        if not item then return true end
-        keyProbeAt=os.clock()+10 snapshotAt=0
-        if not protocol.matches("PotatoPick",{"NumberU32"}) or not protocol.matches("ToolSwing",{}) then return true end
-        interactionTool()
-        local moved,why=approachPart(item,valid)
-        if not moved then keyProbeStats.last_result=tostring(why) return false,why end
-        local current=resolver.keyTarget()
-        if not valid() or not current or current.slot~=item.slot then return true end
-        if not keyProbeGuard.begin(current,last.mountainEmpty,os.clock()) then return true end
-        keyProbeAt=0
-        keyProbeStats.attempts+=1 keyProbeStats.id=item.slot keyProbeStats.source=item.source
-        local swung=protocol.fire("ToolSwing")
-        local sent,message=false,"Ferramenta de coleta indisponivel."
-        if swung then sent,message=protocol.fire("PotatoPick",item.slot) end
-        if not sent then keyProbeStats.last_result="local send failed" return false,message end
-        local confirmed=waitUntil(function()
-            local data=state()
-            return data and data.HasKey==true
-        end,0.8,valid)
-        keyProbeStats.confirmed=confirmed==true
-        keyProbeStats.last_result=confirmed and "HasKey confirmed by player state" or "no HasKey confirmation; normal progression continues"
-        snapshotAt=0 candidate=nil
-        if confirmed then log("Atalho da chave confirmado pelo estado do jogo.")
-        else log("Teste da chave: o servidor nao confirmou a coleta antecipada.") end
-        return true
-    end
-    local function collect(valid)
-        local batch=Core.batchCollect(config)
-        if batch and (burst.stats.pending>0 or os.clock()<nextPickAt) then return true end
-        if isCutting() then cancelCut() end
-        local item,message=findCandidate(valid)
-        if not item then
-            if message then log(message,"error") end
-            return true
-        end
-        collectTool()
-        local pickInterval=nil
-        if batch then
-            local remaining
-            remaining,pickInterval=Chapter.pickTiming(modules["Shared.ToolUpgradeShared"] or {},toolController,pileController,state(),equippedTool or "Hand")
-            if remaining>0 then nextPickAt=os.clock()+math.min(remaining,0.25) return true end
-        end
-        local before,capacity=inventory()
-        local beforePumpkin,beforeGem=pumpkinSerial,gemSerial
-        if not before or not capacity or before>=capacity and not item.pumpkin then return false,"bolsa cheia ou capacidade desconhecida" end
-        local identity=resolver.stats.identity
-        local mapped=resolver.stats.native_map or identity and math.max(identity.confirmed_geometry or 0,identity.confirmed_permuted or 0)>=3
-        if batch and mapped and exactBagBound and not item.logical and not item.pumpkin then
-            local deliveryLimit=config.teamFunding and Core.effective(config,"autoDeliver") and Core.deliveryGoal(config,capacity)
-            local batchCapacity=deliveryLimit or capacity
-            local limit=burst.budget(os.clock(),before,batchCapacity)
-            if limit==0 then return true end
-            local moved,why=approachPart(item,valid)
-            if not moved then candidate=nil return false,why end
-            if valid() and Core.effective(config,"autoDynamite") and not bombPending and os.clock()>=dynamiteAt then dynamite(valid) end
-            local root=nav.actor()
-            local folder=world:FindFirstChild("PotatoPile")
-            if not root or not folder then return true end
-            local params=RaycastParams.new()
-            params.FilterType=Enum.RaycastFilterType.Include params.FilterDescendantsInstances={folder}
-            local ids={}
-            local function add(target)
-                if not itemAlive(target) or target.pumpkin or not target.part
-                    or (target.part.Position-root.Position).Magnitude>math.min(18,config.auraRadius) then return end
-                local id=resolver.slot(target.part)
-                local exposed=resolver.exposed and resolver.exposed(target.part,id)
-                local hit=exposed==nil and world:Raycast(target.part.Position+Vector3.new(0,25,0),Vector3.new(0,-25.5,0),params)
-                if exposed~=true and (not hit or hit.Instance~=target.part) then return end
-                if not burst.available(id,os.clock()) or table.find(ids,id) then return end
-                table.insert(ids,id)
-            end
-            add(item)
-            local inspected=0
-            while #ids<limit and queueIndex<=#queue and inspected<64 do
-                local extra=queue[queueIndex]
-                if itemAlive(extra) and (itemPosition(extra)-root.Position).Magnitude>math.min(18,config.auraRadius) then break end
-                queueIndex+=1 inspected+=1 add(extra)
-            end
-            candidate=nil snapshotAt=0
-            if not valid() or #ids==0 then return true end
-            if not protocol.matches("PotatoPick",{"NumberU32"}) or not protocol.matches("ToolSwing",{}) then return false,"Protocolo de coleta OP indisponivel." end
-            if not burst.begin(os.clock(),before,ids) then return true end
-            nextPickAt=os.clock()+math.max(0.08,pickInterval or 0.08)
-            if protocol.matches("ToolUsing",{"Boolean"}) then protocol.fire("ToolUsing",true) end
-            for _,id in ipairs(ids) do
-                if not valid() then burst.cancel() return false,"cancelado" end
-                local swung=protocol.fire("ToolSwing")
-                local sent=swung and protocol.fire("PotatoPick",id)
-                if not sent then burst.cancel() return false,"Pedido OP recusado pelo protocolo local." end
-            end
-            -- Poll from snapshots instead of blocking the scheduler on every target.
-            return true
-        end
-        local function confirmedPick()
-            local count=inventory()
-            return count~=nil and count>before or item.pumpkin and pumpkinSerial>beforePumpkin or item.gem and gemSerial>beforeGem
-        end
-        if os.clock()<nextPickAt then return true end
-        local ok,why=approachPart(item,valid)
-        if not ok then if item.part then rejected[item.part]=os.clock()+5 else rejectedIds[item.slot]=os.clock()+30 end candidate=nil findAt=0 return false,why end
-        if not valid() then return false,"cancelado" end
-        item.slot=item.part and resolver.slot(item.part) or item.slot
-        item.geometry=item.part and resolver.physicalSlot(item.part) or nil
-        if item.slot then
-            item.kind,item.pumpkin,item.gem=resolver.kind(item.part,item.slot)
-            if not (questMode=="gem" and item.gem or Core.acceptVariant(config,item.kind,item.pumpkin,item.gem)) then candidate=nil return true end
-        end
-        if item.logical then logicalAttemptAt=os.clock()+5 end
-        local picked=false
-        if item.slot and type(packets.PotatoPick)=="table" and type(packets.PotatoPick.Fire)=="function"
-            and type(packets.ToolSwing)=="table" and type(packets.ToolSwing.Fire)=="function" then
-            local targets={item}
-            local root=nav.actor()
-            local limit=Core.pickLimit(config,before,capacity,item.pumpkin)
-            if last.deliveryGoal and last.deliveryGoal<math.huge then limit=math.min(limit,math.max(1,last.deliveryGoal-before)) end
-            if last.needBuffer then limit=math.min(limit,math.max(1,(last.bufferDeliveryGoal or 1)-before)) end
-            local identity=resolver.stats.identity
-            if not identity or math.max(identity.confirmed_geometry or 0,identity.confirmed_permuted or 0)<3 then limit=1 end
-            while #targets<limit and queueIndex<=#queue and root do
-                local extra=queue[queueIndex]
-                if not itemAlive(extra) then queueIndex+=1
-                elseif extra.pumpkin or extra.logical or (itemPosition(extra)-root.Position).Magnitude>math.min(18,config.auraRadius) then break
-                else
-                    extra.slot=extra.part and resolver.slot(extra.part) or extra.slot
-                    if not extra.slot then break end
-                    queueIndex+=1 table.insert(targets,extra)
-                end
-            end
-            local sent,errorMessage=pcall(function()
-                if protocol.matches("ToolUsing",{"Boolean"}) then protocol.fire("ToolUsing",true) end
-                for _,target in ipairs(targets) do
-                    if not valid() then break end
-                    packets.ToolSwing:Fire()
-                    packets.PotatoPick:Fire(target.slot)
-                end
-            end)
-            if not sent then log("Coleta direta indisponivel; usando entrada nativa: "..tostring(errorMessage),"error") end
-            picked=sent
-        end
-        if not picked then return false,"Indice da batata nao confirmado; filtro especifico mantido em espera." end
-        local confirmed,reason=waitUntil(confirmedPick,config.speedMode=="Turbo" and math.min(0.65,config.actionTimeout) or config.actionTimeout,valid)
-        if not confirmed and valid() and item.part and resolver.alternate then
-            local alternative=resolver.alternate(item.part,item.slot)
-            if alternative then
-                local name,pumpkin,gem=resolver.kind(item.part,alternative)
-                if Core.acceptVariant(config,name,pumpkin,gem) then
-                    local ok=protocol.fire("PotatoPick",alternative)
-                    if ok then
-                        confirmed,reason=waitUntil(confirmedPick,0.4,valid)
-                        if confirmed then item.slot=alternative end
-                    end
-                end
-            end
-        end
-        local after=inventory()
-        if confirmed then
-            vacuumMisses=0
-            if item.part and not nativeVacuum then resolver.confirm(item.part,item.slot,item.geometry) end
-            counts.collected+=math.max(0,(after or before)-before)
-            adaptivePickDelay=math.max(0.04,adaptivePickDelay*0.9)
-        else
-            if equippedTool=="PotatoSucker" then
-                vacuumMisses+=1
-                if vacuumMisses>=2 then vacuumRetryAt=os.clock()+2 vacuumMisses=0 end
-            end
-            if item.part then rejected[item.part]=os.clock()+3 else rejectedIds[item.slot]=os.clock()+30 end
-            adaptivePickDelay=math.min(0.6,math.max(0.08,adaptivePickDelay*1.3))
-        end
-        snapshotAt=0
-        local cooldown=config.speedMode=="Turbo" and adaptivePickDelay or Core.tickInterval(config)
-        local data=state()
-        if data and config.speedMode~="Turbo" then
-            local good,value=safeCall(pileController,"GetPickCooldown",equippedTool or "Hand")
-            if good and type(value)=="number" and value>0 and value<3 then cooldown=math.max(cooldown,value) end
-        end
-        nextPickAt=os.clock()+cooldown candidate=nil
-        return confirmed,reason
-    end
-    local function deliver(valid)
-        local before=inventory()
-        if not before or before<=0 then deliveryPending=nil snapshotAt=0 return true end
-        if not deliveryPending then
-            interactionTool()
-            local machines=get(world,{"Map","PeelingMachines"})
-            local prompt
-            local target=Core.progress(config) and (last.focusClear and productionReady and "Auto" or "Crate") or config.deliveryTarget
-            if target=="Table" then prompt=selectedTable(true)
-            elseif target=="Manual" then prompt=machines and get(machines,{"PeelingMachine","Cube.033","Load"})
-            elseif target=="Auto" then prompt=machines and get(machines,{"AutoPeelingMachine","Cube.042","Load"})
-            else
-                local data=state()
-                local automatic=machines and get(machines,{"AutoPeelingMachine","Cube.042","Load"})
-                if config.buyMachines and (last.mountainEmpty or last.focusClear) and productionReady and data and data.HasAutoPeeler and automatic and automatic.Enabled then prompt=automatic
-                else prompt=machines and get(machines,{"PotatoCrate","PotatoArea","PlacePrompt"}) end
-            end
-            if not prompt then return false,"Destino selecionado indisponivel." end
-            if target=="Auto" and not prompt.Enabled then
-                autoFeedRetryAt=os.clock()+3 snapshotAt=0
-                if select(2,inventory())==math.huge then return true,"Automatico ocupado; continuando coleta." end
-                prompt=machines and get(machines,{"PotatoCrate","PotatoArea","PlacePrompt"})
-            end
-            local ok,message=nav.trigger(prompt,valid)
-            if not ok then return false,message end
-            deliveryPending={prompt=prompt,last=before,remaining=before,progressAt=os.clock(),began=os.clock(),total=0}
-        end
-        local pending=deliveryPending
-        local deadline=os.clock()+math.max(4,math.min(8,config.actionTimeout))
-        repeat
-            if not valid() then return false,"cancelado" end
-            local count=inventory()
-            if count and count<pending.last then
-                local amount=pending.last-count
-                counts.delivered+=amount pending.total+=amount pending.progressAt=os.clock()
-                snapshotAt=0
-            end
-            if count then pending.last=count pending.remaining=count end
-            if count==0 then
-                log("Entrega concluida: "..tostring(pending.total).." batatas.")
-                deliveryPending=nil snapshotAt=0 candidate=nil
-                return true
-            end
-            if os.clock()-pending.progressAt>2 then
-                local prompt=pending.prompt
-                if prompt and prompt.Parent and prompt.Enabled then
-                    local ok,message=nav.trigger(prompt,valid)
-                    if not ok then return false,message end
-                    pending.progressAt=os.clock()
-                elseif pending.total>0 and os.clock()-pending.progressAt>1 then
-                    deliveryPending=nil autoFeedRetryAt=os.clock()+3 snapshotAt=0
-                    return true,"Carga parcial confirmada; retomando coleta."
-                elseif os.clock()-pending.progressAt>math.max(8,config.actionTimeout) then
-                    deliveryPending=nil snapshotAt=0
-                    return false,"Entrega parou sem progresso; destino sera reavaliado."
-                end
-            end
-            services.RunService.Heartbeat:Wait()
-        until os.clock()>=deadline
-        return true,"Entrega em andamento."
-    end
-    local function cut(valid)
-        if not isCutting() then return true end
-        local _,potato=safeCall(cutting,"GetPotato")
-        local data=state()
-        local tool=data and cutShared.Tools and cutShared.Tools[bestCutRank(data)] or nil
-        cutDriving=true
-        local ok,message=cutEngine.tick(true,potato,cash(),tool)
-        if not ok then cancelCut() table.clear(tableRetry) retryAt.enterCut=os.clock()+1 snapshotAt=0 end
-        if not valid() then return false,"cancelado" end
-        return ok,message
-    end
-    local function enterCut(valid)
-        interactionTool()
-        local prompt=selectedTable(true)
-        if not prompt then return false,"Nenhuma mesa liberada com batatas." end
-        cutGuiSnapshot={}
-        for _,screen in ipairs(playerGui:GetChildren()) do
-            if screen:IsA("ScreenGui") and screen.Name~="AnonymousPotatoHub" then
-                cutGuiSnapshot[screen]=screen.Enabled
-                for _,frame in ipairs(screen:GetChildren()) do if frame:IsA("GuiObject") then cutGuiSnapshot[frame]=frame.Visible end end
-            end
-        end
-        nav.aim(prompt,config.aimTable)
-        local ok,message=nav.trigger(prompt,valid)
-        if not ok then nav.clearAim() tableRetry[prompt]=os.clock()+3 snapshotAt=0 return false,message end
-        local fast=config.opAutoFinish and config.opFastPrompts and prompt.HoldDuration==0
-        local confirmed,why=waitUntil(isCutting,math.min(fast and 1.25 or 3,config.actionTimeout),valid)
-        if not confirmed and valid() and prompt.Enabled then
-            local tried=nav.trigger(prompt,valid,{method="hold"})
-            if tried then confirmed,why=waitUntil(isCutting,math.min(2,config.actionTimeout),valid) end
-        elseif not confirmed and fast and valid() then
-            confirmed,why=waitUntil(isCutting,0.75,valid)
-        end
-        nav.clearAim()
-        if confirmed then lastTable=prompt cutDriving=true else tableRetry[prompt]=os.clock()+3 snapshotAt=0 end
-        return confirmed,why
-    end
-    local function cool(valid)
-        coolingRetryAt=os.clock()+2
-        local root=nav.actor()
-        local previous=root and root.Position
-        interactionTool()
-        local prompt=get(world,{"Map","Water","WaterTerminal","3","Button","WaterPrompt"})
-        if not prompt then return false,"WaterPrompt nao encontrado." end
-        local initialHeat=resolver.heat()
-        local originalHold=prompt.HoldDuration
-        nav.aim(prompt,config.aimCooling)
-        local confirmed,reason=false,nil
-        local attempts={{method="hold",holdSeconds=config.coolHoldSeconds},{method="native"}}
-        if config.coolHoldFallback and config.coolHoldSeconds<originalHold then table.insert(attempts,{method="hold",holdSeconds=originalHold}) end
-        for attempt,options in ipairs(attempts) do
-            local ok,message=nav.trigger(prompt,valid,options)
-            if not ok then reason=message
-            else
-                confirmed,reason=waitUntil(function()
-                    local heat,flowing=resolver.heat()
-                    return flowing or heat and (heat<=config.heatStop or initialHeat and heat<initialHeat-1)
-                end,attempt==1 and 1 or 2,valid)
-            end
-            if confirmed or not valid() then break end
-        end
-        nav.clearAim()
-        snapshotAt=0
-        if confirmed then
-            counts.cooled+=1 log("Valvula confirmada: agua fluindo ou calor diminuindo.")
-            coolingRetryAt=os.clock()+config.coolingRetry
-            if config.returnAfterCooling and previous and valid() then nav.goTo(previous,valid,true) end
-        end
-        return confirmed,reason
-    end
-    local function crank(valid)
-        cancelCut()
-        local prompt=get(world,{"Map","PeelingMachines","PeelingMachine","CrankPromptPart","Crank"})
-        if not prompt or not prompt.Enabled then return false,"Cortador manual indisponivel." end
-        local before=prompt.ObjectText
-        local ok,message=nav.trigger(prompt,valid)
-        if not ok then return false,message end
-        return waitUntil(function() return not prompt.Parent or not prompt.Enabled or prompt.ObjectText~=before end,config.actionTimeout,valid)
-    end
-    local function buy(valid,selected)
-        local item=selected or nextPurchase()
-        if not item then return true end
-        local beforeState=state()
-        local beforeCash=cash()
-        local beforeRank=beforeState and bestCutRank(beforeState)
-        local beforeCarry=beforeState and beforeState.CarryLevel
-        local shared=modules["Shared.ToolUpgradeShared"] or {}
-        local beforeLevel=item.group=="upgrade" and Chapter.level(shared,beforeState,item.tool,item.upgrade) or nil
-        local previous=nav.actor()
-        previous=previous and previous.Position
-        local wasCutting=isCutting()
-        local function confirmed()
-            local data=state()
-            if not data then return false end
-            if item.group=="machine" then return data[item.unlock]==true end
-            if item.group=="upgrade" then
-                local current=Chapter.level(shared,data,item.tool,item.upgrade)
-                return current~=nil and beforeLevel~=nil and current>beforeLevel
-            end
-            if item.group=="cut" and beforeRank and bestCutRank(data)>beforeRank then return true end
-            if item.group=="storage" and beforeCarry and data.CarryLevel>beforeCarry then return true end
-            if item.group=="collect" and Chapter.owns(data,item.id=="P0T4T0-3000" and "PotatoSucker" or item.id) then return true end
-            local current=cash()
-            return current and beforeCash and current<beforeCash-0.001
-        end
-        local function finish(success,message,deferred)
-            if item.group=="upgrade" then
-                if restoreHeadless then restoreHeadless() restoreHeadless=nil end
-            else safeCall(storeView,"Close") end
-            if success and not deferred then
-                counts.purchases+=1
-                if #purchases<100 then table.insert(purchases,{name=item.name,group=item.group}) end
-                if afterSale and item.group=="cut" then postSaleWeaponBought=true end
-                log("Compra confirmada: "..item.name..".")
-            end
-            if item.group=="upgrade" and not deferred then upgradeGuard.result(item.name,beforeLevel,success) end
-            if item.group=="upgrade" and not success then
-                deniedOffers[item.name]={cash=math.max((beforeCash or 0)*1.5,(beforeCash or 0)+math.max(0.1,(item.price or 0)*0.5)),level=beforeLevel}
-            elseif success and not deferred then deniedOffers[item.name]=nil end
-            clearMenuBlur()
-            offerRetry[item.name]=success and not deferred and 0 or os.clock()+20
-            buyRetryAt=os.clock()+(success and 0.15 or 1)
-            cachedPurchase=nil purchaseCacheAt=0 snapshotAt=0
-            if wasCutting and previous and valid() and item.group~="upgrade" and not afterSale then nav.goTo(previous,valid,true) end
-            return success,message
-        end
-        if item.group=="upgrade" then
-            local definition=Chapter.definition(shared,item.tool,item.upgrade)
-            local definitionOk=definition~=nil
-            local maximum=definitionOk and Chapter.maximum(shared,definition)
-            if maximum==nil or beforeLevel==nil or beforeLevel>=maximum or not upgradeGuard.allowed(item.name,beforeLevel) then return finish(true,"Melhoria concluida ou bloqueada para reavaliacao.",true) end
-            -- Prices/buttons are read without opening or selecting the game's tabs.
-            -- Native upgrade callbacks had side effects on unrelated game ScreenGuis.
-            if beforeLevel==nil then return finish(true,"Nivel de melhoria indisponivel.",true) end
-            local ok,button=safeCall(upgradeController,"GetUpgradeButton",item.tool,item.upgrade)
-            if ok and typeof(button)=="Instance" and button:IsA("GuiButton") then item.button=button end
-            item.price=upgradePrice(state(),item.tool,item.upgrade,beforeLevel,item.button) or item.price
-            if not valid() then return finish(false,"cancelado") end
-            if not item.price or not Core.affordable(config,cash(),item.price,"Cash") then return finish(true,"Aguardando saldo para "..item.name,true) end
-            local fired,why
-            if protocol.matches("ToolUpgradePurchase",{"String","String"}) then
-                fired,why=protocol.fire("ToolUpgradePurchase",item.tool,item.upgrade)
-            elseif item.button then fired,why=bridge.activate(item.button,true)
-            else return finish(true,"Botao de melhoria ainda indisponivel.",true) end
-            if not fired then return finish(false,why) end
-            local success,message=waitUntil(confirmed,math.min(3,config.actionTimeout),valid)
-            return finish(success,message)
-        end
-        if not Core.affordable(config,beforeCash,item.price,"Cash") then return finish(true,"Aguardando saldo.",true) end
-        interactionTool()
-        local approached,why=nav.trigger(item.prompt,valid)
-        if not approached then return finish(false,why) end
-        local button,message
-        local ready,reason=waitUntil(function()
-            if confirmed() then return true end
-            button,message=bridge.buyButton(item.price)
-            return button~=nil
-        end,2,valid)
-        if confirmed() then return finish(true) end
-        if protocol.matches("StorePurchase",{"Instance","String"}) then
-            local model=item.prompt:FindFirstAncestorOfClass("Model")
-            if model then
-                local sent=protocol.fire("StorePurchase",model,"Buy")
-                if sent then
-                    local accepted=waitUntil(confirmed,1.5,valid)
-                    if accepted then return finish(true) end
-                end
-            end
-        end
-        if not ready then return finish(false,message or reason) end
-        if not Core.affordable(config,cash(),item.price,"Cash") then return finish(true,"Saldo alterado.",true) end
-        local activated,why2=bridge.activate(button)
-        if not activated then return finish(false,why2) end
-        local success,reason2=waitUntil(confirmed,math.min(3,config.actionTimeout),valid)
-        return finish(success,reason2)
-    end
-    local function manualUpgrade(tool,id,valid)
-        if not table.find(Chapter.allowed[tool] or {},id) then return false,"Melhoria desconhecida." end
-        local data=state()
-        if not Chapter.owns(data,tool) then return false,"Ferramenta ainda nao adquirida." end
-        local shared=modules["Shared.ToolUpgradeShared"] or {}
-        local level=Chapter.level(shared,data,tool,id)
-        local maximum=Chapter.maximum(shared,Chapter.definition(shared,tool,id))
-        if level==nil or maximum==nil then return false,"O jogo ainda nao informou o nivel da melhoria." end
-        if level>=maximum then return false,"Melhoria ja esta no maximo." end
-        local ok,button=safeCall(upgradeController,"GetUpgradeButton",tool,id)
-        if not ok or typeof(button)~="Instance" or not button:IsA("GuiButton") then button=nil end
-        local price=upgradePrice(data,tool,id,level,button)
-        if not price then return false,"O jogo ainda nao informou o preco." end
-        if not Core.affordable(config,cash(),price,"Cash") then return false,"Saldo ou limite de compra insuficiente." end
-        return buy(valid,{group="upgrade",name=tool.."/"..id,tool=tool,upgrade=id,
-            button=button,price=price,level=level})
-    end
-    local function sell(valid)
-        local before=stockCount()
-        if not before or before<=0 then return true end
-        local root=nav.actor()
-        resumePosition=config.returnAfterSell and root and root.Position or nil
-        interactionTool()
-        local prompt=get(world,{"Map","PeelingMachines","SellCrate","PotatoArea","SellPrompt"})
-        sellRetryAt=os.clock()+3
-        local ok,message=nav.trigger(prompt,valid)
-        if not ok then return false,message end
-        local function stockDecreased()
-            local amount=stockCount()
-            return amount~=nil and amount<before
-        end
-        local fast=config.opAutoFinish and config.opFastPrompts and prompt.HoldDuration==0
-        local confirmed,why=waitUntil(stockDecreased,math.min(fast and 1.25 or 4,config.actionTimeout),valid)
-        if not confirmed and fast and valid() then
-            if prompt.Parent and prompt.Enabled and not stockDecreased() then
-                nav.trigger(prompt,valid,{method="hold"})
-            end
-            confirmed,why=waitUntil(stockDecreased,math.min(1.75,config.actionTimeout),valid)
-        end
-        if confirmed then
-            counts.sales+=1 counts.sold+=math.max(0,before-(stockCount() or before))
-            afterSale=true postSaleWeaponBought=false
-            cachedPurchase=nil purchaseCacheAt=0 snapshotAt=0
-            log("Venda confirmada: "..tostring(before-(stockCount() or before)).." batatas.")
-        end
-        return confirmed,why
-    end
-    local function returnTable(valid)
-        local position=resumePosition
-        afterSale=false resumePosition=nil postSaleWeaponBought=false snapshotAt=0
-        if not position or last.focusClear or last.needBuffer then return true end
-        local ok,message=nav.goTo(position,valid,true)
-        if not ok then return false,message end
-        if Core.effective(config,"autoCut") and selectedTable(true) then return enterCut(valid) end
-        return true
-    end
-    dynamite=function(valid)
-        local data=state()
-        if not Chapter.owns(data,"Dynamite") or not itemAlive(candidate) then return true end
-        if not protocol.matches("DynamiteThrow",{"NumberU32"}) then return true end
-        local remaining,interval,source=Chapter.pickTiming(modules["Shared.ToolUpgradeShared"] or {},toolController,pileController,data,"Dynamite")
-        bombTiming={remaining=remaining,interval=interval,source=source}
-        if remaining>0 then dynamiteAt=os.clock()+remaining return true end
-        local root=nav.actor()
-        if not root then return false,"personagem indisponivel" end
-        local target=itemPosition(candidate)
-        if (root.Position-target).Magnitude>18 then
-            local moved,why=approachPart(candidate,valid)
-            if not moved then return false,why end
-        end
-        local equipped=protocol.matches("ToolEquip",{"String"})
-        if equipped then equip("Dynamite") end
-        safeCall(pileController,"SetUseHeld",false)
-        local before=dynamiteSerial
-        local ok,message=protocol.fire("DynamiteThrow",candidate.slot)
-        local localInterval=config.opAutoFinish and 0.1 or math.max(config.dynamiteInterval,config.dynamiteAggressive and 0.1 or 1)
-        dynamiteAt=os.clock()+math.max(localInterval,interval or 0)
-        if ok then bombPending={serial=before,deadline=os.clock()+0.8} end
-        if equipped then
-            local tool=Chapter.owns(data,"PotatoSucker") and "PotatoSucker" or Chapter.owns(data,"Shovel") and "Shovel" or "Hand"
-            equip(tool)
-        end
-        collectTool()
-        if equipped and Chapter.owns(data,"PotatoSucker") and protocol.matches("ToolUsing",{"Boolean"}) then protocol.fire("ToolUsing",true) end
-        return ok,message
-
-    end
-
-    if cutting.PotatoCut and type(cutting.PotatoCut.Connect)=="function" then
-        local ok,connection=pcall(cutting.PotatoCut.Connect,cutting.PotatoCut,function() counts.cuts+=1 end)
-        if ok then table.insert(connections,connection) end
-    end
-    for _,item in ipairs({{"PeelingStarted","start"},{"PeelingNextPotato","next"},{"PeelingStopped","stop"}}) do
-        local packet=packets[item[1]]
-        local event=packet and packet.OnClientEvent
-        if type(event)=="table" and type(event.Connect)=="function" then
-                local eventKind=item[2]
-                local ok,connection=pcall(event.Connect,event,function() cutEngine.event(eventKind) end)
-            if ok then table.insert(connections,connection) end
-        end
-    end
-    local pumpkinEvent=packets.PotatoPumpkinCollected and packets.PotatoPumpkinCollected.OnClientEvent
-    if type(pumpkinEvent)=="table" and type(pumpkinEvent.Connect)=="function" then
-        local ok,connection=pcall(pumpkinEvent.Connect,pumpkinEvent,function(first)
-            if typeof(first)=="Instance" and first:IsA("Player") and first~=player then return end
-            pumpkinSerial+=1
-            counts.pumpkins+=1
-        end)
-        if ok then table.insert(connections,connection) end
-    end
-    local function watchReward(name,fn)
-        local packet=packets[name]
-        local event=packet and packet.OnClientEvent
-        if type(event)=="table" and type(event.Connect)=="function" then
-            local ok,connection=pcall(event.Connect,event,function(first)
-                if typeof(first)=="Instance" and first:IsA("Player") and first~=player then return end
-                fn()
-            end)
-            if ok then table.insert(connections,connection) end
-        end
-    end
-    watchReward("PotatoDiamondCollected",function() gemSerial+=1 counts.gems+=1 end)
-    watchReward("DynamiteThrown",function()
-        dynamiteSerial+=1
-        if bombPending then counts.throws+=1 bombPending=nil bombBackoff=math.max(0.1,bombBackoff*0.8) end
-    end)
-    local function stageCut(valid)
-        local prompt=get(world,{"Map","PeelingMachines","PotatoCrate","PotatoArea","PlacePrompt"})
-        local before=inventory()
-        if not before or before<=0 then return true end
-        local ok,message=nav.trigger(prompt,valid)
-        if not ok then return false,message end
-        return waitUntil(function() local n=inventory() return n and n<before end,config.actionTimeout,valid)
-    end
-    local function reset()
-        burst.cancel()
-        snapshotAt=0
-        candidate=nil findAt=0 queue={} queueIndex=1 queueExpires=0 searchEmpty=false
-        cachedPurchase=nil purchaseCacheAt=0
-        variantCache=setmetatable({},{__mode="k"})
-        specialCache={} specialAt=0 equippedTool=nil
-    end
-    local function recover(action,attempt)
-        retryAt[action]=os.clock()+(action=="collect" and math.min(0.6,0.1*(attempt or 1)) or math.min(12,0.5*2^math.min(attempt or 1,4)))
-        snapshotAt=0
-        if action=="collect" or action=="dynamite" then candidate=nil findAt=0 end
-        if action=="enterCut" or action=="cut" or action=="returnTable" then cancelCut() end
-        if action=="deliver" or action=="stageCut" then
-            if not deliveryPending or deliveryPending.total==0 then fastDeliverySuppressed=true placement.apply(false,config.placementDelay) end
-            local count=inventory()
-            if not count or count<=0 then deliveryPending=nil end
-        end
-        if action=="buy" then cachedPurchase=nil purchaseCacheAt=0 end
-    end
-    local function drone(valid)
-        if not droneConsent or not config.autoBuyDrone then return true end
-        local data=state()
-        if data and data.HasDrone then return true end
-        interactionTool()
-        local prompt=get(world,{"Map","StoreItems","Robux","Drone","Price","PromptAttachment","ProximityPrompt"})
-        if not prompt then return false,"Loja do drone indisponivel." end
-        local reached,why=nav.trigger(prompt,valid)
-        if not reached then return false,why end
-        local selected=nil
-        waitUntil(function()
-            local screen=playerGui:FindFirstChild("StoreView")
-            if not screen then return false end
-            for _,button in ipairs(screen:GetDescendants()) do
-                if button:IsA("GuiButton") and bridge.visible(button) and button.Active then
-                    local text=string.upper(bridge.texts(button.Parent or button))
-                    local gems=text:find("GEM",1,true) or text:find("DIAMOND",1,true) or text:find("💎",1,true)
-                    local action=string.upper(bridge.texts(button).." "..button.Name)
-                    local buyAction=action:find("BUY",1,true) or action:find("PURCHASE",1,true) or action:find("COMPRAR",1,true)
-                    if buyAction and gems and not text:find("ROBUX",1,true) and not text:find("R$",1,true) and Core.parseAmount(text)==80 then selected=button return true end
-                end
-            end
-            return false
-        end,2,valid)
-        local success=false
-        if selected and valid() then
-            local sent=bridge.activate(selected)
-            if sent then success=waitUntil(function() local current=state() return current and current.HasDrone==true end,3,valid) end
-        end
-        safeCall(storeView,"Close")
-        retryAt.drone=os.clock()+30
-        if success then droneConsent=false counts.purchases+=1 log("Drone adquirido; melhorias de drone liberadas.") return true end
-        return false,"Compra do drone nao confirmada: exige oferta visivel de 80 gemas e saldo suficiente."
-    end
-    local function restoreGame()
-        interactionTool() nav.stop() safeCall(storeView,"Close")
-        safeCall(upgradeController,"SetOpen",false)
-        for _,name in ipairs({"Cash","Bag","Hotbar","ToolHotbar"}) do
-            local screen=playerGui:FindFirstChild(name)
-            if screen and screen:IsA("ScreenGui") then screen.Enabled=true end
-        end
-        clearMenuBlur()
-        table.clear(retryAt) table.clear(tableRetry) reset()
-    end
-    local function upgradeLevels(shared,data,tool)
-        local levels={}
-        for _,id in ipairs(Chapter.allowed[tool]) do
-            levels[id]={level=Chapter.level(shared,data,tool,id),
-                maximum=Chapter.maximum(shared,Chapter.definition(shared,tool,id))}
-        end
-        return levels
-    end
-    return {
-        recordAction=function(name,seconds,success)
-            local entry=actionTimings[name] or {calls=0,seconds=0,failures=0,max=0}
-            entry.calls+=1 entry.seconds+=seconds entry.max=math.max(entry.max,seconds)
-            if not success then entry.failures+=1 end
-            actionTimings[name]=entry
-        end,
-        dashboard=function()
-            if os.clock()<dashboardAt then return dashboardCache end
-            dashboardAt=os.clock()+1
-            local known,open=safeCall(upgradeController,"IsOpen")
-            if known and open and not upgradeMenuAt then
-                upgradeMenuAt=os.clock() upgradeMenuStats.opens+=1
-            elseif known and not open and upgradeMenuAt then
-                upgradeMenuStats.closed_seconds+=os.clock()-upgradeMenuAt upgradeMenuAt=nil
-            end
-            local data=state()
-            local shared=modules["Shared.ToolUpgradeShared"] or {}
-            local cards,details={},{}
-            local specs={{"Dynamite","DINAMITE"},{"Shovel","PA"},{"AutoPeeler","AUTOMATICO"},{"PotatoSucker","P0T4T0-3000"},
-                {"Body","GERAL"},{"Hand","MAO"},{"Drone","DRONE"}}
-            for _,spec in ipairs(specs) do
-                local tool=spec[1]
-                local owned=Chapter.owns(data,tool)
-                local current,total=0,0
-                local icon=nil
-                for _,definition in ipairs(shared.Tools or {}) do if definition.Id==tool then icon=definition.Icon end end
-                if owned then
-                    local levels=upgradeLevels(shared,data,tool)
-                    for _,id in ipairs(Chapter.allowed[tool]) do
-                        local entry=levels[id]
-                        current+=entry.level or 0 total+=entry.maximum or 0
-                        local audit=upgradeAudit[tool.."/"..id]
-                        table.insert(details,{tool=spec[2],toolId=tool,id=id,level=entry.level,maximum=entry.maximum,
-                            icon=icon,price=audit and audit.price})
-                    end
-                end
-                table.insert(cards,{id=tool,title=spec[2],owned=owned,current=current,total=total,icon=icon})
-            end
-            dashboardCache={tools=cards,details=details,production=config.opAutoFinish and opBulkReady or productionReady,phase=last.phase,cash=cash(),gemLuck=Chapter.level(shared,data,"Body","Luck") or 0,op=config.opAutoFinish,progress=config.autoProgress}
-            return dashboardCache
-        end,
-        droneAsked=function() droneAsked=true end,droneConfirm=function(value) droneConsent=value==true snapshotAt=0 end,
-        snapshot=snapshot,findCandidate=findCandidate,release=release,cancelCut=cancelCut,reset=reset,recover=recover,restoreGame=restoreGame,counts=counts,purchases=purchases,
-        manualUpgrade=manualUpgrade,
-        questMode=function(action)
-            if action==questMode then return end
-            questMode=action
-            candidate=nil queue={} queueIndex=1 findAt=0 snapshotAt=0
-        end,
-        actions={keyProbe=keyProbe,drone=drone,collect=collect,deliver=deliver,cut=cut,enterCut=enterCut,cool=cool,buy=buy,crank=crank,stageCut=stageCut,sell=sell,returnTable=returnTable,dynamite=dynamite},
-        stop=function()
-            cancelCut() nav.stop()
-            if restoreHeadless then restoreHeadless() restoreHeadless=nil end
-            if openedUpgrade then safeCall(upgradeController,"SetOpen",false) openedUpgrade=false end
-        end,
-        defer=function(action,seconds)
-            if action=="buy" then buyRetryAt=os.clock()+seconds end
-            if action=="cool" then coolingRetryAt=os.clock()+seconds end
-            if action=="escape" then retryAt.escape=os.clock()+seconds end
-        end,
-        close=function()
-            closed=true
-            placement.close()
-            cancelCut() nav.close() resolver.close()
-            if restoreHeadless then restoreHeadless() restoreHeadless=nil end
-            for _,connection in ipairs(connections) do connection:Disconnect() end
-        end,
-        diagnostic=function()
-            local snap=snapshot()
-            local levels={}
-            local data=state()
-            local shared=modules["Shared.ToolUpgradeShared"] or {}
-            for tool in pairs(Chapter.allowed) do
-                if Chapter.owns(data,tool) then
-                    for id,entry in pairs(upgradeLevels(shared,data,tool)) do levels[tool.."/"..id]=entry end
-                end
-            end
-            return {place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=resolver.stats,pile_progress=snap.pileProgress,op_funding=snap.opFunding,op_bulk=bulkStats,dynamite_timing=bombTiming,key_shortcut={results=keyProbeStats,guard=keyProbeGuard.records},
-                upgrade_audit=upgradeAudit,upgrade_levels=levels,native_upgrade_menu={opens=upgradeMenuStats.opens,
-                    seconds_open=upgradeMenuStats.closed_seconds+(upgradeMenuAt and os.clock()-upgradeMenuAt or 0)},
-                state={cash=snap.cash,stock=snap.stock,goal=snap.goal and snap.goal.name,carried=snap.carried,capacity=snap.capacity==math.huge and "infinite" or snap.capacity,
-                    heat=snap.heat,heat_source=snap.heatSource,cutting=snap.cutting,production_ready=productionReady,sucker_overheated=vacuumHot,sucker_retry_at=vacuumRetryAt,inventory_source=exactBagBound and "replicated Potatoes" or "UI",phase=snap.phase,upgrade_guard=upgradeGuard.records,water_flowing=snap.flowing,cut_units_per_second=snap.cutRate,delivery_pending=deliveryPending~=nil,equipped_request=equippedTool},counts=counts,op_burst=burst.stats,cut_engine=cutEngine.stats,placement_timing=placement.stats,action_timings=actionTimings,prompts=nav.stats,retry_at=retryAt,schemas={using=protocol.schema("ToolUsing"),upgrade=protocol.schema("ToolUpgradePurchase"),throw=protocol.schema("DynamiteThrow"),equip=protocol.schema("ToolEquip")},buttons=bridge.diagnostic()}
-        end,
-    }
-end
-
-return Adapter
-
-end)()
-
-local BOOT_VERSION="0.37.5"
-
-
-local function bootAnonymousPotato()
--- Luau · potato_main.luau · Anonymous Potato entry point · Roblox / Delta · Luau 0.745
--- Core, Session, Gate, UI, Navigation, Resolver, Bridge and Adapter are bundled above this entry point.
-local VERSION=BOOT_VERSION
-local EXPECTED_PLACE=116701845804918
-local EXPECTED_GAME=10767408330
-local loaderRoot="https://raw.githubusercontent.com/AnonymosScripts/"
-local loaderPath="/main/loader.lua?v="..VERSION
-local fetchLoader=string.format([[
-    local run
-    for _,url in ipairs({%q,%q}) do
-        local ok,source=pcall(game.HttpGet,game,url)
-        if ok and type(source)=="string" and string.find(source,%q,1,true) then
-            run=loadstring(source)
-            if run then break end
-        end
-    end
-]],loaderRoot.."AnonHub"..loaderPath,loaderRoot.."Script-1-Evolvy-Hub"..loaderPath,
-    'local version="'..VERSION..'"')
-
-local services={}
-for _,name in ipairs({"Players","Workspace","ReplicatedStorage","HttpService","RunService",
-    "Lighting","ProximityPromptService","UserInputService","TweenService","PathfindingService","StarterGui","TeleportService"}) do services[name]=game:GetService(name) end
-local idleServiceOk,idleService=pcall(game.GetService,game,"VirtualUser")
-if idleServiceOk then services.VirtualUser=idleService end
-local coreOk,coreGui=pcall(game.GetService,game,"CoreGui")
-if coreOk then services.CoreGui=coreGui end
-local player=services.Players.LocalPlayer
-assert(player,"Execute o hub no cliente Roblox dentro da experiencia.")
-if game.PlaceId~=EXPECTED_PLACE or game.GameId~=EXPECTED_GAME then
-    pcall(services.StarterGui.SetCore,services.StarterGui,"SendNotification",{
-        Title="AnonHub",Text="Este arquivo e para Descasque a Batata, PlaceId "..EXPECTED_PLACE,Duration=8})
-    return
-end
-local environment=type(getgenv)=="function" and getgenv() or _G
-local previous=environment.AnonymousPotatoSession
-if type(previous)=="table" and type(previous.close)=="function" then pcall(previous.close) end
-local lifecycle=Session.lifecycle()
-local cancellation=Core.newCancellation()
-local registry={close=lifecycle.close,version=VERSION}
-environment.AnonymousPotatoSession=registry
-hub.attach(lifecycle.close)
-lifecycle.add(function() if environment.AnonymousPotatoSession==registry then environment.AnonymousPotatoSession=nil end end)
-local json={encode=function(value) return services.HttpService:JSONEncode(value) end,
-    decode=function(value) return services.HttpService:JSONDecode(value) end}
-local files={read=type(readfile)=="function" and readfile or nil,write=type(writefile)=="function" and writefile or nil}
-local queueTransfer=type(queue_on_teleport)=="function" and queue_on_teleport
-    or type(queueonteleport)=="function" and queueonteleport
-    or type(syn)=="table" and type(syn.queue_on_teleport)=="function" and syn.queue_on_teleport or nil
-local transferBootstrap=string.format([[
-    local deadline=os.clock()+35
-    while (not game:IsLoaded() or game.GameId==0 or game.JobId==""
-        or not game:GetService("Players").LocalPlayer) and os.clock()<deadline do task.wait(0.2) end
-    local player=game:GetService("Players").LocalPlayer
-    if game.PlaceId~=%d or game.GameId~=%d or not player or type(readfile)~="function" then return end
-    local ok,data=pcall(function()
-        return game:GetService("HttpService"):JSONDecode(readfile("Evolvy_Chapter2_Transfer_v1.json"))
-    end)
-    if not ok or type(data)~="table" or data.account~=player.UserId or data.game~=game.GameId
-        or data.from==game.JobId or type(data.untilTime)~="number" or os.time()>data.untilTime then return end
-    %s
-    if run then run() end
-]],EXPECTED_PLACE,EXPECTED_GAME,fetchLoader)
-local handoff=Handoff.create({read=files.read,write=files.write,queue=queueTransfer,encode=json.encode,decode=json.decode,clock=os.time},
-    {account=player.UserId,game=game.GameId,job=game.JobId},transferBootstrap)
-local store=Session.create(Core,json,files)
-local config=store.load()
-local ui,adapter,activeAction=nil,nil,nil
-local escapeDriver=nil
-local endingSkipper=nil
-local antiIdle=nil
-local completionHandled,expiryHandled=false,false
-local finishSeconds=nil
-local modules={}
-local lastRecovery=nil
-local sessionStartedAt=os.clock()
-local failures={}
-local function log() end
-local function notify(message)
-    if config.notifications then
-        pcall(services.StarterGui.SetCore,services.StarterGui,"SendNotification",{
-            Title="AnonHub",Text=T(tostring(message)),Duration=5})
-    end
-end
-
-local deadline=os.clock()+24
-hub.progress(0.5,"Identificando lobby ou partida…","Identifying lobby or match…")
-local expectedPhase=handoff.destination()
-local phase=Lobby.stage(services.Workspace)
-while (not phase or expectedPhase and phase~=expectedPhase) and lifecycle.alive() and os.clock()<deadline do
-    task.wait(0.2)
-    phase=Lobby.stage(services.Workspace)
-end
-if not phase or not lifecycle.alive() then
-    notify("O hub nao encontrou o lobby nem a area de partida. Aguarde o mapa e execute novamente.")
-    lifecycle.close()
-    return
-end
-local function pause(message)
-    Core.pause(config) cancellation.cancel()
-    if adapter then adapter.stop() end
-    if ui then ui.refresh() ui.status(message or "Rotinas pausadas.") end
-    if message then log(message) end
-end
-lifecycle.add(function()
-    cancellation.cancel()
-    if adapter then adapter.close() end
-end)
-local function restoreInterface()
-    cancellation.cancel()
-    if adapter then adapter.restoreGame() end
-    lastRecovery=Recovery.restore(services,modules)
-    table.clear(failures)
-    if ui then ui.show() ui.refresh() ui.recoveryInfo(lastRecovery) end
-    log("Recuperacao de interface: "..lastRecovery.restored.." componentes; "..#lastRecovery.cloned.." telas recriadas; "..lastRecovery.errors.." falhas.")
-    if #lastRecovery.missing>0 then
-        local message="O jogo ainda nao disponibilizou: "..table.concat(lastRecovery.missing,", ")..". Nenhum modelo recuperavel foi encontrado."
-        log(message,"error")
-    end
-end
-if phase=="chapter" and config.autoRepairGui then restoreInterface() end
-local resume=handoff.take(phase)
-local memberAccess={plan=hub.access.plan or "Member",keyLabel=hub.access.keyLabel or "••••",
-    expiresAt=hub.access.expiresAt,lifetime=hub.access.lifetime,source=hub.access.source}
-local gate={
-    membership=function() return Membership.describe(memberAccess,os.time()) end,
-    expired=function() return Membership.expired(memberAccess,os.time()) end,
-}
-local quickStartOP=hub.startNow==true
-local function reconnect(settings)
-    if gate.expired() then return false,"A licenca expirou." end
-    local nextOptions=Handoff.options(settings)
-    if nextOptions.reconnectCount>=2 then return false,"Limite de reconexoes atingido. Abra o jogo novamente." end
-    nextOptions.reconnectCount+=1
-    local armed,why=handoff.arm("lobby",nextOptions)
-    if not armed then handoff.clear() return false,why end
-    local ok=pcall(services.TeleportService.Teleport,services.TeleportService,EXPECTED_PLACE,player)
-    if not ok then handoff.clear() return false,"O Roblox recusou a reconexao." end
-    return true
-end
-local function attachIdle(active)
-    local idle=AntiIdle.create(services.VirtualUser and player.Idled,
-        function() return lifecycle.alive() and config.antiAfk and active() end,function()
-            services.VirtualUser:CaptureController()
-            services.VirtualUser:ClickButton2(Vector2.new(0,0))
-        end,log)
-    lifecycle.add(idle.close)
-    return idle
-end
-if phase=="lobby" then
-    hub.progress(0.8,"Abrindo a central do lobby…","Opening the lobby panel…")
-
-    local lobbyConfig=Core.validate({movement="Walk",travelTimeout=20},true)
-    local nav=Navigation.create(services,lobbyConfig,log)
-    lifecycle.add(nav.close)
-    local bridge=Bridge.create(services,Core)
-    Lobby.open(services,lifecycle,gate,bridge,nav,handoff,Handoff.options,resume,
-        quickStartOP or resume~=nil,{
-            idle=attachIdle,reconnect=reconnect,
-            watch=function(active,onError) Reconnect.watch(services,lifecycle,active,onError) end,
-            features=LobbyExtras.create(services,bridge,nav,lifecycle),
-            settings=lobbySettings({read=files.read,write=files.write,encode=json.encode,decode=json.decode},player.UserId),
-            view=LobbyView.create,rarest=LobbyExtras.rarest,language=hub.chooseLanguage,
-        })
-    hub.ready()
-    return
-end
-quickStartOP=quickStartOP or resume~=nil
-local pendingOP=quickStartOP
-local autoStartedCharacter=nil
-local pendingUpgrade=nil
-local selectedQuest,questAction=nil,nil
-local questRows,nextQuestPoll={},0
-local function clearQuest()
-    selectedQuest=nil questAction=nil
-    if adapter then adapter.questMode(nil) end
-end
-local loopEnabled=resume and resume.repeatRun==true or false
-if resume then
-    config.skipEndingScene=resume.skipOutro
-    config.releaseEndingCamera=resume.skipOutro
-    if resume.autoCrates then config.collectPumpkins=true end
-end
-local loopAttempted,reportAt=false,nil
-local returning=false
-local loopStatus=nil
-local function stopLoop()
-    loopEnabled=false
-    pendingOP=false
-    pendingUpgrade=nil
-    clearQuest()
-    handoff.clear()
-end
-
-local moduleNames={
-    "Shared.PlayerStateShared","Shared.PotatoPileShared","Shared.PotatoKindShared","Shared.PotatoHoldShared",
-    "Shared.PotatoTableShared","Shared.CarryUpgradeShared","Shared.CutToolShared","Shared.ToolUpgradeShared","Shared.FireShared",
-    "Modules.Resources.Prices","Modules.Resources.Packets","Controllers.SyncController","Controllers.PotatoPileController",
-    "Controllers.PotatoTableController","Controllers.PeelingController","Controllers.CuttingController",
-    "Controllers.FireController","Controllers.StoreViewController","Controllers.ToolUpgradeController","Controllers.ToolEquipController",
-    "Controllers.Chapter2OutroController",
-    "ModifiedPackages.Packet._Types",
-}
-
-for index,path in ipairs(moduleNames) do
-    if not lifecycle.alive() then return end
-    if index==1 or index%4==0 then
-        hub.progress(0.5+0.35*(index-1)/#moduleNames,"Carregando funções do jogo…","Loading game features…")
-    end
-    local instance=services.ReplicatedStorage
-    for name in string.gmatch(path,"[^%.]+") do instance=instance and instance:FindFirstChild(name) end
-    if instance and instance:IsA("ModuleScript") then
-        local completed,ok,value=false,false,nil
-        task.spawn(function() ok,value=pcall(require,instance) completed=true end)
-        local deadline=os.clock()+6
-        while not completed and lifecycle.alive() and os.clock()<deadline do task.wait(0.05) end
-        if completed and ok and type(value)=="table" then modules[path]=value end
-    end
-end
-if not lifecycle.alive() then return end
-local nav=Navigation.create(services,config,log)
-local resolver=Resolver.create(modules,services,log,Observer,Spatial,nil,NativeMap)
-lifecycle.add(resolver.close)
-local nativeOk,nativeError=pcall(resolver.discover)
-if not nativeOk then log("Leitura do mapa nativo indisponivel: "..tostring(nativeError),"error") end
-resolver.requestSync()
-local syncDeadline=os.clock()+1.2
-while lifecycle.alive() and not resolver.ready() and os.clock()<syncDeadline do task.wait(0.05) end
-if not lifecycle.alive() then resolver.close() return end
-local bridge=Bridge.create(services,Core)
-
-adapter=Adapter.create(services,modules,Core,config,nav,resolver,bridge,log,CutEngine,Chapter,Protocol,TopK,Burst)
-escapeDriver=Exit.create(services,modules,nav,log)
-endingSkipper=Exit.endingSkipper(player.PlayerGui,bridge,os.clock,function()
-    local camera=services.Workspace.CurrentCamera
-    local character=player.Character
-    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
-    if not camera or camera.CameraType~=Enum.CameraType.Scriptable or not humanoid or humanoid.Health<=0 then return false end
-    camera.CameraSubject=humanoid
-    camera.CameraType=Enum.CameraType.Custom
-    return true
-end,function()
-    local camera=services.Workspace.CurrentCamera
-    return camera and camera.CameraType.Name
-end)
-local endingPackets=modules["Modules.Resources.Packets"] or {}
-for _,name in ipairs({"CinematicBarsEnabled","CinematicBarsDisabled","RunReportShown","EscapeFailed"}) do
-    local packet=endingPackets[name]
-    local signal=packet and packet.OnClientEvent
-    if signal and type(signal.Connect)=="function" then
-        local eventName=name
-        local ok,connection=pcall(signal.Connect,signal,function()
-            if eventName=="RunReportShown" then reportAt=os.clock() end
-            endingSkipper.event(eventName)
-        end)
-        if ok and connection then lifecycle.add(function() connection:Disconnect() end) end
-    end
-end
-local outro=modules["Controllers.Chapter2OutroController"] or {}
-local function tryOutro(finishedAt)
-    local stats=endingSkipper.stats
-    if not finishedAt or stats.outro_attempted or stats.sent or os.clock()-finishedAt>12
-        or type(outro.IsPlaying)~="function" or type(outro.Cancel)~="function" then return end
-    local ok,playing=pcall(outro.IsPlaying)
-    if not ok or playing~=true then return end
-    stats.outro_attempted=true
-    local canceled=pcall(outro.Cancel,nil)
-    local checked,stillPlaying=pcall(outro.IsPlaying)
-    stats.outro_stopped=canceled and checked and stillPlaying==false
-    endingSkipper.event(stats.outro_stopped and "outro_cancel_confirmed" or "outro_cancel_unconfirmed")
-end
-local function nativeReturn()
-    local gui=player.PlayerGui
-    local candidate=nil
-    local known={returntolobby=true,backtolobby=true,lobby=true,voltaraolobby=true}
-    for _,screen in ipairs(gui:GetChildren()) do
-        local name=screen.Name:lower()
-        if screen:IsA("ScreenGui") and screen.Enabled and (name=="escape" or name=="victory"
-            or name=="runreport" or name=="runresults" or name=="outro") then
-            for _,item in ipairs(screen:GetDescendants()) do
-                if item:IsA("GuiButton") and item.Active and bridge.visible(item) then
-                    local label=bridge.texts(item):lower():gsub("[^%w]","")
-                    local buttonName=item.Name:lower():gsub("[^%w]","")
-                    if known[label] or known[buttonName] then
-                        if candidate then return false end
-                        candidate=item
-                    end
-                end
-            end
-        end
-    end
-    return candidate and bridge.activate(candidate) or false
-end
-local teleportFailed=services.TeleportService.TeleportInitFailed:Connect(function(who,_,_,place)
-    if who==player and place==EXPECTED_PLACE and loopAttempted then
-        stopLoop()
-        loopStatus="O Roblox recusou a volta ao lobby. Retorne manualmente."
-        log(loopStatus,"error")
-    end
-end)
-lifecycle.add(function() teleportFailed:Disconnect() end)
-local outgoing=player.OnTeleport:Connect(function(state,place)
-    if loopAttempted and place==EXPECTED_PLACE and (state.Name=="RequestedFromServer"
-        or state.Name=="Started" or state.Name=="InProgress") then returning=true end
-end)
-lifecycle.add(function() outgoing:Disconnect() end)
-local function repeatAfterReport()
-    if not loopEnabled or loopAttempted then return end
-    local finishedAt=escapeDriver.finishTime()
-    local age=os.clock()-finishedAt
-    local canCheckScene,scenePlaying=false,true
-    if age>=24 and type(outro.IsPlaying)=="function" then canCheckScene,scenePlaying=pcall(outro.IsPlaying) end
-    if (not reportAt or reportAt<finishedAt-8) and not (canCheckScene and scenePlaying==false) then
-        loopStatus="VITORIA CONFIRMADA / AGUARDANDO RESULTADO PARA VOLTAR"
-        if finishSeconds and os.clock()-sessionStartedAt-finishSeconds>60 then
-            stopLoop()
-            loopStatus="O relatorio final nao chegou. Volte ao lobby manualmente."
-        end
-        return
-    end
-    loopAttempted=true
-    loopStatus="VITORIA CONFIRMADA / VOLTANDO AO LOBBY"
-    local nextOptions=Handoff.options(resume)
-    nextOptions.reconnectCount=0
-    local armed,why=handoff.arm("lobby",nextOptions)
-    if not armed then stopLoop() loopStatus=why log(why,"error") return end
-    local native=nativeReturn()
-    task.delay(native and 5 or 2,function()
-        if not lifecycle.alive() or not loopEnabled or returning or gate.expired() then return end
-        local ok=pcall(services.TeleportService.Teleport,services.TeleportService,EXPECTED_PLACE,player)
-        if not ok then
-            stopLoop()
-            loopStatus="A volta automatica falhou. Retorne ao lobby pelo jogo."
-            log(loopStatus,"error")
-        end
-    end)
-    task.delay(25,function()
-        if lifecycle.alive() and loopEnabled and not returning then
-            stopLoop()
-            loopStatus="O Roblox nao confirmou a volta ao lobby."
-            log(loopStatus,"error")
-        end
-    end)
-end
-Reconnect.watch(services,lifecycle,function()
-    return loopEnabled and not loopAttempted and not completionHandled and not gate.expired()
-end,function(code)
-    loopAttempted=true
-    pause("Conexao perdida ("..code.."); tentando voltar ao lobby.")
-    local ok,why=reconnect(resume)
-    if not ok then stopLoop() loopStatus=why log(why,"error") return end
-    task.delay(25,function()
-        if lifecycle.alive() and loopEnabled and not returning then
-            stopLoop()
-            loopStatus="O Roblox nao confirmou a reconexao."
-            log(loopStatus,"error")
-        end
-    end)
-end)
-lifecycle.add(escapeDriver.close)
-adapter.actions.escape=function(valid)
-    adapter.cancelCut()
-    local success,message=escapeDriver.step(valid)
-    adapter.defer("escape",success and 2 or 5)
-    return success,message
-end
-local binding=nil
-local keyActions={keyProgress="autoProgress",keyCut="autoCut",keyFarm="autoFarm",keyCool="autoCool",
-    keyBuy="autoBuyTools",keyDeliver="autoDeliver",keyPumpkin="collectPumpkins",keyStorage="autoBuyStorage",keyUpgrades="autoBuyUpgrades",keyCrank="autoCrank",keySell="autoSell",keyDynamite="autoDynamite"}
-local combined={"autoFarm","autoDeliver","autoCut","autoCool","autoBuyTools","autoBuyUpgrades","autoBuyStorage","autoCrank","autoSell","autoDynamite","autoEscape"}
-local combinedSet={}
-for _,name in ipairs(combined) do combinedSet[name]=true end
-local function displayed(field)
-    return Core.displayed(config,field)
-end
-local function refreshAutomation()
-    cancellation.cancel()
-    adapter.stop()
-    adapter.reset()
-    table.clear(failures)
-    if ui then ui.refresh() end
-end
-local function startProfile()
-    if completionHandled or gate.expired() then
-        ui.status(completionHandled and "Partida concluida." or "Licenca expirada.")
-        return
-    end
-    clearQuest()
-    Core.applyPartyProfile(config)
-    refreshAutomation()
-    log("Perfil iniciado: "..config.partyProfile..(config.partyProfile=="Team" and " / "..config.partyRole or ""))
-end
-local function change(field,value)
-    if config[field]==nil then return end
-    if field=="partyProfile" or field=="partyRole" or field=="partySize" or field=="partySlot" then
-        config[field]=Core.validate({[field]=value},false)[field]
-        if ui then ui.refresh() end
-        return
-    end
-    if field=="autoBuyDrone" and value==true then adapter.droneConfirm(false) end
-    if value==true and (field=="opAutoFinish" or field=="autoProgress" or combinedSet[field] or field=="collectPumpkins") and gate.expired() then
-        if ui then ui.status("Licenca expirada. Valide uma key ativa para continuar.") end return
-    end
-    if config[field]==value and not (config.autoProgress and combinedSet[field]) then return end
-    if field=="autoCool" and config.autoProgress and value==false then
-        if ui then ui.status("O resfriamento faz parte do Auto Progress. Pause o ciclo para desliga-lo.") ui.refresh() end
-        return
-    end
-    if config.autoProgress and combinedSet[field] and type(value)=="boolean" then
-        for _,name in ipairs(combined) do config[name]=Core.effective(config,name) end
-        config.autoProgress=false
-        config.opAutoFinish=false
-    end
-    if field=="autoBuyTools" and value==false then config.cutBuyTools=false end
-    local nextConfig=Core.clone(config) nextConfig[field]=value
-    if value==true and field=="autoProgress" then nextConfig.opAutoFinish=false end
-    if value==true and field=="opAutoFinish" then nextConfig.autoProgress=false end
-    if value==true and (field=="opAutoFinish" or field=="autoProgress") then
-        nextConfig.teamFunding=false nextConfig.teamLead=false nextConfig.supportCut=false nextConfig.nativeWalkUpgrade=false
-    end
-    local checked=Core.validate(nextConfig,false)
-    for key,item in pairs(checked) do config[key]=item end
-    if field=="opAutoFinish" and value or field=="autoProgress" and not value then clearQuest() end
-    local layoutField=string.sub(field,1,2)=="ui" or string.sub(field,1,6)=="button"
-    if not layoutField then refreshAutomation()
-    elseif ui then ui.refresh() end
-end
-hub.progress(0.9,"Montando os controles…","Building the controls…")
-ui=UI.create(services,config,{
-    decorateLauncher=hub.decorateLauncher,
-    value=displayed,change=change,parseNumber=Core.parseAmount,membership=gate.membership,startProfile=startProfile,
-    manualUpgrade=function(tool,id)
-        if gate.expired() or completionHandled then return end
-        if pendingUpgrade then notify("Uma melhoria ja esta na fila.") return end
-        pendingUpgrade={tool,id}
-        notify(T("Solicitada melhoria ")..tool.." / "..id..".")
-    end,
-    selectQuest=function(id)
-        if gate.expired() or completionHandled then return end
-        if selectedQuest==id then clearQuest() notify("Prioridade de missao removida.") return end
-        for _,row in ipairs(questRows) do
-            if row.id==id then
-                if row.done then notify("O jogo ja confirmou essa missao.") return end
-                if not row.action then notify("Objetivo sem rota automatica confirmada.") return end
-                change("autoProgress",true)
-                selectedQuest=id questAction=row.action adapter.questMode(row.action)
-                notify(T("Prioridade: ")..row.title)
-                return
-            end
-        end
-    end,
-    save=function() local ok,message=store.save(config) log(message,ok and "info" or "error") notify(message) end,
-    pause=function() stopLoop() pause("Pausado pelo painel.") end,
-    bind=function(field)
-        if not services.UserInputService.KeyboardEnabled then ui.status("Use os controles por toque; atalhos sao opcionais para teclado.") return end
-        if binding==field then binding=nil ui.status("Edicao de atalho cancelada.") return end
-        binding=field ui.status("Pressione uma tecla para o atalho; Esc cancela e Backspace remove.")
-    end,
-    language=hub.chooseLanguage,close=function() stopLoop() hub.unload() end,
-    restore=restoreInterface,
-    layout=function(values)
-        local nextConfig=Core.clone(config)
-        for key,value in pairs(values) do nextConfig[key]=value end
-        local checked=Core.validate(nextConfig,false)
-        for key,value in pairs(checked) do config[key]=value end
-        if ui then ui.refresh() end
-    end,
-},Layout,Membership)
-lifecycle.add(function() if ui then ui.close() end end)
-antiIdle=attachIdle(function() return Core.anyActive(config) end)
-ui.refresh()
-if lastRecovery then ui.recoveryInfo(lastRecovery) end
-hub.ready()
-if quickStartOP then
-    ui.status("Aguardando o personagem para iniciar o OP.")
-else
-    ui.status("Pronto. Configure um modo e ative a rotina desejada.")
-end
-
-local inputConnection=services.UserInputService.InputBegan:Connect(function(input,processed)
-    if not lifecycle.alive() then return end
-    if binding then
-        if input.UserInputType~=Enum.UserInputType.Keyboard then return end
-        local field=binding binding=nil
-        if input.KeyCode==Enum.KeyCode.Escape then ui.status("Atalho cancelado.") return end
-        local value=input.KeyCode==Enum.KeyCode.Backspace and "None" or input.KeyCode.Name
-        for key,existing in pairs(config) do
-            if key~=field and string.sub(key,1,3)=="key" and value~="None" and existing==value then
-                ui.status(string.format(T("Essa tecla ja esta em uso por %s."),key)) return
-            end
-        end
-        change(field,value) ui.status("Atalho atualizado.") return
-    end
-    if services.UserInputService:GetFocusedTextBox() then return end
-    local name=input.KeyCode.Name
-    if name==config.keyPause and name~="None" then stopLoop() pause("Pausado pelo atalho.") return end
-    if processed then return end
-    if name==config.keyMenu and name~="None" then ui.toggle() return end
-    for key,field in pairs(keyActions) do
-        if config[key]~="None" and name==config[key] then change(field,not displayed(field)) return end
-    end
-    if activeAction and config.pauseOnMovement and ({W=true,A=true,S=true,D=true,Space=true,Up=true,Down=true,Left=true,Right=true})[name] then
-        stopLoop()
-        pause("Pausado por entrada manual de movimento.")
-    end
-end)
-lifecycle.add(function() inputConnection:Disconnect() end)
-local respawnConnection=player.CharacterAdded:Connect(function(character)
-    if pendingOP or character==autoStartedCharacter then return end
-    pause("Personagem recarregado; rotinas pausadas.") adapter.reset()
-    if loopEnabled and not completionHandled then pendingOP=true end
-    if config.autoRepairGui then
-        local character=player.Character
-        task.delay(1,function() if lifecycle.alive() and player.Character==character then restoreInterface() end end)
-    end
-end)
-lifecycle.add(function() respawnConnection:Disconnect() end)
-
-local actionNames={keyProbe="Testando chave antecipada",escape="Indo para a saida com a chave",drone="Comprando drone",cool="Resfriando",collect="Coletando",deliver="Entregando",cut="Cortando",enterCut="Indo para a mesa",buy="Comprando",crank="Girando cortador",search="Indexando e selecionando",stageCut="Abastecendo a mesa",sell="Vendendo",returnTable="Retornando a mesa",dynamite="Lancando dinamite"}
-local nextUi=0
-local heartbeat=services.RunService.Heartbeat:Connect(function()
-    if not lifecycle.alive() or os.clock()<nextUi then return end
-    nextUi=os.clock()+0.5
-    if pendingOP and not completionHandled and not gate.expired() and nav.actor() then
-        pendingOP=false
-        autoStartedCharacter=player.Character
-        change("opAutoFinish",true)
-        log(resume and "OP retomado apos confirmar o personagem da partida." or "OP iniciado pela tela da key.")
-    end
-    nav.updateCamera()
-    local member=gate.membership()
-    if os.clock()>=nextQuestPoll then
-        nextQuestPoll=os.clock()+1.5
-        local ok,rows=pcall(Quests.scan,player.PlayerGui)
-        if ok then questRows=rows end
-        if selectedQuest then
-            local found=nil
-            for _,row in ipairs(questRows) do if row.id==selectedQuest then found=row break end end
-            if found and found.done then
-                log("Missao confirmada pelo jogo: "..found.title)
-                notify("Missao concluida. Voltando ao Auto Progress normal.")
-                clearQuest()
-            end
-        end
-        ui.quests(questRows,selectedQuest)
-    end
-    if ui.membership then ui.membership(member) end
-    if member.expired and not expiryHandled then expiryHandled=true pause("Licenca expirada; rotinas pausadas.") end
-    local ok,snapshot=pcall(adapter.snapshot)
-    if not ok then log("Falha de leitura: "..tostring(snapshot),"error") return end
-    if snapshot.askDrone then
-        adapter.droneAsked()
-        ui.confirmDrone(function(accepted) adapter.droneConfirm(accepted) end)
-    end
-    local goal=snapshot.deliveryGoal or Core.deliveryGoal(config,snapshot.capacity)
-    local money=snapshot.cash and string.format("$%.2f",snapshot.cash) or "indisponivel"
-    local capacity=snapshot.capacity==math.huge and "∞" or snapshot.capacity and tostring(snapshot.capacity) or "?"
-    local bag=snapshot.carried and tostring(snapshot.carried).."/"..capacity or "indisponivel"
-    local heat=snapshot.heat and string.format("%.0f%%",snapshot.heat) or "somente aviso do jogo"
-    local message=activeAction and actionNames[activeAction] or "Aguardando rotina ou recurso disponivel"
-    local stock=snapshot.stock and tostring(snapshot.stock) or "?"
-    local target=snapshot.goal and snapshot.goal.name or "coletar e cortar"
-    ui.summary(string.format(T("%s  |  Bolsa: %s\nEntrega: %s  |  Cortadas: %s/%d\nMeta: %s\nCalor: %s  |  Gemas: %d\n%.1f cortadas/s | %s | vendas: %d"),
-        T(money),T(bag),goal and tostring(goal) or "?",stock,config.sellThreshold,T(target),T(heat),adapter.counts.gems,snapshot.cutRate or 0,T(message),adapter.counts.sales))
-    if ui.dashboard then
-        local panelData=adapter.dashboard()
-        local exitState=escapeDriver.diagnostic()
-        endingSkipper.poll(exitState.started or exitState.finished,config.skipEndingScene and not member.expired)
-        if config.skipEndingScene and not member.expired then tryOutro(escapeDriver.finishTime()) end
-        endingSkipper.afterVictory(exitState.finished,config.skipEndingScene and config.releaseEndingCamera and not member.expired)
-        if exitState.finished and not completionHandled then
-            completionHandled=true
-            finishSeconds=(escapeDriver.finishTime() or os.clock())-sessionStartedAt
-            pause("Capitulo 2 concluido; rotinas pausadas.")
-        end
-        if exitState.finished and not member.expired then repeatAfterReport() end
-        panelData.hasKey=exitState.has_key panelData.finished=exitState.finished
-        panelData.role=nil
-        if Core.anyActive(config) then
-            if config.teamLead then panelData.role="EQUIPE  /  LIDER OP"
-            elseif config.teamFunding then panelData.role="EQUIPE  /  COLETA E ENTREGA"
-            elseif config.supportCut then panelData.role=config.nativeWalkUpgrade and "GRUPO MISTO  /  APOIO" or "EQUIPE  /  CORTE E VENDA" end
-        end
-        ui.dashboard(panelData,finishSeconds or os.clock()-sessionStartedAt)
-    end
-    if completionHandled or loopStatus then message=loopStatus or "CAPITULO II CONCLUIDO  /  ROTINAS PAUSADAS"
-    elseif member.expired then message="LICENCA EXPIRADA  /  ROTINAS PAUSADAS"
-
-    end
-    if not binding then ui.status(message) end
-    if activeAction and activeAction~="cool" and snapshot.needCooling and Core.effective(config,"autoCool")
-        and os.clock()>=snapshot.coolingRetryAt then cancellation.cancel() adapter.stop() end
-end)
-lifecycle.add(function() heartbeat:Disconnect() end)
-
-task.spawn(function()
-    while lifecycle.alive() do
-        local token=cancellation.current()
-        local function valid() return lifecycle.alive() and cancellation.valid(token) and not gate.expired() end
-        local ok,errorMessage=pcall(function()
-            if completionHandled or escapeDriver.finishTime() or gate.expired() then return end
-            local snapshot=adapter.snapshot()
-            snapshot.hasKey=escapeDriver.ready()
-            snapshot.questAction=config.autoProgress and questAction or nil
-            local hasActor=nav.actor()~=nil
-            if not hasActor then return end
-            if pendingUpgrade and not snapshot.needCooling then
-                local requested=pendingUpgrade
-                pendingUpgrade=nil
-                activeAction="buy"
-                local success,message=adapter.manualUpgrade(requested[1],requested[2],valid)
-                activeAction=nil
-                if valid() then notify(message or (success and "Melhoria confirmada." or "Melhoria nao confirmada.")) end
-                return
-            end
-            local action=Core.choose(config,snapshot,os.clock())
-            if action=="idle" and not snapshot.mountainEmpty and (Core.effective(config,"autoFarm") or Core.effective(config,"autoDynamite"))
-                and not (Core.batchCollect(config) and snapshot.opBurst and snapshot.opBurst.pending>0)
-                and (Core.effective(config,"autoDynamite") or config.collectPumpkins or snapshot.carried and snapshot.capacity and snapshot.carried<snapshot.capacity) then
-                activeAction="search"
-                local current,why=adapter.findCandidate(valid)
-                activeAction=nil
-                if why then log(why,"error") end
-                if not valid() then return end
-                snapshot=adapter.snapshot()
-                snapshot.hasKey=escapeDriver.ready()
-                snapshot.questAction=config.autoProgress and questAction or nil
-                snapshot.hasCandidate=current~=nil
-                action=Core.choose(config,snapshot,os.clock())
-            end
-            if action=="idle" or not valid() then return end
-            activeAction=action
-            local began=os.clock()
-            local success,message=adapter.actions[action](valid)
-            adapter.recordAction(action,os.clock()-began,success)
-            activeAction=nil
-            if not valid() then return end
-            if success then failures[action]=0
-            else
-                failures[action]=(failures[action] or 0)+1
-                log((actionNames[action] or action)..": "..tostring(message),"error")
-                if action=="buy" then adapter.defer(action,3) end
-                if action=="cool" then adapter.defer(action,config.coolingRetry) end
-                if config.autoRecover then
-                    adapter.recover(action,failures[action])
-                    if failures[action]==3 then log("Recuperacao automatica de "..(actionNames[action] or action).."; outras etapas continuam.") end
-                elseif failures[action]>=3 and action~="buy" and action~="enterCut" and action~="sell" and action~="dynamite" then
-                    pause(string.format(T("Rotinas pausadas apos tres falhas em %s."),T(actionNames[action] or action)))
-                    notify("Rotina pausada. Reative para tentar novamente.")
-                end
-                if failures[action]>=3 and (action=="buy" or action=="enterCut" or action=="sell" or action=="dynamite") then
-                    failures[action]=0 log("A etapa foi adiada; as outras rotinas continuam.")
-                end
-            end
-        end)
-        if not ok then
-            local failed=activeAction or "collect"
-            activeAction=nil adapter.stop()
-            log("Falha de execucao: "..tostring(errorMessage),"error")
-            if config.autoRecover then
-                failures[failed]=(failures[failed] or 0)+1 adapter.recover(failed,failures[failed])
-            else pause("Falha de execucao; controles restaurados.") end
-        end
-        task.wait(Core.tickInterval(config))
-    end
-end)
-
-end
-
-bootAnonymousPotato()
+-- Luau
+-- AnonHub protected distribution 0.38.10
+-- local BOOT_VERSION="0.37.5"
+local a=...if type(a)~='\116\097\098\108\101'or type(a.access)~='\116\097\098\108\101'then return end local b=
+{['\073\110\105\099\105\111']='\072\111\109\101',['\067\111\108\101\116\097']='\067\111\108\108\101\099\116',['\067\111\114\116\101']='\067\117\116',['\086\101\110\100\097\115']='\083\097\108\101\115',[
+'\082\101\115\102\114\105\097\114']='\067\111\111\108\105\110\103',['\067\111\109\112\114\097\115']='\083\104\111\112',['\077\105\115\115\111\101\115']='\081\117\101\115\116\115',['\065\106\117\115\116\101\115']=
+'\083\101\116\116\105\110\103\115',['\086\105\115\097\111\032\103\101\114\097\108']='\079\118\101\114\118\105\101\119',['\067\111\108\101\116\097\032\101\032\097\108\118\111\115']=
+'\067\111\108\108\101\099\116\105\111\110\032\097\110\100\032\116\097\114\103\101\116\115',['\077\101\115\097\032\100\101\032\099\111\114\116\101']='\067\117\116\116\105\110\103\032\116\097\098\108\101',['\067\111\110\116\114\111\108\101\032\100\101\032\099\097\108\111\114']
+='\072\101\097\116\032\099\111\110\116\114\111\108',['\069\113\117\105\112\097\109\101\110\116\111\115']='\069\113\117\105\112\109\101\110\116',['\080\114\101\102\101\114\101\110\099\105\097\115']='\080\114\101\102\101\114\101\110\099\101\115',[
+'\077\105\115\115\111\101\115\032\101\032\112\097\115\115\101']='\081\117\101\115\116\115\032\097\110\100\032\112\097\115\115',['\073\078\073\067\073\079']='\072\079\077\069',['\067\079\076\069\084\065']='\067\079\076\076\069\067\084',[
+'\067\079\082\084\069']='\067\085\084',['\086\069\078\068\069\082']='\083\069\076\076',['\065\071\085\065']='\067\079\079\076',['\076\079\074\065']='\083\072\079\080',['\077\073\083\083\079\069\083']=
+'\081\085\069\083\084\083',['\065\074\085\083\084\069']='\083\069\084\084\073\078\071\083',['\073\068\073\079\077\065']='\076\065\078\071\085\065\071\069',['\067\111\110\116\097']='\065\099\099\111\117\110\116',[
+'\080\065\085\083\065\082\032\084\085\068\079']='\080\065\085\083\069\032\065\076\076',['\079\067\085\076\084\065\082']='\072\073\068\069',['\082\069\067\085\080\069\082\065\082']='\082\069\083\084\079\082\069',[
+'\067\065\080\u{cd}\084\085\076\079\032\073\073\032\047\032\065\078\079\078\072\085\066']='\067\072\065\080\084\069\082\032\073\073\032\047\032\065\078\079\078\072\085\066',[
+'\u{2261}\032\032\032\065\082\082\065\083\084\069\032\080\065\082\065\032\077\079\086\069\082']='\u{2261}\032\032\032\068\082\065\071\032\084\079\032\077\079\086\069',['\069\078\067\069\082\082\065\082\032\072\085\066']=
+'\067\076\079\083\069\032\072\085\066',['\083\065\076\086\065\082']='\083\065\086\069',['\080\065\085\083\065\082']='\080\065\085\083\069',['\083\097\108\118\097\114']='\083\097\118\101',['\080\097\117\115\097\114']=
+'\080\097\117\115\101',['\073\110\105\099\105\097\108\105\122\097\110\100\111\046\046\046']='\083\116\097\114\116\105\110\103\u{2026}',['\080\114\111\110\116\111\046']='\082\101\097\100\121\046',[
+'\u{2261}\032\032\032\065\078\079\078\072\085\066\032\047\032\080\079\084\065\084\079\032\032\032\u{b7}\032\032\032\065\082\082\065\083\084\069']=
+'\u{2261}\032\032\032\065\078\079\078\072\085\066\032\047\032\080\079\084\065\084\079\032\032\032\u{b7}\032\032\032\068\082\065\071',['\066\065\082\082\065\032\068\069\032\070\069\082\082\065\077\069\078\084\065\083\032\068\079\032\074\079\071\079']=
+'\071\065\077\069\032\084\079\079\076\066\065\082',[
+"\085\115\101\032\115\111\109\101\110\116\101\032\115\101\032\115\117\109\105\114\101\109\032\097\032\109\097\111\044\032\097\032\112\097\044\032\097\032\100\105\110\097\109\105\116\101\032\111\117\032\111\115\032\112\114\111\109\112\116\115\032\100\111\032\106\111\103\111\046" ]=
+"\085\115\101\032\105\102\032\116\104\101\032\103\097\109\101\039\115\032\116\111\111\108\115\032\111\114\032\105\110\116\101\114\097\099\116\105\111\110\032\112\114\111\109\112\116\115\032\100\105\115\097\112\112\101\097\114\046",[
+'\082\069\067\085\080\069\082\065\082\032\077\065\079\044\032\080\065\032\069\032\070\069\082\082\065\077\069\078\084\065\083']='\082\069\083\084\079\082\069\032\084\079\079\076\083',[
+'\082\101\099\117\112\101\114\097\114\032\097\111\032\105\110\105\099\105\097\114\032\101\032\114\101\110\097\115\099\101\114']='\082\101\115\116\111\114\101\032\111\110\032\108\097\117\110\099\104\032\097\110\100\032\114\101\115\112\097\119\110',[
+"\065\032\105\110\116\101\114\102\097\099\101\032\101\032\114\101\115\116\097\117\114\097\100\097\059\032\097\115\032\114\111\116\105\110\097\115\032\099\111\110\116\105\110\117\097\109\032\112\097\117\115\097\100\097\115\032\100\101\112\111\105\115\032\100\101\032\109\111\114\114\101\114\046" ]=
+"\082\101\115\116\111\114\101\115\032\116\104\101\032\105\110\116\101\114\102\097\099\101\032\097\110\100\032\107\101\101\112\115\032\114\111\117\116\105\110\101\115\032\112\097\117\115\101\100\032\097\102\116\101\114\032\097\032\114\101\115\112\097\119\110\046",[
+'\078\101\110\104\117\109\097\032\114\101\099\117\112\101\114\097\099\097\111\032\115\111\108\105\099\105\116\097\100\097\032\110\101\115\116\097\032\115\101\115\115\097\111\046']=
+'\078\111\032\114\101\115\116\111\114\097\116\105\111\110\032\114\101\113\117\101\115\116\101\100\032\105\110\032\116\104\105\115\032\115\101\115\115\105\111\110\046',[
+'\065\108\103\117\110\115\032\099\111\110\116\114\111\108\101\115\032\097\105\110\100\097\032\110\u{e3}\111\032\101\115\116\u{e3}\111\032\100\105\115\112\111\110\u{ed}\118\101\105\115\046']=
+'\083\111\109\101\032\099\111\110\116\114\111\108\115\032\097\114\101\032\115\116\105\108\108\032\117\110\097\118\097\105\108\097\098\108\101\046',['\067\111\110\116\114\111\108\101\115\032\114\101\115\116\097\117\114\097\100\111\115\046']=
+'\067\111\110\116\114\111\108\115\032\114\101\115\116\111\114\101\100\046',['\077\079\068\079\083\032\047\032\067\065\080\073\084\085\076\079\032\073\073']='\077\079\068\069\083\032\047\032\067\072\065\080\084\069\082\032\073\073',[
+"\079\080\058\032\115\117\103\097\100\111\114\032\077\065\088\044\032\099\111\108\101\116\097\032\116\111\116\097\108\044\032\099\111\114\116\101\032\101\032\115\097\105\100\097\046\032\065\117\116\111\032\080\114\111\103\114\101\115\115\058\032\099\105\099\108\111\032\110\111\114\109\097\108\046" ]
+=
+"\079\080\032\117\115\101\115\032\097\032\109\097\120\101\100\032\118\097\099\117\117\109\032\116\111\032\099\108\101\097\114\032\116\104\101\032\112\105\108\101\044\032\099\117\116\032\097\110\100\032\101\120\105\116\046\032\065\117\116\111\032\080\114\111\103\114\101\115\115\032\114\117\110\115\032\116\104\101\032\115\116\097\110\100\097\114\100\032\099\121\099\108\101\046"
+,['\080\065\085\083\065\082\032\080\082\079\071\082\069\083\083']='\080\065\085\083\069\032\065\085\084\079\032\080\082\079\071\082\069\083\083',['\065\084\073\086\065\082\032\079\080']='\083\084\065\082\084\032\079\080',['\080\065\085\083\065\082\032\079\080'
+]='\080\065\085\083\069\032\079\080',['\077\079\068\079\032\032\u{2022}\032\032\080\065\085\083\065\068\079']='\077\079\068\069\032\032\u{2022}\032\032\080\065\085\083\069\068',[
+'\077\079\068\079\032\032\u{2022}\032\032\067\079\078\067\076\085\073\068\079']='\077\079\068\069\032\032\u{2022}\032\032\067\079\077\080\076\069\084\069',[
+'\077\079\068\079\032\032\u{2022}\032\032\079\080\032\065\084\073\086\079\032\032\047\032\032']='\077\079\068\069\032\032\u{2022}\032\032\079\080\032\065\067\084\073\086\069\032\032\047\032\032',[
+'\077\079\068\079\032\032\u{2022}\032\032\065\085\084\079\032\080\082\079\071\082\069\083\083']='\077\079\068\069\032\032\u{2022}\032\032\065\085\084\079\032\080\082\079\071\082\069\083\083',[
+'\077\079\068\079\032\032\u{2022}\032\032\080\065\085\083\065\068\079\032\047\032\082\079\084\073\078\065\083\032\077\065\078\085\065\073\083']=
+'\077\079\068\069\032\032\u{2022}\032\032\080\065\085\083\069\068\032\047\032\077\065\078\085\065\076\032\082\079\085\084\073\078\069\083',['\080\069\082\070\073\076\032\068\065\032\080\065\082\084\073\068\065']='\077\065\084\067\072\032\080\082\079\070\073\076\069'
+,['\084\105\112\111\032\100\101\032\103\114\117\112\111']='\071\114\111\117\112\032\116\121\112\101',['\067\111\109\032\111\032\104\117\098']='\072\117\098\032\116\101\097\109',['\071\114\117\112\111\032\109\105\115\116\111']=
+'\077\105\120\101\100\032\103\114\111\117\112',['\067\111\110\116\097\115\032\099\111\109\032\111\032\104\117\098']='\065\099\099\111\117\110\116\115\032\117\115\105\110\103\032\116\104\101\032\104\117\098',['\050\032\099\111\110\116\097\115']=
+'\050\032\097\099\099\111\117\110\116\115',['\051\032\099\111\110\116\097\115']='\051\032\097\099\099\111\117\110\116\115',['\052\032\099\111\110\116\097\115']='\052\032\097\099\099\111\117\110\116\115',['\083\101\117\032\112\097\112\101\108']=
+'\089\111\117\114\032\114\111\108\101',['\076\105\100\101\114\032\079\080']='\079\080\032\108\101\097\100\101\114',['\067\111\108\101\116\097\114']='\067\111\108\108\101\099\116',['\067\111\114\116\097\114\032\101\032\118\101\110\100\101\114']=
+'\067\117\116\032\097\110\100\032\115\101\108\108',['\083\117\097\032\109\101\115\097']='\089\111\117\114\032\116\097\098\108\101',['\077\101\115\097']='\084\097\098\108\101',['\077\101\115\097\032\049']='\084\097\098\108\101\032\049',[
+'\077\101\115\097\032\050']='\084\097\098\108\101\032\050',['\077\101\115\097\032\051']='\084\097\098\108\101\032\051',['\077\101\115\097\032\052']='\084\097\098\108\101\032\052',['\073\078\073\067\073\065\082\032\080\069\082\070\073\076']
+='\083\084\065\082\084\032\080\082\079\070\073\076\069',['\049\032\108\105\100\101\114\032\079\080\032\101\032\049\032\110\111\032\099\111\114\116\101\047\118\101\110\100\097\046']=
+'\049\032\079\080\032\108\101\097\100\101\114\032\097\110\100\032\049\032\112\108\097\121\101\114\032\099\117\116\116\105\110\103\032\097\110\100\032\115\101\108\108\105\110\103\046',[
+'\049\032\108\105\100\101\114\032\079\080\044\032\049\032\110\097\032\099\111\108\101\116\097\032\101\032\049\032\110\111\032\099\111\114\116\101\047\118\101\110\100\097\046']=
+'\049\032\079\080\032\108\101\097\100\101\114\044\032\049\032\099\111\108\108\101\099\116\111\114\032\097\110\100\032\049\032\112\108\097\121\101\114\032\099\117\116\116\105\110\103\032\097\110\100\032\115\101\108\108\105\110\103\046',[
+'\049\032\108\105\100\101\114\032\079\080\044\032\049\032\110\097\032\099\111\108\101\116\097\032\101\032\050\032\110\111\032\099\111\114\116\101\047\118\101\110\100\097\046']=
+'\049\032\079\080\032\108\101\097\100\101\114\044\032\049\032\099\111\108\108\101\099\116\111\114\032\097\110\100\032\050\032\112\108\097\121\101\114\115\032\099\117\116\116\105\110\103\032\097\110\100\032\115\101\108\108\105\110\103\046',[
+"\032\085\115\101\109\032\109\101\115\097\115\032\100\105\102\101\114\101\110\116\101\115\046\032\086\101\110\100\097\032\112\097\103\097\032\097\032\101\113\117\105\112\101\046\032\067\111\114\116\101\032\101\032\101\113\117\105\112\097\109\101\110\116\111\115\032\115\097\111\032\105\110\100\105\118\105\100\117\097\105\115\046"
+]=
+"\032\085\115\101\032\100\105\102\102\101\114\101\110\116\032\116\097\098\108\101\115\046\032\084\104\101\032\116\101\097\109\032\115\104\097\114\101\115\032\115\097\108\101\115\046\032\067\117\116\116\105\110\103\032\097\110\100\032\101\113\117\105\112\109\101\110\116\032\097\114\101\032\105\110\100\105\118\105\100\117\097\108\046"
+,[
+"\065\112\111\105\111\032\099\111\109\032\099\111\114\116\101\032\110\097\116\105\118\111\044\032\118\101\110\100\097\115\032\101\032\099\097\109\105\110\104\097\100\097\046\032\067\111\109\112\114\097\032\102\097\099\097\115\032\101\032\097\116\101\032\100\111\105\115\032\110\105\118\101\105\115\032\100\111\032\117\112\103\114\097\100\101\032\100\101\032\118\101\108\111\099\105\100\097\100\101\032\100\111\032\106\111\103\111\046"
+]=
+"\083\117\112\112\111\114\116\115\032\116\104\101\032\116\101\097\109\032\098\121\032\099\117\116\116\105\110\103\044\032\115\101\108\108\105\110\103\032\097\110\100\032\119\097\108\107\105\110\103\046\032\066\117\121\115\032\107\110\105\118\101\115\032\097\110\100\032\117\112\032\116\111\032\116\119\111\032\115\112\101\101\100\032\117\112\103\114\097\100\101\115\046"
+,[
+"\082\101\099\111\109\101\110\100\097\100\111\058\032\079\080\046\032\085\109\097\032\099\111\110\116\097\032\102\105\110\097\110\099\105\097\032\097\115\032\102\101\114\114\097\109\101\110\116\097\115\044\032\108\105\109\112\097\032\097\032\109\111\110\116\097\110\104\097\044\032\099\111\114\116\097\032\111\032\101\115\116\111\113\117\101\032\101\032\117\115\097\032\097\032\099\104\097\118\101\046"
+]=
+"\082\101\099\111\109\109\101\110\100\101\100\058\032\079\080\046\032\079\110\101\032\097\099\099\111\117\110\116\032\102\117\110\100\115\032\116\111\111\108\115\044\032\099\108\101\097\114\115\032\116\104\101\032\112\105\108\101\044\032\099\117\116\115\032\116\104\101\032\115\116\111\099\107\032\097\110\100\032\117\115\101\115\032\116\104\101\032\107\101\121\046"
+,['\083\069\085\032\069\081\085\073\080\065\077\069\078\084\079']='\089\079\085\082\032\069\081\085\073\080\077\069\078\084',[
+"\078\105\118\101\105\115\032\108\105\100\111\115\032\100\111\032\106\111\103\111\046\032\077\065\088\032\097\112\097\114\101\099\101\032\115\111\109\101\110\116\101\032\099\111\109\032\116\111\100\111\115\032\111\115\032\110\105\118\101\105\115\032\099\111\110\102\105\114\109\097\100\111\115\046" ]
+=
+"\069\113\117\105\112\109\101\110\116\032\108\101\118\101\108\115\032\099\111\109\101\032\102\114\111\109\032\116\104\101\032\103\097\109\101\046\032\077\065\088\032\097\112\112\101\097\114\115\032\111\110\099\101\032\097\108\108\032\108\101\118\101\108\115\032\097\114\101\032\099\111\110\102\105\114\109\101\100\046"
+,['\065\103\117\097\114\100\097\110\100\111\032\100\097\100\111\115']='\087\097\105\116\105\110\103\032\102\111\114\032\100\097\116\097',['\082\069\078\068\065']='\070\085\078\068',['\069\081\085\073\080\065\082']='\069\081\085\073\080',[
+'\076\073\077\080\065\082']='\067\076\069\065\082',['\083\065\073\082']='\069\088\073\084',['\048\048\058\048\048\032\032\047\032\032\083\079\082\084\069\032\048']='\048\048\058\048\048\032\032\047\032\032\076\085\067\075\032\048',[
+'\086\069\082\032\077\069\076\072\079\082\073\065\083']='\086\073\069\087\032\085\080\071\082\065\068\069\083',['\069\083\084\065\068\079\032\068\065\032\080\065\082\084\073\068\065']='\077\065\084\067\072\032\083\084\065\084\085\083',[
+'\068\105\110\104\101\105\114\111\058\032\u{2014}\n\066\111\108\115\097\058\032\u{2014}\n\067\097\108\111\114\058\032\u{2014}\n\069\115\116\097\100\111\058\032\097\103\117\097\114\100\097\110\100\111']=
+'\067\097\115\104\058\032\u{2014}\n\066\097\103\058\032\u{2014}\n\072\101\097\116\058\032\u{2014}\n\083\116\097\116\117\115\058\032\119\097\105\116\105\110\103',[
+'\070\105\108\116\114\111\032\101\032\115\101\108\101\099\097\111']='\070\105\108\116\101\114\115\032\097\110\100\032\115\101\108\101\099\116\105\111\110',['\067\111\108\101\116\097\114\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101']=
+'\065\117\116\111\032\099\111\108\108\101\099\116',['\069\110\116\114\101\103\097\114\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101']='\065\117\116\111\032\100\101\108\105\118\101\114',['\066\097\116\097\116\097\115']=
+'\080\111\116\097\116\111\101\115',['\081\117\097\108\113\117\101\114']='\065\110\121',['\068\105\097\109\097\110\116\101']='\068\105\097\109\111\110\100',['\068\111\117\114\097\100\097']='\071\111\108\100\101\110',[
+'\069\115\099\111\108\104\097']='\083\101\108\101\099\116\105\111\110',['\077\097\105\115\032\112\101\114\116\111']='\078\101\097\114\101\115\116',['\065\108\101\097\116\111\114\105\097']='\082\097\110\100\111\109',[
+'\067\111\108\101\116\097\114\032\097\098\111\098\111\114\097\115']='\067\111\108\108\101\099\116\032\112\117\109\112\107\105\110\115',['\073\110\099\108\117\105\114\032\103\101\109\097\115\032\100\097\032\112\105\108\104\097']=
+'\067\111\108\108\101\099\116\032\103\101\109\115\032\102\114\111\109\032\116\104\101\032\112\105\108\101',['\080\114\105\111\114\105\122\097\114\032\103\101\109\097\115']='\080\114\105\111\114\105\116\105\122\101\032\103\101\109\115',[
+'\080\114\105\111\114\105\122\097\114\032\097\098\111\098\111\114\097\115']='\080\114\105\111\114\105\116\105\122\101\032\112\117\109\112\107\105\110\115',['\080\114\105\111\114\105\122\097\114\032\109\097\105\111\114\032\118\097\108\111\114']=
+'\080\114\105\111\114\105\116\105\122\101\032\104\105\103\104\101\114\032\118\097\108\117\101',[
+"\078\097\032\115\101\108\101\099\097\111\032\112\111\114\032\112\114\111\120\105\109\105\100\097\100\101\044\032\112\114\111\099\117\114\097\032\118\097\114\105\097\110\116\101\115\032\118\097\108\105\111\115\097\115\032\113\117\097\110\100\111\032\115\117\097\032\105\100\101\110\116\105\100\097\100\101\032\101\115\116\105\118\101\114\032\100\105\115\112\111\110\105\118\101\108\046"
+]=
+"\087\105\116\104\032\078\101\097\114\101\115\116\032\115\101\108\101\099\116\101\100\044\032\108\111\111\107\115\032\102\111\114\032\118\097\108\117\097\098\108\101\032\118\097\114\105\097\110\116\115\032\119\104\101\110\032\116\104\101\032\103\097\109\101\032\105\100\101\110\116\105\102\105\101\115\032\116\104\101\109\046"
+,['\069\110\116\114\101\103\097\114\032\112\111\114']='\068\101\108\105\118\101\114\032\098\121',['\081\117\097\110\116\105\100\097\100\101']='\065\109\111\117\110\116',['\080\111\114\099\101\110\116\097\103\101\109']=
+'\080\101\114\099\101\110\116\097\103\101',['\068\101\115\116\105\110\111']='\068\101\115\116\105\110\097\116\105\111\110',['\067\097\105\120\097']='\067\114\097\116\101',['\065\117\116\111\109\097\116\105\099\097']=
+'\065\117\116\111\109\097\116\105\099',['\069\110\116\114\101\103\097\114\032\099\111\109\032\097\032\098\111\108\115\097\032\101\109']='\068\101\108\105\118\101\114\032\097\116\032\098\097\103\032\099\097\112\097\099\105\116\121',[
+'\081\117\097\110\116\105\100\097\100\101\032\112\111\114\032\101\110\116\114\101\103\097']='\065\109\111\117\110\116\032\112\101\114\032\100\101\108\105\118\101\114\121',['\084\101\110\104\111\032\098\111\108\115\097\032\105\110\102\105\110\105\116\097']=
+'\073\032\104\097\118\101\032\097\110\032\117\110\108\105\109\105\116\101\100\032\098\097\103',[
+"\085\115\097\032\111\032\108\111\116\101\032\099\111\110\102\105\103\117\114\097\100\111\032\110\111\032\112\108\097\110\101\106\097\109\101\110\116\111\046\032\069\115\116\097\032\111\112\099\097\111\032\110\097\111\032\099\111\110\099\101\100\101\032\097\032\109\111\099\104\105\108\097\032\110\111\032\106\111\103\111\046"
+]='\085\115\101\115\032\121\111\117\114\032\099\111\110\102\105\103\117\114\101\100\032\100\101\108\105\118\101\114\121\032\097\109\111\117\110\116\032\102\111\114\032\112\108\097\110\110\105\110\103\046',['\065\108\099\097\110\099\101\032\100\101\032\098\117\115\099\097']=
+'\083\101\097\114\099\104\032\114\097\110\103\101',['\077\101\115\097\032\101\032\102\101\114\114\097\109\101\110\116\097\115']='\084\097\098\108\101\032\097\110\100\032\116\111\111\108\115',[
+'\065\108\105\110\104\097\114\032\097\032\099\097\109\101\114\097\032\097\111\032\101\110\116\114\097\114\032\110\097\032\109\101\115\097']='\065\108\105\103\110\032\099\097\109\101\114\097\032\119\104\101\110\032\101\110\116\101\114\105\110\103\032\116\104\101\032\116\097\098\108\101',[
+'\077\111\100\111\032\100\101\032\099\111\114\116\101']='\067\117\116\116\105\110\103\032\109\111\100\101',['\082\097\112\105\100\111']='\070\097\115\116',['\078\097\116\105\118\111']='\078\097\116\105\118\101',[
+'\077\101\116\097\032\100\101\032\116\101\110\116\097\116\105\118\097\115\032\112\111\114\032\115\101\103\117\110\100\111']='\084\097\114\103\101\116\032\097\116\116\101\109\112\116\115\032\112\101\114\032\115\101\099\111\110\100',[
+'\077\117\108\116\105\112\108\105\099\097\100\111\114\032\099\111\109\032\102\101\114\114\097\109\101\110\116\097\115']='\084\111\111\108\032\109\117\108\116\105\112\108\105\101\114',['\067\111\109\112\114\097\114\032\110\111\032\065\117\116\111\032\067\117\116']=
+'\066\117\121\032\100\117\114\105\110\103\032\065\117\116\111\032\067\117\116',[
+'\067\111\109\112\114\097\032\102\101\114\114\097\109\101\110\116\097\115\032\100\101\032\099\111\114\116\101\032\117\115\097\110\100\111\032\111\032\111\114\099\097\109\101\110\116\111\032\099\111\110\102\105\103\117\114\097\100\111\046']=
+'\066\117\121\115\032\099\117\116\116\105\110\103\032\116\111\111\108\115\032\119\105\116\104\105\110\032\121\111\117\114\032\098\117\100\103\101\116\046',['\071\105\114\097\114\032\099\111\114\116\097\100\111\114\032\109\097\110\117\097\108']=
+'\067\114\097\110\107\032\116\104\101\032\109\097\110\117\097\108\032\099\117\116\116\101\114',[
+"\065\099\105\111\110\097\032\097\032\109\097\113\117\105\110\097\032\113\117\097\110\100\111\032\101\115\116\105\118\101\114\032\099\097\114\114\101\103\097\100\097\032\101\032\108\105\098\101\114\097\100\097\032\112\101\108\111\032\106\111\103\111\046" ]=
+'\082\117\110\115\032\116\104\101\032\109\097\099\104\105\110\101\032\119\104\101\110\032\105\116\032\105\115\032\108\111\097\100\101\100\032\097\110\100\032\114\101\097\100\121\046',['\086\101\110\100\097\032\101\032\114\101\116\111\114\110\111']=
+'\083\101\108\108\032\097\110\100\032\114\101\116\117\114\110',[
+"\086\101\110\100\101\032\111\032\101\115\116\111\113\117\101\032\099\111\114\116\097\100\111\032\101\032\114\101\116\111\109\097\032\097\032\114\111\116\105\110\097\046\032\065\032\112\114\111\120\105\109\097\032\102\101\114\114\097\109\101\110\116\097\032\116\101\109\032\112\114\105\111\114\105\100\097\100\101\032\097\112\111\115\032\097\032\118\101\110\100\097\046"
+]="\083\101\108\108\115\032\099\117\116\032\115\116\111\099\107\032\097\110\100\032\114\101\115\117\109\101\115\046\032\080\114\105\111\114\105\116\105\122\101\115\032\116\104\101\032\110\101\120\116\032\116\111\111\108\032\097\102\116\101\114\032\097\032\115\097\108\101\046",[
+'\086\101\110\100\101\114\032\097\032\112\097\114\116\105\114\032\100\101']='\083\101\108\108\032\119\104\101\110\032\115\116\111\099\107\032\114\101\097\099\104\101\115',['\032\098\097\116\097\116\097\115']='\032\112\111\116\097\116\111\101\115',[
+'\067\111\109\112\114\097\114\032\102\101\114\114\097\109\101\110\116\097\032\097\112\111\115\032\118\101\110\100\101\114']='\066\117\121\032\097\032\116\111\111\108\032\097\102\116\101\114\032\115\101\108\108\105\110\103',[
+'\086\111\108\116\097\114\032\112\097\114\097\032\097\032\109\101\115\097']='\082\101\116\117\114\110\032\116\111\032\116\104\101\032\116\097\098\108\101',['\086\101\110\100\101\114\032\111\032\114\101\115\116\097\110\116\101\032\110\111\032\102\105\109']=
+'\083\101\108\108\032\114\101\109\097\105\110\105\110\103\032\115\116\111\099\107\032\097\116\032\116\104\101\032\101\110\100',['\086\097\108\118\117\108\097\032\100\101\032\097\103\117\097']='\087\097\116\101\114\032\118\097\108\118\101',[
+"\067\111\110\102\105\114\109\097\032\111\032\114\101\115\102\114\105\097\109\101\110\116\111\032\112\101\108\097\032\097\103\117\097\032\102\108\117\105\110\100\111\032\111\117\032\112\101\108\097\032\113\117\101\100\097\032\100\111\032\099\097\108\111\114\046" ]=
+'\067\111\110\102\105\114\109\115\032\099\111\111\108\105\110\103\032\119\104\101\110\032\119\097\116\101\114\032\102\108\111\119\115\032\111\114\032\104\101\097\116\032\100\114\111\112\115\046',['\084\101\109\112\111\032\115\101\103\117\114\097\110\100\111\032\097\032\118\097\108\118\117\108\097']
+='\086\097\108\118\101\032\104\111\108\100\032\116\105\109\101',['\082\101\112\101\116\105\114\032\100\117\114\097\099\097\111\032\111\114\105\103\105\110\097\108\032\115\101\032\110\101\099\101\115\115\097\114\105\111']=
+'\082\101\116\114\121\032\119\105\116\104\032\116\104\101\032\111\114\105\103\105\110\097\108\032\104\111\108\100\032\116\105\109\101\032\105\102\032\110\101\101\100\101\100',[
+"\083\101\032\111\032\116\111\113\117\101\032\099\117\114\116\111\032\110\097\111\032\114\101\115\102\114\105\097\114\044\032\112\101\114\109\105\116\101\032\117\109\097\032\116\101\110\116\097\116\105\118\097\032\099\111\109\032\111\032\116\101\109\112\111\032\111\114\105\103\105\110\097\108\032\100\111\032\106\111\103\111\046"
+]="\082\101\116\114\105\101\115\032\119\105\116\104\032\116\104\101\032\100\101\102\097\117\108\116\032\103\097\109\101\032\100\117\114\097\116\105\111\110\032\105\102\032\097\032\115\104\111\114\116\032\104\111\108\100\032\102\097\105\108\115\046",[
+'\067\111\109\101\099\097\114\032\097\032\114\101\115\102\114\105\097\114\032\101\109']='\083\116\097\114\116\032\099\111\111\108\105\110\103\032\097\116',['\067\111\110\115\105\100\101\114\097\114\032\102\114\105\111\032\101\109']=
+'\083\116\111\112\032\099\111\111\108\105\110\103\032\097\116',['\069\115\112\101\114\097\032\101\110\116\114\101\032\116\101\110\116\097\116\105\118\097\115']='\082\101\116\114\121\032\100\101\108\097\121',[
+'\086\111\108\116\097\114\032\097\111\032\112\111\110\116\111\032\097\110\116\101\114\105\111\114']='\082\101\116\117\114\110\032\116\111\032\116\104\101\032\112\114\101\118\105\111\117\115\032\112\111\115\105\116\105\111\110',[
+'\077\069\076\072\079\082\073\065\083\032\069\077\032\084\069\077\080\079\032\082\069\065\076']='\076\073\086\069\032\085\080\071\082\065\068\069\083',[
+"\078\105\118\101\105\115\032\099\111\110\102\105\114\109\097\100\111\115\032\112\101\108\111\032\106\111\103\111\046\032\067\111\110\115\117\108\116\097\114\032\101\115\116\097\032\108\105\115\116\097\032\109\097\110\116\101\109\032\097\032\114\111\116\105\110\097\032\101\109\032\101\120\101\099\117\099\097\111\046"
+]=
+"\084\104\101\032\103\097\109\101\032\099\111\110\102\105\114\109\115\032\116\104\101\115\101\032\108\101\118\101\108\115\046\032\082\111\117\116\105\110\101\115\032\099\111\110\116\105\110\117\101\032\119\104\105\108\101\032\121\111\117\032\118\105\101\119\032\116\104\105\115\032\108\105\115\116\046",
+['\065\103\117\097\114\100\097\110\100\111\032\110\105\118\101\105\115\046\046\046']='\087\097\105\116\105\110\103\032\102\111\114\032\117\112\103\114\097\100\101\032\108\101\118\101\108\115\u{2026}',['\086\101\108\111\099\105\100\097\100\101']=
+'\083\112\101\101\100',['\067\111\108\101\116\097\032\099\111\110\116\105\110\117\097']='\067\111\110\116\105\110\117\111\117\115\032\099\111\108\108\101\099\116\105\111\110',['\067\097\114\103\097']='\067\104\097\114\103\101',[
+'\082\101\115\102\114\105\097\109\101\110\116\111']='\067\111\111\108\105\110\103',['\086\097\108\111\114\032\100\097\032\098\097\116\097\116\097']='\080\111\116\097\116\111\032\118\097\108\117\101',['\086\101\108\111\099\105\100\097\100\101\032\097\032\112\101']
+='\087\097\108\107\032\115\112\101\101\100',['\083\111\114\116\101']='\076\117\099\107',['\067\097\112\097\099\105\100\097\100\101']='\067\097\112\097\099\105\116\121',['\071\097\114\114\097']='\071\114\105\112',['\086\111\111'
+]='\070\108\105\103\104\116',['\077\069\076\072\079\082\065\082']='\085\080\071\082\065\068\069',['\079\114\099\097\109\101\110\116\111']='\066\117\100\103\101\116',[
+"\067\111\109\112\114\097\115\032\097\117\116\111\109\097\116\105\099\097\115\032\117\115\097\109\032\115\111\109\101\110\116\101\032\100\105\110\104\101\105\114\111\032\099\111\109\117\109\032\100\111\032\106\111\103\111\046\032\082\101\115\101\114\118\097\032\101\032\108\105\109\105\116\101\032\112\111\114\032\099\111\109\112\114\097\032\115\097\111\032\097\112\108\105\099\097\100\111\115\032\097\110\116\101\115\032\100\101\032\099\097\100\097\032\097\099\097\111\046"
+]=
+"\065\117\116\111\109\097\116\105\099\032\112\117\114\099\104\097\115\101\115\032\117\115\101\032\114\101\103\117\108\097\114\032\103\097\109\101\032\099\097\115\104\032\097\110\100\032\114\101\115\112\101\099\116\032\121\111\117\114\032\114\101\115\101\114\118\101\032\097\110\100\032\115\112\101\110\100\105\110\103\032\099\097\112\046"
+,['\070\101\114\114\097\109\101\110\116\097\115']='\084\111\111\108\115',['\077\101\108\104\111\114\105\097\115']='\085\112\103\114\097\100\101\115',['\066\111\108\115\097\115\032\101\032\099\097\112\097\099\105\100\097\100\101']=
+'\066\097\103\115\032\097\110\100\032\099\097\112\097\099\105\116\121',['\084\101\110\104\111\032\109\111\099\104\105\108\097\032\105\110\102\105\110\105\116\097']='\073\032\104\097\118\101\032\097\110\032\117\110\108\105\109\105\116\101\100\032\098\097\103',[
+"\073\109\112\101\100\101\032\099\111\109\112\114\097\115\032\100\101\032\109\111\099\104\105\108\097\115\032\101\032\117\115\097\032\111\032\108\105\109\105\116\101\032\100\101\032\101\110\116\114\101\103\097\032\112\111\114\032\113\117\097\110\116\105\100\097\100\101\046" ]=
+'\083\107\105\112\115\032\098\097\103\032\112\117\114\099\104\097\115\101\115\032\097\110\100\032\117\115\101\115\032\116\104\101\032\100\101\108\105\118\101\114\121\032\097\109\111\117\110\116\046',[
+'\067\111\109\112\114\097\114\032\099\111\114\116\097\100\111\114\101\115\032\109\097\110\117\097\108\032\101\032\097\117\116\111\109\097\116\105\099\111']='\066\117\121\032\109\097\110\117\097\108\032\097\110\100\032\097\117\116\111\109\097\116\105\099\032\099\117\116\116\101\114\115',[
+"\068\101\112\111\105\115\032\100\101\032\109\097\120\105\109\105\122\097\114\032\097\115\032\100\117\097\115\032\109\101\108\104\111\114\105\097\115\032\100\101\032\100\105\110\097\109\105\116\101\046\032\079\032\109\097\110\117\097\108\032\110\097\111\032\114\101\099\101\098\101\032\109\101\108\104\111\114\105\097\115\046"
+]=
+"\066\117\121\115\032\097\102\116\101\114\032\098\111\116\104\032\100\121\110\097\109\105\116\101\032\117\112\103\114\097\100\101\115\032\097\114\101\032\109\097\120\101\100\046\032\085\112\103\114\097\100\101\115\032\097\112\112\108\121\032\116\111\032\116\104\101\032\097\117\116\111\109\097\116\105\099\032\099\117\116\116\101\114\046"
+,['\076\111\116\101\032\112\097\114\097\032\111\032\097\117\116\111\109\097\116\105\099\111\032\110\111\032\109\097\120\105\109\111']=
+'\066\097\116\099\104\032\115\105\122\101\032\102\111\114\032\116\104\101\032\109\097\120\101\100\032\097\117\116\111\109\097\116\105\099\032\099\117\116\116\101\114',['\067\111\114\114\105\103\105\114\032\100\101\115\102\111\113\117\101\032\097\111\032\102\101\099\104\097\114\032\109\101\110\117\115'
+]='\070\105\120\032\098\108\117\114\032\097\102\116\101\114\032\099\108\111\115\105\110\103\032\109\101\110\117\115',['\071\117\097\114\100\097\114\032\112\097\114\097\032\097\032\112\114\111\120\105\109\097\032\097\114\109\097']=
+'\083\097\118\101\032\102\111\114\032\116\104\101\032\110\101\120\116\032\116\111\111\108',['\079\102\101\114\101\099\101\114\032\099\111\109\112\114\097\032\100\111\032\100\114\111\110\101\032\097\032\099\097\100\097\032\112\097\114\116\105\100\097']=
+'\079\102\102\101\114\032\097\032\100\114\111\110\101\032\112\117\114\099\104\097\115\101\032\101\097\099\104\032\109\097\116\099\104',[
+"\083\111\108\105\099\105\116\097\032\099\111\110\102\105\114\109\097\099\097\111\032\100\101\032\056\048\032\103\101\109\097\115\059\032\097\032\111\102\101\114\116\097\032\114\101\097\108\032\116\097\109\098\101\109\032\112\114\101\099\105\115\097\032\099\111\110\102\105\114\109\097\114\032\101\115\115\101\032\118\097\108\111\114\046"
+]="\065\115\107\115\032\121\111\117\032\116\111\032\099\111\110\102\105\114\109\032\119\104\101\110\032\116\104\101\032\103\097\109\101\032\111\102\102\101\114\115\032\116\104\101\032\100\114\111\110\101\032\102\111\114\032\056\048\032\103\101\109\115\046",[
+'\077\101\108\104\111\114\097\114\032\100\114\111\110\101\032\099\111\109\112\114\097\100\111']='\085\112\103\114\097\100\101\032\097\110\032\111\119\110\101\100\032\100\114\111\110\101',['\076\105\109\112\097\114\032\097\110\116\101\115\032\100\101\032\099\111\114\116\097\114']=
+'\067\108\101\097\114\032\116\104\101\032\112\105\108\101\032\098\101\102\111\114\101\032\099\117\116\116\105\110\103',[
+"\083\111\109\101\110\116\101\032\099\111\109\032\100\105\110\097\109\105\116\101\044\032\112\097\044\032\097\117\116\111\109\097\116\105\099\111\032\101\032\115\117\103\097\100\111\114\032\110\111\032\109\097\120\105\109\111\046\032\065\110\116\101\115\032\100\105\115\115\111\044\032\099\111\110\116\105\110\117\097\032\117\115\097\110\100\111\032\097\032\102\097\099\097\032\112\097\114\097\032\103\101\114\097\114\032\114\101\110\100\097\046"
+]=
+"\082\101\113\117\105\114\101\115\032\109\097\120\101\100\032\100\121\110\097\109\105\116\101\044\032\115\104\111\118\101\108\044\032\097\117\116\111\109\097\116\105\099\032\099\117\116\116\101\114\032\097\110\100\032\118\097\099\117\117\109\046\032\067\117\116\115\032\119\105\116\104\032\097\032\107\110\105\102\101\032\102\111\114\032\105\110\099\111\109\101\032\117\110\116\105\108\032\116\104\101\110\046"
+,['\077\101\108\104\111\114\097\114\032\109\097\113\117\105\110\097\115\032\099\111\109\112\114\097\100\097\115']='\085\112\103\114\097\100\101\032\111\119\110\101\100\032\109\097\099\104\105\110\101\115',[
+'\077\101\108\104\111\114\105\097\115\032\103\101\114\097\105\115\032\100\111\032\099\097\112\105\116\117\108\111\032\050']='\071\101\110\101\114\097\108\032\067\104\097\112\116\101\114\032\073\073\032\117\112\103\114\097\100\101\115',[
+'\082\101\115\101\114\118\097\032\100\101\032\100\105\110\104\101\105\114\111']='\067\097\115\104\032\114\101\115\101\114\118\101',['\076\105\109\105\116\101\032\112\111\114\032\099\111\109\112\114\097\032\040\048\032\061\032\108\105\118\114\101\041']=
+'\083\112\101\110\100\105\110\103\032\099\097\112\032\112\101\114\032\112\117\114\099\104\097\115\101\032\040\048\032\061\032\117\110\108\105\109\105\116\101\100\041',[
+"\069\115\099\111\108\104\097\032\117\109\097\032\109\105\115\115\097\111\032\099\111\109\032\112\114\111\103\114\101\115\115\111\032\100\111\032\106\111\103\111\046\032\079\032\065\117\116\111\032\080\114\111\103\114\101\115\115\032\112\114\105\111\114\105\122\097\032\097\032\116\097\114\101\102\097\032\101\032\118\111\108\116\097\032\097\111\032\099\105\099\108\111\032\110\111\114\109\097\108\032\097\112\111\115\032\097\032\099\111\110\102\105\114\109\097\099\097\111\046"
+]=
+"\083\101\108\101\099\116\032\097\032\113\117\101\115\116\032\119\105\116\104\032\103\097\109\101\032\112\114\111\103\114\101\115\115\046\032\065\117\116\111\032\080\114\111\103\114\101\115\115\032\112\114\105\111\114\105\116\105\122\101\115\032\105\116\032\097\110\100\032\114\101\116\117\114\110\115\032\116\111\032\116\104\101\032\117\115\117\097\108\032\099\121\099\108\101\032\097\102\116\101\114\032\099\111\109\112\108\101\116\105\111\110\046"
+,[ "\065\098\114\097\032\097\032\116\101\108\097\032\100\101\032\109\105\115\115\111\101\115\032\111\117\032\100\111\032\112\097\115\115\101\032\100\111\032\106\111\103\111\032\112\097\114\097\032\099\097\114\114\101\103\097\114\032\097\032\108\105\115\116\097\046" ]=
+"\079\112\101\110\032\116\104\101\032\103\097\109\101\039\115\032\113\117\101\115\116\115\032\111\114\032\112\097\115\115\032\115\099\114\101\101\110\032\116\111\032\108\111\097\100\032\116\104\101\032\108\105\115\116\046",['\084\101\108\097\032\101\032\116\111\113\117\101']=
+'\068\105\115\112\108\097\121\032\097\110\100\032\116\111\117\099\104',[
+"\065\114\114\097\115\116\101\032\111\032\116\111\112\111\032\112\097\114\097\032\109\111\118\101\114\032\111\032\112\097\105\110\101\108\046\032\079\032\098\111\116\097\111\032\065\032\116\097\109\098\101\109\032\112\111\100\101\032\115\101\114\032\097\114\114\097\115\116\097\100\111\046\032\085\115\101\032\111\032\099\097\110\116\111\032\105\110\102\101\114\105\111\114\032\112\097\114\097\032\114\101\100\105\109\101\110\115\105\111\110\097\114\046"
+]=
+"\068\114\097\103\032\116\104\101\032\116\111\112\032\116\111\032\109\111\118\101\032\116\104\101\032\112\097\110\101\108\032\111\114\032\100\114\097\103\032\116\104\101\032\065\032\098\117\116\116\111\110\046\032\085\115\101\032\116\104\101\032\098\111\116\116\111\109\032\099\111\114\110\101\114\032\116\111\032\114\101\115\105\122\101\046"
+,['\069\115\099\097\108\097\032\100\097\032\105\110\116\101\114\102\097\099\101']='\073\110\116\101\114\102\097\099\101\032\115\099\097\108\101',['\076\097\114\103\117\114\097\032\100\111\032\112\097\105\110\101\108']='\080\097\110\101\108\032\119\105\100\116\104',[
+'\065\108\116\117\114\097\032\100\111\032\112\097\105\110\101\108']='\080\097\110\101\108\032\104\101\105\103\104\116',['\084\097\109\097\110\104\111\032\100\111\032\098\111\116\097\111\032\065']='\065\032\098\117\116\116\111\110\032\115\105\122\101',[
+'\067\069\078\084\082\065\076\073\090\065\082\032\069\032\082\069\083\084\065\085\082\065\082\032\084\065\077\065\078\072\079']='\067\069\078\084\069\082\032\065\078\068\032\082\069\083\069\084\032\083\073\090\069',['\067\097\109\101\114\097']='\067\097\109\101\114\097',[
+'\070\111\114\099\097\114\032\116\101\114\099\101\105\114\097\032\112\101\115\115\111\097']='\070\111\114\099\101\032\116\104\105\114\100\032\112\101\114\115\111\110',['\068\105\115\116\097\110\099\105\097\032\109\097\120\105\109\097\032\100\097\032\099\097\109\101\114\097']=
+'\077\097\120\105\109\117\109\032\099\097\109\101\114\097\032\100\105\115\116\097\110\099\101',['\065\112\111\110\116\097\114\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101\032\112\097\114\097\032\097\032\118\097\108\118\117\108\097']=
+'\065\105\109\032\097\116\032\116\104\101\032\118\097\108\118\101\032\097\117\116\111\109\097\116\105\099\097\108\108\121',[
+"\065\108\105\110\104\097\032\097\032\099\097\109\101\114\097\032\100\117\114\097\110\116\101\032\097\032\105\110\116\101\114\097\099\097\111\032\101\032\114\101\115\116\097\117\114\097\032\097\032\118\105\115\097\111\032\097\111\032\116\101\114\109\105\110\097\114\046" ]=
+"\065\108\105\103\110\115\032\116\104\101\032\099\097\109\101\114\097\032\100\117\114\105\110\103\032\105\110\116\101\114\097\099\116\105\111\110\032\097\110\100\032\114\101\115\116\111\114\101\115\032\116\104\101\032\118\105\101\119\032\097\102\116\101\114\119\097\114\100\046",[
+'\069\120\101\099\117\099\097\111']='\082\111\117\116\105\110\101\115',[
+"\065\116\117\097\032\112\111\114\032\101\118\101\110\116\111\032\100\101\032\105\110\097\116\105\118\105\100\097\100\101\032\101\110\113\117\097\110\116\111\032\097\108\103\117\109\097\032\114\111\116\105\110\097\032\101\115\116\105\118\101\114\032\097\116\105\118\097\059\032\112\097\117\115\097\032\106\117\110\116\111\032\100\097\115\032\114\111\116\105\110\097\115\046"
+]='\082\101\115\112\111\110\100\115\032\116\111\032\105\100\108\101\032\101\118\101\110\116\115\032\119\104\105\108\101\032\097\032\114\111\117\116\105\110\101\032\105\115\032\114\117\110\110\105\110\103\046',[
+'\083\097\105\100\097\032\097\117\116\111\109\097\116\105\099\097\032\109\097\110\117\097\108']='\065\117\116\111\032\101\120\105\116',[
+"\085\115\097\032\097\032\099\104\097\118\101\032\114\101\097\108\032\112\097\114\097\032\112\114\111\099\117\114\097\114\032\097\032\115\097\105\100\097\046\032\079\032\079\080\032\101\032\111\032\065\117\116\111\032\080\114\111\103\114\101\115\115\032\106\097\032\099\111\111\114\100\101\110\097\109\032\115\117\097\032\112\114\111\112\114\105\097\032\115\097\105\100\097\046"
+]=
+"\085\115\101\115\032\116\104\101\032\107\101\121\032\116\111\032\102\105\110\100\032\116\104\101\032\101\120\105\116\046\032\079\080\032\097\110\100\032\065\117\116\111\032\080\114\111\103\114\101\115\115\032\104\097\110\100\108\101\032\116\104\101\032\101\120\105\116\032\097\117\116\111\109\097\116\105\099\097\108\108\121\046"
+,['\080\117\108\097\114\032\099\101\110\097\032\102\105\110\097\108']='\083\107\105\112\032\101\110\100\105\110\103\032\115\099\101\110\101',[
+"\085\115\097\032\111\032\098\111\116\097\111\032\080\117\108\097\114\032\113\117\097\110\100\111\032\100\105\115\112\111\110\105\118\101\108\046\032\065\112\111\115\032\097\032\102\117\103\097\032\099\111\110\102\105\114\109\097\100\097\044\032\116\097\109\098\101\109\032\116\101\110\116\097\032\097\032\102\117\110\099\097\111\032\067\097\110\099\101\108\032\100\097\032\099\101\110\097\046"
+]=
+"\085\115\101\115\032\116\104\101\032\083\107\105\112\032\098\117\116\116\111\110\032\105\102\032\097\118\097\105\108\097\098\108\101\032\097\110\100\032\097\116\116\101\109\112\116\115\032\116\111\032\101\110\100\032\116\104\101\032\115\099\101\110\101\032\097\102\116\101\114\032\101\115\099\097\112\101\032\105\115\032\099\111\110\102\105\114\109\101\100\046"
+,['\076\105\098\101\114\097\114\032\099\097\109\101\114\097\032\097\112\111\115\032\118\105\116\111\114\105\097']='\082\101\115\116\111\114\101\032\099\097\109\101\114\097\032\097\102\116\101\114\032\119\105\110\110\105\110\103',[
+"\083\101\032\097\032\099\101\110\097\032\110\097\111\032\111\102\101\114\101\099\101\114\032\117\109\032\098\111\116\097\111\044\032\116\101\110\116\097\032\100\101\118\111\108\118\101\114\032\097\032\118\105\115\097\111\032\097\111\032\112\101\114\115\111\110\097\103\101\109\032\100\101\112\111\105\115\032\100\097\032\099\111\110\102\105\114\109\097\099\097\111\032\100\097\032\102\117\103\097\046"
+]=
+"\082\101\116\117\114\110\115\032\116\104\101\032\118\105\101\119\032\116\111\032\121\111\117\114\032\099\104\097\114\097\099\116\101\114\032\097\102\116\101\114\032\101\115\099\097\112\101\032\119\104\101\110\032\116\104\101\032\115\099\101\110\101\032\104\097\115\032\110\111\032\115\107\105\112\032\098\117\116\116\111\110\046"
+,['\082\105\116\109\111\032\100\101\032\108\105\109\112\101\122\097']='\080\105\108\101\032\099\108\101\097\114\105\110\103\032\112\097\099\101',[
+"\067\111\109\032\101\113\117\105\112\097\109\101\110\116\111\115\032\110\111\032\109\097\120\105\109\111\044\032\112\114\101\102\101\114\101\032\097\108\118\111\115\032\112\114\111\120\105\109\111\115\032\101\032\101\118\105\116\097\032\100\101\115\118\105\111\115\032\112\111\114\032\114\097\114\105\100\097\100\101\115\046"
+]=
+"\087\105\116\104\032\109\097\120\101\100\032\101\113\117\105\112\109\101\110\116\044\032\102\097\118\111\114\115\032\110\101\097\114\098\121\032\116\097\114\103\101\116\115\032\097\110\100\032\097\118\111\105\100\115\032\100\101\116\111\117\114\115\032\102\111\114\032\114\097\114\101\032\111\110\101\115\046"
+,['\082\101\100\117\122\105\114\032\105\110\116\101\114\118\097\108\111\032\108\111\099\097\108\032\100\097\032\101\110\116\114\101\103\097']='\082\101\100\117\099\101\032\100\101\108\105\118\101\114\121\032\105\110\116\101\114\118\097\108',[
+"\065\099\101\108\101\114\097\032\101\110\116\114\101\103\097\115\032\101\032\114\101\115\116\097\117\114\097\032\111\032\105\110\116\101\114\118\097\108\111\032\110\111\114\109\097\108\032\115\101\032\097\032\101\110\116\114\101\103\097\032\102\097\108\104\097\114\046" ]=
+"\083\112\101\101\100\115\032\117\112\032\100\101\108\105\118\101\114\105\101\115\032\119\104\101\110\032\115\117\112\112\111\114\116\101\100\032\097\110\100\032\114\101\115\116\111\114\101\115\032\110\111\114\109\097\108\032\116\105\109\105\110\103\032\105\102\032\100\101\108\105\118\101\114\121\032\102\097\105\108\115\046"
+,['\073\110\116\101\114\118\097\108\111\032\108\111\099\097\108\032\112\111\114\032\099\111\108\111\099\097\099\097\111']='\073\110\116\101\114\118\097\108\032\112\101\114\032\112\108\097\099\101\109\101\110\116',['\068\101\115\108\111\099\097\109\101\110\116\111']=
+'\077\111\118\101\109\101\110\116',['\084\101\108\101\112\111\114\116\101']='\084\101\108\101\112\111\114\116',['\067\097\109\105\110\104\097\114']='\087\097\108\107',['\082\105\116\109\111']='\080\097\099\101',[
+'\067\111\108\101\116\097\115\032\112\111\114\032\114\111\100\097\100\097']='\080\105\099\107\115\032\112\101\114\032\099\121\099\108\101',['\067\111\108\101\116\097\114\032\097\111\032\114\101\100\111\114\032\115\101\109\032\109\105\114\097\114']=
+'\067\111\108\108\101\099\116\032\110\101\097\114\098\121\032\119\105\116\104\111\117\116\032\097\105\109\105\110\103',[
+"\085\115\097\032\073\068\115\032\100\111\115\032\097\108\118\111\115\032\112\114\111\120\105\109\111\115\059\032\116\101\108\101\112\111\114\116\097\032\113\117\097\110\100\111\032\110\101\099\101\115\115\097\114\105\111\046\032\079\032\115\101\114\118\105\100\111\114\032\097\105\110\100\097\032\118\097\108\105\100\097\032\111\032\097\108\099\097\110\099\101\046"
+]="\067\111\108\108\101\099\116\115\032\110\101\097\114\098\121\032\116\097\114\103\101\116\115\032\119\105\116\104\105\110\032\116\104\101\032\103\097\109\101\039\115\032\114\101\097\099\104\046",['\082\097\105\111\032\108\111\099\097\108\032\100\097\032\099\111\108\101\116\097']=
+'\067\111\108\108\101\099\116\105\111\110\032\114\097\100\105\117\115',['\070\101\114\114\097\109\101\110\116\097\032\100\101\032\099\111\108\101\116\097']='\067\111\108\108\101\099\116\105\111\110\032\116\111\111\108',[
+'\077\101\108\104\111\114\032\097\100\113\117\105\114\105\100\097']='\066\101\115\116\032\111\119\110\101\100\032\116\111\111\108',['\077\097\111']='\072\097\110\100',['\080\097']='\083\104\111\118\101\108',[
+'\069\115\112\101\099\105\097\105\115\032\115\101\109\032\109\111\100\101\108\111\032\118\105\115\105\118\101\108']='\083\112\101\099\105\097\108\032\116\097\114\103\101\116\115\032\111\117\116\115\105\100\101\032\118\105\101\119',[
+"\085\115\097\032\111\115\032\073\068\115\032\101\032\097\115\032\112\111\115\105\099\111\101\115\032\097\116\117\097\105\115\032\100\111\032\106\111\103\111\046\032\084\101\110\116\097\116\105\118\097\115\032\114\101\099\117\115\097\100\097\115\032\114\101\099\101\098\101\109\032\117\109\097\032\112\097\117\115\097\059\032\114\101\099\111\109\112\101\110\115\097\115\032\100\101\112\101\110\100\101\109\032\100\111\032\115\101\114\118\105\100\111\114\046"
+]="\085\115\101\115\032\099\117\114\114\101\110\116\032\103\097\109\101\032\112\111\115\105\116\105\111\110\115\032\097\110\100\032\119\097\105\116\115\032\098\101\102\111\114\101\032\114\101\116\114\121\105\110\103\032\097\032\114\101\106\101\099\116\101\100\032\116\097\114\103\101\116\046",[
+'\082\101\099\117\112\101\114\097\114\032\101\116\097\112\097\115\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101']='\082\101\099\111\118\101\114\032\114\111\117\116\105\110\101\115\032\097\117\116\111\109\097\116\105\099\097\108\108\121',[
+'\070\097\108\104\097\115\032\100\101\032\099\111\108\101\116\097\032\101\032\101\110\116\114\101\103\097\032\097\100\105\097\109\032\115\111\109\101\110\116\101\032\097\032\101\116\097\112\097\032\097\102\101\116\097\100\097\046']=
+'\068\101\108\097\121\115\032\111\110\108\121\032\116\104\101\032\115\116\101\112\032\116\104\097\116\032\102\097\105\108\101\100\032\116\111\032\099\111\108\108\101\099\116\032\111\114\032\100\101\108\105\118\101\114\046',[
+'\082\069\083\084\065\085\082\065\082\032\067\079\078\084\082\079\076\069\083\032\068\079\032\074\079\071\079']='\082\069\083\084\079\082\069\032\071\065\077\069\032\067\079\078\084\082\079\076\083',['\073\110\116\101\114\118\097\108\111\032\101\110\116\114\101\032\097\099\111\101\115']
+='\065\099\116\105\111\110\032\105\110\116\101\114\118\097\108',['\084\101\109\112\111\032\108\105\109\105\116\101\032\100\101\032\097\099\097\111']='\065\099\116\105\111\110\032\116\105\109\101\111\117\116',[
+'\084\101\109\112\111\032\108\105\109\105\116\101\032\100\101\032\116\114\097\106\101\116\111']='\084\114\097\118\101\108\032\116\105\109\101\111\117\116',['\068\105\110\097\109\105\116\101\032\097\117\116\111\109\097\116\105\099\097']=
+'\065\117\116\111\032\100\121\110\097\109\105\116\101',[
+"\065\116\117\097\032\113\117\097\110\100\111\032\097\032\102\101\114\114\097\109\101\110\116\097\032\102\111\105\032\097\100\113\117\105\114\105\100\097\032\101\032\111\032\112\114\111\116\111\099\111\108\111\032\100\101\032\108\097\110\099\097\109\101\110\116\111\032\102\111\105\032\105\100\101\110\116\105\102\105\099\097\100\111\046"
+]='\082\117\110\115\032\119\104\101\110\032\116\104\101\032\116\111\111\108\032\105\115\032\111\119\110\101\100\032\097\110\100\032\114\101\097\100\121\032\116\111\032\116\104\114\111\119\046',['\073\110\116\101\114\118\097\108\111\032\097\099\101\108\101\114\097\100\111']=
+'\070\097\115\116\101\114\032\105\110\116\101\114\118\097\108',[
+"\082\101\100\117\122\032\097\032\101\115\112\101\114\097\032\108\111\099\097\108\059\032\116\101\110\116\097\116\105\118\097\115\032\115\101\109\032\099\111\110\102\105\114\109\097\099\097\111\032\114\101\099\101\098\101\109\032\117\109\032\105\110\116\101\114\118\097\108\111\032\109\097\105\111\114\046"
+]="\083\104\111\114\116\101\110\115\032\116\104\101\032\108\111\099\097\108\032\119\097\105\116\032\097\110\100\032\098\097\099\107\115\032\111\102\102\032\119\104\101\110\032\097\032\116\104\114\111\119\032\105\115\032\117\110\099\111\110\102\105\114\109\101\100\046",[
+'\073\110\116\101\114\118\097\108\111\032\100\097\032\100\105\110\097\109\105\116\101']='\068\121\110\097\109\105\116\101\032\105\110\116\101\114\118\097\108',['\080\097\117\115\097\114\032\099\111\109\032\109\111\118\105\109\101\110\116\111\032\109\097\110\117\097\108']=
+'\080\097\117\115\101\032\111\110\032\109\097\110\117\097\108\032\109\111\118\101\109\101\110\116',['\078\111\116\105\102\105\099\097\099\111\101\115']='\078\111\116\105\102\105\099\097\116\105\111\110\115',['\065\116\097\108\104\111\115']=
+'\083\104\111\114\116\099\117\116\115',['\069\110\116\114\101\103\097\114']='\068\101\108\105\118\101\114',['\065\098\111\098\111\114\097\115']='\080\117\109\112\107\105\110\115',['\066\111\108\115\097\115']='\066\097\103\115',[
+'\067\111\114\116\097\100\111\114\032\109\097\110\117\097\108']='\077\097\110\117\097\108\032\099\117\116\116\101\114',['\086\101\110\100\101\114']='\083\101\108\108',['\068\105\110\097\109\105\116\101']='\068\121\110\097\109\105\116\101',[
+'\080\097\105\110\101\108']='\080\097\110\101\108',['\079\080\032\065\108\116\111\032\090\101\114\097\114']='\079\080\032\070\097\115\116\032\070\105\110\105\115\104',['\071\105\114\111\032\037\100\032\099\111\110\102\105\114\109\097\100\111\058\032\037\115']=
+'\082\111\108\108\032\037\100\032\099\111\110\102\105\114\109\101\100\058\032\037\115',[
+'\067\111\110\101\120\u{e3}\111\032\112\101\114\100\105\100\097\032\040\037\115\041\046\032\084\101\110\116\097\110\100\111\032\118\111\108\116\097\114\032\097\111\032\108\111\098\098\121\u{2026}']=
+'\067\111\110\110\101\099\116\105\111\110\032\108\111\115\116\032\040\037\115\041\046\032\082\101\106\111\105\110\105\110\103\032\116\104\101\032\108\111\098\098\121\u{2026}',[
+'\069\115\115\097\032\116\101\099\108\097\032\106\097\032\101\115\116\097\032\101\109\032\117\115\111\032\112\111\114\032\037\115\046']='\084\104\097\116\032\107\101\121\032\105\115\032\097\108\114\101\097\100\121\032\097\115\115\105\103\110\101\100\032\116\111\032\037\115\046',[
+'\082\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\032\097\112\111\115\032\116\114\101\115\032\102\097\108\104\097\115\032\101\109\032\037\115\046']=
+'\082\111\117\116\105\110\101\115\032\112\097\117\115\101\100\032\097\102\116\101\114\032\116\104\114\101\101\032\102\097\105\108\117\114\101\115\032\119\104\105\108\101\032\037\115\046',[
+'\067\105\099\108\111\032\099\111\109\112\108\101\116\111\032\099\111\109\032\112\114\105\111\114\105\100\097\100\101\032\112\097\114\097\032\108\105\109\112\097\114\032\097\032\109\111\110\116\097\110\104\097\046']=
+'\067\111\109\112\108\101\116\101\032\114\117\110\032\116\104\097\116\032\112\114\105\111\114\105\116\105\122\101\115\032\099\108\101\097\114\105\110\103\032\116\104\101\032\112\105\108\101\046',[
+"\083\117\103\097\100\111\114\032\077\065\088\032\105\110\105\099\105\097\032\099\111\108\101\116\097\032\099\111\110\116\105\110\117\097\032\097\116\101\032\097\099\097\098\097\114\032\097\032\109\111\110\116\097\110\104\097\046\032\069\110\116\114\101\103\097\032\097\111\032\101\110\099\104\101\114\032\115\101\032\097\032\098\111\108\115\097\032\102\111\114\032\102\105\110\105\116\097\046\032\079\032\079\080\032\099\111\111\114\100\101\110\097\032\115\101\117\115\032\115\101\114\118\105\099\111\115\032\115\101\109\032\108\105\103\097\114\032\111\115\032\105\110\116\101\114\114\117\112\116\111\114\101\115\032\100\097\115\032\114\111\116\105\110\097\115\032\109\097\110\117\097\105\115\046"
+]=
+"\065\032\109\097\120\101\100\032\118\097\099\117\117\109\032\099\111\108\108\101\099\116\115\032\099\111\110\116\105\110\117\111\117\115\108\121\032\117\110\116\105\108\032\116\104\101\032\112\105\108\101\032\105\115\032\099\108\101\097\114\046\032\070\105\110\105\116\101\032\098\097\103\115\032\097\114\101\032\100\101\108\105\118\101\114\101\100\032\119\104\101\110\032\102\117\108\108\046"
+,['\086\101\110\100\101\114\032\108\111\116\101\115\032\109\097\105\111\114\101\115\032\110\111\032\079\080']='\083\101\108\108\032\108\097\114\103\101\114\032\079\080\032\098\097\116\099\104\101\115',[
+"\085\115\097\032\108\111\116\101\115\032\100\101\032\053\048\044\032\057\048\032\111\117\032\049\053\048\032\099\111\110\102\111\114\109\101\032\111\032\115\097\108\100\111\032\113\117\101\032\102\097\108\116\097\032\112\097\114\097\032\097\032\112\114\111\120\105\109\097\032\099\111\109\112\114\097\044\032\114\101\115\112\101\105\116\097\110\100\111\032\111\032\108\105\109\105\116\101\032\100\101\032\118\101\110\100\097\046"
+]=
+"\085\115\101\115\032\098\097\116\099\104\101\115\032\111\102\032\053\048\044\032\057\048\032\111\114\032\049\053\048\032\098\097\115\101\100\032\111\110\032\116\104\101\032\099\097\115\104\032\110\101\101\100\101\100\032\102\111\114\032\116\104\101\032\110\101\120\116\032\112\117\114\099\104\097\115\101\046"
+,['\082\101\116\101\110\116\097\114\032\109\101\115\097\032\101\032\118\101\110\100\097\032\109\097\105\115\032\099\101\100\111']='\082\101\116\114\121\032\116\097\098\108\101\115\032\097\110\100\032\115\097\108\101\115\032\115\111\111\110\101\114',[
+"\081\117\097\110\100\111\032\111\032\112\114\111\109\112\116\032\101\032\105\110\115\116\097\110\116\097\110\101\111\044\032\116\101\110\116\097\032\111\117\116\114\097\032\102\111\114\109\097\032\100\101\032\105\110\116\101\114\097\099\097\111\032\109\097\105\115\032\099\101\100\111\046\032\079\032\114\101\115\117\108\116\097\100\111\032\097\105\110\100\097\032\100\101\112\101\110\100\101\032\100\097\032\099\111\110\102\105\114\109\097\099\097\111\032\100\111\032\106\111\103\111\046"
+]="\082\101\116\114\105\101\115\032\097\110\032\105\110\115\116\097\110\116\032\105\110\116\101\114\097\099\116\105\111\110\032\115\111\111\110\101\114\032\105\102\032\116\104\101\032\103\097\109\101\032\104\097\115\032\121\101\116\032\116\111\032\099\111\110\102\105\114\109\032\105\116\046",[
+'\068\101\115\101\106\097\032\109\101\115\109\111\032\099\111\109\112\114\097\114\032\111\032\100\114\111\110\101\063\n\080\114\101\099\111\058\032\056\048\032\103\101\109\097\115']=
+'\066\117\121\032\116\104\101\032\100\114\111\110\101\063\n\080\114\105\099\101\058\032\056\048\032\103\101\109\115',['\067\079\077\080\082\065\082\058\032\056\048\032\071\069\077\065\083']='\066\085\089\058\032\056\048\032\071\069\077\083',[
+'\065\071\079\082\065\032\078\065\079']='\078\079\084\032\078\079\087',['\078\065\079\032\065\068\081\085\073\082\073\068\079']='\078\079\084\032\079\087\078\069\068',['\077\065\088\032\032\047\032\032\080\082\079\078\084\079']=
+'\077\065\088\032\032\047\032\032\082\069\065\068\089',['\067\079\078\067\076\085\073\068\065']='\068\079\078\069',['\080\082\073\079\082\073\090\065\078\068\079']='\080\082\073\079\082\073\084\073\090\069\068',['\083\069\076\069\067\073\079\078\065\082'
+]='\083\069\076\069\067\084',['\086\097\108\105\100\097\100\101\032\110\097\111\032\105\110\102\111\114\109\097\100\097']='\069\120\112\105\114\121\032\117\110\107\110\111\119\110',['\069\120\112\105\114\097\100\097']='\069\120\112\105\114\101\100',[
+'\067\069\078\084\082\065\076\032\068\079\032\076\079\066\066\089']='\076\079\066\066\089\032\067\069\078\084\069\082',['\080\114\111\110\116\111\032\112\097\114\097\032\099\111\110\102\105\103\117\114\097\114\032\097\032\102\105\108\097\046']=
+'\082\101\097\100\121\032\116\111\032\099\111\110\102\105\103\117\114\101\032\116\104\101\032\113\117\101\117\101\046',['\067\111\110\102\105\103\117\114\097\114']='\083\101\116\117\112',[
+'\067\111\110\102\105\103\117\114\097\114\032\099\097\112\u{ed}\116\117\108\111']='\083\101\116\032\117\112\032\097\032\099\104\097\112\116\101\114',[
+'\069\115\099\111\108\104\097\032\117\109\032\099\097\112\u{ed}\116\117\108\111\032\112\097\114\097\032\118\101\114\032\097\115\032\111\112\u{e7}\u{f5}\101\115\032\100\097\032\102\105\108\097\046']=
+'\067\104\111\111\115\101\032\097\032\099\104\097\112\116\101\114\032\116\111\032\118\105\101\119\032\105\116\115\032\113\117\101\117\101\032\115\101\116\116\105\110\103\115\046',['\067\097\112\u{ed}\116\117\108\111\115']='\067\104\097\112\116\101\114\115',[
+'\067\097\112\u{ed}\116\117\108\111\032\073']='\067\104\097\112\116\101\114\032\073',['\067\097\112\u{ed}\116\117\108\111\032\073\073']='\067\104\097\112\116\101\114\032\073\073',[
+'\067\097\112\u{ed}\116\117\108\111\032\073\073\073']='\067\104\097\112\116\101\114\032\073\073\073',['\069\077\032\066\082\069\086\069']='\067\079\077\073\078\071\032\083\079\079\078',[
+'\070\105\108\097\032\100\111\032\067\097\112\u{ed}\116\117\108\111\032\073\073']='\067\104\097\112\116\101\114\032\073\073\032\113\117\101\117\101',[
+'\065\115\032\101\115\099\111\108\104\097\115\032\115\u{e3}\111\032\114\101\097\112\108\105\099\097\100\097\115\032\110\097\032\112\114\u{f3}\120\105\109\097\032\114\111\100\097\100\097\046']=
+'\083\101\116\116\105\110\103\115\032\099\097\114\114\121\032\111\118\101\114\032\116\111\032\116\104\101\032\110\101\120\116\032\114\111\117\110\100\046',['\069\078\084\082\065\082\032\043\032\079\080']='\074\079\073\078\032\043\032\079\080',[
+'\067\073\067\076\079\032\067\079\077\080\076\069\084\079']='\070\085\076\076\032\076\079\079\080',['\074\079\071\065\068\079\082\069\083']='\080\076\065\089\069\082\083',['\065\077\073\071\079\083']='\070\082\073\069\078\068\083',[
+'\073\078\084\082\079\068\085\u{c7}\u{c3}\079']='\073\078\084\082\079',['\067\069\078\065\032\070\073\078\065\076']='\069\078\068\073\078\071',['\082\069\080\069\084\073\082']='\082\069\080\069\065\084',[
+'\065\085\084\079\032\077\069\076\072\079\082\073\065']='\065\085\084\079\032\085\080\071\082\065\068\069',['\080\065\082\065\082']='\083\084\079\080',['\082\101\099\117\114\115\111\115\032\100\111\032\108\111\098\098\121']=
+'\076\111\098\098\121\032\114\101\115\111\117\114\099\101\115',['\076\101\110\100\111\032\111\032\115\097\108\100\111\032\100\111\032\106\111\103\111\u{2026}']=
+'\082\101\097\100\105\110\103\032\121\111\117\114\032\103\097\109\101\032\098\097\108\097\110\099\101\u{2026}',['\067\097\105\120\097\115']='\067\114\097\116\101\115',['\067\097\105\120\097\032\100\111\032\101\118\101\110\116\111']=
+'\069\118\101\110\116\032\099\114\097\116\101',[
+'\079\032\099\117\115\116\111\032\u{e9}\032\100\101\032\056\048\032\097\098\u{f3}\098\111\114\097\115\032\112\111\114\032\099\097\105\120\097\046\032\069\115\099\111\108\104\097\032\111\032\116\097\109\097\110\104\111\032\100\111\032\108\111\116\101\046']=
+'\069\097\099\104\032\099\114\097\116\101\032\099\111\115\116\115\032\056\048\032\112\117\109\112\107\105\110\115\046\032\067\104\111\111\115\101\032\121\111\117\114\032\098\097\116\099\104\032\115\105\122\101\046',[
+'\083\097\108\100\111\032\100\101\032\097\098\u{f3}\098\111\114\097\115']='\080\117\109\112\107\105\110\032\098\097\108\097\110\099\101',['\065\103\117\097\114\100\097\110\100\111\032\111\032\106\111\103\111\u{2026}']=
+'\087\097\105\116\105\110\103\032\102\111\114\032\116\104\101\032\103\097\109\101\u{2026}',['\065\085\084\079\032\067\065\073\088\065\083']='\065\085\084\079\032\067\082\065\084\069\083',['\065\066\082\073\082\032\076\079\084\069']=
+'\079\080\069\078\032\066\065\084\067\072',['\065\108\118\111\032\100\101\032\099\108\097\115\115\101']='\067\108\097\115\115\032\116\097\114\103\101\116',[
+'\083\101\108\101\099\105\111\110\101\032\117\109\032\099\097\114\116\u{e3}\111\046\032\065\032\114\111\108\097\103\101\109\032\112\097\114\097\032\113\117\097\110\100\111\032\111\032\106\111\103\111\032\099\111\110\102\105\114\109\097\032\097\032\099\108\097\115\115\101\046']=
+"\083\101\108\101\099\116\032\097\032\099\097\114\100\046\032\082\111\108\108\115\032\115\116\111\112\032\119\104\101\110\032\116\104\101\032\103\097\109\101\032\099\111\110\102\105\114\109\115\032\116\104\097\116\032\099\108\097\115\115\046",[
+'\065\098\114\097\032\067\108\097\115\115\101\115\032\110\111\032\106\111\103\111\032\112\097\114\097\032\099\097\114\114\101\103\097\114\032\111\032\099\097\116\u{e1}\108\111\103\111\046']=
+'\079\112\101\110\032\067\108\097\115\115\101\115\032\105\110\032\116\104\101\032\103\097\109\101\032\116\111\032\108\111\097\100\032\116\104\101\032\099\097\116\097\108\111\103\046',['\067\108\097\115\115\101\032\097\116\117\097\108']='\067\117\114\114\101\110\116\032\099\108\097\115\115'
+,['\u{25a1}\032\032\032\085\083\065\082\032\071\069\077\065\083\032\080\065\082\065\032\071\073\082\065\082']='\u{25a1}\032\032\032\085\083\069\032\071\069\077\083\032\084\079\032\082\079\076\076',[
+'\u{2713}\032\032\032\085\083\065\082\032\071\069\077\065\083\032\080\065\082\065\032\071\073\082\065\082']='\u{2713}\032\032\032\085\083\069\032\071\069\077\083\032\084\079\032\082\079\076\076',[
+'\071\073\082\065\082\032\065\084\u{c9}\032\079\032\065\076\086\079']='\082\079\076\076\032\085\078\084\073\076\032\084\065\082\071\069\084',['\083\069\076\069\067\073\079\078\065\082\032\077\065\073\083\032\082\065\082\065']=
+'\083\069\076\069\067\084\032\082\065\082\069\083\084',['\074\079\071\065\068\079\082\069\083\032\032\u{b7}\032\032']='\080\076\065\089\069\082\083\032\032\u{b7}\032\032',[
+'\083\u{d3}\032\065\077\073\071\079\083\032\032\u{b7}\032\032\083\073\077']='\070\082\073\069\078\068\083\032\079\078\076\089\032\032\u{b7}\032\032\089\069\083',[
+'\083\u{d3}\032\065\077\073\071\079\083\032\032\u{b7}\032\032\078\u{c3}\079']='\070\082\073\069\078\068\083\032\079\078\076\089\032\032\u{b7}\032\032\078\079',[
+'\073\078\084\082\079\032\032\u{b7}\032\032\080\085\076\065\082']='\073\078\084\082\079\032\032\u{b7}\032\032\083\075\073\080',['\073\078\084\082\079\032\032\u{b7}\032\032\086\069\082']=
+'\073\078\084\082\079\032\032\u{b7}\032\032\087\065\084\067\072',['\070\073\078\065\076\032\032\u{b7}\032\032\080\085\076\065\082']='\069\078\068\073\078\071\032\032\u{b7}\032\032\083\075\073\080',[
+'\070\073\078\065\076\032\032\u{b7}\032\032\086\069\082']='\069\078\068\073\078\071\032\032\u{b7}\032\032\087\065\084\067\072',['\082\069\080\069\084\073\082\032\032\u{b7}\032\032\083\073\077']=
+'\082\069\080\069\065\084\032\032\u{b7}\032\032\089\069\083',['\082\069\080\069\084\073\082\032\032\u{b7}\032\032\078\u{c3}\079']='\082\069\080\069\065\084\032\032\u{b7}\032\032\078\079',[
+'\077\069\076\072\079\082\073\065\083\032\032\u{b7}\032\032\079\078']='\085\080\071\082\065\068\069\083\032\032\u{b7}\032\032\079\078',['\077\069\076\072\079\082\073\065\083\032\032\u{b7}\032\032\079\070\070']=
+'\085\080\071\082\065\068\069\083\032\032\u{b7}\032\032\079\070\070',['\065\085\084\079\032\067\065\073\088\065\083\032\032\u{b7}\032\032\079\078']='\065\085\084\079\032\067\082\065\084\069\083\032\032\u{b7}\032\032\079\078',[
+'\065\085\084\079\032\067\065\073\088\065\083\032\032\u{b7}\032\032\079\070\070']='\065\085\084\079\032\067\082\065\084\069\083\032\032\u{b7}\032\032\079\070\070',['\065\071\085\065\082\068\065\078\068\079\032\079\032\074\079\071\079']=
+'\087\065\073\084\073\078\071\032\070\079\082\032\084\072\069\032\071\065\077\069',['\080\065\082\065\082\032\071\073\082\079\083']='\083\084\079\080\032\082\079\076\076\073\078\071',[
+'\065\098\u{f3}\098\111\114\097\115\032\032\037\115\032\032\032\u{b7}\032\032\032\071\101\109\097\115\032\032\037\115']='\080\117\109\112\107\105\110\115\032\032\037\115\032\032\032\u{b7}\032\032\032\071\101\109\115\032\032\037\115',[
+'\037\115\032\110\111\032\115\097\108\100\111\032\032\032\u{b7}\032\032\032\037\100\032\099\097\105\120\097\040\115\041\032\061\032\037\100\032\097\098\u{f3}\098\111\114\097\115']=
+'\037\115\032\097\118\097\105\108\097\098\108\101\032\032\032\u{b7}\032\032\032\037\100\032\099\114\097\116\101\040\115\041\032\061\032\037\100\032\112\117\109\112\107\105\110\115',[
+'\037\115\032\032\032\u{b7}\032\032\032\071\105\114\111\115\032\103\114\u{e1}\116\105\115\058\032\037\115']='\037\115\032\032\032\u{b7}\032\032\032\070\114\101\101\032\114\111\108\108\115\058\032\037\115',[
+'\037\048\050\100\058\037\048\050\100\032\032\047\032\032\083\079\082\084\069\032\037\100\037\115']='\037\048\050\100\058\037\048\050\100\032\032\047\032\032\076\085\067\075\032\037\100\037\115',['\032\032\047\032\032\067\079\078\067\076\085\073\068\079']=
+'\032\032\047\032\032\067\079\077\080\076\069\084\069',['\105\110\100\105\115\112\111\110\105\118\101\108']='\117\110\097\118\097\105\108\097\098\108\101',['\115\111\109\101\110\116\101\032\097\118\105\115\111\032\100\111\032\106\111\103\111']=
+'\103\097\109\101\032\097\108\101\114\116\032\111\110\108\121',['\099\111\108\101\116\097\114\032\101\032\099\111\114\116\097\114']='\099\111\108\108\101\099\116\032\097\110\100\032\099\117\116',['\108\105\109\112\101\122\097']='\099\108\101\097\114\105\110\103',
+['\065\103\117\097\114\100\097\110\100\111\032\114\111\116\105\110\097\032\111\117\032\114\101\099\117\114\115\111\032\100\105\115\112\111\110\105\118\101\108']='\087\097\105\116\105\110\103\032\102\111\114\032\097\032\114\111\117\116\105\110\101\032\111\114\032\114\101\115\111\117\114\099\101',
+['\069\081\085\073\080\069\032\032\047\032\032\076\073\068\069\082\032\079\080']='\084\069\065\077\032\032\047\032\032\079\080\032\076\069\065\068\069\082',['\069\081\085\073\080\069\032\032\047\032\032\067\079\076\069\084\065\032\069\032\069\078\084\082\069\071\065']=
+'\084\069\065\077\032\032\047\032\032\067\079\076\076\069\067\084\032\065\078\068\032\068\069\076\073\086\069\082',['\069\081\085\073\080\069\032\032\047\032\032\067\079\082\084\069\032\069\032\086\069\078\068\065']=
+'\084\069\065\077\032\032\047\032\032\067\085\084\032\065\078\068\032\083\069\076\076',['\071\082\085\080\079\032\077\073\083\084\079\032\032\047\032\032\065\080\079\073\079']='\077\073\088\069\068\032\071\082\079\085\080\032\032\047\032\032\083\085\080\080\079\082\084',[
+'\067\065\080\073\084\085\076\079\032\073\073\032\067\079\078\067\076\085\073\068\079\032\032\047\032\032\082\079\084\073\078\065\083\032\080\065\085\083\065\068\065\083']=
+'\067\072\065\080\084\069\082\032\073\073\032\067\079\077\080\076\069\084\069\032\032\047\032\032\082\079\085\084\073\078\069\083\032\080\065\085\083\069\068',[
+'\076\073\067\069\078\067\065\032\069\088\080\073\082\065\068\065\032\032\047\032\032\082\079\084\073\078\065\083\032\080\065\085\083\065\068\065\083']='\065\067\067\069\083\083\032\069\088\080\073\082\069\068\032\032\047\032\032\082\079\085\084\073\078\069\083\032\080\065\085\083\069\068',[
+'\086\073\084\079\082\073\065\032\067\079\078\070\073\082\077\065\068\065\032\047\032\065\071\085\065\082\068\065\078\068\079\032\082\069\083\085\076\084\065\068\079\032\080\065\082\065\032\086\079\076\084\065\082']=
+'\086\073\067\084\079\082\089\032\067\079\078\070\073\082\077\069\068\032\047\032\087\065\073\084\073\078\071\032\070\079\082\032\082\069\083\085\076\084\083',[
+'\086\073\084\079\082\073\065\032\067\079\078\070\073\082\077\065\068\065\032\047\032\086\079\076\084\065\078\068\079\032\065\079\032\076\079\066\066\089']=
+'\086\073\067\084\079\082\089\032\067\079\078\070\073\082\077\069\068\032\047\032\082\069\084\085\082\078\073\078\071\032\084\079\032\076\079\066\066\089',[
+"\037\115\032\032\124\032\032\066\111\108\115\097\058\032\037\115\010\069\110\116\114\101\103\097\058\032\037\115\032\032\124\032\032\067\111\114\116\097\100\097\115\058\032\037\115\047\037\100\010\077\101\116\097\058\032\037\115\010\067\097\108\111\114\058\032\037\115\032\032\124\032\032\071\101\109\097\115\058\032\037\100\010\037\046\049\102\032\099\111\114\116\097\100\097\115\047\115\032\124\032\037\115\032\124\032\118\101\110\100\097\115\058\032\037\100"
+]=
+"\037\115\032\032\124\032\032\066\097\103\058\032\037\115\010\068\101\108\105\118\101\114\121\058\032\037\115\032\032\124\032\032\067\117\116\058\032\037\115\047\037\100\010\071\111\097\108\058\032\037\115\010\072\101\097\116\058\032\037\115\032\032\124\032\032\071\101\109\115\058\032\037\100\010\037\046\049\102\032\099\117\116\047\115\032\124\032\037\115\032\124\032\115\097\108\101\115\058\032\037\100"
+,['\082\101\115\102\114\105\097\110\100\111']='\067\111\111\108\105\110\103',['\067\111\108\101\116\097\110\100\111']='\067\111\108\108\101\099\116\105\110\103',['\069\110\116\114\101\103\097\110\100\111']='\068\101\108\105\118\101\114\105\110\103'
+,['\067\111\114\116\097\110\100\111']='\067\117\116\116\105\110\103',['\073\110\100\111\032\112\097\114\097\032\097\032\109\101\115\097']='\072\101\097\100\105\110\103\032\116\111\032\116\104\101\032\116\097\098\108\101',['\067\111\109\112\114\097\110\100\111'
+]='\066\117\121\105\110\103',['\071\105\114\097\110\100\111\032\099\111\114\116\097\100\111\114']='\067\114\097\110\107\105\110\103\032\099\117\116\116\101\114',['\073\110\100\101\120\097\110\100\111\032\101\032\115\101\108\101\099\105\111\110\097\110\100\111']=
+'\070\105\110\100\105\110\103\032\116\097\114\103\101\116\115',['\065\098\097\115\116\101\099\101\110\100\111\032\097\032\109\101\115\097']='\082\101\115\116\111\099\107\105\110\103\032\116\104\101\032\116\097\098\108\101',['\086\101\110\100\101\110\100\111']=
+'\083\101\108\108\105\110\103',['\082\101\116\111\114\110\097\110\100\111\032\097\032\109\101\115\097']='\082\101\116\117\114\110\105\110\103\032\116\111\032\116\104\101\032\116\097\098\108\101',['\076\097\110\099\097\110\100\111\032\100\105\110\097\109\105\116\101']=
+'\084\104\114\111\119\105\110\103\032\100\121\110\097\109\105\116\101',['\073\110\100\111\032\112\097\114\097\032\097\032\115\097\105\100\097\032\099\111\109\032\097\032\099\104\097\118\101']=
+'\072\101\097\100\105\110\103\032\116\111\032\116\104\101\032\101\120\105\116\032\119\105\116\104\032\116\104\101\032\107\101\121',['\067\111\109\112\114\097\110\100\111\032\100\114\111\110\101']='\066\117\121\105\110\103\032\100\114\111\110\101',[
+'\082\111\116\105\110\097\032\112\097\117\115\097\100\097\046']='\082\111\117\116\105\110\101\032\112\097\117\115\101\100\046',['\082\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\046']='\082\111\117\116\105\110\101\115\032\112\097\117\115\101\100\046',[
+'\074\u{e1}\032\104\u{e1}\032\117\109\097\032\114\111\116\105\110\097\032\100\101\032\108\111\098\098\121\032\101\109\032\097\110\100\097\109\101\110\116\111\046']=
+'\065\032\108\111\098\098\121\032\114\111\117\116\105\110\101\032\105\115\032\097\108\114\101\097\100\121\032\114\117\110\110\105\110\103\046',['\079\032\106\111\103\111\032\105\110\116\101\114\114\111\109\112\101\117\032\097\032\114\111\116\105\110\097\032\100\111\032\108\111\098\098\121\046']=
+'\084\104\101\032\103\097\109\101\032\105\110\116\101\114\114\117\112\116\101\100\032\116\104\101\032\108\111\098\098\121\032\114\111\117\116\105\110\101\046',['\067\105\099\108\111\032\100\111\032\108\111\098\098\121\032\112\097\114\097\100\111\046']=
+'\076\111\098\098\121\032\108\111\111\112\032\115\116\111\112\112\101\100\046',[
+'\082\101\116\111\109\097\100\097\032\099\097\110\099\101\108\097\100\097\046\032\079\032\106\111\103\111\032\106\u{e1}\032\115\111\108\105\099\105\116\111\117\032\111\032\116\101\108\101\112\111\114\116\101\046']=
+'\082\101\115\117\109\101\032\099\097\110\099\101\108\101\100\046\032\084\104\101\032\103\097\109\101\032\104\097\115\032\097\108\114\101\097\100\121\032\114\101\113\117\101\115\116\101\100\032\116\101\108\101\112\111\114\116\046',[
+'\065\115\032\099\104\097\110\099\101\115\032\097\105\110\100\097\032\110\u{e3}\111\032\102\111\114\097\109\032\099\097\114\114\101\103\097\100\097\115\032\112\101\108\111\032\106\111\103\111\046']=
+'\084\104\101\032\103\097\109\101\032\104\097\115\032\110\111\116\032\108\111\097\100\101\100\032\116\104\101\032\111\100\100\115\032\121\101\116\046',['\069\115\099\111\108\104\097\032\117\109\097\032\099\108\097\115\115\101\032\110\097\032\098\097\114\114\097\046']=
+'\067\104\111\111\115\101\032\097\032\099\108\097\115\115\032\102\114\111\109\032\116\104\101\032\108\105\115\116\046',[
+"\079\032\082\111\098\108\111\120\032\114\101\099\117\115\111\117\032\111\032\116\101\108\101\112\111\114\116\101\046\032\083\097\105\097\032\100\097\032\102\105\108\097\032\097\116\117\097\108\032\101\032\116\101\110\116\101\032\110\111\118\097\109\101\110\116\101\046" ]=
+"\082\111\098\108\111\120\032\100\101\099\108\105\110\101\100\032\116\101\108\101\112\111\114\116\046\032\076\101\097\118\101\032\116\104\101\032\099\117\114\114\101\110\116\032\113\117\101\117\101\032\097\110\100\032\116\114\121\032\097\103\097\105\110\046",[
+'\080\097\114\101\032\097\032\114\111\116\105\110\097\032\100\101\032\108\111\098\098\121\032\097\110\116\101\115\032\100\101\032\101\110\116\114\097\114\032\110\097\032\102\105\108\097\046']=
+'\083\116\111\112\032\116\104\101\032\108\111\098\098\121\032\114\111\117\116\105\110\101\032\098\101\102\111\114\101\032\106\111\105\110\105\110\103\032\097\032\113\117\101\117\101\046',[
+'\065\098\114\105\110\100\111\032\111\032\108\111\116\101\032\097\110\116\101\115\032\100\101\032\101\110\116\114\097\114\032\110\097\032\102\105\108\097\u{2026}']=
+'\079\112\101\110\105\110\103\032\116\104\101\032\098\097\116\099\104\032\098\101\102\111\114\101\032\106\111\105\110\105\110\103\032\116\104\101\032\113\117\101\117\101\u{2026}',[
+'\074\117\110\116\097\110\100\111\032\097\098\u{f3}\098\111\114\097\115\032\112\097\114\097\032\111\032\108\111\116\101\058\032\037\100\047\037\100\046']=
+'\083\097\118\105\110\103\032\112\117\109\112\107\105\110\115\032\102\111\114\032\116\104\101\032\098\097\116\099\104\058\032\037\100\047\037\100\046',[
+'\076\111\099\097\108\105\122\097\110\100\111\032\097\032\102\105\108\097\032\100\111\032\067\097\112\u{ed}\116\117\108\111\032\073\073\u{2026}']=
+'\070\105\110\100\105\110\103\032\116\104\101\032\067\104\097\112\116\101\114\032\073\073\032\113\117\101\117\101\u{2026}',[
+'\078\101\110\104\117\109\097\032\u{e1}\114\101\097\032\100\101\032\102\105\108\097\032\108\105\118\114\101\046\032\069\110\116\114\101\032\101\109\032\117\109\097\032\u{e1}\114\101\097\032\118\097\122\105\097\032\109\097\110\117\097\108\109\101\110\116\101\046']=
+'\078\111\032\111\112\101\110\032\113\117\101\117\101\032\097\114\101\097\046\032\069\110\116\101\114\032\097\110\032\101\109\112\116\121\032\097\114\101\097\032\109\097\110\117\097\108\108\121\046',[
+'\068\069\080\076\079\089\032\097\099\105\111\110\097\100\111\046\032\065\103\117\097\114\100\097\110\100\111\032\111\032\106\111\103\111\u{2026}']=
+'\068\101\112\108\111\121\032\114\101\113\117\101\115\116\101\100\046\032\087\097\105\116\105\110\103\032\102\111\114\032\116\104\101\032\103\097\109\101\u{2026}',[
+'\070\097\108\104\097\032\110\111\032\108\111\098\098\121\046\032\084\101\110\116\101\032\110\111\118\097\109\101\110\116\101\046']='\084\104\101\032\108\111\098\098\121\032\114\111\117\116\105\110\101\032\102\097\105\108\101\100\046\032\084\114\121\032\097\103\097\105\110\046',[
+'\079\032\082\111\098\108\111\120\032\110\u{e3}\111\032\099\111\110\102\105\114\109\111\117\032\097\032\114\101\099\111\110\101\120\u{e3}\111\046']=
+'\082\111\098\108\111\120\032\100\105\100\032\110\111\116\032\099\111\110\102\105\114\109\032\116\104\101\032\114\101\099\111\110\110\101\099\116\046',[
+'\079\032\101\115\116\097\100\111\032\100\111\115\032\103\105\114\111\115\032\097\105\110\100\097\032\110\u{e3}\111\032\101\115\116\u{e1}\032\100\105\115\112\111\110\u{ed}\118\101\108\046']=
+'\082\111\108\108\032\115\116\097\116\101\032\105\115\032\110\111\116\032\097\118\097\105\108\097\098\108\101\032\121\101\116\046',['\082\111\108\097\103\101\109\032\112\097\117\115\097\100\097\046']='\082\111\108\108\105\110\103\032\112\097\117\115\101\100\046',[
+'\079\032\103\105\114\111\032\099\111\109\032\112\114\101\u{e7}\111\032\101\109\032\103\101\109\097\115\032\110\u{e3}\111\032\102\111\105\032\105\100\101\110\116\105\102\105\099\097\100\111\046\032\065\098\114\097\032\067\108\097\115\115\101\115\032\110\111\032\106\111\103\111\046'
+]="\084\104\101\032\103\101\109\032\114\111\108\108\032\111\102\102\101\114\032\105\115\032\117\110\097\118\097\105\108\097\098\108\101\046\032\079\112\101\110\032\067\108\097\115\115\101\115\032\105\110\032\116\104\101\032\103\097\109\101\046",[
+'\079\032\103\105\114\111\032\103\114\097\116\117\105\116\111\032\110\u{e3}\111\032\102\111\105\032\105\100\101\110\116\105\102\105\099\097\100\111\046\032\065\098\114\097\032\067\108\097\115\115\101\115\032\110\111\032\106\111\103\111\046']=
+'\084\104\101\032\102\114\101\101\032\114\111\108\108\032\105\115\032\117\110\097\118\097\105\108\097\098\108\101\046\032\079\112\101\110\032\067\108\097\115\115\101\115\032\105\110\032\116\104\101\032\103\097\109\101\046',[
+'\065\103\117\097\114\100\097\110\100\111\032\111\032\115\097\108\100\111\032\100\101\032\103\101\109\097\115\032\100\111\032\106\111\103\111\046']=
+'\087\097\105\116\105\110\103\032\102\111\114\032\116\104\101\032\103\097\109\101\032\116\111\032\114\101\112\111\114\116\032\121\111\117\114\032\103\101\109\032\098\097\108\097\110\099\101\046',['\083\101\109\032\103\105\114\111\115\032\103\114\097\116\117\105\116\111\115\046']=
+'\078\111\032\102\114\101\101\032\114\111\108\108\115\032\108\101\102\116\046',['\071\101\109\097\115\032\105\110\115\117\102\105\099\105\101\110\116\101\115\032\112\097\114\097\032\111\032\112\114\u{f3}\120\105\109\111\032\103\105\114\111\046']=
+'\089\111\117\032\100\111\032\110\111\116\032\104\097\118\101\032\101\110\111\117\103\104\032\103\101\109\115\032\102\111\114\032\116\104\101\032\110\101\120\116\032\114\111\108\108\046',[
+'\079\032\103\105\114\111\032\102\111\105\032\100\101\098\105\116\097\100\111\044\032\109\097\115\032\111\032\112\114\u{f3}\120\105\109\111\032\097\105\110\100\097\032\110\u{e3}\111\032\102\111\105\032\108\105\098\101\114\097\100\111\046']=
+"\084\104\101\032\108\097\115\116\032\114\111\108\108\032\119\097\115\032\099\104\097\114\103\101\100\046\032\087\097\105\116\105\110\103\032\102\111\114\032\116\104\101\032\110\101\120\116\032\114\111\108\108\032\116\111\032\098\101\099\111\109\101\032\097\118\097\105\108\097\098\108\101\046",[
+'\079\032\106\111\103\111\032\110\u{e3}\111\032\099\111\110\102\105\114\109\111\117\032\111\032\100\u{e9}\098\105\116\111\046\032\082\111\108\097\103\101\109\032\112\097\114\097\100\097\046']=
+'\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\099\111\110\102\105\114\109\032\116\104\101\032\099\104\097\114\103\101\046\032\082\111\108\108\105\110\103\032\115\116\111\112\112\101\100\046',[
+"\065\098\114\097\032\097\115\032\109\101\108\104\111\114\105\097\115\032\100\111\032\108\111\098\098\121\032\117\109\097\032\118\101\122\032\112\097\114\097\032\099\097\114\114\101\103\097\114\032\112\114\101\099\111\115\032\101\032\103\101\109\097\115\046" ]=
+"\079\112\101\110\032\108\111\098\098\121\032\117\112\103\114\097\100\101\115\032\111\110\099\101\032\116\111\032\108\111\097\100\032\112\114\105\099\101\115\032\097\110\100\032\121\111\117\114\032\103\101\109\032\098\097\108\097\110\099\101\046",[
+'\083\101\109\032\109\101\108\104\111\114\105\097\032\097\099\101\115\115\105\118\101\108\032\099\111\109\032\097\115\032\103\101\109\097\115\032\097\116\117\097\105\115\046']=
+'\078\111\032\117\112\103\114\097\100\101\115\032\097\114\101\032\097\102\102\111\114\100\097\098\108\101\032\119\105\116\104\032\121\111\117\114\032\099\117\114\114\101\110\116\032\103\101\109\115\046',[
+'\079\032\106\111\103\111\032\110\097\111\032\099\111\110\102\105\114\109\111\117\032\097\032\109\101\108\104\111\114\105\097\032\100\101\032\108\111\098\098\121\046']=
+'\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\099\111\110\102\105\114\109\032\116\104\101\032\108\111\098\098\121\032\117\112\103\114\097\100\101\046',['\065\098\101\114\116\117\114\097\032\099\097\110\099\101\108\097\100\097\046']=
+'\079\112\101\110\105\110\103\032\099\097\110\099\101\108\101\100\046',['\070\097\108\104\097\032\097\111\032\101\110\118\105\097\114\032\097\032\097\098\101\114\116\117\114\097\032\100\101\032\101\118\101\110\116\111\046']=
+'\067\111\117\108\100\032\110\111\116\032\114\101\113\117\101\115\116\032\116\104\101\032\101\118\101\110\116\032\099\114\097\116\101\032\111\112\101\110\105\110\103\046',[
+'\065\032\111\102\101\114\116\097\032\100\101\032\056\048\032\097\098\u{f3}\098\111\114\097\115\032\110\u{e3}\111\032\112\u{f4}\100\101\032\115\101\114\032\099\111\110\102\105\114\109\097\100\097\046']=
+'\084\104\101\032\111\102\102\101\114\032\102\111\114\032\056\048\032\112\117\109\112\107\105\110\115\032\099\111\117\108\100\032\110\111\116\032\098\101\032\099\111\110\102\105\114\109\101\100\046',['\076\111\116\101\032\105\110\118\u{e1}\108\105\100\111\046']=
+'\073\110\118\097\108\105\100\032\098\097\116\099\104\046',['\079\032\106\111\103\111\032\097\105\110\100\097\032\110\u{e3}\111\032\105\110\102\111\114\109\111\117\032\111\032\115\097\108\100\111\032\100\101\032\097\098\u{f3}\098\111\114\097\115\046']=
+'\084\104\101\032\103\097\109\101\032\104\097\115\032\121\101\116\032\116\111\032\114\101\112\111\114\116\032\121\111\117\114\032\112\117\109\112\107\105\110\032\098\097\108\097\110\099\101\046',[
+'\083\097\108\100\111\032\105\110\115\117\102\105\099\105\101\110\116\101\032\112\097\114\097\032\111\032\108\111\116\101\046\032\037\100\032\100\101\032\037\100\032\097\098\u{f3}\098\111\114\097\115\046']=
+'\078\111\116\032\101\110\111\117\103\104\032\112\117\109\112\107\105\110\115\032\102\111\114\032\116\104\101\032\098\097\116\099\104\046\032\037\100\032\111\102\032\037\100\032\112\117\109\112\107\105\110\115\046',['\076\111\116\101\032\112\097\117\115\097\100\111\046']=
+'\066\097\116\099\104\032\112\097\117\115\101\100\046',['\065\032\099\097\105\120\097\032\097\110\116\101\114\105\111\114\032\097\105\110\100\097\032\101\115\116\u{e1}\032\097\098\101\114\116\097\046']=
+'\084\104\101\032\112\114\101\118\105\111\117\115\032\099\114\097\116\101\032\105\115\032\115\116\105\108\108\032\111\112\101\110\046',['\083\097\108\100\111\032\109\117\100\111\117\032\100\117\114\097\110\116\101\032\111\032\108\111\116\101\046']=
+'\089\111\117\114\032\098\097\108\097\110\099\101\032\099\104\097\110\103\101\100\032\100\117\114\105\110\103\032\116\104\101\032\098\097\116\099\104\046',['\065\098\114\105\110\100\111\032\099\097\105\120\097\032\037\100\047\037\100\u{2026}']=
+'\079\112\101\110\105\110\103\032\099\114\097\116\101\032\037\100\047\037\100\u{2026}',[
+'\079\032\106\111\103\111\032\110\u{e3}\111\032\109\111\115\116\114\111\117\032\097\032\097\098\101\114\116\117\114\097\032\100\097\032\099\097\105\120\097\046\032\076\111\116\101\032\105\110\116\101\114\114\111\109\112\105\100\111\046']=
+'\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\115\104\111\119\032\116\104\101\032\099\114\097\116\101\032\111\112\101\110\105\110\103\046\032\066\097\116\099\104\032\115\116\111\112\112\101\100\046',[
+'\079\032\106\111\103\111\032\110\u{e3}\111\032\099\111\110\102\105\114\109\111\117\032\111\032\100\u{e9}\098\105\116\111\032\101\032\111\032\114\101\115\117\108\116\097\100\111\046\032\076\111\116\101\032\105\110\116\101\114\114\111\109\112\105\100\111\046']=
+"\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\099\111\110\102\105\114\109\032\116\104\101\032\099\104\097\114\103\101\032\097\110\100\032\114\101\115\117\108\116\046\032\066\097\116\099\104\032\115\116\111\112\112\101\100\046",[
+'\067\097\105\120\097\032\114\101\103\105\115\116\114\097\100\097\044\032\109\097\115\032\097\032\116\101\108\097\032\100\097\032\097\098\101\114\116\117\114\097\032\097\105\110\100\097\032\101\115\116\u{e1}\032\097\116\105\118\097\046']=
+"\084\104\101\032\099\114\097\116\101\032\119\097\115\032\099\111\110\102\105\114\109\101\100\044\032\098\117\116\032\105\116\115\032\111\112\101\110\105\110\103\032\115\099\114\101\101\110\032\105\115\032\115\116\105\108\108\032\118\105\115\105\098\108\101\046",[
+'\037\100\032\099\097\105\120\097\040\115\041\032\099\111\110\102\105\114\109\097\100\097\040\115\041\046']='\037\100\032\099\114\097\116\101\040\115\041\032\099\111\110\102\105\114\109\101\100\046',[
+'\083\097\105\097\032\100\097\032\102\105\108\097\032\097\116\117\097\108\032\112\097\114\097\032\115\101\108\101\099\105\111\110\097\114\032\111\032\067\097\112\105\116\117\108\111\032\073\073\046']=
+'\076\101\097\118\101\032\116\104\101\032\099\117\114\114\101\110\116\032\113\117\101\117\101\032\116\111\032\115\101\108\101\099\116\032\067\104\097\112\116\101\114\032\073\073\046',[
+'\079\032\106\111\103\111\032\110\097\111\032\097\098\114\105\117\032\111\032\115\101\108\101\116\111\114\032\100\111\032\099\097\112\105\116\117\108\111\046']=
+'\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\111\112\101\110\032\116\104\101\032\099\104\097\112\116\101\114\032\115\101\108\101\099\116\111\114\046',[
+'\079\032\106\111\103\111\032\110\097\111\032\097\098\114\105\117\032\097\032\099\111\110\102\105\103\117\114\097\099\097\111\032\100\097\032\102\105\108\097\046']=
+'\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\111\112\101\110\032\113\117\101\117\101\032\115\101\116\116\105\110\103\115\046',['\079\032\098\111\116\097\111\032\068\069\080\076\079\089\032\110\097\111\032\101\115\116\097\032\100\105\115\112\111\110\105\118\101\108\046']=
+'\084\104\101\032\068\101\112\108\111\121\032\098\117\116\116\111\110\032\105\115\032\117\110\097\118\097\105\108\097\098\108\101\046',[
+'\068\069\080\076\079\089\032\097\099\105\111\110\097\100\111\046\032\079\032\106\111\103\111\032\110\097\111\032\099\111\110\102\105\114\109\111\117\032\111\032\116\101\108\101\112\111\114\116\101\046']=
+'\068\101\112\108\111\121\032\114\101\113\117\101\115\116\101\100\046\032\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\099\111\110\102\105\114\109\032\116\101\108\101\112\111\114\116\046',[
+'\084\114\097\110\115\102\101\114\101\110\099\105\097\032\099\111\110\102\105\114\109\097\100\097\046\032\067\097\114\114\101\103\097\110\100\111\032\079\080\032\110\111\032\100\101\115\116\105\110\111\046']=
+'\084\114\097\110\115\102\101\114\032\099\111\110\102\105\114\109\101\100\046\032\079\080\032\119\105\108\108\032\115\116\097\114\116\032\111\110\032\097\114\114\105\118\097\108\046',[
+'\084\114\097\110\115\102\101\114\101\110\099\105\097\032\099\111\110\102\105\114\109\097\100\097\046\032\065\098\114\097\032\111\032\104\117\098\032\097\111\032\099\104\101\103\097\114\046\032']=
+'\084\114\097\110\115\102\101\114\032\099\111\110\102\105\114\109\101\100\046\032\079\112\101\110\032\116\104\101\032\104\117\098\032\111\110\032\097\114\114\105\118\097\108\046\032',['\067\097\110\099\101\108\097\100\111\046']='\067\097\110\099\101\108\101\100\046',[
+'\065\032\108\105\099\101\110\099\097\032\101\120\112\105\114\111\117\046']='\089\111\117\114\032\097\099\099\101\115\115\032\101\120\112\105\114\101\100\046',[
+'\076\105\099\101\110\099\097\032\101\120\112\105\114\097\100\097\046\032\086\097\108\105\100\101\032\117\109\097\032\107\101\121\032\097\116\105\118\097\032\112\097\114\097\032\099\111\110\116\105\110\117\097\114\046']=
+'\065\099\099\101\115\115\032\101\120\112\105\114\101\100\046\032\069\110\116\101\114\032\097\032\118\097\108\105\100\032\107\101\121\032\116\111\032\099\111\110\116\105\110\117\101\046',[
+'\076\105\099\101\110\099\097\032\101\120\112\105\114\097\100\097\059\032\114\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\046']='\065\099\099\101\115\115\032\101\120\112\105\114\101\100\046\032\082\111\117\116\105\110\101\115\032\112\097\117\115\101\100\046',[
+'\067\097\112\105\116\117\108\111\032\050\032\099\111\110\099\108\117\105\100\111\059\032\114\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\046']=
+'\067\104\097\112\116\101\114\032\073\073\032\099\111\109\112\108\101\116\101\046\032\082\111\117\116\105\110\101\115\032\112\097\117\115\101\100\046',[
+'\082\111\116\105\110\097\032\112\097\117\115\097\100\097\046\032\082\101\097\116\105\118\101\032\112\097\114\097\032\116\101\110\116\097\114\032\110\111\118\097\109\101\110\116\101\046']=
+'\082\111\117\116\105\110\101\032\112\097\117\115\101\100\046\032\084\117\114\110\032\105\116\032\098\097\099\107\032\111\110\032\116\111\032\114\101\116\114\121\046',['\065\116\097\108\104\111\032\099\097\110\099\101\108\097\100\111\046']=
+'\083\104\111\114\116\099\117\116\032\099\097\110\099\101\108\101\100\046',['\065\116\097\108\104\111\032\097\116\117\097\108\105\122\097\100\111\046']='\083\104\111\114\116\099\117\116\032\117\112\100\097\116\101\100\046',[
+"\080\114\101\115\115\105\111\110\101\032\117\109\097\032\116\101\099\108\097\032\112\097\114\097\032\111\032\097\116\097\108\104\111\059\032\069\115\099\032\099\097\110\099\101\108\097\032\101\032\066\097\099\107\115\112\097\099\101\032\114\101\109\111\118\101\046" ]=
+'\080\114\101\115\115\032\097\032\107\101\121\032\116\111\032\098\105\110\100\046\032\069\115\099\032\099\097\110\099\101\108\115\032\097\110\100\032\066\097\099\107\115\112\097\099\101\032\099\108\101\097\114\115\046',[
+"\085\115\101\032\111\115\032\099\111\110\116\114\111\108\101\115\032\112\111\114\032\116\111\113\117\101\059\032\097\116\097\108\104\111\115\032\115\097\111\032\111\112\099\105\111\110\097\105\115\032\112\097\114\097\032\116\101\099\108\097\100\111\046" ]=
+'\085\115\101\032\116\111\117\099\104\032\099\111\110\116\114\111\108\115\046\032\075\101\121\098\111\097\114\100\032\115\104\111\114\116\099\117\116\115\032\097\114\101\032\111\112\116\105\111\110\097\108\046',[
+'\069\100\105\099\097\111\032\100\101\032\097\116\097\108\104\111\032\099\097\110\099\101\108\097\100\097\046']='\083\104\111\114\116\099\117\116\032\101\100\105\116\105\110\103\032\099\097\110\099\101\108\101\100\046',[
+'\080\097\117\115\097\100\111\032\112\101\108\111\032\112\097\105\110\101\108\046']='\080\097\117\115\101\100\032\102\114\111\109\032\116\104\101\032\112\097\110\101\108\046',['\080\097\117\115\097\100\111\032\112\101\108\111\032\097\116\097\108\104\111\046']=
+'\080\097\117\115\101\100\032\098\121\032\115\104\111\114\116\099\117\116\046',['\080\097\117\115\097\100\111\032\112\111\114\032\101\110\116\114\097\100\097\032\109\097\110\117\097\108\032\100\101\032\109\111\118\105\109\101\110\116\111\046']=
+'\080\097\117\115\101\100\032\098\121\032\109\097\110\117\097\108\032\109\111\118\101\109\101\110\116\046',['\080\101\114\115\111\110\097\103\101\109\032\114\101\099\097\114\114\101\103\097\100\111\059\032\114\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\046']=
+'\067\104\097\114\097\099\116\101\114\032\114\101\115\112\097\119\110\101\100\046\032\082\111\117\116\105\110\101\115\032\112\097\117\115\101\100\046',[
+"\079\032\114\101\115\102\114\105\097\109\101\110\116\111\032\102\097\122\032\112\097\114\116\101\032\100\111\032\065\117\116\111\032\080\114\111\103\114\101\115\115\046\032\080\097\117\115\101\032\111\032\099\105\099\108\111\032\112\097\114\097\032\100\101\115\108\105\103\097\045\108\111\046" ]=
+"\067\111\111\108\105\110\103\032\105\115\032\112\097\114\116\032\111\102\032\065\117\116\111\032\080\114\111\103\114\101\115\115\046\032\080\097\117\115\101\032\116\104\101\032\099\121\099\108\101\032\116\111\032\116\117\114\110\032\105\116\032\111\102\102\046",[
+'\085\109\097\032\109\101\108\104\111\114\105\097\032\106\097\032\101\115\116\097\032\110\097\032\102\105\108\097\046']='\065\110\032\117\112\103\114\097\100\101\032\105\115\032\097\108\114\101\097\100\121\032\113\117\101\117\101\100\046',[
+'\080\114\105\111\114\105\100\097\100\101\032\100\101\032\109\105\115\115\097\111\032\114\101\109\111\118\105\100\097\046']='\081\117\101\115\116\032\112\114\105\111\114\105\116\121\032\099\108\101\097\114\101\100\046',[
+'\079\032\106\111\103\111\032\106\097\032\099\111\110\102\105\114\109\111\117\032\101\115\115\097\032\109\105\115\115\097\111\046']='\084\104\101\032\103\097\109\101\032\104\097\115\032\097\108\114\101\097\100\121\032\099\111\110\102\105\114\109\101\100\032\116\104\105\115\032\113\117\101\115\116\046'
+,['\079\098\106\101\116\105\118\111\032\115\101\109\032\114\111\116\097\032\097\117\116\111\109\097\116\105\099\097\032\099\111\110\102\105\114\109\097\100\097\046']=
+'\084\104\105\115\032\111\098\106\101\099\116\105\118\101\032\114\101\113\117\105\114\101\115\032\109\097\110\117\097\108\032\112\108\097\121\046',[
+'\077\105\115\115\097\111\032\099\111\110\099\108\117\105\100\097\046\032\086\111\108\116\097\110\100\111\032\097\111\032\065\117\116\111\032\080\114\111\103\114\101\115\115\032\110\111\114\109\097\108\046']=
+'\081\117\101\115\116\032\099\111\109\112\108\101\116\101\046\032\082\101\115\117\109\105\110\103\032\110\111\114\109\097\108\032\065\117\116\111\032\080\114\111\103\114\101\115\115\046',['\077\101\108\104\111\114\105\097\032\099\111\110\102\105\114\109\097\100\097\046']=
+'\085\112\103\114\097\100\101\032\099\111\110\102\105\114\109\101\100\046',['\077\101\108\104\111\114\105\097\032\110\097\111\032\099\111\110\102\105\114\109\097\100\097\046']='\085\112\103\114\097\100\101\032\117\110\099\111\110\102\105\114\109\101\100\046',[
+'\079\032\082\111\098\108\111\120\032\114\101\099\117\115\111\117\032\097\032\118\111\108\116\097\032\097\111\032\108\111\098\098\121\046\032\082\101\116\111\114\110\101\032\109\097\110\117\097\108\109\101\110\116\101\046']=
+'\082\111\098\108\111\120\032\100\101\099\108\105\110\101\100\032\116\104\101\032\114\101\116\117\114\110\032\116\111\032\116\104\101\032\108\111\098\098\121\046\032\082\101\116\117\114\110\032\109\097\110\117\097\108\108\121\046',[
+'\079\032\114\101\108\097\116\111\114\105\111\032\102\105\110\097\108\032\110\097\111\032\099\104\101\103\111\117\046\032\086\111\108\116\101\032\097\111\032\108\111\098\098\121\032\109\097\110\117\097\108\109\101\110\116\101\046']=
+"\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\115\104\111\119\032\116\104\101\032\114\101\115\117\108\116\115\046\032\082\101\116\117\114\110\032\116\111\032\116\104\101\032\108\111\098\098\121\032\109\097\110\117\097\108\108\121\046",[
+'\065\032\118\111\108\116\097\032\097\117\116\111\109\097\116\105\099\097\032\102\097\108\104\111\117\046\032\082\101\116\111\114\110\101\032\097\111\032\108\111\098\098\121\032\112\101\108\111\032\106\111\103\111\046']=
+"\084\104\101\032\097\117\116\111\109\097\116\105\099\032\114\101\116\117\114\110\032\102\097\105\108\101\100\046\032\085\115\101\032\116\104\101\032\103\097\109\101\039\115\032\099\111\110\116\114\111\108\115\032\116\111\032\114\101\116\117\114\110\046",[
+'\079\032\082\111\098\108\111\120\032\110\097\111\032\099\111\110\102\105\114\109\111\117\032\097\032\118\111\108\116\097\032\097\111\032\108\111\098\098\121\046']=
+'\082\111\098\108\111\120\032\100\105\100\032\110\111\116\032\099\111\110\102\105\114\109\032\116\104\101\032\114\101\116\117\114\110\032\116\111\032\116\104\101\032\108\111\098\098\121\046',[
+'\079\032\082\111\098\108\111\120\032\110\097\111\032\099\111\110\102\105\114\109\111\117\032\097\032\114\101\099\111\110\101\120\097\111\046']='\082\111\098\108\111\120\032\100\105\100\032\110\111\116\032\099\111\110\102\105\114\109\032\116\104\101\032\114\101\099\111\110\110\101\099\116\046',[
+"\079\032\104\117\098\032\110\097\111\032\101\110\099\111\110\116\114\111\117\032\111\032\108\111\098\098\121\032\110\101\109\032\097\032\097\114\101\097\032\100\101\032\112\097\114\116\105\100\097\046\032\065\103\117\097\114\100\101\032\111\032\109\097\112\097\032\101\032\101\120\101\099\117\116\101\032\110\111\118\097\109\101\110\116\101\046"
+]=
+"\084\104\101\032\104\117\098\032\099\111\117\108\100\032\110\111\116\032\102\105\110\100\032\116\104\101\032\108\111\098\098\121\032\111\114\032\109\097\116\099\104\046\032\087\097\105\116\032\102\111\114\032\116\104\101\032\109\097\112\032\097\110\100\032\108\097\117\110\099\104\032\105\116\032\097\103\097\105\110\046"
+,['\070\097\108\104\097\032\100\101\032\101\120\101\099\117\099\097\111\059\032\099\111\110\116\114\111\108\101\115\032\114\101\115\116\097\117\114\097\100\111\115\046']=
+'\084\104\101\032\114\111\117\116\105\110\101\032\102\097\105\108\101\100\046\032\067\111\110\116\114\111\108\115\032\114\101\115\116\111\114\101\100\046',['\065\108\118\111\032\115\101\108\101\099\105\111\110\097\100\111\058\032']=
+'\084\097\114\103\101\116\032\115\101\108\101\099\116\101\100\058\032',['\067\108\097\115\115\101\032\101\110\099\111\110\116\114\097\100\097\058\032']='\067\108\097\115\115\032\102\111\117\110\100\058\032',[
+'\083\101\109\032\103\105\114\111\115\032\103\114\097\116\117\105\116\111\115\046\032\u{da}\108\116\105\109\097\032\099\108\097\115\115\101\058\032']='\078\111\032\102\114\101\101\032\114\111\108\108\115\032\108\101\102\116\046\032\076\097\115\116\032\099\108\097\115\115\058\032',
+['\077\101\108\104\111\114\105\097\032\100\101\032\108\111\098\098\121\032\099\111\110\102\105\114\109\097\100\097\058\032']='\076\111\098\098\121\032\117\112\103\114\097\100\101\032\099\111\110\102\105\114\109\101\100\058\032',['\080\114\105\111\114\105\100\097\100\101\058\032']=
+'\080\114\105\111\114\105\116\121\058\032',['\083\111\108\105\099\105\116\097\100\097\032\109\101\108\104\111\114\105\097\032']='\085\112\103\114\097\100\101\032\114\101\113\117\101\115\116\101\100\032\102\111\114\032',[
+'\079\032\082\111\098\108\111\120\032\114\101\099\117\115\111\117\032\097\032\114\101\099\111\110\101\120\097\111\046']='\082\111\098\108\111\120\032\100\101\099\108\105\110\101\100\032\116\104\101\032\114\101\099\111\110\110\101\099\116\046',[
+'\076\105\109\105\116\101\032\100\101\032\114\101\099\111\110\101\120\111\101\115\032\097\116\105\110\103\105\100\111\046\032\065\098\114\097\032\111\032\106\111\103\111\032\110\111\118\097\109\101\110\116\101\046']=
+'\082\101\099\111\110\110\101\099\116\032\108\105\109\105\116\032\114\101\097\099\104\101\100\046\032\082\101\111\112\101\110\032\116\104\101\032\103\097\109\101\046'}local function c(d)return a.language
+=='\101\110'and type(d)=='\115\116\114\105\110\103'and b[d]or d end local d=(function()local d={}local
+function e(f,...)for g=1,select('\035',...)do if not f then return nil end local h=
+select(g,...)f=f:FindFirstChild(h)end return f end function d.stage(f)local g=e(
+f,'\077\097\112','\090\111\110\101\115','\077\097\116\099\104\109\097\107\105\110\103\090\111\110\101\115')local h=e(f,'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115')if h or
+not g and f:FindFirstChild('\080\111\116\097\116\111\080\105\108\101')then return'\099\104\097\112\116\101\114'end if g then return
+'\108\111\098\098\121'end return nil end function d.deploy(f,g)if not f.waitFor('\099\104\097\112\116\101\114',1)
+then if f.ready('\115\101\116\117\112')then return false,
+'\083\097\105\097\032\100\097\032\102\105\108\097\032\097\116\117\097\108\032\112\097\114\097\032\115\101\108\101\099\105\111\110\097\114\032\111\032\067\097\112\105\116\117\108\111\032\073\073\046'end local h,i=f.approach()if
+not h then return false,i end if not f.waitFor('\099\104\097\112\116\101\114',5)then return false,
+'\079\032\106\111\103\111\032\110\097\111\032\097\098\114\105\117\032\111\032\115\101\108\101\116\111\114\032\100\111\032\099\097\112\105\116\117\108\111\046'end end local h,i=f.click('\099\104\097\112\116\101\114')if
+not h then return false,i end if not f.waitFor('\115\101\116\117\112',5)then return false,
+'\079\032\106\111\103\111\032\110\097\111\032\097\098\114\105\117\032\097\032\099\111\110\102\105\103\117\114\097\099\097\111\032\100\097\032\102\105\108\097\046'end h,i=f.click('\115\105\122\101')if not h then
+return false,i end for j,k in ipairs({{'\102\114\105\101\110\100\115',g.friends},{'\115\107\105\112',g.skip}})do
+local l,m=k[1],k[2]local n=f.flag(l)if n==nil then return false,
+'\079\032\101\115\116\097\100\111\032\100\097\032\111\112\099\097\111\032'..l..'\032\110\097\111\032\102\111\105\032\101\110\099\111\110\116\114\097\100\111\046'end if n~=m then h,i=f.click(l)if
+not h then return false,i end if not f.waitFor(l,2,m)then return false,
+'\079\032\106\111\103\111\032\110\097\111\032\099\111\110\102\105\114\109\111\117\032\097\032\111\112\099\097\111\032'..l..'\046'end end end if not f.ready('\100\101\112\108\111\121')then
+return false,'\079\032\098\111\116\097\111\032\068\069\080\076\079\089\032\110\097\111\032\101\115\116\097\032\100\105\115\112\111\110\105\118\101\108\046'end local j,k=f.arm(g)h,i=f.
+click('\100\101\112\108\111\121')if not h then return false,i end if not f.waitFor('\116\114\097\110\115\102\101\114',25)
+then return false,'\068\069\080\076\079\089\032\097\099\105\111\110\097\100\111\046\032\079\032\106\111\103\111\032\110\097\111\032\099\111\110\102\105\114\109\111\117\032\111\032\116\101\108\101\112\111\114\116\101\046'end return
+true,j and'\084\114\097\110\115\102\101\114\101\110\099\105\097\032\099\111\110\102\105\114\109\097\100\097\046\032\067\097\114\114\101\103\097\110\100\111\032\079\080\032\110\111\032\100\101\115\116\105\110\111\046'or(
+'\084\114\097\110\115\102\101\114\101\110\099\105\097\032\099\111\110\102\105\114\109\097\100\097\046\032\065\098\114\097\032\111\032\104\117\098\032\097\111\032\099\104\101\103\097\114\046\032'..tostring(k or''))end local
+function f(g,h)local i=g.Workspace local j=e(i,'\077\097\112','\090\111\110\101\115','\077\097\116\099\104\109\097\107\105\110\103\090\111\110\101\115')
+local k=e(h.Character,'\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if not j or not k then return nil end
+local l,m=nil,math.huge for n,o in ipairs(j:GetChildren())do local p=o:
+FindFirstChild('\067\117\098\101')if not p or not p:IsA('\066\097\115\101\080\097\114\116')then continue end local q
+=e(o,'\077\111\100\101\108','\080\097\114\116')local r=o:GetAttribute('\081\117\101\117\101\083\116\097\116\101')or q and q:GetAttribute(
+'\081\117\101\117\101\083\116\097\116\101')or p:GetAttribute('\081\117\101\117\101\083\116\097\116\101')local s=r==nil or r=='\069\109\112\116\121'if s
+then for t,u in ipairs(g.Players:GetPlayers())do local v=u~=h and e(u.Character,
+'\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if v then local w=p.CFrame:PointToObjectSpace(v.Position)
+local x=p.Size/2 if math.abs(w.X)<=x.X and math.abs(w.Y)<=x.Y+4 and math.abs(w.Z
+)<=x.Z then s=false break end end end end local t=(p.Position-k.Position).
+Magnitude if s and t<m then l,m=p,t end end return l end function d.cratePlan(g,
+h)if not g.autoCrates then return'\100\105\115\097\098\108\101\100',0 end local i=g.crateCount*80 if
+type(h)~='\110\117\109\098\101\114'then return'\117\110\107\110\111\119\110',i end return h>=i and'\114\101\097\100\121'or'\115\097\118\105\110\103',i
+end function d.open(g,h,i,j,k,l,m,n,o,p)local q=g.Players.LocalPlayer local r=q:
+WaitForChild('\080\108\097\121\101\114\071\117\105')local s=m(n or p.settings.settings)local t,u=false,
+false local v,w=0,0 local x=nil local y=r:FindFirstChild('\069\118\111\108\118\121\067\104\097\112\116\101\114\050\076\111\098\098\121')
+if y then y:Destroy()end local z=Instance.new('\083\099\114\101\101\110\071\117\105')z.Name=
+'\069\118\111\108\118\121\067\104\097\112\116\101\114\050\076\111\098\098\121'z.ResetOnSpawn=false z.DisplayOrder=10001 z.Parent=r h.add(
+function()z:Destroy()end)local A={decorateLauncher=a.decorateLauncher}local B=p.
+view(g,h,z,A)local function C()B.options(s,u,x=='\117\112\103\114\097\100\101',x=='\114\111\108\108')end local
+function D()p.settings.save(m(s))end local function E()w+=1 x=nil C()end local
+function F(G,H)if u or i.expired()then return end if x then if x==G then E()B.
+status('\082\111\116\105\110\097\032\112\097\117\115\097\100\097\046')else B.status(
+'\074\u{e1}\032\104\u{e1}\032\117\109\097\032\114\111\116\105\110\097\032\100\101\032\108\111\098\098\121\032\101\109\032\097\110\100\097\109\101\110\116\111\046')end return end w+=1 x=G C()
+local I=w task.spawn(function()local function J()return h.alive()and I==w and
+not i.expired()and not u end local K,L,M=pcall(H,J)if not J()then return end E()
+B.status(K and tostring(M or L)or'\079\032\106\111\103\111\032\105\110\116\101\114\114\111\109\112\101\117\032\097\032\114\111\116\105\110\097\032\100\111\032\108\111\098\098\121\046')end)end
+local function G()E()v+=1 u=false k.stop()l.clear()C()B.status(t and
+'\082\101\116\111\109\097\100\097\032\099\097\110\099\101\108\097\100\097\046\032\079\032\106\111\103\111\032\106\u{e1}\032\115\111\108\105\099\105\116\111\117\032\111\032\116\101\108\101\112\111\114\116\101\046'or
+'\067\105\099\108\111\032\100\111\032\108\111\098\098\121\032\112\097\114\097\100\111\046')end A.stop=G A.language=p.language A.size=function()if
+not u then s.size=s.size%4+1 D()C()end end for H,I in ipairs({'\102\114\105\101\110\100\115','\115\107\105\112',
+'\115\107\105\112\079\117\116\114\111','\114\101\112\101\097\116\082\117\110','\097\117\116\111\067\114\097\116\101\115'})do A[I]=function()if not u then s[I]=not s
+[I]D()C()end end end A.crateCount=function(H,I)if u or x=='\099\114\097\116\101'then return end
+s.crateCount=H if I then D()end C()B.resources(p.features.pumpkins(),H,p.
+features.gems())end A.launcher=function(H,I)s.launcherX,s.launcherY=H,I D()end A
+.openBatch=function()local H=s.crateCount F('\099\114\097\116\101',function(I)return p.features
+.openBatch(I,H,B.status)end)end A.autoImprove=function()F('\117\112\103\114\097\100\101',function(H)
+while H()do local I,J=p.features.upgrade(H)B.status(J)task.wait(I and 1 or 4)end
+end)end local function H(I)if u or x=='\114\111\108\108'then return end for J,K in ipairs(p.
+features.catalog())do if tostring(K.id)==I then s.classTarget=I D()B.status(c(
+'\065\108\118\111\032\115\101\108\101\099\105\111\110\097\100\111\058\032')..K.name..'\046')return K end end end A.target=H A.rarest=
+function()local I=p.rarest(p.features.catalog())if I then H(tostring(I.id))else
+B.status('\065\115\032\099\104\097\110\099\101\115\032\097\105\110\100\097\032\110\u{e3}\111\032\102\111\114\097\109\032\099\097\114\114\101\103\097\100\097\115\032\112\101\108\111\032\106\111\103\111\046')end end A.roll=
+function(I)F('\114\111\108\108',function(J)local K=nil for L,M in ipairs(p.features.catalog(
+))do if tostring(M.id)==s.classTarget then K=M break end end if not K then
+return false,'\069\115\099\111\108\104\097\032\117\109\097\032\099\108\097\115\115\101\032\110\097\032\098\097\114\114\097\046'end return p.features.roll(J,K,I,B.
+status)end)end local I=q.OnTeleport:Connect(function(I,J)if J==game.PlaceId and(
+I.Name=='\082\101\113\117\101\115\116\101\100\070\114\111\109\083\101\114\118\101\114'or I.Name=='\083\116\097\114\116\101\100'or I.Name=='\073\110\080\114\111\103\114\101\115\115')then t=
+true end end)h.add(function()I:Disconnect()end)local J=g.TeleportService.
+TeleportInitFailed:Connect(function(J,K,L,M)if J~=q or M~=game.PlaceId or not u
+then return end t=false G()B.status(
+"\079\032\082\111\098\108\111\120\032\114\101\099\117\115\111\117\032\111\032\116\101\108\101\112\111\114\116\101\046\032\083\097\105\097\032\100\097\032\102\105\108\097\032\097\116\117\097\108\032\101\032\116\101\110\116\101\032\110\111\118\097\109\101\110\116\101\046")end)h.
+add(function()J:Disconnect()end)local function L()if u or t or i.expired()then
+return end if x then B.status('\080\097\114\101\032\097\032\114\111\116\105\110\097\032\100\101\032\108\111\098\098\121\032\097\110\116\101\115\032\100\101\032\101\110\116\114\097\114\032\110\097\032\102\105\108\097\046')
+return end u=true v+=1 C()local M=v local N=m(s)local function O()return h.
+alive()and v==M and not i.expired()end local function P(Q)local R=r:
+FindFirstChild('\081\117\101\117\101')if Q=='\099\104\097\112\116\101\114'then return e(R,'\067\104\097\112\116\101\114\083\101\108\101\099\116','\067\111\110\116\101\110\116',
+'\067\104\097\112\116\101\114\115','\067\072\065\080\084\069\082\032\050')end local S=e(R,'\083\101\116\117\112','\067\111\110\116\101\110\116')if Q=='\115\105\122\101'then return
+e(S,'\083\105\122\101\115',tostring(N.size))end if Q=='\102\114\105\101\110\100\115'then return e(S,'\079\112\116\105\111\110\115',
+'\070\114\105\101\110\100\115\079\110\108\121')end if Q=='\115\107\105\112'then return e(S,'\079\112\116\105\111\110\115','\083\107\105\112\073\110\116\114\111')end if Q==
+'\100\101\112\108\111\121'or Q=='\115\101\116\117\112'then return e(S,'\067\114\101\097\116\101\072\111\108\100\101\114','\067\114\101\097\116\101')end end local
+function Q(R)local S=P(R)local T=S and S:FindFirstChild('\067\104\101\099\107',true)if T and T:
+IsA('\071\117\105\079\098\106\101\099\116')then return T.Visible end end local function R(S)if S==
+'\116\114\097\110\115\102\101\114'then return t end local T=P(S)return T and T:IsA('\071\117\105\066\117\116\116\111\110')and T.
+Active and j.visible(T)end local function S(T,U,V)local W=os.clock()+U while O()
+and os.clock()<W do if V~=nil then if Q(T)==V then return true end elseif R(T)
+then return true end task.wait(0.1)end return false end task.spawn(function()
+local T,U,V=pcall(function()if N.autoCrates then local T=p.features.pumpkins()
+local U=os.clock()+3 while T==nil and O()and os.clock()<U do task.wait(0.25)T=p.
+features.pumpkins()end local V,W=d.cratePlan(N,T)if V=='\114\101\097\100\121'then B.status(
+'\065\098\114\105\110\100\111\032\111\032\108\111\116\101\032\097\110\116\101\115\032\100\101\032\101\110\116\114\097\114\032\110\097\032\102\105\108\097\u{2026}')local X,Y=p.features.openBatch(
+O,N.crateCount,B.status)if not X then return false,Y end elseif V=='\115\097\118\105\110\103'then
+B.status(string.format(c('\074\117\110\116\097\110\100\111\032\097\098\u{f3}\098\111\114\097\115\032\112\097\114\097\032\111\032\108\111\116\101\058\032\037\100\047\037\100\046'),T,W))end
+end if not O()then return false,'\067\097\110\099\101\108\097\100\111\046'end B.status(
+'\076\111\099\097\108\105\122\097\110\100\111\032\097\032\102\105\108\097\032\100\111\032\067\097\112\u{ed}\116\117\108\111\032\073\073\u{2026}')return d.deploy({ready=R,flag=Q
+,waitFor=S,approach=function()local T=f(g,q)if not T then return false,
+'\078\101\110\104\117\109\097\032\u{e1}\114\101\097\032\100\101\032\102\105\108\097\032\108\105\118\114\101\046\032\069\110\116\114\101\032\101\109\032\117\109\097\032\u{e1}\114\101\097\032\118\097\122\105\097\032\109\097\110\117\097\108\109\101\110\116\101\046'end
+local U=T.Position-Vector3.new(0,T.Size.Y/2,0)local V,W=k.goTo(U,function()
+return O()and not R('\099\104\097\112\116\101\114')end)if R('\099\104\097\112\116\101\114')then return true end return V,W
+end,click=function(T)if not O()then return false,'\067\097\110\099\101\108\097\100\111\046'end if T=='\100\101\112\108\111\121'
+then B.status('\068\069\080\076\079\089\032\097\099\105\111\110\097\100\111\046\032\065\103\117\097\114\100\097\110\100\111\032\111\032\106\111\103\111\u{2026}')end local U,V=j.
+activate(P(T))return U,V end,arm=function(T)if not O()then return false,
+'\067\097\110\099\101\108\097\100\111\046'end local U,V=l.arm('\099\104\097\112\116\101\114',T)return U,V end},N)end)if not O()then
+return end if not T or not U then l.clear()u=false C()end B.status(T and
+tostring(V)or'\070\097\108\104\097\032\110\111\032\108\111\098\098\121\046\032\084\101\110\116\101\032\110\111\118\097\109\101\110\116\101\046')end)end A.launch=L A.cycle=
+function()if u or t then return end s.repeatRun=true s.reconnectCount=0 D()C()L(
+)end p.watch(function()return u and s.repeatRun and not t end,function(M)v+=1 k.
+stop()B.status(string.format(c(
+'\067\111\110\101\120\u{e3}\111\032\112\101\114\100\105\100\097\032\040\037\115\041\046\032\084\101\110\116\097\110\100\111\032\118\111\108\116\097\114\032\097\111\032\108\111\098\098\121\u{2026}'),M))local N,O=p.
+reconnect(s)if not N then u=false C()B.status(O)return end local P=v task.delay(
+25,function()if h.alive()and v==P and u and not t then G()B.status(
+'\079\032\082\111\098\108\111\120\032\110\u{e3}\111\032\099\111\110\102\105\114\109\111\117\032\097\032\114\101\099\111\110\101\120\u{e3}\111\046')end end)end)p.idle(function()
+return u or x~=nil end)C()task.spawn(function()while h.alive()do B.resources(p.
+features.pumpkins(),s.crateCount,p.features.gems())if B.showingClasses()then
+local M,N=p.features.classState()B.classes(p.features.catalog(),s.classTarget,M,
+N)end task.wait(1.2)end end)if o then task.defer(L)end end return d end)()local
+aa=(function()local e={}e.CRATE_COST=80 local function f(g,...)for h=1,select(
+'\035',...)do if not g then return nil end local i=select(h,...)g=g:FindFirstChild(
+i)end return g end function e.uniqueButton(g,...)local h=g and{g}or{}for i=1,
+select('\035',...)do local j=select(i,...)local k={}for l,m in ipairs(h)do for n,o
+in ipairs(m:GetChildren())do if o.Name==j then table.insert(k,o)end end end h=k
+if#h==0 then return nil end end if#h==1 and h[1]:IsA('\071\117\105\066\117\116\116\111\110')and h[1].Active
+then return h[1]end end local function g(h)return type(h)=='\115\116\114\105\110\103'and h:lower()
+:gsub('\091\094\037\119\093','')or''end local h={['\050\120\108\117\099\107']=true,['\108\117\099\107\050\120']=true,['\120\050\108\117\099\107']=
+true,doubleluck=true,['\050\120\099\108\097\115\115\108\117\099\107']=true,fastclassspin=true,fastclassspins=true
+,stopat=true,classstopat=true,stopatclass=true}function e.isClass(i)return not h
+[g(i)]end function e.matchesTarget(i,j)local k=g(j)return k~=''and(k==g(i.name)
+or k==g(i.id))end function e.rarest(i)local j=nil for k,l in ipairs(i)do if
+type(l.chance)=='\110\117\109\098\101\114'and l.chance>0 and(not j or l.chance<j.chance)then j=l
+end end return j end function e.confirmCrate(i,j,k)return type(i)=='\110\117\109\098\101\114'and j
+==i-e.CRATE_COST and k==true end function e.offerAmount(i)local j=i:gsub('\060\046\045\062',
+'')local k=j:match('\094\037\115\042\040\091\037\100\093\091\037\100\044\046\093\042\041\037\115\042\036')or j:match(
+'\037\102\091\037\100\093\040\091\037\100\093\091\037\100\044\046\093\042\041\037\102\091\094\037\100\093')if not k then return nil end local l=j:gsub(k:gsub(
+'\040\091\094\037\119\093\041','\037\037\037\049'),'',1)if l:find('\037\100')or l:find('\037\037')then return nil end if k:
+find('\091\044\046\093')and not k:match('\094\037\100\037\100\063\037\100\063\091\044\046\093\037\100\037\100\037\100\036')then return nil end local m=
+tonumber((k:gsub('\091\044\046\093','')))return m and m>0 and m or nil end function e.
+crateAmount(i)local j=i:gsub('\060\046\045\062',''):upper()local k=j:match(
+'\094\037\115\042\040\037\100\043\041\037\115\043\070\082\069\069\037\115\043\048\037\115\042\091\088\u{d7}\093\037\115\042\036')return tonumber(k)or e.offerAmount(j)end
+function e.singleSpinPrice(i)local j=i:gsub('\060\046\045\062',''):upper()if j:match(
+'\037\102\091\037\100\093\091\050\045\057\093\037\115\043\067\076\065\083\083\037\115\043\083\080\073\078\083\063')or j:match('\037\102\091\037\100\093\037\100\037\100\043\037\115\043\067\076\065\083\083\037\115\043\083\080\073\078\083\063')then
+return nil end return e.offerAmount((j:gsub('\037\102\091\037\100\093\049\037\115\043\067\076\065\083\083\037\115\043\083\080\073\078\083\063','',1)))
+end function e.isGemOffer(i,j,k,l)return type(j)=='\110\117\109\098\101\114'and j>0 and(l==true or
+k==true and j==40 and i:match('\094\037\115\042\052\048\037\115\042\036')~=nil)end function e.nativeRollPrice(
+i)local j=i:gsub('\060\046\045\062','')if not j:match('\094\037\115\042\091\037\100\093\091\037\100\044\046\093\042\037\115\042\036')then return nil
+end return e.offerAmount(j)end function e.confirmRoll(i,j,k,l,m)return type(i)==
+'\110\117\109\098\101\114'and type(j)=='\110\117\109\098\101\114'and m==true and(l and type(k)=='\110\117\109\098\101\114'and k>0 and
+j==i-k or not l and j==i-1)end function e.create(i,j,k,l)local m=i.Players.
+LocalPlayer local n=m:WaitForChild('\080\108\097\121\101\114\071\117\105')local o=i.ReplicatedStorage local
+p=nil local q=nil local r=0 local s=0 local t={}local u=nil local v=nil local
+function w(x)if type(x)=='\110\117\109\098\101\114'and x>0 then return'\114\098\120\097\115\115\101\116\105\100\058\047\047'..string.
+format('\037\046\048\102',x)end if type(x)~='\115\116\114\105\110\103'or x==''then return nil end if x:match(
+'\094\037\100\043\036')then return'\114\098\120\097\115\115\101\116\105\100\058\047\047'..x end if x:match('\094\114\098\120\097\115\115\101\116')or x:match(
+'\094\104\116\116\112\115\063\058\047\047')then return x end end local function x(y)return y:IsA('\073\109\097\103\101\076\097\098\101\108')
+or y:IsA('\073\109\097\103\101\066\117\116\116\111\110')or y:IsA('\068\101\099\097\108')end local function y(z)if not z or not z
+:IsA('\077\111\100\117\108\101\083\099\114\105\112\116')then return nil end local A,B=pcall(require,z)return A and
+type(B)=='\116\097\098\108\101'and B or nil end task.spawn(function()p=y(f(o,'\083\104\097\114\101\100',
+'\080\108\097\121\101\114\083\116\097\116\101\083\104\097\114\101\100'))local z=y(f(o,'\077\111\100\117\108\101\115','\082\101\115\111\117\114\099\101\115','\080\097\099\107\101\116\115'))q=z local A=
+z and z.ClassRolled and z.ClassRolled.OnClientEvent if A and type(A.Connect)==
+'\102\117\110\099\116\105\111\110'then local B,C=pcall(A.Connect,A,function()r+=1 end)if B and C then l.
+add(function()C:Disconnect()end)end end local B=z and z.CrateOpened and z.
+CrateOpened.OnClientEvent if B and type(B.Connect)=='\102\117\110\099\116\105\111\110'then local C,D=
+pcall(B.Connect,B,function()s+=1 end)if C and D then l.add(function()D:
+Disconnect()end)end end local C=y(f(o,'\083\104\097\114\101\100','\067\108\097\115\115\083\104\097\114\101\100'))or y(f(o,'\083\104\097\114\101\100',
+'\067\108\097\115\115\101\115\083\104\097\114\101\100'))or y(f(o,'\077\111\100\117\108\101\115','\082\101\115\111\117\114\099\101\115','\067\108\097\115\115\101\115'))or y(f(o,'\077\111\100\117\108\101\115',
+'\082\101\115\111\117\114\099\101\115','\067\108\097\115\115\067\111\110\102\105\103'))local D=C and(C.Classes or C.Definitions or C.List or
+C)for E,F in pairs(D or{})do if type(F)=='\116\097\098\108\101'then local G=F.Name or F.
+DisplayName or(type(E)=='\115\116\114\105\110\103'and E)local H=F.Chance or F.Weight or F.
+Probability if type(G)=='\115\116\114\105\110\103'and(type(H)=='\110\117\109\098\101\114'or F.Id~=nil)then local I=
+w(F.Icon or F.IconId or F.Image or F.ImageId or F.Thumbnail or F.Texture)table.
+insert(t,{name=G,id=F.Id or G,chance=H,icon=I})end end end end)local function z(
+)if not p or type(p.TryGetPlayerState)~='\102\117\110\099\116\105\111\110'then return nil end local A,B=
+pcall(p.TryGetPlayerState,m)if A and type(B)=='\116\097\098\108\101'then return B end A,B=
+pcall(p.TryGetPlayerState,m.UserId)if A and type(B)=='\116\097\098\108\101'then return B end
+end local function A(B)return type(B)=='\110\117\109\098\101\114'and B>=0 and B or nil end local
+function B()local C=z()local D=C and C.SaveData local E=f(n,'\068\105\097\109\111\110\100\115','\067\111\117\110\116\101\114'
+,'\086\097\108\117\101')or f(n,'\071\101\109\115','\067\111\117\110\116\101\114','\086\097\108\117\101')local F=E and E:IsA('\084\101\120\116\076\097\098\101\108')and E.
+Text:match('\094\037\115\042\040\091\037\100\044\037\046\093\043\041\037\115\042\036')return A(C and(C.Diamonds or C.Gems))or A(D and(
+D.Diamonds or D.Gems))or F and tonumber((F:gsub('\091\044\046\093','')))or nil end local
+function C()local D=z()local E=D and D.SaveData local F=f(n,'\080\117\109\112\107\105\110\115','\067\111\117\110\116\101\114'
+,'\086\097\108\117\101')or f(n,'\080\117\109\112\107\105\110\115','\086\097\108\117\101')local G=F and F:IsA('\084\101\120\116\076\097\098\101\108')and F.Text:
+match('\094\037\115\042\040\091\037\100\044\037\046\093\043\041\037\115\042\036')return A(E and E.Pumpkins)or A(D and D.Pumpkins)or G
+and tonumber((G:gsub('\091\044\046\093','')))or nil end local function D()local E=z()local F
+=E and E.SaveData if type(F)~='\116\097\098\108\101'then return nil,nil end local G=F.
+ActiveClassSlot==2 and F.ClassSlot2 or F.Class return type(G)=='\115\116\114\105\110\103'and G or
+nil,A(F.FreeRolls)end local function E(F)local G=tostring(F):upper()return G:
+find('\082\079\066\085\088',1,true)or G:find('\082\036',1,true)or G:find('\080\082\069\077\073\085\077',1,true)or G:find(
+'\080\082\079\068\085\067\084',1,true)or G:find('\071\065\077\069\080\065\083\083',1,true)end local function F(G)local H,I={}
+,{}local function J(L)if L~=''and not I[L]then I[L]=true table.insert(H,L)end
+end if G:IsA('\084\101\120\116\066\117\116\116\111\110')then J(G.Text)end for L,M in ipairs(G:GetDescendants()
+)do if M:IsA('\084\101\120\116\076\097\098\101\108')and j.visible(M)then J(M.Text)end end return table.
+concat(H,'\032'):gsub('\060\046\045\062','')end local function G(H,I,J)local L={}for M,N in
+ipairs(H and H:GetDescendants()or{})do if N:IsA('\071\117\105\066\117\116\116\111\110')and N.Active and(not
+J or j.visible(N))then local O=j.texts(N)if not E(O..'\032'..N.Name)and I(N,O)then
+table.insert(L,N)end end end return L end local function H(I,J,L)local M=os.
+clock()+J repeat if not I()then return false end if L()then return true end task
+.wait(0.13)until os.clock()>=M return false end local function I(J)if J:IsA(
+'\073\109\097\103\101\076\097\098\101\108')or J:IsA('\073\109\097\103\101\066\117\116\116\111\110')then return w(J.Image),J.ImageRectOffset,J.
+ImageRectSize end if J:IsA('\068\101\099\097\108')then return w(J.Texture)end end local
+function J()local L,M={},{}local function N(O)local P=g(O.name)if P==''or M[P]or
+not e.isClass(O.name)or not e.isClass(O.id)then return end M[P]=O table.insert(L
+,O)end for O,P in ipairs(t)do N(table.clone(P))end local O=n:FindFirstChild(
+'\067\108\097\115\115\101\115')for P,Q in ipairs(O and O:GetDescendants()or{})do if not(Q:IsA(
+'\084\101\120\116\076\097\098\101\108')or Q:IsA('\084\101\120\116\066\117\116\116\111\110'))then continue end local R=Q.Text:gsub('\060\046\045\062',
+'')if not e.isClass(R)then continue end local S=Q while S and S~=O and e.
+isClass(S.Name)do S=S.Parent end if S~=O then continue end local T=M[g(R)]local
+U=Q.Parent local V=g(Q.Name)local W=V=='\099\108\097\115\115\110\097\109\101'or V=='\116\105\116\108\101'or V=='\110\097\109\101'for X
+=1,2 do if not U or U==O then break end local Y,Z,_,aa=nil,nil,nil,nil local ab=
+0 for ac,ad in ipairs(U:GetDescendants())do if ad:IsA('\084\101\120\116\076\097\098\101\108')and not Y then
+local ae=ad.Text:match('\040\091\037\100\046\044\093\043\041\037\115\042\037\037')Y=ae and tonumber((ae:gsub('\044','\046')))
+elseif x(ad)then local ae=g(ad.Name)if ae=='\099\108\097\115\115\105\099\111\110'or ae=='\112\111\114\116\114\097\105\116'or ae==
+'\105\099\111\110'or ae=='\105\109\097\103\101'or ae=='\099\108\097\115\115\105\109\097\103\101'then local af,ag,ah=I(ad)if af then Z,_,
+aa=af,ag,ah ab+=1 end end end end if not T and Y and W then T={name=R,id=R,
+chance=Y}N(T)end if T and Z and ab==1 then T.icon,T.iconOffset,T.iconSize=Z,_,aa
+break end U=U.Parent end end local aa=f(o,'\065\115\115\101\116\115','\067\108\097\115\115\101\115')or f(o,'\065\115\115\101\116\115',
+'\067\108\097\115\115\073\099\111\110\115')if aa then for ab,ac in ipairs(aa:GetChildren())do local ad=M[g(ac.
+Name)]if ad and not ad.icon then local ae=x(ac)and ac or ac:
+FindFirstChildWhichIsA('\073\109\097\103\101\076\097\098\101\108',true)or ac:FindFirstChildWhichIsA('\068\101\099\097\108',
+true)if ae then ad.icon,ad.iconOffset,ad.iconSize=I(ae)end end end end table.
+sort(L,function(ab,ac)if ab.chance==ac.chance then return ab.name<ac.name end
+return(ab.chance or 0)>(ac.chance or 0)end)return L end local function aa(ab,ac,
+ad)local ae=g(ab.Name..'\032'..j.texts(ab))for af,ag in ipairs(ac)do if ae:find(ag,
+1,true)then return true end end local af=f(n,ad,'\067\111\117\110\116\101\114','\073\099\111\110')or f(n,ad,
+'\073\099\111\110')local ag=af and I(af)if not ag then return false end for ah,L in ipairs(
+ab:GetDescendants())do if I(L)==ag then return true end end return false end
+local function ab(ac,ad,ae)ae=ae or e.offerAmount local af=nil for ag,ah in
+ipairs(ac:GetDescendants())do local L=g(ah.Name)if ah:IsA('\084\101\120\116\076\097\098\101\108')and j.
+visible(ah)and(L=='\112\114\105\099\101'or L=='\099\111\115\116'or L=='\097\109\111\117\110\116')then local M=ae(ah.Text)if
+af and M and M~=af then return nil end af=M or af end end return af or ae(ad)end
+local function ac(ad,ae)local af=e.uniqueButton(ad,'\067\111\110\116\101\110\116','\066\117\116\116\111\110\115','\082\111\108\108')if
+af then local ag=j.visible(af)and F(af)or j.texts(af)if ag==''then ag=j.texts(af
+)end if not E(ag)then local ah=e.nativeRollPrice(ag)local L=g(ag)if ae and ah or
+not ae and(L:find('\102\114\101\101',1,true)or L:find('\103\114\097\116\105',1,true))then return{button=af,
+price=ah,headless=not j.visible(af)}end end end local ag,ah={},{}local L=f(ad,
+'\067\104\111\105\099\101','\083\105\110\103\108\101')local M=f(ad,'\067\111\110\116\101\110\116','\066\117\116\116\111\110\115')for N,O in ipairs(ad and ad:
+GetDescendants()or{})do if not O:IsA('\071\117\105\066\117\116\116\111\110')or not O.Active or ae and not j
+.visible(O)then continue end local P=ae and F(O)or j.texts(O)if E(P..'\032'..O.Name
+)then continue end local Q=g(O.Name..'\032'..P)local R=M and O:IsDescendantOf(M)
+local S=Q:find('\114\111\108\108',1,true)or Q:find('\115\112\105\110',1,true)or Q:find('\103\105\114\097\114',1,true)or
+Q:find('\114\111\108\097\114',1,true)local T=O.Name=='\066\117\110\100\108\101'or Q:find('\114\111\108\108\120',1,true)or Q:
+find('\115\112\105\110\098\117\110\100\108\101',1,true)local U=aa(O,{'\103\101\109','\100\105\097\109\111\110\100','\103\101\109\097','\100\105\097\109\097\110\116\101'},
+'\068\105\097\109\111\110\100\115')or aa(O,{},'\071\101\109\115')local V=Q:find('\102\114\101\101',1,true)or Q:find('\103\114\097\116\105',1,
+true)local W=ab(O,P,O==L and e.singleSpinPrice or nil)if not T and(S or R or O==
+L)and(ae and not V and e.isGemOffer(P,W,R,U)or not ae and not U and(V or R and S
+and not W))then local X=R and ah or ag table.insert(X,{button=O,price=W,free=V})
+end end if#ah>0 then ag=ah end if not ae and#ag>1 then local N={}for O,P in
+ipairs(ag)do if P.free then table.insert(N,P)end end ag=N end if#ag==1 then
+return ag[1]end end local function ad(ae,af,ag,ah)v=nil if type(af)~='\116\097\098\108\101'or
+g(af.name)==''then return false,'\069\115\099\111\108\104\097\032\117\109\097\032\099\108\097\115\115\101\032\110\097\032\098\097\114\114\097\046'end local L=0
+while ae()do local M,N=D()if not M or not ag and N==nil then return false,
+'\079\032\101\115\116\097\100\111\032\100\111\115\032\103\105\114\111\115\032\097\105\110\100\097\032\110\u{e3}\111\032\101\115\116\u{e1}\032\100\105\115\112\111\110\u{ed}\118\101\108\046'end if e.
+matchesTarget(af,M)then return true,c('\067\108\097\115\115\101\032\101\110\099\111\110\116\114\097\100\097\058\032')..M..'\046'end if not
+ag and N<=0 then return true,c('\083\101\109\032\103\105\114\111\115\032\103\114\097\116\117\105\116\111\115\046\032\u{da}\108\116\105\109\097\032\099\108\097\115\115\101\058\032')..M..
+'\046'end local O if not H(ae,18,function()O=ac(n:FindFirstChild('\067\108\097\115\115\101\115'),ag)
+return O~=nil end)then if not ae()then return true,'\082\111\108\097\103\101\109\032\112\097\117\115\097\100\097\046'end return
+false,ag and
+'\079\032\103\105\114\111\032\099\111\109\032\112\114\101\u{e7}\111\032\101\109\032\103\101\109\097\115\032\110\u{e3}\111\032\102\111\105\032\105\100\101\110\116\105\102\105\099\097\100\111\046\032\065\098\114\097\032\067\108\097\115\115\101\115\032\110\111\032\106\111\103\111\046'
+or'\079\032\103\105\114\111\032\103\114\097\116\117\105\116\111\032\110\u{e3}\111\032\102\111\105\032\105\100\101\110\116\105\102\105\099\097\100\111\046\032\065\098\114\097\032\067\108\097\115\115\101\115\032\110\111\032\106\111\103\111\046'end M,N=D()
+if M and e.matchesTarget(af,M)then return true,c('\067\108\097\115\115\101\032\101\110\099\111\110\116\114\097\100\097\058\032')..M..'\046'
+end local P=N if ag then P=B()end if P==nil then return false,
+'\065\103\117\097\114\100\097\110\100\111\032\111\032\115\097\108\100\111\032\100\101\032\103\101\109\097\115\032\100\111\032\106\111\103\111\046'end if not ag and P<=0 then return true,
+'\083\101\109\032\103\105\114\111\115\032\103\114\097\116\117\105\116\111\115\046'end if ag and P<O.price then return true,
+'\071\101\109\097\115\032\105\110\115\117\102\105\099\105\101\110\116\101\115\032\112\097\114\097\032\111\032\112\114\u{f3}\120\105\109\111\032\103\105\114\111\046'end local Q=r v=O.button:
+GetFullName()local R,S=j.activate(O.button,O.headless or not ag)if not R then
+return false,S end local T=nil local U=nil if not H(ae,12,function()local V,W=D(
+)local X=W if ag then X=B()end if not e.confirmRoll(P,X,O.price,ag,true)then
+return false end local Y=os.clock()U=U or Y if V and(r>Q or V~=M or Y-U>=3 and
+ac(n:FindFirstChild('\067\108\097\115\115\101\115'),ag))then T=V return true end return false end)
+then if not ae()then return true,'\082\111\108\097\103\101\109\032\112\097\117\115\097\100\097\046'end return false,U and
+'\079\032\103\105\114\111\032\102\111\105\032\100\101\098\105\116\097\100\111\044\032\109\097\115\032\111\032\112\114\u{f3}\120\105\109\111\032\097\105\110\100\097\032\110\u{e3}\111\032\102\111\105\032\108\105\098\101\114\097\100\111\046'or
+'\079\032\106\111\103\111\032\110\u{e3}\111\032\099\111\110\102\105\114\109\111\117\032\111\032\100\u{e9}\098\105\116\111\046\032\082\111\108\097\103\101\109\032\112\097\114\097\100\097\046'end L+=1 ah(string.
+format(c('\071\105\114\111\032\037\100\032\099\111\110\102\105\114\109\097\100\111\058\032\037\115'),L,tostring(T)))if e.matchesTarget(af,T)then
+return true,c('\067\108\097\115\115\101\032\101\110\099\111\110\116\114\097\100\097\058\032')..T..'\046'end task.wait(0.7)end return true,
+'\082\111\108\097\103\101\109\032\112\097\117\115\097\100\097\046'end local function ae(af)local ag=f(n,'\076\111\098\098\121\085\112\103\114\097\100\101\115','\080\097\110\101\108',
+'\067\111\110\116\101\110\116','\085\112\103\114\097\100\101\115')local ah=B()if not ag or ah==nil then return false,
+"\065\098\114\097\032\097\115\032\109\101\108\104\111\114\105\097\115\032\100\111\032\108\111\098\098\121\032\117\109\097\032\118\101\122\032\112\097\114\097\032\099\097\114\114\101\103\097\114\032\112\114\101\099\111\115\032\101\032\103\101\109\097\115\046"end local L=
+nil for M,N in ipairs(ag:GetChildren())do local O=N:FindFirstChild('\085\112\103\114\097\100\101')if
+O and O:IsA('\071\117\105\066\117\116\116\111\110')and O.Active then local P=j.texts(O)local Q=nil if not
+E(P)and P:match('\094\037\115\042\091\037\100\044\037\046\037\115\093\043\036')then for R in P:gmatch('\091\037\100\044\037\046\093\043')do local S=
+tonumber((R:gsub('\091\044\046\093','')))if not S or Q and S~=Q then Q=nil break end Q=S end
+end if Q and Q>0 and Q<=ah and(not L or Q<L.price)then L={button=O,price=Q,name=
+N.Name,text=P}end end end if not L then return false,
+'\083\101\109\032\109\101\108\104\111\114\105\097\032\097\099\101\115\115\105\118\101\108\032\099\111\109\032\097\115\032\103\101\109\097\115\032\097\116\117\097\105\115\046'end local M,N=j.activate(L.button,
+true)if not M then return false,N end if not H(af,3,function()local O=B()return
+O and O<ah or L.button.Parent and j.texts(L.button)~=L.text end)then return
+false,'\079\032\106\111\103\111\032\110\097\111\032\099\111\110\102\105\114\109\111\117\032\097\032\109\101\108\104\111\114\105\097\032\100\101\032\108\111\098\098\121\046'end return true,c(
+'\077\101\108\104\111\114\105\097\032\100\101\032\108\111\098\098\121\032\099\111\110\102\105\114\109\097\100\097\058\032')..L.name..'\046',L.name end local function af(ag)
+local ah=g(ag)return ah:find('\112\117\109\112\107\105\110',1,true)or ah:find('\104\097\108\108\111\119\101\101\110',1,true)or
+ah:find('\097\098\111\098\111\114\097',1,true)or ah:find('\101\118\101\110\116\099\114\097\116\101',1,true)or ah:find(
+'\099\097\105\120\097\100\111\101\118\101\110\116\111',1,true)end local function ag()local ah=n:FindFirstChild('\067\114\097\116\101\115'
+)return G(ah,function(L,M)local N=g(L.Name)local O=g(M)local P=L.Parent local Q=
+N:find('\111\112\101\110',1,true)or N:find('\098\117\121',1,true)or N:find('\112\117\114\099\104\097\115\101',1,true)or O:
+find('\111\112\101\110',1,true)or O:find('\097\098\114\105\114',1,true)or O:find('\099\111\109\112\114\097\114',1,true)local R=
+ab(L,M)local S=aa(L,{'\112\117\109\112\107\105\110','\097\098\111\098\111\114\097'},'\080\117\109\112\107\105\110\115')if P and P~=ah then for T,U
+in ipairs(P:GetChildren())do if U:IsA('\084\101\120\116\076\097\098\101\108')and j.visible(U)then local V=
+g(U.Name)if not R and(V:find('\112\114\105\099\101',1,true)or V:find('\099\111\115\116',1,true))then R=e.
+offerAmount(U.Text)end S=S or af(U.Text)end end S=S or af(P.Name)end local T=N:
+match('\094\111\112\101\110\037\100\043\036')or O:match('\111\112\101\110\120\037\100')or O:match('\097\098\114\105\114\120\037\100')or O:match(
+'\120\037\100\043\111\112\101\110')return not T and R==e.CRATE_COST and(Q or S)and(S or af(L.Name))end,
+true)end local function ah()return f(i.Workspace,'\077\097\112','\090\111\110\101\115','\072\097\108\108\111\119\101\101\110\090\111\110\101')
+end local function L()local M=e.uniqueButton(n:FindFirstChild('\067\114\097\116\101\115'),'\077\101\110\117',
+'\080\097\110\101\108','\067\111\110\116\101\110\116','\070\114\097\109\101','\070\114\097\109\101','\080\117\109\112\107\105\110\115','\066\117\121')if not M then return nil end
+local N=j.texts(M)if E(N)then return nil end local O=e.crateAmount(N)if not O
+and j.visible(M)then O=ab(M,F(M))end return O==e.CRATE_COST and M or nil end
+local function M(N)local O,P={},{}for Q,R in ipairs(N and N:GetDescendants()or{}
+)do if R:IsA('\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116')and R.Enabled and not E(R.ActionText..'\032'..R.
+ObjectText)then local S=R.Name..'\032'..R.ActionText..'\032'..R.ObjectText local T=g(S
+)if af(S)or T:find('\099\114\097\116\101',1,true)or T:find('\099\097\105\120\097',1,true)then table.insert(O,R
+)elseif T:find('\111\112\101\110',1,true)or T:find('\097\098\114\105\114',1,true)or T:find('\105\110\116\101\114\097\099\116',1,
+true)then table.insert(P,R)end end end if#O==1 then return O[1]end if#O==0 and#P
+==1 then return P[1]end end local function N(O)local P=nil for Q,R in ipairs(O
+and O:GetDescendants()or{})do if R:IsA('\067\108\105\099\107\068\101\116\101\099\116\111\114')and R.
+MaxActivationDistance>0 then if P then return nil end P=R end end return P end
+local function O(P)local Q=q and q.CrateOpenPumpkins if type(Q)~='\116\097\098\108\101'or type(
+Q.Fire)~='\102\117\110\099\116\105\111\110'or type(Q.Writes)~='\116\097\098\108\101'or#Q.Writes~=0 or type(Q.Reads)~=
+'\116\097\098\108\101'or#Q.Reads~=0 then return nil end if not P()then return false,
+'\065\098\101\114\116\117\114\097\032\099\097\110\099\101\108\097\100\097\046'end u='\067\114\097\116\101\079\112\101\110\080\117\109\112\107\105\110\115'local R=pcall(Q.Fire,Q)return R,R
+and nil or'\070\097\108\104\097\032\097\111\032\101\110\118\105\097\114\032\097\032\097\098\101\114\116\117\114\097\032\100\101\032\101\118\101\110\116\111\046'end local function P(Q)u=nil
+local R=L()if R then if not Q()then return false,'\065\098\101\114\116\117\114\097\032\099\097\110\099\101\108\097\100\097\046'end u=R:
+GetFullName()return j.activate(R,not j.visible(R))end local S=ag()if#S==0 then
+local T=ah()local U=M(T)local V=not U and N(T)or nil local W,X=C(),s if U then u
+=U:GetFullName()local Y,Z=k.trigger(U,Q)if not Y then return false,Z end else
+local Y=T and T:FindFirstChild('\115\116\121\108\101\109\097\116\099\104\115\116\111\110\101',true)if Y and Y:IsA('\066\097\115\101\080\097\114\116')
+then local Z=Y.Position-Vector3.new(0,Y.Size.Y/2,0)u=Y:GetFullName()k.goTo(Z,Q)
+end if V and type(fireclickdetector)=='\102\117\110\099\116\105\111\110'and Q()then local Z=V.Parent
+local _=k.actor()local ai=Z and(Z:IsA('\066\097\115\101\080\097\114\116')and Z.Position or Z:IsA('\077\111\100\101\108'
+)and Z:GetPivot().Position)if _ and ai and(_.Position-ai).Magnitude<=V.
+MaxActivationDistance then local aj=pcall(fireclickdetector,V)if aj then u=V:
+GetFullName()end end end end if U or u then H(Q,2.5,function()S=ag()return#S>0
+or s>X or C()~=W end)if s>X or C()~=W then return true end end if#S==0 and not U
+and not V then local ai,aj=O(Q)if ai~=nil then return ai,aj end end end if#S~=1
+then return false,
+'\065\032\111\102\101\114\116\097\032\100\101\032\056\048\032\097\098\u{f3}\098\111\114\097\115\032\110\u{e3}\111\032\112\u{f4}\100\101\032\115\101\114\032\099\111\110\102\105\114\109\097\100\097\046'end if not Q()
+then return false,'\065\098\101\114\116\117\114\097\032\099\097\110\099\101\108\097\100\097\046'end u=S[1]:GetFullName()return j.
+activate(S[1])end local function ai(aj)local Q=f(n,'\067\114\097\116\101\115','\082\111\108\108')if not Q or
+not j.visible(Q)then return true end local R=0 local S=0 return H(aj,12,function
+()if not j.visible(Q)then return true end local T=os.clock()if S<8 and T-R>=0.6
+then for U,V in ipairs({'\083\107\105\112','\067\111\110\116\105\110\117\101','\067\108\111\115\101'})do local W=Q:FindFirstChild(V
+,true)if W and W:IsA('\071\117\105\066\117\116\116\111\110')and W.Active and j.visible(W)then R=T S+=1 j.
+activate(W)break end end end return false end)end local function aj(Q,R,S)if
+type(R)~='\110\117\109\098\101\114'or R%1~=0 or R<1 or R>10 then return false,
+'\076\111\116\101\032\105\110\118\u{e1}\108\105\100\111\046',0 end local T=C()if T==nil then return false,
+'\079\032\106\111\103\111\032\097\105\110\100\097\032\110\u{e3}\111\032\105\110\102\111\114\109\111\117\032\111\032\115\097\108\100\111\032\100\101\032\097\098\u{f3}\098\111\114\097\115\046',0 end if T<R*e.
+CRATE_COST then return false,string.format(c(
+'\083\097\108\100\111\032\105\110\115\117\102\105\099\105\101\110\116\101\032\112\097\114\097\032\111\032\108\111\116\101\046\032\037\100\032\100\101\032\037\100\032\097\098\u{f3}\098\111\114\097\115\046'),T,R*e.CRATE_COST),0
+end local U=0 for V=1,R do if not Q()then return false,'\076\111\116\101\032\112\097\117\115\097\100\111\046',U end if
+not ai(Q)then return false,'\065\032\099\097\105\120\097\032\097\110\116\101\114\105\111\114\032\097\105\110\100\097\032\101\115\116\u{e1}\032\097\098\101\114\116\097\046',U end
+local W=C()if W==nil or W<e.CRATE_COST then return false,
+'\083\097\108\100\111\032\109\117\100\111\117\032\100\117\114\097\110\116\101\032\111\032\108\111\116\101\046',U end local X=s if S then S(string.format(c(
+'\065\098\114\105\110\100\111\032\099\097\105\120\097\032\037\100\047\037\100\u{2026}'),V,R))end local Y,Z=P(Q)if not Y then return false
+,Z,U end local _=false local ak=false local al=nil if not H(Q,10,function()local
+am=f(n,'\067\114\097\116\101\115','\082\111\108\108')_=am~=nil and j.visible(am)if _ then return true end if s
+>X then local an=os.clock()al=al or an return an-al>=2 end return false end)then
+return false,'\079\032\106\111\103\111\032\110\u{e3}\111\032\109\111\115\116\114\111\117\032\097\032\097\098\101\114\116\117\114\097\032\100\097\032\099\097\105\120\097\046\032\076\111\116\101\032\105\110\116\101\114\114\111\109\112\105\100\111\046',U
+end if _ then ak=ai(Q)end if not H(Q,8,function()return e.confirmCrate(W,C(),s>X
+or ak)end)then return false,
+'\079\032\106\111\103\111\032\110\u{e3}\111\032\099\111\110\102\105\114\109\111\117\032\111\032\100\u{e9}\098\105\116\111\032\101\032\111\032\114\101\115\117\108\116\097\100\111\046\032\076\111\116\101\032\105\110\116\101\114\114\111\109\112\105\100\111\046',U
+end U+=1 if _ and not ak then return false,
+'\067\097\105\120\097\032\114\101\103\105\115\116\114\097\100\097\044\032\109\097\115\032\097\032\116\101\108\097\032\100\097\032\097\098\101\114\116\117\114\097\032\097\105\110\100\097\032\101\115\116\u{e1}\032\097\116\105\118\097\046',U end if V<R
+then task.wait(0.45)end end return true,string.format(c(
+'\037\100\032\099\097\105\120\097\040\115\041\032\099\111\110\102\105\114\109\097\100\097\040\115\041\046'),U),U end local function ak()local al={buttons={}}
+al.class,al.freeRolls=D()al.gems=B()al.pumpkins=C()local am=q and q.
+CrateOpenPumpkins al.eventCrateFields=type(am)=='\116\097\098\108\101'and type(am.Writes)==
+'\116\097\098\108\101'and#am.Writes or nil al.crateRoute=u al.classRoute=v al.eventOffers=L()
+and 1 or#ag()al.eventPrompts={}local an=ah()for Q,R in ipairs(an and an:
+GetDescendants()or{})do if R:IsA('\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116')and#al.eventPrompts<18 then
+table.insert(al.eventPrompts,{path=R:GetFullName(),action=R.ActionText,object=R.
+ObjectText,enabled=R.Enabled})elseif R:IsA('\067\108\105\099\107\068\101\116\101\099\116\111\114')and#al.eventPrompts<
+18 then table.insert(al.eventPrompts,{path=R:GetFullName(),distance=R.
+MaxActivationDistance})end end for Q,R in ipairs({'\067\108\097\115\115\101\115','\067\114\097\116\101\115',
+'\076\111\098\098\121\085\112\103\114\097\100\101\115'})do local S=n:FindFirstChild(R)local T=0 for U,V in ipairs(S and
+S:GetDescendants()or{})do if V:IsA('\071\117\105\066\117\116\116\111\110')then table.insert(al.buttons,{
+screen=R,path=V:GetFullName(),name=V.Name,label=j.texts(V):sub(1,140),shown=F(V)
+:sub(1,140),active=V.Active,visible=j.visible(V)})T+=1 if T>=28 then break end
+end end end return al end return{upgrade=ae,openBatch=aj,roll=ad,catalog=J,
+classState=D,pumpkins=C,gems=B,diagnostic=ak}end return e end)()local ab=(
+function()local ab={}function ab.create(ac,ad,ae,af)local ag=ac.UserInputService
+local ah=ac.TweenService local ai=Color3.fromRGB(35,31,25)local aj=Color3.
+fromRGB(65,54,39)local ak=Color3.fromRGB(25,21,16)local al=Color3.fromRGB(252,
+246,226)local am=Color3.fromRGB(213,195,163)local an=Color3.fromRGB(128,205,55)
+local e=Color3.fromRGB(46,141,236)local f=Color3.fromRGB(255,202,66)local g=
+Color3.fromRGB(187,47,39)local h,i,j={},{},{}local function k(l,m,n)local o=
+Instance.new(l)for p,q in pairs(m)do o[p]=p=='\084\101\120\116'and c(q)or q end if m.Text~=
+nil then o.AutoLocalize=false end o.Parent=n return o end local function l(m,n)
+k('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,n or 5)},m)end local function m(n,o)return
+k('\085\073\083\116\114\111\107\101',{Color=o or ak,Thickness=2,ApplyStrokeMode=Enum.ApplyStrokeMode.
+Border},n)end local function n(o,p,q,r)return k('\085\073\071\114\097\100\105\101\110\116',{Color=
+ColorSequence.new(p,q),Rotation=r or 0},o)end local function o(p,q,r,s,t)return
+k('\084\101\120\116\076\097\098\101\108',{Text=q,TextSize=r,TextColor3=s or al,BackgroundTransparency=1,
+Font=t and Enum.Font.GothamBlack or Enum.Font.Gotham,TextXAlignment=Enum.
+TextXAlignment.Left,TextWrapped=true},p)end local function p(q,...)if af[q]then
+af[q](...)end end local function q(r,s,t,u)local v=k('\084\101\120\116\066\117\116\116\111\110',{Text=t,
+TextSize=15,TextColor3=al,TextStrokeColor3=ak,TextStrokeTransparency=0.2,
+BackgroundColor3=u and an or aj,BorderSizePixel=0,Font=Enum.Font.GothamBlack,
+TextWrapped=true},r)l(v)m(v)n(v,Color3.new(1,1,1),Color3.fromRGB(183,169,145),90
+)if s then i[s]=v v.Activated:Connect(function()p(s)end)end return v end local r
+=k('\070\114\097\109\101',{Size=UDim2.fromScale(1,1),BackgroundTransparency=1},ae)local s=k(
+'\070\114\097\109\101',{AnchorPoint=Vector2.new(0.5,0),Size=UDim2.fromOffset(760,570),Position=
+UDim2.new(0.5,0,0,8),BackgroundColor3=ai,BorderSizePixel=0,ClipsDescendants=true
+},r)l(s,8)m(s,Color3.fromRGB(116,88,49))local t=k('\085\073\083\099\097\108\101',{Scale=0.65},s)local
+u=k('\070\114\097\109\101',{Size=UDim2.new(1,0,0,74),BackgroundColor3=Color3.fromRGB(111,77,44)
+,BorderSizePixel=0,ClipsDescendants=true,Active=true},s)n(u,Color3.new(1,1,1),
+Color3.fromRGB(137,107,78),90)k('\070\114\097\109\101',{Position=UDim2.new(0,0,1,-3),Size=UDim2
+.new(1,0,0,3),BackgroundColor3=ak,BorderSizePixel=0},u)k('\073\109\097\103\101\076\097\098\101\108',{Position=
+UDim2.fromOffset(13,11),Size=UDim2.fromOffset(49,49),BackgroundTransparency=1,
+Image='\114\098\120\097\115\115\101\116\105\100\058\047\047\049\048\051\050\050\053\057\049\052\054\051\057\055\050\050',ScaleType=Enum.ScaleType.Fit},u)local v=o(u
+,'\065\078\079\078\072\085\066',28,al,true)v.TextStrokeColor3,v.TextStrokeTransparency=ak,0 v.
+Position,v.Size=UDim2.fromOffset(73,6),UDim2.new(1,-146,0,34)local w=o(u,
+'\067\069\078\084\082\065\076\032\068\079\032\076\079\066\066\089',13,f,true)w.Position,w.Size=UDim2.fromOffset(74,40),UDim2.
+new(1,-147,0,22)local x=q(u,nil,'\088')x.Position,x.Size=UDim2.new(1,-54,0,15),
+UDim2.fromOffset(40,41)x.BackgroundColor3,x.TextSize=g,22 local y=q(r,nil,'\065')y.
+Position,y.Size=UDim2.new(0,10,1,-64),UDim2.fromOffset(47,47)y.TextSize=26 y.
+ZIndex=6 y.BackgroundColor3=aj if af.decorateLauncher then af.decorateLauncher(y
+)end local z=k('\083\099\114\111\108\108\105\110\103\070\114\097\109\101',{Position=UDim2.fromOffset(9,83),Size=UDim2.new(
+0,129,1,-139),BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.
+fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=2},s
+)k('\085\073\076\105\115\116\076\097\121\111\117\116',{Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder},z
+)local A=k('\070\114\097\109\101',{Position=UDim2.fromOffset(146,83),Size=UDim2.new(1,-155,1,-
+139),BackgroundTransparency=1,ClipsDescendants=true},s)local B=o(s,
+'\080\114\111\110\116\111\032\112\097\114\097\032\099\111\110\102\105\103\117\114\097\114\032\097\032\102\105\108\097\046',14,am,false)B.Position,B.Size=UDim2.new(0,13,1,
+-47),UDim2.new(1,-26,0,40)local C='\099\111\110\102\105\103'local function D(E)C=E for F,G in
+pairs(j)do G.Visible=F==E end for F,G in pairs(h)do G.BackgroundColor3=F==E and
+f or aj G.TextColor3=F==E and ak or al G.TextStrokeTransparency=F==E and 1 or
+0.2 end local F=j[E]if F then F.Position=UDim2.fromOffset(7,0)ah:Create(F,
+TweenInfo.new(0.18,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Position=
+UDim2.fromOffset(0,0)}):Play()end end local function E(F,G,H)local I=q(z,nil,G)I
+.Size=UDim2.new(1,-3,0,45)I.LayoutOrder=H I.TextSize=14 I.Activated:Connect(
+function()D(F)end)h[F]=I local J=k('\083\099\114\111\108\108\105\110\103\070\114\097\109\101',{Size=UDim2.fromScale(1,1),
+Visible=false,BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.
+fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollingDirection=Enum
+.ScrollingDirection.Y,ScrollBarThickness=3,ScrollBarImageColor3=f},A)k(
+'\085\073\080\097\100\100\105\110\103',{PaddingTop=UDim.new(0,1),PaddingBottom=UDim.new(0,6),PaddingRight=
+UDim.new(0,5)},J)k('\085\073\076\105\115\116\076\097\121\111\117\116',{Padding=UDim.new(0,8),SortOrder=Enum.
+SortOrder.LayoutOrder},J)j[F]=J return J end local function F(G,H,I,J)local L=k(
+'\070\114\097\109\101',{Size=UDim2.new(1,0,0,J or 82),BackgroundColor3=aj,BorderSizePixel=0},G)
+l(L)m(L)local M=o(L,H,19,al,true)M.Position,M.Size=UDim2.fromOffset(11,7),UDim2.
+new(1,-22,0,25)local N=o(L,I,14,am,false)N.Position,N.Size=UDim2.fromOffset(11,
+33),UDim2.new(1,-22,1,-38)return L,N end local function G(H)return k('\070\114\097\109\101',{
+Size=UDim2.new(1,0,0,46),BackgroundTransparency=1},H)end local function H(I,J,L,
+M,N,O)local P=q(I,J,L,O)P.Position,P.Size=UDim2.new(M,0,0,0),UDim2.new(N,-5,1,0)
+return P end local I=E('\099\111\110\102\105\103','\067\111\110\102\105\103\117\114\097\114',1)F(I,'\067\111\110\102\105\103\117\114\097\114\032\099\097\112\u{ed}\116\117\108\111',
+'\069\115\099\111\108\104\097\032\117\109\032\099\097\112\u{ed}\116\117\108\111\032\112\097\114\097\032\118\101\114\032\097\115\032\111\112\u{e7}\u{f5}\101\115\032\100\097\032\102\105\108\097\046',73)local J={
+'\067\097\112\u{ed}\116\117\108\111\032\073','\067\097\112\u{ed}\116\117\108\111\032\073\073','\067\097\112\u{ed}\116\117\108\111\032\073\073\073'}local L,M=false,nil
+local function N(O,P)local Q=q(O,nil,'')Q.Size=UDim2.new(1,0,0,43)local R=o(Q,P,
+15,al,true)R.Position,R.Size=UDim2.fromOffset(12,0),UDim2.new(1,-130,1,0)return
+Q end local O=N(I,'\067\097\112\u{ed}\116\117\108\111\115')local P=o(O,'\u{2304}',17,am,true)P.Position,
+P.Size=UDim2.new(1,-23,0,0),UDim2.fromOffset(18,43)local Q=k('\070\114\097\109\101',{
+BackgroundTransparency=1,Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.
+AutomaticSize.Y,Visible=false},I)k('\085\073\076\105\115\116\076\097\121\111\117\116',{Padding=UDim.new(0,5),
+SortOrder=Enum.SortOrder.LayoutOrder},Q)local R=k('\070\114\097\109\101',{
+BackgroundTransparency=1,Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.
+AutomaticSize.Y,Visible=false},I)k('\085\073\076\105\115\116\076\097\121\111\117\116',{Padding=UDim.new(0,8),
+SortOrder=Enum.SortOrder.LayoutOrder},R)local function S()P.Text=L and'\u{2303}'
+or'\u{2304}'Q.Visible=L R.Visible=M==2 end O.Activated:Connect(function()L=not L
+S()end)for T,U in ipairs(J)do local V=N(Q,U)V.LayoutOrder=T local W=T==2 local X
+=W and an or am local Y=k('\070\114\097\109\101',{Size=UDim2.fromOffset(7,7),Position=UDim2.
+new(1,-108,0.5,-3),BackgroundColor3=X,BorderSizePixel=0},V)l(Y,5)local Z=o(V,W
+and'\079\078\076\073\078\069'or'\069\077\032\066\082\069\086\069',11,X,true)Z.Position,Z.Size=UDim2.new(1,-94,0,0),UDim2.
+fromOffset(73,43)V.Activated:Connect(function()M=T L=false S()end)end F(R,
+'\070\105\108\097\032\100\111\032\067\097\112\u{ed}\116\117\108\111\032\073\073',
+'\065\115\032\101\115\099\111\108\104\097\115\032\115\u{e3}\111\032\114\101\097\112\108\105\099\097\100\097\115\032\110\097\032\112\114\u{f3}\120\105\109\097\032\114\111\100\097\100\097\046',69)local T=G(R)H(T,
+'\108\097\117\110\099\104','\069\078\084\082\065\082\032\043\032\079\080',0,0.42,true)H(T,'\099\121\099\108\101','\067\073\067\076\079\032\067\079\077\080\076\069\084\079',0.43,0.57)local
+U=G(R)H(U,'\115\105\122\101','\074\079\071\065\068\079\082\069\083',0,0.47)H(U,'\102\114\105\101\110\100\115','\065\077\073\071\079\083',0.48,0.52)local V=G(R
+)H(V,'\115\107\105\112','\073\078\084\082\079\068\085\u{c7}\u{c3}\079',0,0.47)H(V,'\115\107\105\112\079\117\116\114\111','\067\069\078\065\032\070\073\078\065\076',0.48,0.52
+)local W=G(R)H(W,'\114\101\112\101\097\116\082\117\110','\082\069\080\069\084\073\082',0,0.47)H(W,'\097\117\116\111\073\109\112\114\111\118\101','\065\085\084\079\032\077\069\076\072\079\082\073\065',
+0.48,0.52)local X=G(I)H(X,'\115\116\111\112','\080\065\082\065\082',0,0.34).BackgroundColor3=g H(X,
+'\108\097\110\103\117\097\103\101','\073\068\073\079\077\065',0.35,0.65)local Y,Z=F(I,'\082\101\099\117\114\115\111\115\032\100\111\032\108\111\098\098\121',
+'\076\101\110\100\111\032\111\032\115\097\108\100\111\032\100\111\032\106\111\103\111\u{2026}',69)local _=E('\101\118\101\110\116','\067\097\105\120\097\115',2)F(_,
+'\067\097\105\120\097\032\100\111\032\101\118\101\110\116\111',
+'\079\032\099\117\115\116\111\032\u{e9}\032\100\101\032\056\048\032\097\098\u{f3}\098\111\114\097\115\032\112\111\114\032\099\097\105\120\097\046\032\069\115\099\111\108\104\097\032\111\032\116\097\109\097\110\104\111\032\100\111\032\108\111\116\101\046',78)
+local ao,ap=F(_,'\083\097\108\100\111\032\100\101\032\097\098\u{f3}\098\111\114\097\115','\065\103\117\097\114\100\097\110\100\111\032\111\032\106\111\103\111\u{2026}',69)local aq
+=G(_)local ar=k('\070\114\097\109\101',{Position=UDim2.new(0,11,0.5,-5),Size=UDim2.new(1,-116,0
+,10),BackgroundColor3=ak,BorderSizePixel=0},aq)l(ar)local as=k('\070\114\097\109\101',{Size=
+UDim2.fromScale(0,1),BackgroundColor3=f,BorderSizePixel=0},ar)l(as)local at=k(
+'\070\114\097\109\101',{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0,0.5),Size=
+UDim2.fromOffset(26,26),BackgroundColor3=f,BorderSizePixel=0},ar)l(at,13)local
+au=k('\070\114\097\109\101',{Position=UDim2.fromOffset(0,0),Size=UDim2.new(1,-95,1,0),
+BackgroundTransparency=1,Active=true,ZIndex=5},aq)local av=o(aq,'\049\048',19,f,true)
+av.Position,av.Size=UDim2.new(1,-91,0,0),UDim2.fromOffset(86,46)av.
+TextXAlignment=Enum.TextXAlignment.Center local aw=G(_)H(aw,'\097\117\116\111\067\114\097\116\101\115',
+'\065\085\084\079\032\067\065\073\088\065\083',0,0.54)local ax=H(aw,'\111\112\101\110\066\097\116\099\104','\065\066\082\073\082\032\076\079\084\069',0.55,0.45,true)ax.
+BackgroundColor3,ax.TextColor3,ax.TextStrokeTransparency=f,ak,1 local ay=E(
+'\099\108\097\115\115\101\115','\067\108\097\115\115\101\115',3)F(ay,'\065\108\118\111\032\100\101\032\099\108\097\115\115\101',
+'\083\101\108\101\099\105\111\110\101\032\117\109\032\099\097\114\116\u{e3}\111\046\032\065\032\114\111\108\097\103\101\109\032\112\097\114\097\032\113\117\097\110\100\111\032\111\032\106\111\103\111\032\099\111\110\102\105\114\109\097\032\097\032\099\108\097\115\115\101\046',79)
+local az=k('\083\099\114\111\108\108\105\110\103\070\114\097\109\101',{Size=UDim2.new(1,0,0,112),CanvasSize=UDim2.
+fromOffset(0,0),AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum
+.ScrollingDirection.X,ScrollBarThickness=4,ScrollBarImageColor3=f,
+BorderSizePixel=0,BackgroundTransparency=1},ay)k('\085\073\076\105\115\116\076\097\121\111\117\116',{FillDirection=
+Enum.FillDirection.Horizontal,Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.
+LayoutOrder},az)local aA=o(az,
+'\065\098\114\097\032\067\108\097\115\115\101\115\032\110\111\032\106\111\103\111\032\112\097\114\097\032\099\097\114\114\101\103\097\114\032\111\032\099\097\116\u{e1}\108\111\103\111\046',14,am,false)aA.Size=UDim2.
+fromOffset(260,90)local aB,aC=F(ay,'\067\108\097\115\115\101\032\097\116\117\097\108','\065\103\117\097\114\100\097\110\100\111\032\111\032\106\111\103\111\u{2026}',70
+)local aD,aE=false,false local aF=q(ay,nil,'\u{25a1}\032\032\032\085\083\065\082\032\071\069\077\065\083\032\080\065\082\065\032\071\073\082\065\082')aF
+.Size=UDim2.new(1,-5,0,42)aF.Activated:Connect(function()if aE then return end
+aD=not aD aF.Text=c(aD and'\u{2713}\032\032\032\085\083\065\082\032\071\069\077\065\083\032\080\065\082\065\032\071\073\082\065\082'or
+'\u{25a1}\032\032\032\085\083\065\082\032\071\069\077\065\083\032\080\065\082\065\032\071\073\082\065\082')aF.TextColor3=aD and an or al end)local aG=G(
+ay)local aH=H(aG,nil,'\071\073\082\065\082\032\065\084\u{c9}\032\079\032\065\076\086\079',0,0.6,true)aH.BackgroundColor3=e aH
+.Activated:Connect(function()p('\114\111\108\108',aD)end)H(aG,'\114\097\114\101\115\116',
+'\083\069\076\069\067\073\079\078\065\082\032\077\065\073\083\032\082\065\082\065',0.61,0.39)local aI={}local aJ=''local aK=true local aL=
+Vector2.zero local aM=Vector2.new(0,1)local aN=nil local function aO()local aP=r
+.AbsoluteSize return Vector2.new(math.max(1,aP.X-63),math.max(1,aP.Y-63))end
+local function aP()local aQ=aO()y.Position=UDim2.fromOffset(8+aM.X*aQ.X,8+aM.Y*
+aQ.Y)end local function aQ()local aR=r.AbsoluteSize if aR.X<80 or aR.Y<80 then
+return end local aS=math.min(0.65,(aR.Y-14)/280)t.Scale=aS local aT=math.min(760
+,(aR.X-16)/aS)local aU=math.min(570,(aR.Y-14)/aS)s.Size=UDim2.fromOffset(aT,aU)
+local aV=math.max(0,(aR.X-aT*aS)/2-5)aL=Vector2.new(math.clamp(aL.X,-aV,aV),math
+.clamp(aL.Y,0,math.max(0,aR.Y-aU*aS-14)))s.Position=UDim2.new(0.5,aL.X,0,7+aL.Y)
+aP()end local function aR()aK=not aK if aN then aN:Cancel()aN=nil end s.Visible=
+aK y.BackgroundColor3=aK and aj or Color3.fromRGB(154,101,34)if aK then aQ()
+local aS=s.Position s.Position=UDim2.new(0.5,aL.X,0,1+aL.Y)aN=ah:Create(s,
+TweenInfo.new(0.18),{Position=aS})aN:Play()end end x.Activated:Connect(aR)local
+aS,aT,aU,aV=nil,nil,nil,nil local aW,aX,aY=nil,nil,nil local aZ=false local
+function a_(a0)return a0.UserInputType==Enum.UserInputType.Touch or a0.
+UserInputType==Enum.UserInputType.MouseButton1 end local function a0(a1,a2)
+return a1 and(a1.UserInputType==Enum.UserInputType.Touch and a2==a1 or a1.
+UserInputType==Enum.UserInputType.MouseButton1 and a2.UserInputType==Enum.
+UserInputType.MouseMovement)end local function a1(a2,a3)local a4=math.clamp((a2-
+ar.AbsolutePosition.X)/math.max(1,ar.AbsoluteSize.X),0,1)p('\099\114\097\116\101\067\111\117\110\116',1+math.
+floor(a4*9+0.5),a3)end u.InputBegan:Connect(function(a2)if a_(a2)then aS=a2 aT=
+Vector2.new(a2.Position.X,a2.Position.Y)aU=aL end end)au.InputBegan:Connect(
+function(a2)if a_(a2)then aV=a2 a1(a2.Position.X,false)end end)y.InputBegan:
+Connect(function(a2)if not a_(a2)or aW then return end aW=a2 aX=Vector2.new(a2.
+Position.X,a2.Position.Y)aY=aM aZ=false end)local a2=ag.InputChanged:Connect(
+function(a2)if a0(aW,a2)then local a3=Vector2.new(a2.Position.X,a2.Position.Y)-
+aX if a3.Magnitude>=7 then aZ=true end if aZ then local a4=aO()aM=Vector2.new(
+math.clamp(aY.X+a3.X/a4.X,0,1),math.clamp(aY.Y+a3.Y/a4.Y,0,1))aP()end elseif a0(
+aV,a2)then a1(a2.Position.X,false)elseif a0(aS,a2)then aL=aU+Vector2.new(a2.
+Position.X,a2.Position.Y)-aT aQ()end end)local a3=ag.InputEnded:Connect(function
+(a3)if a3==aW then aW=nil if aZ then p('\108\097\117\110\099\104\101\114',aM.X,aM.Y)elseif a3.
+UserInputState==Enum.UserInputState.End then aR()end end if a3==aS then aS=nil
+end if a3==aV then aV=nil a1(a3.Position.X,true)end end)local a4=r:
+GetPropertyChangedSignal('\065\098\115\111\108\117\116\101\083\105\122\101'):Connect(aQ)ad.add(function()a2:
+Disconnect()a3:Disconnect()a4:Disconnect()end)task.defer(aQ)D('\099\111\110\102\105\103')return{
+status=function(a5)B.Text=c(tostring(a5))end,showingClasses=function()return aK
+and C=='\099\108\097\115\115\101\115'end,options=function(a5,a6,a7,a8)aE=a8 if not aW then aM=Vector2
+.new(a5.launcherX,a5.launcherY)aP()end i.size.Text=c('\074\079\071\065\068\079\082\069\083\032\032\u{b7}\032\032')..a5.
+size i.friends.Text=c(a5.friends and'\083\u{d3}\032\065\077\073\071\079\083\032\032\u{b7}\032\032\083\073\077'or
+'\083\u{d3}\032\065\077\073\071\079\083\032\032\u{b7}\032\032\078\u{c3}\079')i.skip.Text=c(a5.skip and
+'\073\078\084\082\079\032\032\u{b7}\032\032\080\085\076\065\082'or'\073\078\084\082\079\032\032\u{b7}\032\032\086\069\082')i.skipOutro.Text=c(a5.skipOutro and
+'\070\073\078\065\076\032\032\u{b7}\032\032\080\085\076\065\082'or'\070\073\078\065\076\032\032\u{b7}\032\032\086\069\082')i.repeatRun.Text=c(a5.repeatRun and
+'\082\069\080\069\084\073\082\032\032\u{b7}\032\032\083\073\077'or'\082\069\080\069\084\073\082\032\032\u{b7}\032\032\078\u{c3}\079')i.autoImprove.Text=c(a7 and
+'\077\069\076\072\079\082\073\065\083\032\032\u{b7}\032\032\079\078'or'\077\069\076\072\079\082\073\065\083\032\032\u{b7}\032\032\079\070\070')i.autoCrates.Text=c(a5.
+autoCrates and'\065\085\084\079\032\067\065\073\088\065\083\032\032\u{b7}\032\032\079\078'or'\065\085\084\079\032\067\065\073\088\065\083\032\032\u{b7}\032\032\079\070\070')i.cycle.Text
+=c(a6 and'\065\071\085\065\082\068\065\078\068\079\032\079\032\074\079\071\079'or'\067\073\067\076\079\032\067\079\077\080\076\069\084\079')aH.Text=c(a8 and'\080\065\082\065\082\032\071\073\082\079\083'or
+'\071\073\082\065\082\032\065\084\u{c9}\032\079\032\065\076\086\079')aH.BackgroundColor3=a8 and g or e av.Text=tostring(a5.
+crateCount)local a9=(a5.crateCount-1)/9 as.Size=UDim2.fromScale(a9,1)at.Position
+=UDim2.fromScale(a9,0.5)end,resources=function(a5,a6,a7)Z.Text=string.format(c(
+'\065\098\u{f3}\098\111\114\097\115\032\032\037\115\032\032\032\u{b7}\032\032\032\071\101\109\097\115\032\032\037\115'),tostring(a5 or'\u{2014}'),tostring(a7
+or'\u{2014}'))ap.Text=string.format(c(
+'\037\115\032\110\111\032\115\097\108\100\111\032\032\032\u{b7}\032\032\032\037\100\032\099\097\105\120\097\040\115\041\032\061\032\037\100\032\097\098\u{f3}\098\111\114\097\115'),tostring(a5 or
+'\u{2014}'),a6,a6*80)end,classes=function(a5,a6,a7,a8)aC.Text=string.format(c(
+'\037\115\032\032\032\u{b7}\032\032\032\071\105\114\111\115\032\103\114\u{e1}\116\105\115\058\032\037\115'),a7 or'\u{2014}',tostring(a8 or'\u{2014}')
+)if C~='\099\108\097\115\115\101\115'or not aK then return end local a9={}for ba=1,math.min(#a5,30)do
+local bb=a5[ba]a9[ba]=tostring(bb.id)..'\058'..tostring(bb.name)..'\058'..tostring(bb.
+icon)..'\058'..tostring(bb.iconOffset)..'\058'..tostring(bb.iconSize)end local ba=
+table.concat(a9,'\124')if ba~=aJ then aJ=ba for bb,bc in pairs(aI)do bc.button:
+Destroy()end table.clear(aI)aA.Visible=#a5==0 for bb=1,math.min(#a5,30)do local
+bc=a5[bb]local bd=tostring(bc.id)local be=q(az,nil,'')be.Size,be.LayoutOrder=
+UDim2.fromOffset(105,101),bb local bf=be:FindFirstChildOfClass('\085\073\083\116\114\111\107\101')if
+type(bc.icon)=='\115\116\114\105\110\103'and bc.icon~=''then k('\073\109\097\103\101\076\097\098\101\108',{Position=UDim2.
+fromOffset(29,6),Size=UDim2.fromOffset(47,47),BackgroundTransparency=1,Image=bc.
+icon,ScaleType=Enum.ScaleType.Fit,ImageRectOffset=bc.iconOffset or Vector2.zero,
+ImageRectSize=bc.iconSize or Vector2.zero},be)else local bg=o(be,string.sub(bc.
+name,1,1),31,e,true)bg.Position,bg.Size=UDim2.fromOffset(6,3),UDim2.new(1,-12,0,
+49)bg.TextXAlignment=Enum.TextXAlignment.Center end local bg=o(be,bc.name,12,al,
+true)bg.Position,bg.Size=UDim2.fromOffset(4,53),UDim2.new(1,-8,0,40)bg.
+TextXAlignment=Enum.TextXAlignment.Center be.Activated:Connect(function()p(
+'\116\097\114\103\101\116',bd)end)aI[bd]={button=be,line=bf}end end for bb,bc in pairs(aI)do bc.
+line.Color=bb==a6 and f or ak bc.button.BackgroundColor3=bb==a6 and Color3.
+fromRGB(105,74,34)or aj end end}end return ab end)()local function ac(ad,ae)
+local af='\065\110\111\110\072\117\098\095\076\111\098\098\121\095'..tostring(ae)..'\046\106\115\111\110'local function ag(ah)if type(ad.
+read)~='\102\117\110\099\116\105\111\110'then return end local ai,aj=pcall(function()local ai=ad.read(ah
+)if type(ai)=='\115\116\114\105\110\103'and#ai<=180000 then return ad.decode(ai)end end)if ai and
+type(aj)=='\116\097\098\108\101'and aj.schema==1 and type(aj.settings)=='\116\097\098\108\101'then return aj.
+settings end end return{settings=ag(af)or ag('\069\118\111\108\118\121\095\072\105\115\116\111\114\121\095'..tostring(ae)..
+'\046\106\115\111\110'),save=function(ah)if type(ad.write)=='\102\117\110\099\116\105\111\110'then pcall(function()ad.
+write(af,ad.encode({schema=1,settings=ah}))end)end end}end local ad=(function()
+local ad={}function ad.progress(ae)if type(ae)~='\115\116\114\105\110\103'then return nil end
+local af=ae:gsub('\060\046\045\062',''):gsub('\091\044\046\093','')local ag,ah=af:match(
+'\040\037\100\043\041\037\115\042\047\037\115\042\040\037\100\043\041')ag,ah=tonumber(ag),tonumber(ah)if ag and ah and ah>0 and ah<
+100000000 then return ag,ah end end function ad.action(ae)local af=tostring(ae):
+lower()local function ag(...)for ah,ai in ipairs({...})do if af:find(ai,1,true)
+then return true end end return false end if ag('\115\101\099\114\101\116','\115\101\099\114\101\116\097','\063\063\063',
+'\032\119\105\116\104\032','\032\117\115\105\110\103\032','\032\117\115\097\110\100\111\032','\032\099\111\109\032\097\032','\032\099\111\109\032\111\032','\099\104\097\112\116\101\114\032\049','\099\104\097\112\116\101\114\032\051',
+'\099\097\112\105\116\117\108\111\032\049','\099\097\112\105\116\117\108\111\032\051','\103\111\108\100\101\110\032\112\111\116\097\116\111\101\115','\114\097\105\110\098\111\119\032\112\111\116\097\116\111\101\115',
+'\100\105\097\109\111\110\100\032\112\111\116\097\116\111\101\115')then return nil end if ag('\101\115\099\097\112\101','\101\115\099\097\112','\102\117\106\097','\102\117\103\105\114')
+then return'\101\115\099\097\112\101'end if ag('\099\111\111\108','\114\101\115\102\114\105','\101\115\102\114\105')then return'\099\111\111\108'end if ag(
+'\100\121\110\097\109\105\116\101','\100\105\110\097\109\105\116\101')then return'\100\121\110\097\109\105\116\101'end if ag('\115\101\108\108','\118\101\110\100')then return
+'\115\101\108\108'end if ag('\112\101\101\108','\115\108\105\099\101','\099\117\116','\099\111\114\116','\100\101\115\099\097\115')then return'\099\117\116'end if ag(
+'\099\111\108\108\101\099\116','\112\105\099\107','\099\111\108\101\116','\112\101\103','\103\097\116\104\101\114')then if ag('\103\101\109','\100\105\097\109\111\110\100','\100\105\097\109\097\110\116\101')
+then return'\103\101\109'end if ag('\112\111\116\097\116\111','\098\097\116\097\116\097')then return'\099\111\108\108\101\099\116'end end end
+local ae={'\084\105\116\108\101','\084\097\115\107\078\097\109\101','\079\098\106\101\099\116\105\118\101','\068\101\115\099\114\105\112\116\105\111\110','\067\104\097\108\108\101\110\103\101\078\097\109\101',
+'\081\117\101\115\116\078\097\109\101','\084\097\115\107','\078\097\109\101'}local af={quest=true,quests=true,questtracker=true,
+questtasks=true,mission=true,missions=true,battlepass=true,battlepasschallenges=
+true,challenges=true,dailyquests=true,weeklyquests=true}function ad.scan(ag)
+local ah={}local ai={}for aj,ak in ipairs(ag:GetChildren())do local al=ak.Name:
+lower():gsub('\091\094\037\119\093','')if not af[al]then continue end for am,an in ipairs(ak:
+GetDescendants())do if#ah>=28 then break end if not an:IsA('\084\101\120\116\076\097\098\101\108')then
+continue end local ap,aq=ad.progress(an.Text)if ap==nil then continue end local
+ar=an.Parent local as=nil local at=nil for au=1,3 do if not ar or ar==ak then
+break end for av,aw in ipairs(ae)do local ax=ar:FindFirstChild(aw)if ax and ax~=
+an and ax:IsA('\084\101\120\116\076\097\098\101\108')and#ax.Text>=3 then as=ax.Text:gsub('\060\046\045\062','')at=ar
+break end end if as then break end ar=ar.Parent end if as and#as<=140 then local
+au=ad.action(as)local av=string.lower(at:GetFullName())local aw=av:find(
+'\099\104\097\108\108\101\110\103\101',1,true)or av:find('\113\117\101\115\116',1,true)or av:find('\116\097\115\107',1,true)if al~=
+'\098\097\116\116\108\101\112\097\115\115'or aw or au then local ax=ak.Name..'\124'..as if not ai[ax]then ai[ax]=
+true table.insert(ah,{id=ax,title=as,source=al:find('\098\097\116\116\108\101\112\097\115\115',1,true)and
+'\080\097\115\115\101'or'\077\105\115\115\097\111',current=ap,goal=aq,action=au,done=ap>=aq})end end end end end
+table.sort(ah,function(aj,ak)return aj.id<ak.id end)return ah end return ad end
+)()local ae=(function()local ae={}function ae.options(af)if type(af)~='\116\097\098\108\101'
+then af={}end local ag=tonumber(af.size)if not ag or ag~=ag or ag<1 or ag>4 or
+ag%1~=0 then ag=1 end local ah=tonumber(af.reconnectCount)or 0 if ah~=1 and ah~=
+2 then ah=0 end local ai=tonumber(af.crateCount)if not ai or ai~=ai or ai<1 or
+ai>10 or ai%1~=0 then ai=10 end local function aj(ak,al)if type(ak)~='\110\117\109\098\101\114'or
+ak~=ak then return al end return math.clamp(ak,0,1)end return{size=ag,friends=af
+.friends==true,skip=af.skip~=false,skipOutro=af.skipOutro~=false,repeatRun=af.
+repeatRun==true,reconnectCount=ah,autoCrates=af.autoCrates==true,crateCount=ai,
+launcherX=aj(af.launcherX,0),launcherY=aj(af.launcherY,1),classTarget=type(af.
+classTarget)=='\115\116\114\105\110\103'and#af.classTarget<=72 and af.classTarget or nil}end
+function ae.create(af,ag,ah,ai)local aj='\069\118\111\108\118\121\095\067\104\097\112\116\101\114\050\095\084\114\097\110\115\102\101\114\095\118\049\046\106\115\111\110'local
+ak=false local al=type(af.read)=='\102\117\110\099\116\105\111\110'and type(af.write)=='\102\117\110\099\116\105\111\110'local
+am=al and type(af.queue)=='\102\117\110\099\116\105\111\110'local function an()if type(af.read)~=
+'\102\117\110\099\116\105\111\110'then return nil end local ap,aq=pcall(function()local ap=af.read(aj)if
+type(ap)~='\115\116\114\105\110\103'or#ap>3000 then return nil end return af.decode(ap)end)return
+ap and type(aq)=='\116\097\098\108\101'and aq or nil end local function ap(aq)if type(af.write)
+~='\102\117\110\099\116\105\111\110'then return false end local ar,as=pcall(function()return af.write(aj
+,af.encode(aq))end)return ar and as~=false end local function aq()local ar=an()
+if ar and ar.account==ag.account and ar.game==ag.game then return ap({schema=1})
+end return false end local function ar()local as=an()if not as or as.schema~=1
+or as.account~=ag.account or as.game~=ag.game or type(as.from)~='\115\116\114\105\110\103'or as.
+from==''or as.from==ag.job or(as.to~='\099\104\097\112\116\101\114'and as.to~='\108\111\098\098\121')or type(as.
+untilTime)~='\110\117\109\098\101\114'or as.untilTime<af.clock()or as.untilTime>af.clock()+180
+then return nil end return as end local function as(at)local au=ar()if not au or
+au.to~=at then return nil end if not aq()then return nil end local av=ai and ai(
+au.license)or nil if au.license~=nil and not av then return nil end return ae.
+options(au.options),av end local function at(au,av,aw)if not al or ag.job==''
+then return false,'\079\032\101\120\101\099\117\116\111\114\032\110\097\111\032\100\105\115\112\111\110\105\098\105\108\105\122\111\117\032\114\101\116\111\109\097\100\097\032\101\110\116\114\101\032\115\101\114\118\105\100\111\114\101\115\046'end
+if au~='\108\111\098\098\121'and au~='\099\104\097\112\116\101\114'then return false,'\068\101\115\116\105\110\111\032\105\110\118\097\108\105\100\111\046'end local ax
+={schema=1,account=ag.account,game=ag.game,from=ag.job,to=au,untilTime=af.clock(
+)+150,options=ae.options(av),license=ai and ai(aw)or nil}if not ap(ax)then
+return false,'\078\097\111\032\102\111\105\032\112\111\115\115\105\118\101\108\032\115\097\108\118\097\114\032\097\032\114\101\116\111\109\097\100\097\046'end local ay=an()if not ay or
+ay.from~=ax.from or ay.to~=au or ay.untilTime~=ax.untilTime then aq()return
+false,'\078\097\111\032\102\111\105\032\112\111\115\115\105\118\101\108\032\099\111\110\102\105\114\109\097\114\032\097\032\114\101\116\111\109\097\100\097\046'end if not am then return false,
+'\082\101\116\111\109\097\100\097\032\115\097\108\118\097\032\112\097\114\097\032\097\098\114\105\114\032\111\032\108\111\097\100\101\114\032\109\097\110\117\097\108\109\101\110\116\101\046'end if not ak then local az,aA=
+pcall(af.queue,ah)if not az or aA==false then return false,
+'\079\032\101\120\101\099\117\116\111\114\032\114\101\099\117\115\111\117\032\097\032\097\098\101\114\116\117\114\097\032\097\117\116\111\109\097\116\105\099\097\059\032\114\101\116\111\109\097\100\097\032\115\097\108\118\097\046'end ak=true end
+return true end return{available=am,take=as,arm=at,clear=aq,destination=function
+()local au=ar()return au and au.to end}end return ae end)()local af=(function()
+local af={}function af.code(ag)if type(ag)~='\115\116\114\105\110\103'then return nil end local ah
+=tonumber(ag:match('\037\040\091\094\040\041\037\099\093\045\058\037\115\042\040\037\100\043\041\037\115\042\037\041')or ag:lower():match(
+'\101\114\114\111\114\037\115\043\099\111\100\101\037\115\042\058\037\115\042\040\037\100\043\041'))if ah==266 or ah==277 or ah==279 then return ah end
+end function af.watch(ag,ah,ai,aj)local ak=ag.CoreGui if not ak then return end
+task.spawn(function()local al=false while ah.alive()do if ai()and not al then
+local am,an=pcall(function()local am=ak:FindFirstChild('\082\111\098\108\111\120\080\114\111\109\112\116\071\117\105')local
+an=am and am:FindFirstChild('\112\114\111\109\112\116\079\118\101\114\108\097\121')local ap=an and an:FindFirstChild(
+'\069\114\114\111\114\080\114\111\109\112\116')if not ap or not ap:IsA('\071\117\105\079\098\106\101\099\116')or not ap.Visible then return
+nil end for aq,ar in ipairs(ap:GetDescendants())do if ar:IsA('\084\101\120\116\076\097\098\101\108')and ar.
+Visible then local as=af.code(ar.Text)if as then return as end end end end)if am
+and an then al=true aj(an)end end task.wait(1.5)end end)end return af end)()
+local ag=(function()local ag={}local ah={}local function ai(aj,ak)return type(aj
+)=='\115\116\114\105\110\103'and string.sub(string.gsub(aj,'\091\037\099\093',''),1,ak)or nil end function ag.
+normalize(aj,ak,al)aj=aj or{}local am=type(aj.validate)=='\102\117\110\099\116\105\111\110'local an=am
+and(type(al)=='\116\097\098\108\101'and al or{})or aj local ap=an.expiresAt local aq=type(ap)==
+'\110\117\109\098\101\114'and ap==ap and ap>0 and ap<253402300800 and ap%1==0 local ar if am then
+ar=ai(an.keyLabel,24)or type(ak)=='\115\116\114\105\110\103'and(
+'\u{2022}\u{2022}\u{2022}\u{2022}\032'..string.sub(ak,-4))or'\u{2014}'else ar=ai(ak
+or aj.key,48)or'\u{2014}'end if#ar>20 then ar=string.sub(ar,1,4)..'\u{2026}'..
+string.sub(ar,-4)end return{plan=ai(an.plan,24)or'\077\101\109\098\101\114',keyLabel=ar,expiresAt=
+aq and ap or nil,lifetime=ap==nil and an.lifetime==true,invalid=ap~=nil and not
+aq,source=am and'\076\105\099\101\110\099\097\032\118\097\108\105\100\097\100\097'or'\065\099\101\115\115\111\032\108\111\099\097\108'}end function ag.expired(aj,ak
+)return aj~=nil and(aj.invalid==true or type(aj.expiresAt)=='\110\117\109\098\101\114'and ak>=aj.
+expiresAt)end function ag.describe(aj,ak)aj=aj or{}local al=ag.expired(aj,ak)
+local am='\086\097\108\105\100\097\100\101\032\110\097\111\032\105\110\102\111\114\109\097\100\097'if aj.invalid then am='\086\097\108\105\100\097\100\101\032\105\110\118\097\108\105\100\097'elseif
+al then am='\069\120\112\105\114\097\100\097'elseif type(aj.expiresAt)=='\110\117\109\098\101\114'then local an=math.max(0
+,aj.expiresAt-ak)local ap=math.floor(an/86400)local aq=math.floor(an%86400/3600)
+local ar=math.floor(an%3600/60)am=ap>0 and string.format('\037\100\100\032\037\048\050\100\104\032\037\048\050\100\109',ap,aq
+,ar)or aq>0 and string.format('\037\100\104\032\037\048\050\100\109',aq,ar)or string.format('\037\100\109\032\037\048\050\100\115',ar,
+math.floor(an%60))elseif aj.lifetime then am='\076\105\102\101\032\116\105\109\101'end return{plan=aj.plan
+or'\077\101\109\098\101\114',keyLabel=aj.keyLabel or'\u{2014}',validity=am,expired=al==true,
+expiresAt=aj.expiresAt,lifetime=aj.lifetime==true,source=aj.source or
+'\065\099\101\115\115\111\032\108\111\099\097\108'}end function ag.requestAvatar(aj,ak,al)if ah[ak]then al(ah[ak])
+return end task.spawn(function()local am,an,ap=pcall(aj.GetUserThumbnailAsync,aj
+,ak,Enum.ThumbnailType.HeadShot,Enum.ThumbnailSize.Size150x150)if am and ap~=
+false and type(an)=='\115\116\114\105\110\103'and#an>0 then ah[ak]=an al(an)end end)end return ag
+end)()local ah=(function()local ah={}function ah.create(ai,aj,ak,al,am)am=am or
+os.clock local an,ap=false,0 local aq={events=0,handled=0,failures=0,available=
+ai~=nil}local ar=nil if ai then ar=ai:Connect(function()aq.events+=1 if an or
+not aj()or am()<ap then return end ap=am()+60 local as,at=pcall(ak)if as then aq
+.handled+=1 aq.lastError=nil else aq.failures+=1 aq.lastError=tostring(at)if al
+then al('\065\110\116\105\045\065\070\075\032\105\110\100\105\115\112\111\110\105\118\101\108\058\032'..tostring(at),'\101\114\114\111\114')end end end)end return{
+stats=aq,close=function()an=true if ar then ar:Disconnect()ar=nil end end}end
+return ah end)()local ai=(function()local ai={}function ai.discover(aj,ak,al)al=
+al or{}local am=al.typeOf or typeof local an=al.getters or{}if not al.getters
+then if type(getupvalues)=='\102\117\110\099\116\105\111\110'then table.insert(an,getupvalues)end if
+debug and type(debug.getupvalues)=='\102\117\110\099\116\105\111\110'then table.insert(an,debug.
+getupvalues)end end local ap={api=#an>0,visited=0,samples=0}if#an==0 then ap.
+reason='\117\112\118\097\108\117\101\032\103\101\116\116\101\114\032\117\110\097\118\097\105\108\097\098\108\101'return nil,nil,ap end local aq,ar={},{}for as
+,at in ipairs({'\083\101\116\085\115\101\072\101\108\100','\071\101\116\080\097\114\116\115','\071\101\116\082\101\109\111\118\101\100\070\114\097\099\116\105\111\110','\083\116\097\114\116','\073\110\105\116'})do
+if type(aj[at])=='\102\117\110\099\116\105\111\110'then table.insert(aq,{fn=aj[at],depth=0})end end
+local as,at=nil,nil local au=1 while au<=#aq and ap.visited<32 do local av=aq[au
+]au+=1 if not ar[av.fn]then ar[av.fn]=true ap.visited+=1 local aw=nil for ax,ay
+in ipairs(an)do local az,aA=pcall(ay,av.fn)if az and type(aA)=='\116\097\098\108\101'then aw=aA
+break end end local ax=0 for ay,az in pairs(aw or{})do ax+=1 if ax>64 then break
+end if type(az)=='\102\117\110\099\116\105\111\110'and av.depth<3 and#aq<64 then table.insert(aq,{fn=az,
+depth=av.depth+1})elseif type(az)=='\116\097\098\108\101'then if rawget(az,'\080\111\116\097\116\111\083\108\111\116\115')~=nil
+and type(rawget(az,'\083\101\101\100'))=='\110\117\109\098\101\114'then at=az end if not as then local aA,aB,
+aC=0,0,{}for aD,aE in pairs(az)do aA+=1 if aA>16 then break end if am(aD)==
+'\073\110\115\116\097\110\099\101'and type(aE)=='\110\117\109\098\101\114'and aE%1==0 and aE>=1 and aE<=30009 then local
+aF,aG=pcall(function()return aD:IsA('\066\097\115\101\080\097\114\116')and aD:IsDescendantOf(ak)end)if
+aF and aG and not aC[aE]then aB+=1 aC[aE]=true end end end if aB>=3 and aB>=math
+.min(16,aA)*0.8 then as=az ap.samples=aB end end end end end end ap.found=as~=
+nil ap.state=at~=nil ap.reason=as and'\110\097\116\105\118\101\032\112\097\114\116\045\116\111\045\073\068\032\116\097\098\108\101'or
+'\110\111\032\109\097\116\099\104\105\110\103\032\110\097\116\105\118\101\032\116\097\098\108\101'return as,at,ap end function ai.id(aj,ak,al,am)am=am
+or typeof if type(aj)~='\116\097\098\108\101'or am(ak)~='\073\110\115\116\097\110\099\101'then return nil end local an=
+rawget(aj,ak)if type(an)~='\110\117\109\098\101\114'or an%1~=0 or an<1 or an>30009 then return nil
+end local ap,aq=pcall(function()return ak.Parent~=nil and ak:IsA('\066\097\115\101\080\097\114\116')and
+ak:IsDescendantOf(al)end)return ap and aq and an or nil end return ai end)()
+local aj=(function()local aj={}function aj.new()local ak={waves=0,requests=0,
+inventory_gain=0,timeouts=0,cancelled=0,limit=2,pending=0,successes=0}local al=
+nil local am=0 local an={}local ap=nil return{stats=ak,cancel=function()if al
+then ak.cancelled+=1 end al=nil ak.pending=0 end,observe=function(aq,ar)if ap
+then ak.elapsed=math.max(0,aq-ap)ak.gain_per_second=ak.inventory_gain/math.max(1
+,ak.elapsed)end if not al then return 0,false end local as=type(ar)=='\110\117\109\098\101\114'and
+ar-al.before or 0 if as>0 then ak.inventory_gain+=as ak.successes+=1 if ak.
+successes%3==0 then ak.limit=math.min(16,ak.limit+1)end al=nil ak.pending=0 am=
+aq+0.08 return as,false end if aq>=al.deadline then ak.timeouts+=1 ak.limit=math
+.max(1,math.floor(ak.limit/2))al=nil ak.pending=0 am=aq+math.min(0.6,0.08*ak.
+timeouts)return 0,true end return 0,false end,budget=function(aq,ar,as)if al or
+aq<am or type(ar)~='\110\117\109\098\101\114'or type(as)~='\110\117\109\098\101\114'or ar~=ar or as~=as or ar<0 or
+ar==math.huge then return 0 end return math.max(0,math.min(ak.limit,math.floor(
+as-ar)))end,available=function(aq,ar)return type(aq)=='\110\117\109\098\101\114'and ar>=(an[aq]or
+0)end,begin=function(aq,ar,as)if al or aq<am or type(ar)~='\110\117\109\098\101\114'or ar<0 or ar
+~=ar or ar==math.huge or#as==0 or#as>ak.limit then return false end local at={}
+for au,av in ipairs(as)do if type(av)~='\110\117\109\098\101\114'or av%1~=0 or av<0 or av>=
+4294967296 or at[av]or aq<(an[av]or 0)then return false end at[av]=true end for
+au in pairs(at)do an[au]=aq+1 end if not ap then ap=aq end if ak.waves%64==0
+then for au,av in pairs(an)do if av<=aq then an[au]=nil end end end al={before=
+ar,deadline=aq+0.35}ak.waves+=1 ak.requests+=#as ak.pending=#as return true end}
+end return aj end)()local ak=(function()local ak={}function ak.create(al,am,an,
+ap)local aq=al.Players.LocalPlayer local ar=am['\083\104\097\114\101\100\046\080\108\097\121\101\114\083\116\097\116\101\083\104\097\114\101\100']or{}
+local as=am['\077\111\100\117\108\101\115\046\082\101\115\111\117\114\099\101\115\046\080\097\099\107\101\116\115']or{}local at,au=nil,0 local av,aw=false,
+false local ax=nil local ay,az=0,nil local aA={}local aB={}local function aC()
+for aD,aE in ipairs({aq:FindFirstChild('\066\097\099\107\112\097\099\107')or false,aq.Character or false
+})do if aE then for aF,aG in ipairs(aE:GetChildren())do local aH=string.lower(aG
+.Name)if aG:IsA('\084\111\111\108')and(aH=='\107\101\121'or aH:find('\099\104\097\118\101',1,true)or aH:find('\099\114\097\110\101'
+,1,true)and aH:find('\107\101\121',1,true))then return aG end end end end end local
+function aD()if type(ar.TryGetPlayerState)=='\102\117\110\099\116\105\111\110'then local aE,aF=pcall(ar.
+TryGetPlayerState,aq)if aE and type(aF)=='\116\097\098\108\101'and aF.HasKey==true then return
+true end end return aC()~=nil end local function aE()if os.clock()<au then
+return at end au=os.clock()+2 at=nil aB={}local aF=al.Workspace:FindFirstChild(
+'\077\097\112')local aG=an.actor()local aH=-math.huge for aI,aJ in ipairs(aF and aF:
+GetDescendants()or{})do if aJ:IsA('\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116')and aJ.Enabled then local aK
+=string.upper(aJ:GetFullName())local aL=string.upper(aJ.ActionText..'\032'..aJ.
+ObjectText)local aM=aK:find('\084\082\085\067\075',1,true)or aK:find('\067\082\065\078\069',1,true)or aK:find(
+'\071\085\073\078\068\065\083\084\069',1,true)or aK:find('\067\065\077\073\078\072',1,true)or aK:find('\087\082\069\067\075',1,true)local aN
+=aL:find('\075\069\089',1,true)or aL:find('\067\072\065\086\069',1,true)local aO=aL:find('\085\078\076\079\067\075',1,true
+)or aL:find('\085\083\069',1,true)or aL:find('\069\078\084\069\082',1,true)or aL:find('\068\082\073\086\069',1,true)or
+aL:find('\069\083\067\065\080\069',1,true)local aP=aL:find('\066\085\089',1,true)or aL:find('\076\079\067\075\069\068',1,true
+)or aL:find('\083\079\076\068',1,true)local aQ=aK:find('\083\084\079\082\069\073\084\069\077\083',1,true)or aK:find(
+'\080\069\069\076\073\078\071\077\065\067\072\073\078\069\083',1,true)if not aQ and not aP and(aN or aM and aO)then local aR=
+an.promptPosition(aJ)local aS=aG and aR and(aG.Position-aR).Magnitude or 0 local
+aT=(aM and 10000 or 0)+(aN and 1000 or 0)-aS table.insert(aB,{path=aJ:
+GetFullName(),action=aJ.ActionText,object=aJ.ObjectText})if aT>aH then aH=aT at=
+aJ end end end end return at end local aF=as.Escaped and as.Escaped.
+OnClientEvent if aF and type(aF.Connect)=='\102\117\110\099\116\105\111\110'then local aG,aH=pcall(aF.
+Connect,aF,function(aG)if not aw and(aG==nil or aG==aq or aG==aq.UserId)then aw=
+true ax=os.clock()az=nil end end)if aG then table.insert(aA,aH)end end return{
+ready=function()return not aw and(av or aD())end,step=function(aG)local aH=aE()
+if not aH then az='\078\101\110\104\117\109\032\112\114\111\109\112\116\032\100\101\032\099\104\097\118\101\047\115\097\105\100\097\032\118\101\114\105\102\105\099\097\118\101\108\032\101\115\116\097\032\104\097\098\105\108\105\116\097\100\111\046'
+return false,az end local aI=aC()local aJ=aq.Character local aK=aJ and aJ:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')if aI and aK then pcall(aK.EquipTool,aK,aI)end
+an.aim(aH,true)local aL,aM,aN=pcall(an.trigger,aH,aG)an.clearAim()ay+=1 au=0 if
+aw then return true end if not aL then az=tostring(aM)return false,az end if not
+aM then az=aN return false,aN end av=true az=nil ap(
+'\073\110\116\101\114\097\099\097\111\032\100\101\032\115\097\105\100\097\032\097\099\105\111\110\097\100\097\058\032'..aH:GetFullName())an.waitFor(0.4,aG)return true
+end,finishTime=function()return ax end,diagnostic=function()return{has_key=aD(),
+started=av,finished=aw,attempts=ay,last_error=az,candidates=aB}end,close=
+function()for aG,aH in ipairs(aA)do aH:Disconnect()end end}end function ak.
+endingSkipper(al,am,an,ap,aq)an=an or os.clock local ar,as,at=nil,0,nil local au
+,av,aw=nil,0,nil local ax={attempts=0,sent=false,button_gone=false,
+camera_attempts=0,events={},screens={}}local ay={}local az={escape=true,outro=
+true,outrocutscene=true,endcutscene=true,endingcutscene=true,victory=true,
+escapecutscene=true,cutscene=true,runreport=true,runresults=true,escapereport=
+true}local aA={skip=true,skipscene=true,skipcutscene=true,skipoutro=true,
+skipending=true,skipoutrocutscene=true,skipanimation=true,pular=true,pularcena=
+true}local function aB(aC)return string.lower((tostring(aC):gsub('\091\094\037\119\093','')))
+end local function aC(aD,aE)local aF=aD local aG=false while aF do local aH=aB(
+aF.Name)if aH:find('\105\110\116\114\111',1,true)or aH:find('\116\117\116\111\114\105\097\108',1,true)then return false
+end aG=aG or az[aH]==true if aF==aE then return aG end aF=aF.Parent end return
+false end local function aD(aE)if not ar or#ax.events>=20 or an()-ar>60 then
+return end table.insert(ax.events,{name=aE,seconds=math.floor((an()-ar)*100)/100
+})end local function aE(aF,aG)if not aF or not aG then return end local aH=an()
+ar=ar or aH if aH-ar<=60 and aq then local aI=aq()if aI and aI~=aw then aw=aI
+aD('\099\097\109\101\114\097\058'..aI)end end if at then ax.button_gone=at.Parent==nil or not am.
+visible(at)return end if aH-ar>math.max(20,au and au-ar+20 or 0)then ax.reason=
+ax.reason or'\110\111\032\118\105\115\105\098\108\101\032\110\097\116\105\118\101\032\115\107\105\112\032\099\111\110\116\114\111\108'return end if aH<as or ax.attempts>=
+2 then return end as=aH+0.5 local aI={}for aJ,aK in ipairs(al:GetChildren())do
+if aK:IsA('\083\099\114\101\101\110\071\117\105')and aK.Enabled then if not ay[aK.Name]and#ax.screens<24
+then ay[aK.Name]=true table.insert(ax.screens,aK.Name)end for aL,aM in ipairs(aK
+:GetDescendants())do if aM:IsA('\071\117\105\066\117\116\116\111\110')and aM.Active and aC(aM,aK)and am.
+visible(aM)and aM.AbsoluteSize.X>0 and aM.AbsoluteSize.Y>0 and(aA[aB(aM.Name)]or
+aA[aB(am.texts(aM))])then table.insert(aI,aM)end end end end ax.candidates=#aI
+if#aI~=1 then ax.reason=#aI>1 and'\097\109\098\105\103\117\111\117\115\032\110\097\116\105\118\101\032\115\107\105\112\032\099\111\110\116\114\111\108\115'or nil return
+end ax.attempts+=1 ax.path=aI[1]:GetFullName()local aJ,aK=am.activate(aI[1])ax.
+sent=aJ==true ax.reason=aK if aJ then at=aI[1]else as=aH+2 end end local
+function aF(aG,aH)if not aG then return end local aI=an()if not au then au=aI
+aD('\101\115\099\097\112\101\095\099\111\110\102\105\114\109\101\100')end if not aH or not ap or ax.sent or ax.camera_attempts>=
+2 then return end if aI-au<1 or aI-au>12 or aI<av then return end if aq and aq()
+~='\083\099\114\105\112\116\097\098\108\101'then return end if ax.camera_released and not aq then return end
+av=aI+1.5 ax.camera_attempts+=1 local aJ,aK=pcall(ap)ax.camera_released=ax.
+camera_released or aJ and aK==true ax.camera_result=aJ and aK==true and
+'\108\111\099\097\108\032\099\097\109\101\114\097\032\114\101\116\117\114\110\101\100\032\097\102\116\101\114\032\099\111\110\102\105\114\109\101\100\032\101\115\099\097\112\101'or aJ and
+'\110\111\032\115\099\114\105\112\116\097\098\108\101\032\099\097\109\101\114\097\032\119\105\116\104\032\097\099\116\105\118\101\032\099\104\097\114\097\099\116\101\114'or'\099\097\109\101\114\097\032\114\101\115\101\116\032\102\097\105\108\101\100'if aJ and aK
+then aD('\099\097\109\101\114\097\095\114\101\108\101\097\115\101\100')end end return{poll=aE,afterVictory=aF,event=aD,stats=
+ax}end return ak end)()local al=(function()local al={}local am={Cash=true,Bag=
+true,Hotbar=true,ToolHotbar=true,ToolBar=true,Toolbar=true,Tools=true,
+ToolSelection=true,Interactions=true,Interaction=true,ProximityPrompts=true}
+function al.restore(an,ap)ap=ap or{}local aq={restored=0,errors=0,names={},
+cloned={},missing={},screens={}}local function ar(as)local at=pcall(as)if not at
+then aq.errors+=1 end end local function as(at,au,...)local av=ap[at]if type(av)
+=='\116\097\098\108\101'and type(av[au])=='\102\117\110\099\116\105\111\110'then local aw=table.pack(...)ar(function()
+av[au](table.unpack(aw,1,aw.n))end)end end as('\067\111\110\116\114\111\108\108\101\114\115\046\067\117\116\116\105\110\103\067\111\110\116\114\111\108\108\101\114',
+'\083\101\116\072\101\108\100',false)as('\067\111\110\116\114\111\108\108\101\114\115\046\067\117\116\116\105\110\103\067\111\110\116\114\111\108\108\101\114','\083\101\116\065\117\116\111',false)as(
+'\067\111\110\116\114\111\108\108\101\114\115\046\080\111\116\097\116\111\080\105\108\101\067\111\110\116\114\111\108\108\101\114','\083\101\116\085\115\101\072\101\108\100',false)local at=ap[
+'\067\111\110\116\114\111\108\108\101\114\115\046\080\101\101\108\105\110\103\067\111\110\116\114\111\108\108\101\114']if at and at.IsPeeling==true then local au=ap[
+'\077\111\100\117\108\101\115\046\082\101\115\111\117\114\099\101\115\046\080\097\099\107\101\116\115']or{}if au.PeelingCancel and type(au.PeelingCancel.
+Fire)=='\102\117\110\099\116\105\111\110'then ar(function()au.PeelingCancel:Fire()end)end as(
+'\067\111\110\116\114\111\108\108\101\114\115\046\080\101\101\108\105\110\103\067\111\110\116\114\111\108\108\101\114','\083\116\111\112\080\101\101\108\105\110\103')end as(
+'\067\111\110\116\114\111\108\108\101\114\115\046\083\116\111\114\101\086\105\101\119\067\111\110\116\114\111\108\108\101\114','\067\108\111\115\101')as('\067\111\110\116\114\111\108\108\101\114\115\046\084\111\111\108\085\112\103\114\097\100\101\067\111\110\116\114\111\108\108\101\114'
+,'\083\101\116\079\112\101\110',false)local au=an.Players.LocalPlayer local av=au:FindFirstChild(
+'\080\108\097\121\101\114\071\117\105')if av then local aw=an.StarterGui if aw and type(aw.GetChildren)==
+'\102\117\110\099\116\105\111\110'and type(av.FindFirstChild)=='\102\117\110\099\116\105\111\110'then for ax,ay in ipairs(aw:
+GetChildren())do if ay:IsA('\083\099\114\101\101\110\071\117\105')and am[ay.Name]and not av:FindFirstChild(
+ay.Name,true)then ar(function()local az=ay:Clone()az.Enabled=true az.Parent=av
+table.insert(aq.cloned,az.Name)end)end end end for ax,ay in ipairs(av:
+GetDescendants())do if am[ay.Name]then ar(function()if ay:IsA('\083\099\114\101\101\110\071\117\105')then
+ay.Enabled=true elseif ay:IsA('\071\117\105\079\098\106\101\099\116')then local az=ay.Parent local aA=nil
+while az and az~=av do if az:IsA('\083\099\114\101\101\110\071\117\105')then aA=az break end az=az.Parent
+end if aA and(aA.Name=='\084\111\111\108\085\112\103\114\097\100\101\115'or aA.Name=='\083\116\111\114\101\086\105\101\119'or aA.Name:find(
+'\067\117\116\115\099\101\110\101',1,true))then return end ay.Visible=true if aA then aA.Enabled=true
+end else return end aq.restored+=1 table.insert(aq.names,ay.Name)end)end end end
+if av and type(av.FindFirstChild)=='\102\117\110\099\116\105\111\110'then for aw,ax in ipairs({'\072\111\116\098\097\114',
+'\066\097\103'})do if not av:FindFirstChild(ax,true)then table.insert(aq.missing,ax)end
+end for aw,ax in ipairs(av:GetChildren())do if ax:IsA('\083\099\114\101\101\110\071\117\105')then table.
+insert(aq.screens,{name=ax.Name,enabled=ax.Enabled})end end end if an.
+ProximityPromptService then ar(function()an.ProximityPromptService.Enabled=true
+end)end local aw=au:FindFirstChild('\080\108\097\121\101\114\083\099\114\105\112\116\115')local ax=aw and aw:
+FindFirstChild('\080\108\097\121\101\114\077\111\100\117\108\101')if ax then ar(function()local ay=require(ax):
+GetControls()ay:Enable()end)end local ay=au.Character local az=ay and ay:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')if az then ar(function()az.AutoRotate=true end)
+end return aq end return al end)()local am=(function()local am={}am.defaults={
+opAutoFinish=false,opKeyShortcut=true,antiAfk=true,coolHoldSeconds=5,
+coolHoldFallback=true,skipEndingScene=true,releaseEndingCamera=true,
+opBatchFunding=true,opFastPrompts=true,partyProfile='\083\111\108\111',partyRole='\076\101\097\100\101\114',
+partySize=4,partySlot=1,teamFunding=false,teamLead=false,supportCut=false,
+nativeWalkUpgrade=false,fastDelivery=true,placementDelay=0.01,throughputMode=
+true,autoRepairGui=true,aimTable=true,autoEscape=false,productionBatch=500,
+autoProgress=false,autoCut=false,autoFarm=false,autoDeliver=false,autoCool=false
+,autoSell=false,autoDynamite=false,autoCrank=false,autoBuyTools=false,
+autoBuyUpgrades=false,autoBuyStorage=false,collectPumpkins=false,pumpkinPriority
+=true,priorityValue=true,cutBuyTools=true,rarity='\065\110\121',selection='\078\101\097\114\101\115\116',
+tableChoice='\078\101\097\114\101\115\116',deliveryMode='\065\109\111\117\110\116',deliveryTarget='\067\114\097\116\101',movement=
+'\084\101\108\101\112\111\114\116',speedMode='\084\117\114\098\111',cutMode='\070\097\115\116',teleportSettle=0.1,pickBatch=8,
+cutBurst=3,cutTargetRate=20,cutToolMultiplier=4,auraCollect=true,auraRadius=16,
+collectTool='\065\117\116\111',logicalSpecials=true,autoRecover=true,sellThreshold=500,
+sellRemainder=true,buyAfterSell=true,returnAfterSell=true,infiniteBag=false,
+collectGems=true,gemPriority=true,upgradeDrone=true,upgradeMachines=true,
+upgradeGeneral=true,saveForNextTool=true,dynamiteInterval=1,dynamiteAggressive=
+false,maintainCutBuffer=true,cutBuffer=400,fixMenuBlur=true,buyMachines=true,
+clearPileFirst=true,autoBuyDrone=false,worthEarlyLimit=3,forceThirdPerson=false,
+cameraDistance=20,aimCooling=true,keyPriority=true,uiWidth=760,uiHeight=580,
+uiScale=65,uiX=0.5,uiY=0.5,buttonX=0.03,buttonY=0.22,buttonSize=56,deliveryFill=
+90,deliveryBatch=1000,heatStart=60,heatStop=25,coolingRetry=12,reserveCash=0,
+maxPurchase=0,actionDelay=0.04,actionTimeout=10,travelTimeout=30,maxDistance=250
+,returnAfterCooling=true,showStatus=true,notifications=true,pauseOnMovement=true
+,keyProgress='\070\054',keyCut='\070\055',keyFarm='\070\056',keyCool='\070\057',keyBuy='\070\049\048',keyMenu=
+'\073\110\115\101\114\116',keyPause='\069\110\100',keyDeliver='\078\111\110\101',keyPumpkin='\078\111\110\101',keyStorage='\078\111\110\101',
+keyUpgrades='\078\111\110\101',keyCrank='\078\111\110\101',keySell='\078\111\110\101',keyDynamite='\078\111\110\101'}local an={
+partySlot={1,4},partySize={2,4},coolHoldSeconds={1,5},deliveryFill={10,100},
+deliveryBatch={1,1000000},heatStart={15,100},heatStop={0,90},coolingRetry={5,120
+},reserveCash={0,100000000},maxPurchase={0,100000000},actionDelay={0.02,5},
+actionTimeout={2,60},travelTimeout={5,120},maxDistance={10,1000},teleportSettle=
+{0.05,1},uiWidth={300,1100},uiHeight={340,900},uiScale={65,150},uiX={0,1},uiY={0
+,1},buttonX={0,1},buttonY={0,1},buttonSize={44,88},pickBatch={1,16},cutBurst={1,
+6},placementDelay={0.005,0.08},productionBatch={50,10000},auraRadius={5,18},
+cutBuffer={1,10000},worthEarlyLimit={1,10},cameraDistance={8,100},cutTargetRate=
+{1,40},cutToolMultiplier={1,4},sellThreshold={1,1000000},dynamiteInterval={0.1,
+15}}local ap={partyProfile={Solo=true,Team=true,Mixed=true},partyRole={Leader=
+true,Collect=true,Cut=true},rarity={Any=true,Rainbow=true,Diamond=true,Golden=
+true},selection={Nearest=true,Random=true},deliveryMode={Amount=true,Percent=
+true},deliveryTarget={Crate=true,Table=true,Manual=true,Auto=true},movement={
+Walk=true,Teleport=true},speedMode={Turbo=true,Standard=true},cutMode={Fast=true
+,Native=true},collectTool={Auto=true,Hand=true,Shovel=true,PotatoSucker=true},
+tableChoice={Nearest=true,PeelingTable1=true,PeelingTable2=true,PeelingTable3=
+true,PeelingTable4=true}}local aq={'\111\112\065\117\116\111\070\105\110\105\115\104','\097\117\116\111\080\114\111\103\114\101\115\115','\097\117\116\111\067\117\116',
+'\097\117\116\111\070\097\114\109','\097\117\116\111\068\101\108\105\118\101\114','\097\117\116\111\067\111\111\108','\097\117\116\111\067\114\097\110\107','\097\117\116\111\083\101\108\108','\097\117\116\111\068\121\110\097\109\105\116\101',
+'\097\117\116\111\066\117\121\084\111\111\108\115','\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115','\097\117\116\111\066\117\121\083\116\111\114\097\103\101','\099\111\108\108\101\099\116\080\117\109\112\107\105\110\115','\097\117\116\111\069\115\099\097\112\101'
+}function am.clone(ar)if type(ar)~='\116\097\098\108\101'then return ar end local as={}for at,
+au in pairs(ar)do as[at]=am.clone(au)end return as end function am.validate(ar,
+as)local at=am.clone(am.defaults)if type(ar)=='\116\097\098\108\101'then for au,av in pairs(am.
+defaults)do local aw=ar[au]if type(aw)==type(av)then if type(aw)=='\110\117\109\098\101\114'then
+if aw==aw and aw~=math.huge and aw~=-math.huge then local ax=an[au]at[au]=ax and
+math.clamp(aw,ax[1],ax[2])or aw end elseif ap[au]then if ap[au][aw]then at[au]=
+aw end elseif type(aw)=='\115\116\114\105\110\103'and string.sub(au,1,3)=='\107\101\121'then if#aw>0 and#aw
+<24 and string.match(aw,'\094\091\037\119\093\043\036')then at[au]=aw end else at[au]=aw end end end
+end at.heatStop=math.min(at.heatStop,at.heatStart-5)at.deliveryBatch=math.floor(
+at.deliveryBatch)at.pickBatch=math.floor(at.pickBatch)at.cutBurst=math.floor(at.
+cutBurst)at.sellThreshold=math.floor(at.sellThreshold)at.partySlot=math.floor(at
+.partySlot)at.partySize=math.floor(at.partySize)if at.opAutoFinish then at.
+autoProgress=false end if as then for au,av in ipairs(aq)do at[av]=false end end
+return at end function am.pause(ar)for as,at in ipairs(aq)do ar[at]=false end
+end function am.applyPartyProfile(ar)am.pause(ar)local as=ar.partyProfile==
+'\077\105\120\101\100'local at=ar.partyProfile=='\084\101\097\109'local au=at and ar.partyRole=='\067\111\108\108\101\099\116'
+local av=at and ar.partyRole=='\067\117\116'ar.teamFunding=au ar.teamLead=at and ar.
+partyRole=='\076\101\097\100\101\114'ar.supportCut=as or av ar.nativeWalkUpgrade=as ar.tableChoice
+=at and'\080\101\101\108\105\110\103\084\097\098\108\101'..ar.partySlot or'\078\101\097\114\101\115\116'ar.movement=as and'\087\097\108\107'or
+'\084\101\108\101\112\111\114\116'ar.cutMode=as and'\078\097\116\105\118\101'or'\070\097\115\116'ar.speedMode=as and'\083\116\097\110\100\097\114\100'or
+'\084\117\114\098\111'ar.fastDelivery=not as ar.aimTable=not as ar.auraCollect=not as ar.
+logicalSpecials=not as ar.forceThirdPerson=false ar.deliveryTarget='\067\114\097\116\101'ar.
+cutBuyTools=true if not as and not au and not av then ar.opAutoFinish=true
+elseif au then ar.deliveryMode='\065\109\111\117\110\116'ar.deliveryBatch=100 ar.collectTool=
+'\065\117\116\111'ar.rarity='\065\110\121'ar.autoFarm=true ar.autoDeliver=true ar.autoDynamite=true
+ar.autoBuyTools=true ar.autoBuyStorage=true ar.autoBuyUpgrades=true else ar.
+autoCut=true ar.autoSell=true ar.autoBuyTools=true ar.autoBuyUpgrades=true ar.
+autoEscape=av end end function am.progress(ar)return ar.autoProgress or ar.
+opAutoFinish end function am.batchCollect(ar)return ar.opAutoFinish or ar.
+teamFunding and ar.autoFarm end function am.anyActive(ar)for as,at in ipairs(aq)
+do if ar[at]then return true end end return false end function am.displayed(ar,
+as)if type(ar[as])~='\098\111\111\108\101\097\110'then return ar[as]end if as=='\111\112\065\117\116\111\070\105\110\105\115\104'or as==
+'\097\117\116\111\080\114\111\103\114\101\115\115'then return ar[as]==true end if ar.opAutoFinish then return ar[as]
+end return am.effective(ar,as)end function am.effective(ar,as)if as=='\097\117\116\111\067\114\097\110\107'
+and am.progress(ar)and ar.deliveryTarget=='\077\097\110\117\097\108'then return true end if as==
+'\097\117\116\111\070\097\114\109'and ar.collectPumpkins then return true end if as=='\097\117\116\111\067\111\111\108'or as==
+'\097\117\116\111\070\097\114\109'or as=='\097\117\116\111\068\101\108\105\118\101\114'or as=='\097\117\116\111\066\117\121\084\111\111\108\115'or as=='\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115'or as
+=='\097\117\116\111\066\117\121\083\116\111\114\097\103\101'or as=='\097\117\116\111\083\101\108\108'or as=='\097\117\116\111\068\121\110\097\109\105\116\101'or as=='\097\117\116\111\069\115\099\097\112\101'then
+if am.progress(ar)then return true end end if as=='\097\117\116\111\067\117\116'then return am.
+progress(ar)or ar.autoCut end if as=='\097\117\116\111\066\117\121\084\111\111\108\115'and ar.autoCut and ar.
+cutBuyTools then return true end return ar[as]==true end function am.
+acceptVariant(ar,as,at,au)if ar.opAutoFinish then return not at or ar.
+collectPumpkins end if at then return ar.collectPumpkins end if au and ar.
+collectGems then return true end if not ar.autoProgress and not ar.autoFarm and
+not ar.autoDynamite then return false end if ar.rarity=='\065\110\121'then return true
+end return as~=nil and string.lower(tostring(as))==string.lower(ar.rarity)end
+function am.affordable(ar,as,at,au)if au~='\067\097\115\104'then return false,'\099\117\114\114\101\110\099\121'end
+if type(as)~='\110\117\109\098\101\114'or type(at)~='\110\117\109\098\101\114'or as~=as or at~=at or as==math.huge
+or at==math.huge or at<=0 then return false,'\117\110\099\111\110\102\105\114\109\101\100'end if ar.maxPurchase>0
+and at>ar.maxPurchase then return false,'\112\117\114\099\104\097\115\101\095\108\105\109\105\116'end if as-at<ar.
+reserveCash then return false,'\114\101\115\101\114\118\101'end return true end function am.
+parseAmount(ar)if type(ar)~='\115\116\114\105\110\103'then return nil end local as=string.gsub(ar,
+'\037\115','')if string.find(string.upper(as),'\082\036',1,true)or string.find(string.upper(
+as),'\082\079\066\085\088',1,true)then return nil end local at=string.match(as,
+'\037\045\063\091\037\100\093\091\037\100\037\046\044\093\042')if not at then return nil end local au,av for aw=1,#at do
+local ax=string.sub(at,aw,aw)if ax=='\044'then au=aw elseif ax=='\046'then av=aw end
+end if au and av then if au>av then at=string.gsub(string.gsub(at,'\037\046',''),'\044',
+'\046')else at=string.gsub(at,'\044','')end elseif au then local aw=#at-au at=string.
+gsub(at,'\044',aw==3 and''or'\046')elseif av and#at-av==3 then at=string.gsub(at,'\037\046',
+'')end local aw=tonumber(at)if not aw or aw<0 then return nil end local ax=
+string.upper(string.match(as,'\091\037\100\093\091\037\100\037\046\044\093\042\040\091\075\107\077\109\066\098\084\116\093\041')or'')local ay=({K=1000,M
+=1000000,B=1000000000,T=1000000000000})[ax]or 1 aw=aw*ay return aw end function
+am.purchaseReady(ar,as,at,au,av)if not am.affordable(ar,as,at,'\067\097\115\104')then return
+false end return not av or as>=av.cash or au~=av.level end function am.
+parseCapacity(ar)if type(ar)~='\115\116\114\105\110\103'then return nil,nil end local as,at=string
+.match(ar,'\094\040\046\045\041\047\040\046\045\041\036')if not as or not at then return nil,nil end local au=am.
+parseAmount(as)local av=string.find(at,'\u{221e}',1,true)and math.huge or am.
+parseAmount(at)if not au or not av or av<=0 or au%1~=0 then return nil,nil end
+return au,av end function am.bagCount(ar,as)local at=type(ar)=='\116\097\098\108\101'and ar.
+Potatoes or nil if type(at)=='\110\117\109\098\101\114'and at>=0 and at%1==0 and at<math.huge then
+return at,true end local au=am.parseCapacity(as)return au,false end function am.
+coolingLatch(ar,as,at,au)if type(as)=='\110\117\109\098\101\114'and as==as then if ar then return
+as>at.heatStop end return as>=at.heatStart end return au==true end function am.
+deliveryGoal(ar,as)if type(as)~='\110\117\109\098\101\114'or as<=0 or as~=as then return nil end
+if as==math.huge then return ar.deliveryBatch end if ar.deliveryMode=='\080\101\114\099\101\110\116'
+then return math.max(1,math.ceil(as*ar.deliveryFill/100))end return math.min(as,
+ar.deliveryBatch)end function am.productionGoal(ar,as,at)if ar.opAutoFinish and
+ar.teamLead and type(at)=='\110\117\109\098\101\114'and at<100 then return math.min(as or 100,100)
+end if ar.opAutoFinish then return as end return math.min(as or ar.
+productionBatch,ar.productionBatch)end function am.tickInterval(ar)return ar.
+speedMode=='\084\117\114\098\111'and math.min(ar.actionDelay,0.02)or ar.actionDelay end
+function am.pickLimit(ar,as,at,au)if au or ar.speedMode~='\084\117\114\098\111'then return 1
+end local av=am.deliveryGoal(ar,at)return math.max(1,math.min(ar.pickBatch,math.
+max(1,at-as),math.max(1,(av or at)-as)))end function am.choose(ar,as,at)local
+function au(av)return at>=((as.retryAt or{})[av]or 0)end local av=ar.
+opAutoFinish and as.bulkOnly==true local aw=as.questAction local ax=as.
+mountainEmpty and(aw=='\099\111\108\108\101\099\116'or aw=='\103\101\109'or aw=='\100\121\110\097\109\105\116\101'or not as.tableReady
+and not as.cutting and(as.stock or 0)==0 and(as.carried or 0)==0)if am.
+effective(ar,'\097\117\116\111\069\115\099\097\112\101')and as.hasKey and(not aw or aw=='\101\115\099\097\112\101'or ax)and au(
+'\101\115\099\097\112\101')then return'\101\115\099\097\112\101'end if am.effective(ar,'\097\117\116\111\067\111\111\108')and as.needCooling
+and at>=(as.coolingRetryAt or 0)and au('\099\111\111\108')then return'\099\111\111\108'end if aw=='\099\111\111\108'
+and type(as.heat)=='\110\117\109\098\101\114'and as.heat>ar.heatStop and not as.flowing and at>=(
+as.coolingRetryAt or 0)and au('\099\111\111\108')then return'\099\111\111\108'end if aw=='\115\101\108\108'and(as.
+stock or 0)>0 and at>=(as.sellRetryAt or 0)and au('\115\101\108\108')then return'\115\101\108\108'end if
+aw=='\099\117\116'or aw=='\115\101\108\108'then if as.cutting and au('\099\117\116')then return'\099\117\116'end if as.
+tableReady and au('\101\110\116\101\114\067\117\116')then return'\101\110\116\101\114\067\117\116'end if(as.carried or 0)>0 and
+as.canStageCut and au('\115\116\097\103\101\067\117\116')then return'\115\116\097\103\101\067\117\116'end end if aw=='\100\121\110\097\109\105\116\101'
+and as.dynamiteReady and not as.cutting and au('\100\121\110\097\109\105\116\101')then return'\100\121\110\097\109\105\116\101'
+end if(aw=='\099\111\108\108\101\099\116'or aw=='\103\101\109')and not as.mountainEmpty and as.hasCandidate
+and type(as.carried)=='\110\117\109\098\101\114'and type(as.capacity)=='\110\117\109\098\101\114'and as.carried<as.
+capacity and au('\099\111\108\108\101\099\116')then return'\099\111\108\108\101\099\116'end if ar.opAutoFinish and ar.
+opKeyShortcut and as.keyProbeReady and au('\107\101\121\080\114\111\098\101')then return'\107\101\121\080\114\111\098\101'end if
+as.postClearUnload and am.effective(ar,'\097\117\116\111\068\101\108\105\118\101\114')and au('\100\101\108\105\118\101\114')then
+return'\100\101\108\105\118\101\114'end if ar.teamFunding and as.mountainEmpty and as.carried and as.
+carried>0 and am.effective(ar,'\097\117\116\111\068\101\108\105\118\101\114')and au('\100\101\108\105\118\101\114')then return
+'\100\101\108\105\118\101\114'end if not av and as.droneReady and au('\100\114\111\110\101')then return'\100\114\111\110\101'end if
+as.deliveryPending and(am.effective(ar,'\097\117\116\111\068\101\108\105\118\101\114')or am.effective(ar,
+'\097\117\116\111\067\117\116'))and au('\100\101\108\105\118\101\114')then return'\100\101\108\105\118\101\114'end if not av and am.effective(
+ar,'\097\117\116\111\083\101\108\108')and as.sellReady and at>=(as.sellRetryAt or 0)and au('\115\101\108\108')then
+return'\115\101\108\108'end if as.needBuffer and as.carried and as.carried>0 and as.carried
+>=(as.bufferDeliveryGoal or 1)and au('\100\101\108\105\118\101\114')and am.effective(ar,'\097\117\116\111\068\101\108\105\118\101\114'
+)then return'\100\101\108\105\118\101\114'end if not av and as.returnToTable and as.
+postSaleWeaponBought and au('\114\101\116\117\114\110\084\097\098\108\101')then return'\114\101\116\117\114\110\084\097\098\108\101'end if not av
+and as.canBuy and at>=(as.buyRetryAt or 0)and au('\098\117\121')then if am.effective(ar,
+'\097\117\116\111\066\117\121\084\111\111\108\115')or am.effective(ar,'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115')or am.effective(ar,
+'\097\117\116\111\066\117\121\083\116\111\114\097\103\101')or as.afterSale and ar.buyAfterSell then return'\098\117\121'end end if
+not av and as.returnToTable and au('\114\101\116\117\114\110\084\097\098\108\101')then return'\114\101\116\117\114\110\084\097\098\108\101'end if
+not as.mountainEmpty and am.effective(ar,'\097\117\116\111\068\121\110\097\109\105\116\101')and as.dynamiteReady and
+not as.cutting and au('\100\121\110\097\109\105\116\101')then return'\100\121\110\097\109\105\116\101'end if not av and am.
+effective(ar,'\097\117\116\111\067\114\097\110\107')and as.crankReady and au('\099\114\097\110\107')then return'\099\114\097\110\107'end
+local ay=ar.autoCut and not am.effective(ar,'\097\117\116\111\070\097\114\109')if am.effective(ar,
+'\097\117\116\111\067\117\116')and as.cutting and(ay or not as.focusClear and not as.needBuffer)and
+au('\099\117\116')then return'\099\117\116'end if am.effective(ar,'\097\117\116\111\067\117\116')and not am.effective(
+ar,'\097\117\116\111\070\097\114\109')and as.carried and as.carried>0 and as.canStageCut and not as.
+tableReady and au('\115\116\097\103\101\067\117\116')then return'\115\116\097\103\101\067\117\116'end if am.effective(ar,
+'\097\117\116\111\068\101\108\105\118\101\114')and as.carried and as.carried>0 then local az=as.deliveryGoal or
+am.deliveryGoal(ar,as.capacity)local aA=az and as.carried>=az local aB=as.
+noCandidate and not(ar.opAutoFinish and as.focusClear)if(aA or aB or not am.
+effective(ar,'\097\117\116\111\070\097\114\109'))and au('\100\101\108\105\118\101\114')then return'\100\101\108\105\118\101\114'end end if am.
+effective(ar,'\097\117\116\111\067\117\116')and as.tableReady and(ay or not as.focusClear and not as.
+needBuffer)and au('\101\110\116\101\114\067\117\116')then return'\101\110\116\101\114\067\117\116'end if not as.mountainEmpty
+and am.effective(ar,'\097\117\116\111\070\097\114\109')and as.hasCandidate and type(as.capacity)==
+'\110\117\109\098\101\114'and type(as.carried)=='\110\117\109\098\101\114'and as.capacity>0 and(as.carried<as.
+capacity or as.candidatePumpkin)and au('\099\111\108\108\101\099\116')then return'\099\111\108\108\101\099\116'end return
+'\105\100\108\101'end function am.newCancellation()local ar=0 return{current=function()
+return ar end,valid=function(as)return as==ar end,cancel=function()ar=ar+1
+return ar end}end return am end)()local an=(function()local an={}function an.
+access(ap,aq)local ar,as=math.min(480,math.max(1,ap-24)),math.min(520,math.max(1
+,aq-24))return{width=ar,height=as,x=(ap-ar)/2,y=(aq-as)/2,compact=as<430}end
+function an.resolve(ap,aq,ar)local as=8 local at,au=math.max(1,ap-2*as),math.
+max(1,aq-2*as)local av=math.min(ar.uiScale/100,at/300,au/340)av=math.max(0.1,av)
+local aw=math.min(ar.uiWidth,at/av)local ax=math.min(ar.uiHeight,au/av)local ay,
+az=aw*av,ax*av return{width=aw,height=ax,scale=av,x=as+math.clamp(ar.uiX,0,1)*
+math.max(0,at-ay),y=as+math.clamp(ar.uiY,0,1)*math.max(0,au-az),visualWidth=ay,
+visualHeight=az,compact=aw<580}end function an.normalized(ap,aq,ar,as,at,au)
+return math.clamp((ap-8)/math.max(1,ar-at-16),0,1),math.clamp((aq-8)/math.max(1,
+as-au-16),0,1)end function an.launcher(ap,aq,ar)local as=math.min(ar.buttonSize,
+ap-16,aq-16)return{size=as,x=8+ar.buttonX*math.max(0,ap-as-16),y=8+ar.buttonY*
+math.max(0,aq-as-16)}end return an end)()local ap=(function()local ap={}function
+ap.create(aq,ar,as)local at={}local au=0 local av=false local aw={}local ax={
+installed=0,observed=0,perName={}}for ay,az in ipairs(ar)do local aA=aq[az]if
+type(aA)=='\102\117\110\099\116\105\111\110'then local aB aB=function(...)if av or aw[az]then return aA(
+...)end local aC=table.pack(...)local aD=table.pack(aA(...))if not av and au==0
+then ax.observed+=1 ax.perName[az]=(ax.perName[az]or 0)+1 local aE,aF=pcall(as,
+az,aC,aD)if aE and aF==true or ax.perName[az]>=24 then aw[az]=true pcall(
+function()if aq[az]==aB then aq[az]=aA end end)end end return table.unpack(aD,1,
+aD.n)end if pcall(function()aq[az]=aB end)then table.insert(at,{name=az,original
+=aA,wrapper=aB})ax.installed+=1 end end end return{read=function(ay,...)au+=1
+local az=table.pack(pcall(ay,...))au-=1 return table.unpack(az,1,az.n)end,close=
+function()av=true for ay,az in ipairs(at)do pcall(function()if aq[az.name]==az.
+wrapper then aq[az.name]=az.original end end)end table.clear(at)end,stats=ax,
+unwrap=function(ay)for az,aA in ipairs(at)do if aA.wrapper==ay then return aA.
+original end end return ay end}end return ap end)()local aq=(function()local aq=
+{}function aq.new(ar)local as={}local at=math.max(0.1,(ar or 0.08)*2)local au=(
+ar or 0.08)^2 local av=0 local function aw(ax,ay)local az,aA,aB=math.floor(ax.X/
+at),math.floor(ax.Y/at),math.floor(ax.Z/at)as[az]=as[az]or{}as[az][aA]=as[az][aA
+]or{}as[az][aA][aB]=as[az][aA][aB]or{}table.insert(as[az][aA][aB],{p=ax,value=ay
+})av+=1 end local function ax(ay)local az,aA,aB=math.floor(ay.X/at),math.floor(
+ay.Y/at),math.floor(ay.Z/at)local aC,aD,aE=nil,au+1e-12,false for aF=-1,1 do
+local aG=as[az+aF]if aG then for aH=-1,1 do local aI=aG[aA+aH]if aI then for aJ=
+-1,1 do for aK,aL in ipairs(aI[aB+aJ]or{})do local aM,aN,aO=ay.X-aL.p.X,ay.Y-aL.
+p.Y,ay.Z-aL.p.Z local aP=aM*aM+aN*aN+aO*aO if aP<=au then if aP<aD-1e-10 then aC
+,aD,aE=aL.value,aP,false elseif math.abs(aP-aD)<1e-10 and aC~=aL.value then aE=
+true end end end end end end end end return not aE and aC or nil end return{add=
+aw,find=ax,count=function()return av end}end return aq end)()local ar=(function(
+)local ar={}function ar.new(as)local at={}local function au(av)while av*2<=#at
+do local aw=av*2 if aw+1<=#at and at[aw+1].score>at[aw].score then aw+=1 end if
+at[av].score>=at[aw].score then break end at[av],at[aw]=at[aw],at[av]av=aw end
+end return{add=function(av)if#at<as then table.insert(at,av)local aw=#at while
+aw>1 do local ax=math.floor(aw/2)if at[ax].score>=at[aw].score then break end at
+[ax],at[aw]=at[aw],at[ax]aw=ax end elseif av.score<at[1].score then at[1]=av au(
+1)end end,values=function()table.sort(at,function(av,aw)return av.score<aw.score
+end)return at end}end return ar end)()local as=(function()local as={}as.allowed=
+{Hand={'\080\105\099\107\065\109\111\117\110\116','\080\105\099\107\083\112\101\101\100','\072\111\108\100\080\105\099\107'},Shovel={'\080\105\099\107\065\109\111\117\110\116','\080\105\099\107\083\112\101\101\100',
+'\072\111\108\100\080\105\099\107'},Dynamite={'\080\105\099\107\065\109\111\117\110\116','\080\105\099\107\083\112\101\101\100'},PotatoSucker={'\080\105\099\107\065\109\111\117\110\116',
+'\067\111\111\108\105\110\103','\067\104\097\114\103\101'},Body={'\080\111\116\097\116\111\087\111\114\116\104','\076\117\099\107','\087\097\108\107\083\112\101\101\100'},General={
+'\080\111\116\097\116\111\087\111\114\116\104','\076\117\099\107','\087\097\108\107\083\112\101\101\100'},Drone={'\067\097\112\097\099\105\116\121','\071\114\097\115\112','\070\108\121\083\112\101\101\100'},
+AutoPeeler={'\080\101\101\108\065\109\111\117\110\116','\080\101\101\108\083\112\101\101\100'},HandPeeler={}}function as.owns(at,au)if
+type(at)~='\116\097\098\108\101'then return false end if au=='\072\097\110\100'or au=='\066\111\100\121'or au==
+'\071\101\110\101\114\097\108'then return true end if au=='\068\114\111\110\101'then return at.HasDrone==true end if
+au=='\065\117\116\111\080\101\101\108\101\114'then return at.HasAutoPeeler==true end if au=='\072\097\110\100\080\101\101\108\101\114'then
+return at.HasHandPeeler==true end for av,aw in pairs(at.Tools or{})do if aw==au
+or av==au and aw~=false and aw~=nil then return true end end return false end
+function as.canUpgrade(at,au,av,aw)local ax=as.allowed[au]if not ax or not as.
+owns(at,au)then return false end if aw.teamFunding and(au=='\066\111\100\121'or au==
+'\071\101\110\101\114\097\108'or au=='\065\117\116\111\080\101\101\108\101\114'or au=='\068\114\111\110\101')then return false end if aw.
+supportCut and not aw.opAutoFinish and not aw.autoProgress and au~='\066\111\100\121'and au
+~='\071\101\110\101\114\097\108'then return false end if au=='\068\114\111\110\101'and not aw.upgradeDrone then
+return false end if(au=='\065\117\116\111\080\101\101\108\101\114'or au=='\072\097\110\100\080\101\101\108\101\114')and not aw.
+upgradeMachines then return false end if(au=='\066\111\100\121'or au=='\071\101\110\101\114\097\108')and not aw.
+upgradeGeneral then return false end if av=='\087\097\108\107\083\112\101\101\100'and not aw.
+nativeWalkUpgrade then return false end if au=='\072\097\110\100'and as.owns(at,'\083\104\111\118\101\108')
+then return false end for ay,az in ipairs(ax)do if az==av then return true end
+end return false end function as.level(at,au,av,aw)local ax=au and au.Upgrades
+and au.Upgrades[av]local ay=type(ax)=='\116\097\098\108\101'and ax[aw]or nil if type(ay)==
+'\110\117\109\098\101\114'and ay>=0 then return ay end local az=nil if type(at.GetLevel)==
+'\102\117\110\099\116\105\111\110'then local aA,aB=pcall(at.GetLevel,au,av,aw)if aA and type(aB)==
+'\110\117\109\098\101\114'and aB>=0 and aB%1==0 then az=aB end if au and type(au.Upgrades)==
+'\116\097\098\108\101'then aA,aB=pcall(at.GetLevel,au.Upgrades,av,aw)if aA and type(aB)==
+'\110\117\109\098\101\114'and aB>=0 and aB%1==0 then az=math.max(az or 0,aB)end end end return az
+end function as.rank(at,au)local av={Shovel=1,Dynamite=2,PotatoSucker=3,Hand=4,
+AutoPeeler=5,HandPeeler=6,Drone=7,Body=8,General=8}local aw=av[at]or 100 return
+aw*10+(au=='\080\105\099\107\065\109\111\117\110\116'and 0 or au=='\080\105\099\107\083\112\101\101\100'and 1 or 2)end function as.limit(
+at,au,av,aw,ax,ay)if au=='\087\097\108\107\083\112\101\101\100'then return ay and 2 or 0 end if(at=='\066\111\100\121'
+or at=='\071\101\110\101\114\097\108')and au=='\080\111\116\097\116\111\087\111\114\116\104'then return math.huge end return math.huge
+end function as.definition(at,au,av)local aw=nil if type(at.GetUpgrade)==
+'\102\117\110\099\116\105\111\110'then local ax,ay=pcall(at.GetUpgrade,au,av)if ax then aw=ay end end if
+type(aw)=='\116\097\098\108\101'and(aw.Id==av or aw.Values~=nil or aw.MaxLevel~=nil)then return
+aw end local ax=nil if type(at.GetUpgradeable)=='\102\117\110\099\116\105\111\110'then local ay,az=
+pcall(at.GetUpgradeable,au)if ay and type(az)=='\116\097\098\108\101'then ax=az end end if not
+ax then for ay,az in ipairs({at.Tools or{},at.Machines or{}})do for aA,aB in
+pairs(az)do if type(aB)=='\116\097\098\108\101'and aB.Id==au then ax=aB break end end end ax=ax
+or at[au]end if type(ax)=='\116\097\098\108\101'then for ay,az in pairs(ax.Upgrades or{})do if
+type(az)=='\116\097\098\108\101'and(az.Id==av or ay==av)then return az end end if type(at.
+GetUpgrade)=='\102\117\110\099\116\105\111\110'then local ay,az=pcall(at.GetUpgrade,ax,av)if ay and
+type(az)=='\116\097\098\108\101'then return az end end end return aw end function as.maximum(at
+,au)if type(at.GetMaxLevel)=='\102\117\110\099\116\105\111\110'then for av,aw in ipairs({au,type(au)==
+'\116\097\098\108\101'and au.Values or false})do local ax,ay=pcall(at.GetMaxLevel,aw)if ax and
+type(ay)=='\110\117\109\098\101\114'and ay>0 and ay%1==0 then return ay end end end if type(au)==
+'\116\097\098\108\101'and type(au.MaxLevel)=='\110\117\109\098\101\114'then return au.MaxLevel end return nil end
+function as.upgradeGuard()local at={}return{allowed=function(au,av)local aw=at[
+au]return not aw or aw.level~=av or aw.count<2 end,result=function(au,av,aw)if
+aw then at[au]=nil return end local ax=at[au]at[au]={level=av,count=ax and ax.
+level==av and ax.count+1 or 1}end,reset=function()table.clear(at)end,records=at}
+end function as.maxed(at,au,av)if not as.owns(au,av)then return false end for aw
+,ax in ipairs(as.allowed[av]or{})do local ay=as.definition(at,av,ax)if ay==nil
+then return false end local az=as.maximum(at,ay)local aA=az~=nil local aB=as.
+level(at,au,av,ax)if not aA or type(az)~='\110\117\109\098\101\114'or az<=0 or aB==nil or aB<az
+then return false end end return true end function as.luckAllowed(at,au)return
+as.maxed(at,au,'\080\111\116\097\116\111\083\117\099\107\101\114')end function as.placementTiming(at)local au=at and
+at.PLACEMENT_STAGGER local av=nil local aw={available=type(au)=='\110\117\109\098\101\114'and au>=
+0.005,original=au}local function ax(ay,az)if not aw.available then return end
+local aA=ay and math.clamp(az,0.005,au)or au if av~=aA then local aB,aC=pcall(
+function()at.PLACEMENT_STAGGER=aA end)if not aB then aw.available=false aw.
+enabled=false aw.error=tostring(aC)return end av=aA end aw.applied=aA aw.enabled
+=ay end return{apply=ax,stats=aw,close=function()if aw.available and at.
+PLACEMENT_STAGGER==av then pcall(function()at.PLACEMENT_STAGGER=au end)end end}
+end function as.productionReady(at,au)return as.maxed(at,au,'\068\121\110\097\109\105\116\101')and as.
+maxed(at,au,'\083\104\111\118\101\108')and as.maxed(at,au,'\065\117\116\111\080\101\101\108\101\114')and as.maxed(at,au,
+'\080\111\116\097\116\111\083\117\099\107\101\114')end function as.clearReady(at,au,av)if at.opAutoFinish then
+return as.owns(av,'\068\121\110\097\109\105\116\101')or as.owns(av,'\080\111\116\097\116\111\083\117\099\107\101\114')end return as.
+productionReady(au,av)end function as.opBulkReady(at,au)return as.maxed(at,au,
+'\080\111\116\097\116\111\083\117\099\107\101\114')end function as.fundingPlan(at,au,av,aw,ax,ay,az,aA)local aB={
+needed=false,cut=false,sell=false}if not au.opAutoFinish or aA or type(aw)~=
+'\116\097\098\108\101'or type(av)~='\110\117\109\098\101\114'or type(aw.price)~='\110\117\109\098\101\114'then return aB end if aw.
+price<=0 or aw.price~=aw.price or aw.price==math.huge or au.maxPurchase>0 and aw
+.price>au.maxPurchase then return aB end aB.needed=av<aw.price+au.reserveCash if
+not aB.needed then return aB end aB.cut=type(ax)=='\110\117\109\098\101\114'and ax>0 local aC=aw.
+price+au.reserveCash-av local aD=50 if au.opBatchFunding then aD=aC>=3 and 150
+or aC>=1 and 90 or 50 end aB.sellTarget=math.min(aD,au.sellThreshold)aB.sell=
+type(ay)=='\110\117\109\098\101\114'and ay>0 and(ay>=aB.sellTarget or not aB.cut)aB.deliveryGoal=
+math.min(type(az)=='\110\117\109\098\101\114'and az>0 and az or aD,aB.sellTarget)return aB end
+function as.pickTiming(at,au,av,aw,ax)local ay,az,aA=0,nil,'\117\110\097\118\097\105\108\097\098\108\101'if type(
+av.GetPickCooldown)=='\102\117\110\099\116\105\111\110'then local aB,aC,aD=pcall(av.GetPickCooldown,ax)
+if aB and type(aC)=='\110\117\109\098\101\114'and aC>=0 and aC<=60 then ay=aC aA=
+'\071\101\116\080\105\099\107\067\111\111\108\100\111\119\110\040\116\111\111\108\032\073\068\041'end if aB and type(aD)=='\110\117\109\098\101\114'and aD>=0.02 and aD<=
+60 then az=aD end end local aB=aw and aw.Upgrades if type(au.GetEquippedUpgrades
+)=='\102\117\110\099\116\105\111\110'then local aC,aD=pcall(au.GetEquippedUpgrades)if aC and type(aD)==
+'\116\097\098\108\101'then aB=aD end end local aC=aw and aw.SaveData and aw.SaveData.Class if
+type(au.GetClassId)=='\102\117\110\099\116\105\111\110'then local aD,aE=pcall(au.GetClassId)if aD then
+aC=aE end end if type(at.GetPickInterval)=='\102\117\110\099\116\105\111\110'and aB then local aD,aE=
+pcall(at.GetPickInterval,aB,ax,aC,false)if aD and type(aE)=='\110\117\109\098\101\114'and aE>=0.02
+and aE<=60 then az=aE aA='\071\101\116\080\105\099\107\073\110\116\101\114\118\097\108\040\110\097\116\105\118\101\032\117\112\103\114\097\100\101\115\044\032\116\111\111\108\032\073\068\044\032\099\108\097\115\115\041'end
+end return ay,az,aA end function as.keyProbeGuard()local at={}local function au(
+av,aw)if type(av)~='\116\097\098\108\101'or type(av.slot)~='\110\117\109\098\101\114'or av.slot%1~=0 or av.slot<1
+or av.slot>=4294967296 then return nil end return tostring(av.slot)..'\058'..
+tostring(av.revision or 0)..'\058'..tostring(aw==true)end local function av(aw,ax,
+ay)local az=au(aw,ax)if not az then return false end local aA=at[az]return not
+aA or aA.attempts<2 and ay>=aA.retryAt end return{records=at,allowed=av,begin=
+function(aw,ax,ay)if not av(aw,ax,ay)then return false end local az=au(aw,ax)
+local aA=at[az]or{attempts=0}aA.attempts+=1 aA.retryAt=ay+10 at[az]=aA return
+true end}end function as.purchasePriority(at,au,av)if au and au.teamFunding then
+if at.id=='\083\104\111\118\101\108'then return 1 end if at.group=='\115\116\111\114\097\103\101'and type(at.capacity)
+=='\110\117\109\098\101\114'and at.capacity<=50 then return 2 end if at.id=='\068\121\110\097\109\105\116\101'then return
+3 end if at.tool=='\068\121\110\097\109\105\116\101'then return 4+(at.level or 0)/100 end if at.id==
+'\080\048\084\052\084\048\045\051\048\048\048'then return 5 end if at.tool=='\080\111\116\097\116\111\083\117\099\107\101\114'then return 6 end if at
+.group=='\115\116\111\114\097\103\101'then return 7 end end if au and au.opAutoFinish then if av and
+at.group=='\099\117\116'then return 0.1+(at.tier or 0)/100 end if at.upgrade==
+'\080\111\116\097\116\111\087\111\114\116\104'and(at.level or 0)<3 then return 1 end if at.group=='\099\117\116'and at.
+tier==2 then return 2 end if at.group=='\115\116\111\114\097\103\101'and type(at.capacity)=='\110\117\109\098\101\114'
+and at.capacity<=50 then return 3 end if at.id=='\083\104\111\118\101\108'then return 4 end if at.
+id=='\068\121\110\097\109\105\116\101'then return 5 end if at.tool=='\068\121\110\097\109\105\116\101'then return 6+(at.level or
+0)/100+(at.upgrade=='\080\105\099\107\065\109\111\117\110\116'and 0 or 0.001)end if at.id=='\080\048\084\052\084\048\045\051\048\048\048'or at.
+id=='\080\111\116\097\116\111\083\117\099\107\101\114'then return 7 end if at.tool=='\080\111\116\097\116\111\083\117\099\107\101\114'then return 8 end
+if at.tool=='\068\114\111\110\101'then return 9 end if at.id=='\083\104\111\118\101\108'or at.tool=='\083\104\111\118\101\108'then
+return 10 end if at.group=='\109\097\099\104\105\110\101'or at.tool=='\065\117\116\111\080\101\101\108\101\114'then return 11 end
+if at.group=='\099\117\116'then return 12+(at.tier or 0)/100 end if at.upgrade==
+'\080\111\116\097\116\111\087\111\114\116\104'then return 13 end if at.group=='\115\116\111\114\097\103\101'then return 14 end if at.
+upgrade=='\076\117\099\107'then return 15 end return 90 end if at.upgrade=='\080\111\116\097\116\111\087\111\114\116\104'then
+return au and au.nativeWalkUpgrade and(at.level or 0)>=3 and 12 or 1 end if at.
+upgrade=='\087\097\108\107\083\112\101\101\100'then return 10.025 end if at.group=='\099\117\116'then return 10+(at.
+tier or 0)/100 end if at.id=='\068\121\110\097\109\105\116\101'or at.tool=='\068\121\110\097\109\105\116\101'then return 20 end
+if at.tool=='\068\114\111\110\101'then return 30 end if at.id=='\083\104\111\118\101\108'or at.tool=='\083\104\111\118\101\108'then
+return 40 end if at.group=='\115\116\111\114\097\103\101'then return 90 end return 50 end function as
+.selectPurchase(at,au,av,aw,ax)table.sort(aw,function(ay,az)local aA,aB=as.
+purchasePriority(ay,au,ax),as.purchasePriority(az,au,ax)if aA~=aB then return aA
+<aB end return(ay.name or'')<(az.name or'')end)for ay,az in ipairs(aw)do if
+type(az.price)=='\110\117\109\098\101\114'and az.price>0 then local aA=at.affordable(au,av,az.
+price,'\067\097\115\104')return az,aA end end return nil,false end function as.profilePrice(
+at,au,av,aw)if type(at)~='\116\097\098\108\101'or type(at.Upgrades)~='\116\097\098\108\101'or type(aw)~=
+'\110\117\109\098\101\114'then return nil end local ax=at.Upgrades[au=='\066\111\100\121'and'\071\101\110\101\114\097\108'or au]
+local ay=type(ax)=='\116\097\098\108\101'and ax[av]or nil local az=type(ay)=='\116\097\098\108\101'and ay[aw+1
+]or nil if type(az)=='\110\117\109\098\101\114'and az>0 then return az end return nil end function
+as.sellReady(at,au,av)if type(au)~='\110\117\109\098\101\114'or au<=0 then return false end if au
+>=at.sellThreshold then return true end return at.sellRemainder and not av.
+cutting and av.crate==0 and av.carried==0 and av.exhausted==true end return as
+end)()local at=(function()local at={}function at.create(au,av)local aw={}for ax,
+ay in pairs(type(av)=='\116\097\098\108\101'and av.Writes or{})do if type(ay)=='\102\117\110\099\116\105\111\110'then
+aw[ay]=ax end end local function ax(ay)local az=au[ay]if type(az)~='\116\097\098\108\101'or
+type(az.Writes)~='\116\097\098\108\101'then return nil end local aA={}for aB,aC in ipairs(az.
+Writes)do aA[aB]=aw[aC]or'\085\110\107\110\111\119\110'end return aA end local function ay(az,aA)
+local aB=ax(az)if not aB or#aB~=#aA then return false end for aC,aD in ipairs(aA
+)do if aD=='\083\116\114\105\110\103'then if aB[aC]~='\083\116\114\105\110\103'and aB[aC]~='\083\116\114\105\110\103\076\111\110\103'then return
+false end elseif aD=='\086\101\099\116\111\114\051'then if not string.match(aB[aC],'\094\086\101\099\116\111\114\051')then
+return false end elseif aD=='\066\111\111\108\101\097\110'then if aB[aC]~='\066\111\111\108\101\097\110'and aB[aC]~=
+'\066\111\111\108\101\097\110\056'then return false end elseif aB[aC]~=aD then return false end end
+return true end return{schema=ax,matches=ay,fire=function(az,...)local aA=au[az]
+if not aA or type(aA.Fire)~='\102\117\110\099\116\105\111\110'then return false,'\080\097\099\111\116\101\032\105\110\100\105\115\112\111\110\105\118\101\108\058\032'
+..az end return pcall(aA.Fire,aA,...)end}end return at end)()local au=(function(
+)local au={}function au.create(av,aw)local ax,ay=0,-1 local az,aA,aB=false,false
+,false local aC,aD,aE=aw.clock(),nil,nil local aF,aG=0,0 local aH,aI=0,0 local
+aJ=false local aK=0 local aL=nil local aM={attempted=0,accepted=0,epochs=0,
+native=false,pending=0,throttled=false,targetRate=20,ackRate=0,timeouts=0}local
+aN,aO=aw.clock(),0 local aP local function aQ()return not aw.allowed or aw.
+allowed()end local function aR(aS)if aB~=aS then aw.native(aS)aB=aS aM.native=aS
+end end local function aS(aT)local aU=type(aT)=='\116\097\098\108\101'and tonumber(aT.
+AutoCutRate)or 1.5 return math.clamp(av.cutTargetRate or 20,1,40)*math.clamp((aU
+or 1.5)/1.5,1,av.cutToolMultiplier or 4)end local function aT()if not aw.
+schedule or aJ or not az or not aQ()then return end aJ=true local aU=aK aw.
+schedule(math.max(0,aG-aw.clock()),function()if aU~=aK then return end aJ=false
+if az and aQ()then aP(true,aD,aE,aL)end end)end local function aU(aV)if aV and
+aH>0 then aH=0 aM.pending=0 aM.accepted+=1 aI+=1 aO+=1 if aI>=4 then aM.
+throttled=false aI=0 end end local aW=aw.clock()if aW-aN>=1 then aM.ackRate=aO/(
+aW-aN)aN=aW aO=0 end ax+=1 aM.epochs=ax aC=aW end local function aV(aW)aA=true
+if aW=='\115\116\097\114\116'then aH=0 aM.pending=0 az=true ay=-1 aU(false)elseif aW=='\110\101\120\116'
+then az=true aU(true)elseif aW=='\115\116\111\112'then az=false aH=0 aM.pending=0 aK+=1 aJ=
+false aR(false)end if aW~='\115\116\111\112'then aT()end end aP=function(aW,aX,aY,aZ)local
+a_=aw.clock()if not aW or not aQ()then az=false aH=0 aM.pending=0 aK+=1 aJ=false
+aR(false)aD=nil return true end aL=aZ or aL aM.targetRate=aS(aL)if not az then
+az=true ay=-1 aU(false)aD=aX end if not aA and aX~=nil and aD~=nil and aX~=aD
+then aU(true)end if aY~=nil and aE~=nil and aY~=aE then aC=a_ end aD,aE=aX,aY if
+aH>0 and a_-aF>math.max(0.35,4/aM.targetRate)then aH=0 aM.pending=0 aM.throttled
+=true aM.timeouts+=1 aI=0 ay=-1 aG=math.max(aG,a_+0.1)end if av.cutMode=='\070\097\115\116'
+and aH==0 and ay~=ax and type(aw.finish)=='\102\117\110\099\116\105\111\110'then if a_>=aG then ay=ax aF
+=a_ aG=a_+1/aM.targetRate aH=1 aM.pending=1 local a0,a1=aw.finish()if not a0
+then aH=0 aM.pending=0 aR(true)return false,a1 end aM.attempted+=1 else aT()end
+end aR(av.cutMode=='\078\097\116\105\118\101'or aH>0 and a_-aF>=0.12)if a_-aC>math.max(4,math.min(
+av.actionTimeout or 10,8))then aC=a_ return false,
+'\067\111\114\116\101\032\115\101\109\032\097\118\097\110\099\097\114\059\032\114\101\097\098\114\105\110\100\111\032\097\032\109\101\115\097\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101\046'end return true end return
+{event=aV,tick=aP,pause=function()aK+=1 aJ=false az=false aH=0 aM.pending=0 ay=-
+1 aR(false)end,stats=aM,epoch=function()return ax end,serverActive=function()
+return az end}end return au end)()local av=(function()local av={}function av.
+create(aw,ax,ay)local az='\065\110\111\110\121\109\111\117\115\095\080\111\116\097\116\111\095\067\111\110\102\105\103\095\118\049\046\106\115\111\110'local aA=type(ay.read)
+=='\102\117\110\099\116\105\111\110'and type(ay.write)=='\102\117\110\099\116\105\111\110'local function aB(aC)if type(aC)~=
+'\115\116\114\105\110\103'or#aC>65536 then return nil,'\099\111\110\102\105\103\117\114\097\099\097\111\032\105\110\118\097\108\105\100\097'end local aD,aE=
+pcall(ax.decode,aC)if not aD or type(aE)~='\116\097\098\108\101'or(aE.schema~=1 and aE.schema~=
+2)or type(aE.config)~='\116\097\098\108\101'then return nil,'\102\111\114\109\097\116\111\032\100\101\032\099\111\110\102\105\103\117\114\097\099\097\111\032\105\110\118\097\108\105\100\111'
+end if aE.schema==1 and aE.config.uiScale==100 and aE.config.uiWidth==760 then
+aE.config.uiScale=65 end return aw.validate(aE.config,true)end local function aC
+(aD)if not aA then return nil,'\097\114\113\117\105\118\111\115\032\105\110\100\105\115\112\111\110\105\118\101\105\115'end local aE,aF=pcall(ay.
+read,aD)if not aE then return nil,'\097\114\113\117\105\118\111\032\097\117\115\101\110\116\101'end return aB(aF)end local
+function aD()local aE,aF=aC(az)if aE then return aE,
+'\067\111\110\102\105\103\117\114\097\099\097\111\032\099\097\114\114\101\103\097\100\097\059\032\114\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\046'end local aG=aC(az..'\046\098\097\099\107\117\112')if aG
+then return aG,'\067\111\110\102\105\103\117\114\097\099\097\111\032\114\101\099\117\112\101\114\097\100\097\032\100\111\032\098\097\099\107\117\112\059\032\114\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\046'end return
+aw.validate({},true),aA and'\078\111\118\097\032\115\101\115\115\097\111\059\032\114\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\046'or
+'\083\101\109\032\097\114\113\117\105\118\111\115\058\032\097\106\117\115\116\101\115\032\097\112\101\110\097\115\032\110\101\115\116\097\032\115\101\115\115\097\111\046'end local function aE(aF)if not aA
+then return false,
+"\069\115\116\101\032\101\120\101\099\117\116\111\114\032\110\097\111\032\100\105\115\112\111\110\105\098\105\108\105\122\111\117\032\108\101\105\116\117\114\097\032\101\032\101\115\099\114\105\116\097\032\100\101\032\097\114\113\117\105\118\111\115\046"end local aG=
+aw.validate(aF,true)local aH,aI=pcall(ax.encode,{schema=2,config=aG})if not aH
+then return false,'\070\097\108\104\097\032\097\111\032\099\111\100\105\102\105\099\097\114\032\097\106\117\115\116\101\115\046'end local aJ,aK=pcall(ay.read,az)
+if aJ and aB(aK)then local aL=pcall(ay.write,az..'\046\098\097\099\107\117\112',aK)if not aL then
+return false,'\078\097\111\032\102\111\105\032\112\111\115\115\105\118\101\108\032\112\114\101\115\101\114\118\097\114\032\111\032\098\097\099\107\117\112\046'end end local aL,aM=pcall(ay.
+write,az,aI)if not aL then return false,'\070\097\108\104\097\032\097\111\032\103\114\097\118\097\114\058\032'..tostring(aM)end
+local aN=aC(az)if not aN then if aJ and aB(aK)then pcall(ay.write,az,aK)end
+return false,'\070\097\108\104\097\032\110\097\032\118\101\114\105\102\105\099\097\099\097\111\032\100\111\032\097\114\113\117\105\118\111\059\032\116\101\110\116\101\032\115\097\108\118\097\114\032\110\111\118\097\109\101\110\116\101\046'end
+return true,"\065\106\117\115\116\101\115\032\115\097\108\118\111\115\059\032\097\116\105\118\097\099\111\101\115\032\110\097\111\032\115\097\111\032\114\101\115\116\097\117\114\097\100\097\115\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101\046"
+end return{load=aD,save=aE,filename=az,available=aA}end function av.lifecycle()
+local aw=true local ax={}return{alive=function()return aw end,add=function(ay)if
+aw then table.insert(ax,ay)else pcall(ay)end end,close=function()if not aw then
+return end aw=false for ay=#ax,1,-1 do pcall(ax[ay])end table.clear(ax)end}end
+return av end)()local aw=(function()local aw={}function aw.create(ax,ay,az,aA,aB
+)local aC,aD,aE=ax.Players,ax.TweenService,ax.UserInputService local aF=aC.
+LocalPlayer local aG=az.membership and az.membership()or{plan='\077\101\109\098\101\114',keyLabel=
+'\u{2014}',validity='\086\097\108\105\100\097\100\101\032\110\097\111\032\105\110\102\111\114\109\097\100\097',source='\065\099\101\115\115\111\032\108\111\099\097\108'}local aH,aI,
+aJ,aK={},{},{},{}local aL,aM,aN=false,'\073\110\105\099\105\111',true local aO={background=Color3.
+fromRGB(35,31,25),sidebar=Color3.fromRGB(48,39,29),card=Color3.fromRGB(65,54,39)
+,line=Color3.fromRGB(116,88,49),text=Color3.fromRGB(252,246,226),muted=Color3.
+fromRGB(213,195,163),accent=Color3.fromRGB(255,202,66),mint=Color3.fromRGB(128,
+205,55)}local function aP(aQ,aR,aS)local aT=Instance.new(aQ)for aU,aV in pairs(
+aR or{})do aT[aU]=aU=='\084\101\120\116'and c(aV)or aV end if aR and aR.Text~=nil then aT.
+AutoLocalize=false end aT.Parent=aS return aT end local function aQ(aR,aS)aP(
+'\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,aS or 10)},aR)end local function aR(aS,aT)
+aP('\085\073\083\116\114\111\107\101',{Color=aT or aO.line,Thickness=1},aS)end local function aS(aT,aU,
+aV,aW,aX)return aP('\084\101\120\116\076\097\098\101\108',{BackgroundTransparency=1,Text=aU,TextSize=aV or
+13,TextColor3=aW or aO.text,Font=aX and Enum.Font.GothamBold or Enum.Font.Gotham
+,TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.
+Center},aT)end local function aT(aU,aV)local aW=aP('\084\101\120\116\066\117\116\116\111\110',{
+BackgroundColor3=aO.card,Text=aV,TextSize=12,TextColor3=aO.text,Font=Enum.Font.
+GothamBold,BorderSizePixel=0,AutoButtonColor=true},aU)aQ(aW,8)return aW end
+local aU=aF.PlayerGui if type(gethui)=='\102\117\110\099\116\105\111\110'then local aV,aW=pcall(gethui)
+if aV and typeof(aW)=='\073\110\115\116\097\110\099\101'then aU=aW end end local aV=aU:FindFirstChild(
+'\065\110\111\110\121\109\111\117\115\080\111\116\097\116\111\072\117\098')if aV then aV:Destroy()end local aW=aP('\083\099\114\101\101\110\071\117\105',{Name=
+'\065\110\111\110\121\109\111\117\115\080\111\116\097\116\111\072\117\098',ResetOnSpawn=false,DisplayOrder=10000,ZIndexBehavior=Enum.
+ZIndexBehavior.Sibling},aU)table.insert(aH,aW:GetPropertyChangedSignal('\069\110\097\098\108\101\100'
+):Connect(function()if not aL and not aW.Enabled then aW.Enabled=true end end))
+local aX=aP('\070\114\097\109\101',{Name='\083\097\102\101\067\097\110\118\097\115',Size=UDim2.fromScale(1,1),
+BackgroundTransparency=1},aW)local aY=aP('\070\114\097\109\101',{Name='\080\097\110\101\108',Position=UDim2.
+fromOffset(8,8),Size=UDim2.fromOffset(760,580),Visible=false,BackgroundColor3=aO
+.background,BorderSizePixel=0,ClipsDescendants=true},aX)local aZ=aP('\085\073\083\099\097\108\101',{
+Scale=1},aY)aP('\085\073\071\114\097\100\105\101\110\116',{Color=ColorSequence.new(Color3.fromRGB(73,53,35),aO
+.background),Rotation=90},aY)aQ(aY,9)aR(aY)local a_=aP('\070\114\097\109\101',{Size=UDim2.new(0
+,174,1,0),BackgroundColor3=aO.sidebar,BorderSizePixel=0},aY)local a0=aS(a_,
+'\065\078\079\078\072\085\066',20,aO.text,true)a0.Position,a0.Size=UDim2.fromOffset(17,21),UDim2.new(
+1,-32,0,28)local a1=aS(a_,'\080\079\084\065\084\079\032\047\032\067\079\078\084\082\079\076',10,aO.accent,true)a1.Position,a1.
+Size=UDim2.fromOffset(18,51),UDim2.new(1,-32,0,16)a1.Text=c(
+'\067\065\080\u{cd}\084\085\076\079\032\073\073\032\047\032\065\078\079\078\072\085\066')local a2=aP('\083\099\114\111\108\108\105\110\103\070\114\097\109\101',{
+BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=2,
+AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.fromOffset(0,0),
+Position=UDim2.fromOffset(12,90),Size=UDim2.new(1,-24,1,-165)},a_)local a3=aP(
+'\085\073\076\105\115\116\076\097\121\111\117\116',{Padding=UDim.new(0,7),SortOrder=Enum.SortOrder.LayoutOrder},a2)
+local a4=aP('\070\114\097\109\101',{BackgroundTransparency=1,Position=UDim2.fromOffset(196,22),
+Size=UDim2.new(1,-218,1,-44)},aY)local a5=aS(a4,'\073\110\105\099\105\111',23,aO.text,true)a5.Size
+=UDim2.new(1,-110,0,34)local a6=aT(a4,'\079\067\085\076\084\065\082')a6.Position,a6.Size=UDim2.new(1,
+-100,0,0),UDim2.fromOffset(100,31)local a7=aS(a4,'\073\110\105\099\105\097\108\105\122\097\110\100\111\046\046\046',11,aO.muted,
+false)a7.Position,a7.Size=UDim2.fromOffset(0,40),UDim2.new(1,0,0,35)a7.
+TextWrapped=true a7.BackgroundTransparency=0.12 a7.BackgroundColor3=aO.card aQ(
+a7,8)local a8=aP('\070\114\097\109\101',{BackgroundTransparency=1,Position=UDim2.fromOffset(0,
+87),Size=UDim2.new(1,0,1,-146)},a4)local a9=aP('\070\114\097\109\101',{BackgroundTransparency=1
+,Position=UDim2.new(0,0,1,-91),Size=UDim2.new(1,0,0,38)},a4)local ba=aP('\070\114\097\109\101',
+{Size=UDim2.new(1,0,0,46),Position=UDim2.new(0,0,1,-50),BackgroundColor3=aO.card
+,BorderSizePixel=0},a4)aQ(ba,11)aR(ba)local bb=aP('\073\109\097\103\101\076\097\098\101\108',{Size=UDim2.
+fromOffset(34,34),Position=UDim2.fromOffset(8,6),BackgroundColor3=aO.background,
+BorderSizePixel=0,Image=''},ba)aQ(bb,17)aR(bb,aO.mint)local bc=aS(bb,string.
+upper(string.sub(aF.Name,1,1)),16,aO.mint,true)bc.Size=UDim2.fromScale(1,1)bc.
+TextXAlignment=Enum.TextXAlignment.Center local bd=aS(ba,aF.DisplayName or aF.
+Name,12,aO.text,true)bd.Position,bd.Size=UDim2.fromOffset(51,3),UDim2.new(1,-61,
+0,19)bd.TextTruncate=Enum.TextTruncate.AtEnd local be=aS(ba,'',10,aO.mint,false)
+be.Position,be.Size=UDim2.fromOffset(51,23),UDim2.new(1,-61,0,18)be.TextTruncate
+=Enum.TextTruncate.AtEnd local function bf(bg)be.Text=bg.plan..'\032\032\u{b7}\032\032'..bg.
+keyLabel..'\032\032\u{b7}\032\032'..c(bg.validity)be.TextColor3=bg.expired and Color3.
+fromRGB(255,160,150)or bg.plan=='\080\114\101\109\105\117\109'and Color3.fromRGB(248,208,130)or aO.
+mint end bf(aG)if aB then aB.requestAvatar(aC,aF.UserId,function(bg)if not aL
+then bb.Image=bg bc.Visible=false end end)end local bg=aT(a9,'\083\065\076\086\065\082')bg.Size=
+UDim2.fromOffset(100,35)local e=aT(a9,'\080\065\085\083\065\082\032\084\085\068\079')e.Size,e.Position=UDim2.
+fromOffset(143,35),UDim2.fromOffset(111,0)local f=aT(a9,'\082\069\067\085\080\069\082\065\082')f.TextSize=
+11 table.insert(aH,f.Activated:Connect(function()if az.restore then az.restore()
+end end))local g=aT(aX,'\065')g.Position,g.Size=UDim2.fromOffset(13,72),UDim2.
+fromOffset(56,56)g.BackgroundColor3=aO.accent g.TextColor3=aO.background g.
+TextSize=27 g.Visible=true g.ZIndex=20 if az.decorateLauncher then az.
+decorateLauncher(g)end local h=aP('\070\114\097\109\101',{Name='\077\111\118\101\072\097\110\100\108\101',Size=UDim2.new(1,-
+18,0,33),BackgroundTransparency=1,Active=true},aY)local i=aS(h,
+'\u{2261}\032\032\032\065\078\079\078\072\085\066\032\047\032\080\079\084\065\084\079\032\032\032\u{b7}\032\032\032\065\082\082\065\083\084\069',10,aO.muted,true)i.Position,i.
+Size=UDim2.fromOffset(15,3),UDim2.new(1,-30,1,-6)local j=aT(aY,'\u{2198}')j.
+Position,j.Size=UDim2.new(1,-25,1,-25),UDim2.fromOffset(23,23)j.
+BackgroundTransparency=1 j.TextColor3=aO.accent j.TextSize=20 j.ZIndex=10 local
+k=0 local l=nil local function m(n)if az.layout then az.layout(n)else for o,p in
+pairs(n)do ay[o]=p end end if l then l()end end local function n(o,p,q)local r,s
+,t,u,v,w=nil,nil,nil,nil,nil,nil table.insert(aH,o.InputBegan:Connect(function(x
+)if x.UserInputType~=Enum.UserInputType.Touch and x.UserInputType~=Enum.
+UserInputType.MouseButton1 then return end r=x s=Vector2.new(x.Position.X,x.
+Position.Y)t=p.AbsolutePosition-aX.AbsolutePosition w=aZ.Scale u,v=aY.Size.X.
+Offset,aY.Size.Y.Offset end))table.insert(aH,aE.InputChanged:Connect(function(x)
+if not r then return end local y=r.UserInputType==Enum.UserInputType.Touch if y
+and x~=r or not y and x.UserInputType~=Enum.UserInputType.MouseMovement then
+return end local z=Vector2.new(x.Position.X,x.Position.Y)-s if z.Magnitude<5
+then return end if q=='\114\101\115\105\122\101'then m({uiWidth=math.clamp(u+z.X/w,300,1100),
+uiHeight=math.clamp(v+z.Y/w,340,900)})else local A=t+z local B,C=aA.normalized(A
+.X,A.Y,aX.AbsoluteSize.X,aX.AbsoluteSize.Y,p.AbsoluteSize.X,p.AbsoluteSize.Y)if
+q=='\108\097\117\110\099\104\101\114'then k=os.clock()+0.25 m({buttonX=B,buttonY=C})else m({uiX=B,uiY=C}
+)end end end))table.insert(aH,aE.InputEnded:Connect(function(x)if r and(x==r or
+r.UserInputType==Enum.UserInputType.MouseButton1 and x.UserInputType==Enum.
+UserInputType.MouseButton1)then r=nil end end))end n(h,aY,'\112\097\110\101\108')n(j,aY,
+'\114\101\115\105\122\101')n(g,g,'\108\097\117\110\099\104\101\114')local function o(p)aN=p aY.Visible=p g.Visible=true
+end table.insert(aH,a6.Activated:Connect(function()o(false)end))table.insert(aH,
+g.Activated:Connect(function()if os.clock()>k then o(not aN)end end))table.
+insert(aH,bg.Activated:Connect(function()if az.save then az.save()end end))table
+.insert(aH,e.Activated:Connect(function()az.pause()end))local function p(q)aM=q
+a5.Text=c(({Inicio='\086\105\115\097\111\032\103\101\114\097\108',Coleta='\067\111\108\101\116\097\032\101\032\097\108\118\111\115',Corte='\077\101\115\097\032\100\101\032\099\111\114\116\101',
+Vendas='\086\101\110\100\097\115',Resfriar='\067\111\110\116\114\111\108\101\032\100\101\032\099\097\108\111\114',Compras='\069\113\117\105\112\097\109\101\110\116\111\115',Ajustes=
+'\080\114\101\102\101\114\101\110\099\105\097\115',Missoes='\077\105\115\115\111\101\115\032\101\032\112\097\115\115\101'})[q]or q)for r,s in pairs(aJ)do s.
+Visible=r==q end for r,s in pairs(aK)do local t=s:FindFirstChild('\083\101\108\101\099\116\101\100\077\097\114\107')
+if t then t.Visible=r==q end s.BackgroundColor3=r==q and aO.accent or aO.sidebar
+s.TextColor3=r==q and aO.background or aO.text end end local function q(r,s)
+local t=aP('\083\099\114\111\108\108\105\110\103\070\114\097\109\101',{Name=r,Size=UDim2.fromScale(1,1),
+BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=4,
+ScrollBarImageColor3=aO.accent,AutomaticCanvasSize=Enum.AutomaticSize.Y,
+CanvasSize=UDim2.fromOffset(0,0),Visible=false},a8)local u=aP('\085\073\076\105\115\116\076\097\121\111\117\116',{
+Padding=UDim.new(0,13),SortOrder=Enum.SortOrder.LayoutOrder},t)aP('\085\073\080\097\100\100\105\110\103',{
+PaddingRight=UDim.new(0,9),PaddingBottom=UDim.new(0,12)},t)aJ[r]=t local v=aT(a2
+,string.format('\037\048\050\100\032\032\032\037\115',s,c(r)))v.Size=UDim2.new(1,0,0,39)v.LayoutOrder=s v.
+TextXAlignment=Enum.TextXAlignment.Left aP('\085\073\080\097\100\100\105\110\103',{PaddingLeft=UDim.new(0,
+10)},v)local w=aP('\070\114\097\109\101',{Name='\083\101\108\101\099\116\101\100\077\097\114\107',BackgroundColor3=aO.accent,
+BorderSizePixel=0,Position=UDim2.new(0,0,0.2,0),Size=UDim2.new(0,3,0.6,0),
+Visible=false},v)aQ(w,2)aK[r]=v table.insert(aH,v.Activated:Connect(function()p(
+r)end))return t,u end local function r(s,t,u)local v=aP('\070\114\097\109\101',{
+BackgroundColor3=aO.card,BorderSizePixel=0,Size=UDim2.new(1,0,0,0),AutomaticSize
+=Enum.AutomaticSize.Y},s)aQ(v,12)aR(v)aP('\085\073\080\097\100\100\105\110\103',{PaddingTop=UDim.new(0,16),
+PaddingBottom=UDim.new(0,15),PaddingLeft=UDim.new(0,15),PaddingRight=UDim.new(0,
+15)},v)aP('\085\073\076\105\115\116\076\097\121\111\117\116',{Padding=UDim.new(0,10),SortOrder=Enum.SortOrder.
+LayoutOrder},v)local w=aS(v,t,15,aO.text,true)w.Size=UDim2.new(1,0,0,23)w.
+LayoutOrder=0 if u then local x=aS(v,u,11,aO.muted,false)x.Size=UDim2.new(1,0,0,
+0)x.AutomaticSize=Enum.AutomaticSize.Y x.TextWrapped=true x.TextYAlignment=Enum.
+TextYAlignment.Top x.LayoutOrder=1 end return v end local s=10 local function t(
+u,v,w,x)s=s+1 local y=aP('\070\114\097\109\101',{BackgroundTransparency=1,Size=UDim2.new(1,0,0,
+x or 80),LayoutOrder=s},u)local z=aS(y,v,12,aO.text,false)z.Size=UDim2.new(1,-
+115,0,36)z.TextWrapped=true if w then local A=aS(y,w,10,aO.muted,false)A.
+Position,A.Size=UDim2.fromOffset(0,41),UDim2.new(1,-5,0,32)A.TextWrapped=true A.
+TextYAlignment=Enum.TextYAlignment.Top end return y end local function u(v,w)aI[
+v]=aI[v]or{}table.insert(aI[v],w)w(ay[v])end local function v(w,x,y,z)local A=t(
+w,y,z,z and 82 or 44)local B=aT(A,'')B.Size,B.Position=UDim2.fromOffset(54,34),
+UDim2.new(1,-54,0,1)local C=aP('\070\114\097\109\101',{BackgroundColor3=Color3.fromRGB(244,238,
+255),BorderSizePixel=0,Size=UDim2.fromOffset(24,24),Position=UDim2.fromOffset(5,
+5)},B)aQ(C,20)u(x,function(D)B.BackgroundColor3=D and aO.accent or Color3.
+fromRGB(63,59,78)C.Position=UDim2.fromOffset(D and 25 or 5,5)end)table.insert(aH
+,B.Activated:Connect(function()local D=az.value and az.value(x)or ay[x]az.
+change(x,not D)end))end local function w(x,y,z,A)local B=t(x,z,nil,46)local C=
+aT(B,'')C.Size,C.Position=UDim2.fromOffset(112,36),UDim2.new(1,-112,0,0)u(y,
+function(D)for E,F in ipairs(A)do if F[1]==D then C.Text=c(F[2])..'\032\062'return end
+end end)table.insert(aH,C.Activated:Connect(function()local D=1 for E,F in
+ipairs(A)do if F[1]==ay[y]then D=E break end end az.change(y,A[D%#A+1][1])end))
+return B end local function x(y,z,A,B,C,D,E)E=c(E)local F=t(y,A,nil,80)local G=
+aP('\084\101\120\116\066\111\120',{Size=UDim2.fromOffset(100,34),Position=UDim2.new(1,-100,0,0),
+BackgroundColor3=aO.background,TextColor3=aO.accent,BorderSizePixel=0,TextSize=
+12,Font=Enum.Font.Gotham,ClearTextOnFocus=false},F)aQ(G,6)local H=aP(
+'\084\101\120\116\066\117\116\116\111\110',{Text='',AutoButtonColor=false,Position=UDim2.fromOffset(0,46),Size
+=UDim2.new(1,0,0,28),BackgroundColor3=Color3.fromRGB(57,53,74),
+BackgroundTransparency=1,BorderSizePixel=0},F)local I=aP('\070\114\097\109\101',{Position=UDim2
+.fromOffset(0,11),Size=UDim2.new(1,0,0,6),BackgroundColor3=Color3.fromRGB(57,53,
+74),BorderSizePixel=0},H)aQ(H,4)local J=aP('\070\114\097\109\101',{Size=UDim2.fromScale(0,1),
+BackgroundColor3=aO.accent,BorderSizePixel=0},I)aQ(J,4)local L=false local M,N=
+nil,nil local O=C>=10000 if O then H.Visible=false F.Size=UDim2.new(1,0,0,55)end
+u(z,function(P)G.Text=string.format(D<1 and'\037\046\050\102\037\115'or'\037\046\048\102\037\115',P,E or'')J.Size=
+UDim2.fromScale(math.clamp((P-B)/(C-B),0,1),1)end)local function P(Q)local R=
+math.clamp((Q-H.AbsolutePosition.X)/math.max(1,H.AbsoluteSize.X),0,1)az.change(z
+,math.clamp(math.floor((B+R*(C-B))/D+0.5)*D,B,C))end table.insert(aH,G.FocusLost
+:Connect(function()local Q=az.parseNumber and az.parseNumber(G.Text)or tonumber(
+string.match(G.Text,'\037\045\063\091\037\100\037\046\093\043'))if Q then az.change(z,math.clamp(Q,B,C))else
+az.change(z,ay[z])end end))table.insert(aH,H.InputBegan:Connect(function(Q)if Q.
+UserInputType==Enum.UserInputType.MouseButton1 then L=true P(Q.Position.X)elseif
+Q.UserInputType==Enum.UserInputType.Touch then M=Q N=Q.Position L=false end end)
+)table.insert(aH,aE.InputChanged:Connect(function(Q)if M and Q==M then local R=Q
+.Position-N if not L and math.abs(R.Y)>10 and math.abs(R.Y)>math.abs(R.X)then M=
+nil return end if math.abs(R.X)>8 and math.abs(R.X)>math.abs(R.Y)*1.4 then L=
+true end end if L and(Q.UserInputType==Enum.UserInputType.MouseMovement or Q==M)
+then P(Q.Position.X)end end))table.insert(aH,aE.InputEnded:Connect(function(Q)if
+Q.UserInputType==Enum.UserInputType.MouseButton1 or Q==M then L=false M=nil end
+end))end local y=q('\073\110\105\099\105\111',1)local z=r(y,'\066\065\082\082\065\032\068\069\032\070\069\082\082\065\077\069\078\084\065\083\032\068\079\032\074\079\071\079',
+"\085\115\101\032\115\111\109\101\110\116\101\032\115\101\032\115\117\109\105\114\101\109\032\097\032\109\097\111\044\032\097\032\112\097\044\032\097\032\100\105\110\097\109\105\116\101\032\111\117\032\111\115\032\112\114\111\109\112\116\115\032\100\111\032\106\111\103\111\046")z.
+LayoutOrder=20 local A=aT(z,'\082\069\067\085\080\069\082\065\082\032\077\065\079\044\032\080\065\032\069\032\070\069\082\082\065\077\069\078\084\065\083')A.Size=UDim2.new(1
+,0,0,48)A.BackgroundColor3=Color3.fromRGB(18,113,100)A.LayoutOrder=3 table.
+insert(aH,A.Activated:Connect(function()if az.restore then az.restore()end end))
+v(z,'\097\117\116\111\082\101\112\097\105\114\071\117\105','\082\101\099\117\112\101\114\097\114\032\097\111\032\105\110\105\099\105\097\114\032\101\032\114\101\110\097\115\099\101\114',
+"\065\032\105\110\116\101\114\102\097\099\101\032\101\032\114\101\115\116\097\117\114\097\100\097\059\032\097\115\032\114\111\116\105\110\097\115\032\099\111\110\116\105\110\117\097\109\032\112\097\117\115\097\100\097\115\032\100\101\112\111\105\115\032\100\101\032\109\111\114\114\101\114\046")
+local B=aS(z,'\078\101\110\104\117\109\097\032\114\101\099\117\112\101\114\097\099\097\111\032\115\111\108\105\099\105\116\097\100\097\032\110\101\115\116\097\032\115\101\115\115\097\111\046',11,aO.muted,false)B.
+Size=UDim2.new(1,0,0,60)B.TextWrapped=true B.LayoutOrder=999 local C=r(y,
+'\077\079\068\079\083\032\047\032\067\065\080\073\084\085\076\079\032\073\073',
+"\079\080\058\032\115\117\103\097\100\111\114\032\077\065\088\044\032\099\111\108\101\116\097\032\116\111\116\097\108\044\032\099\111\114\116\101\032\101\032\115\097\105\100\097\046\032\065\117\116\111\032\080\114\111\103\114\101\115\115\058\032\099\105\099\108\111\032\110\111\114\109\097\108\046")C
+.LayoutOrder=-40 aP('\085\073\071\114\097\100\105\101\110\116',{Color=ColorSequence.new(Color3.fromRGB(118,82,
+45),aO.card),Rotation=25},C)local D=aP('\070\114\097\109\101',{Size=UDim2.new(1,0,0,48),
+BackgroundTransparency=1,LayoutOrder=2},C)local E=aT(D,'\065\085\084\079\032\080\082\079\071\082\069\083\083')E.Size=
+UDim2.new(0.5,-5,1,0)E.BackgroundColor3=aO.accent E.TextColor3=aO.background E.
+TextSize=13 u('\097\117\116\111\080\114\111\103\114\101\115\115',function(F)E.Text=c(F and'\080\065\085\083\065\082\032\080\082\079\071\082\069\083\083'or
+'\065\085\084\079\032\080\082\079\071\082\069\083\083')end)table.insert(aH,E.Activated:Connect(function()az.change(
+'\097\117\116\111\080\114\111\103\114\101\115\115',not az.value('\097\117\116\111\080\114\111\103\114\101\115\115'))end))local F=aT(D,'\065\084\073\086\065\082\032\079\080')F.
+Position=UDim2.new(0.5,5,0,0)F.Size=UDim2.new(0.5,-5,1,0)F.BackgroundColor3=aO.
+mint F.TextColor3=aO.background F.TextSize=13 u('\111\112\065\117\116\111\070\105\110\105\115\104',function(G)F.Text
+=c(G and'\080\065\085\083\065\082\032\079\080'or'\065\084\073\086\065\082\032\079\080')end)table.insert(aH,F.Activated:Connect(
+function()az.change('\111\112\065\117\116\111\070\105\110\105\115\104',not az.value('\111\112\065\117\116\111\070\105\110\105\115\104'))end))local G=aS(
+C,'\077\079\068\079\032\032\u{2022}\032\032\080\065\085\083\065\068\079',11,aO.mint,true)G.Size=UDim2.new(1,0,0,0)G.
+AutomaticSize=Enum.AutomaticSize.Y G.LayoutOrder=3 G.TextWrapped=true local H=r(
+y,'\080\069\082\070\073\076\032\068\065\032\080\065\082\084\073\068\065')H.LayoutOrder=-35 w(H,'\112\097\114\116\121\080\114\111\102\105\108\101','\084\105\112\111\032\100\101\032\103\114\117\112\111',{{
+'\083\111\108\111','\083\111\108\111'},{'\084\101\097\109','\067\111\109\032\111\032\104\117\098'},{'\077\105\120\101\100','\071\114\117\112\111\032\109\105\115\116\111'}})local I=w(H,
+'\112\097\114\116\121\083\105\122\101','\067\111\110\116\097\115\032\099\111\109\032\111\032\104\117\098',{{2,'\050\032\099\111\110\116\097\115'},{3,'\051\032\099\111\110\116\097\115'},{4,'\052\032\099\111\110\116\097\115'}})
+local J=w(H,'\112\097\114\116\121\082\111\108\101','\083\101\117\032\112\097\112\101\108',{{'\076\101\097\100\101\114','\076\105\100\101\114\032\079\080'},{'\067\111\108\108\101\099\116','\067\111\108\101\116\097\114'}
+,{'\067\117\116','\067\111\114\116\097\114\032\101\032\118\101\110\100\101\114'}})local L=w(H,'\112\097\114\116\121\083\108\111\116','\083\117\097\032\109\101\115\097',{{1,'\077\101\115\097\032\049'},{2,
+'\077\101\115\097\032\050'},{3,'\077\101\115\097\032\051'},{4,'\077\101\115\097\032\052'}})local M=aS(H,'',12,aO.muted,false)M.Size=
+UDim2.new(1,0,0,0)M.AutomaticSize=Enum.AutomaticSize.Y M.TextWrapped=true M.
+LayoutOrder=90 local N=aT(H,'\073\078\073\067\073\065\082\032\080\069\082\070\073\076')N.Size=UDim2.new(1,0,0,42)N.
+LayoutOrder=91 N.BackgroundColor3=aO.mint N.TextColor3=aO.background table.
+insert(aH,N.Activated:Connect(az.startProfile))local function O()local P=ay.
+partyProfile=='\084\101\097\109'I.Visible=P J.Visible=P L.Visible=P and ay.partyRole~=
+'\067\111\108\108\101\099\116'if P then local Q=({[2]='\049\032\108\105\100\101\114\032\079\080\032\101\032\049\032\110\111\032\099\111\114\116\101\047\118\101\110\100\097\046',[3]=
+'\049\032\108\105\100\101\114\032\079\080\044\032\049\032\110\097\032\099\111\108\101\116\097\032\101\032\049\032\110\111\032\099\111\114\116\101\047\118\101\110\100\097\046',[4]=
+'\049\032\108\105\100\101\114\032\079\080\044\032\049\032\110\097\032\099\111\108\101\116\097\032\101\032\050\032\110\111\032\099\111\114\116\101\047\118\101\110\100\097\046'})[ay.partySize]M.Text=c(Q)..c(
+"\032\085\115\101\109\032\109\101\115\097\115\032\100\105\102\101\114\101\110\116\101\115\046\032\086\101\110\100\097\032\112\097\103\097\032\097\032\101\113\117\105\112\101\046\032\067\111\114\116\101\032\101\032\101\113\117\105\112\097\109\101\110\116\111\115\032\115\097\111\032\105\110\100\105\118\105\100\117\097\105\115\046"
+)elseif ay.partyProfile=='\077\105\120\101\100'then M.Text=c(
+"\065\112\111\105\111\032\099\111\109\032\099\111\114\116\101\032\110\097\116\105\118\111\044\032\118\101\110\100\097\115\032\101\032\099\097\109\105\110\104\097\100\097\046\032\067\111\109\112\114\097\032\102\097\099\097\115\032\101\032\097\116\101\032\100\111\105\115\032\110\105\118\101\105\115\032\100\111\032\117\112\103\114\097\100\101\032\100\101\032\118\101\108\111\099\105\100\097\100\101\032\100\111\032\106\111\103\111\046"
+)else M.Text=c(
+"\082\101\099\111\109\101\110\100\097\100\111\058\032\079\080\046\032\085\109\097\032\099\111\110\116\097\032\102\105\110\097\110\099\105\097\032\097\115\032\102\101\114\114\097\109\101\110\116\097\115\044\032\108\105\109\112\097\032\097\032\109\111\110\116\097\110\104\097\044\032\099\111\114\116\097\032\111\032\101\115\116\111\113\117\101\032\101\032\117\115\097\032\097\032\099\104\097\118\101\046"
+)end end u('\112\097\114\116\121\080\114\111\102\105\108\101',O)u('\112\097\114\116\121\082\111\108\101',O)u('\112\097\114\116\121\083\105\122\101',O)local P=r(y,
+'\083\069\085\032\069\081\085\073\080\065\077\069\078\084\079',
+"\078\105\118\101\105\115\032\108\105\100\111\115\032\100\111\032\106\111\103\111\046\032\077\065\088\032\097\112\097\114\101\099\101\032\115\111\109\101\110\116\101\032\099\111\109\032\116\111\100\111\115\032\111\115\032\110\105\118\101\105\115\032\099\111\110\102\105\114\109\097\100\111\115\046")P
+.LayoutOrder=1 local Q=aP('\070\114\097\109\101',{Size=UDim2.new(1,0,0,192),
+BackgroundTransparency=1,LayoutOrder=3},P)aP('\085\073\071\114\105\100\076\097\121\111\117\116',{CellSize=UDim2.new(
+0.5,-5,0,90),CellPadding=UDim2.fromOffset(10,10),SortOrder=Enum.SortOrder.
+LayoutOrder},Q)local R={}for S,T in ipairs({'\068\121\110\097\109\105\116\101','\083\104\111\118\101\108','\065\117\116\111\080\101\101\108\101\114',
+'\080\111\116\097\116\111\083\117\099\107\101\114'})do local U=aP('\070\114\097\109\101',{BackgroundColor3=aO.sidebar,
+BorderSizePixel=0,LayoutOrder=S},Q)aQ(U,12)aR(U)local V=({Dynamite=Color3.
+fromRGB(66,40,34),Shovel=Color3.fromRGB(27,48,72),AutoPeeler=Color3.fromRGB(43,
+37,70),PotatoSucker=Color3.fromRGB(20,57,54)})[T]aP('\085\073\071\114\097\100\105\101\110\116',{Color=
+ColorSequence.new(V,aO.background),Rotation=25},U)local W=aP('\073\109\097\103\101\076\097\098\101\108',{
+BackgroundTransparency=1,Position=UDim2.fromOffset(10,13),Size=UDim2.fromOffset(
+36,36),Visible=false},U)local X=aS(U,({Dynamite='\068',Shovel='\080',AutoPeeler='\065',
+PotatoSucker='\083'})[T],22,aO.accent,true)X.Position,X.Size=UDim2.fromOffset(12,12
+),UDim2.fromOffset(32,38)X.TextXAlignment=Enum.TextXAlignment.Center local Z=aS(
+U,T,10,aO.text,true)Z.Position,Z.Size=UDim2.fromOffset(53,13),UDim2.new(1,-60,0,
+18)local _=aS(U,'\065\103\117\097\114\100\097\110\100\111\032\100\097\100\111\115',10,aO.muted,false)_.Position,_.Size=UDim2.
+fromOffset(53,35),UDim2.new(1,-60,0,18)local bh=aP('\070\114\097\109\101',{BackgroundColor3=aO.
+line,BorderSizePixel=0,Position=UDim2.new(0,12,1,-17),Size=UDim2.new(1,-24,0,5)}
+,U)aQ(bh,3)local bi=aP('\070\114\097\109\101',{BackgroundColor3=aO.accent,BorderSizePixel=0,
+Size=UDim2.fromScale(0,1)},bh)aQ(bi,3)R[T]={title=Z,level=_,icon=W,letter=X,fill
+=bi}end local bh=aP('\070\114\097\109\101',{Size=UDim2.new(1,0,0,33),BackgroundTransparency=1,
+LayoutOrder=4},P)aP('\085\073\076\105\115\116\076\097\121\111\117\116',{FillDirection=Enum.FillDirection.Horizontal,
+Padding=UDim.new(0,5)},bh)local bi={}for S,T in ipairs({'\082\069\078\068\065','\069\081\085\073\080\065\082',
+'\076\073\077\080\065\082','\083\065\073\082'})do local U=aP('\084\101\120\116\076\097\098\101\108',{Size=UDim2.new(0.25,-4,1,0),
+BackgroundColor3=aO.background,Text=T,TextSize=9,Font=Enum.Font.GothamBold,
+TextColor3=aO.muted,BorderSizePixel=0},bh)aQ(U,7)table.insert(bi,U)end local S=
+aS(P,'\048\048\058\048\048\032\032\047\032\032\083\079\082\084\069\032\048',11,aO.muted,true)S.Size=UDim2.new(1,0,0,24)S.
+LayoutOrder=5 local T=aT(P,'\086\069\082\032\077\069\076\072\079\082\073\065\083')T.Size=UDim2.new(1,0,0,38)T.
+LayoutOrder=6 T.BackgroundColor3=aO.line table.insert(aH,T.Activated:Connect(
+function()p('\067\111\109\112\114\097\115')aJ.Compras.CanvasPosition=Vector2.zero end))local U=r(y,
+'\069\083\084\065\068\079\032\068\065\032\080\065\082\084\073\068\065')U.LayoutOrder=5 local V=aS(U,
+'\068\105\110\104\101\105\114\111\058\032\u{2014}\n\066\111\108\115\097\058\032\u{2014}\n\067\097\108\111\114\058\032\u{2014}\n\069\115\116\097\100\111\058\032\097\103\117\097\114\100\097\110\100\111',12,aO
+.muted,false)V.Size=UDim2.new(1,0,0,145)V.LayoutOrder=3 V.TextYAlignment=Enum.
+TextYAlignment.Top V.TextWrapped=true local W=q('\067\111\108\101\116\097',2)local X=r(W,
+'\070\105\108\116\114\111\032\101\032\115\101\108\101\099\097\111')v(X,'\097\117\116\111\070\097\114\109','\067\111\108\101\116\097\114\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101')v(X,'\097\117\116\111\068\101\108\105\118\101\114',
+'\069\110\116\114\101\103\097\114\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101')w(X,'\114\097\114\105\116\121','\066\097\116\097\116\097\115',{{'\065\110\121','\081\117\097\108\113\117\101\114'},{'\082\097\105\110\098\111\119'
+,'\082\097\105\110\098\111\119'},{'\068\105\097\109\111\110\100','\068\105\097\109\097\110\116\101'},{'\071\111\108\100\101\110','\068\111\117\114\097\100\097'}})w(X,'\115\101\108\101\099\116\105\111\110',
+'\069\115\099\111\108\104\097',{{'\078\101\097\114\101\115\116','\077\097\105\115\032\112\101\114\116\111'},{'\082\097\110\100\111\109','\065\108\101\097\116\111\114\105\097'}})v(X,
+'\099\111\108\108\101\099\116\080\117\109\112\107\105\110\115','\067\111\108\101\116\097\114\032\097\098\111\098\111\114\097\115')v(X,'\099\111\108\108\101\099\116\071\101\109\115','\073\110\099\108\117\105\114\032\103\101\109\097\115\032\100\097\032\112\105\108\104\097')
+v(X,'\103\101\109\080\114\105\111\114\105\116\121','\080\114\105\111\114\105\122\097\114\032\103\101\109\097\115')v(X,'\112\117\109\112\107\105\110\080\114\105\111\114\105\116\121','\080\114\105\111\114\105\122\097\114\032\097\098\111\098\111\114\097\115')
+v(X,'\112\114\105\111\114\105\116\121\086\097\108\117\101','\080\114\105\111\114\105\122\097\114\032\109\097\105\111\114\032\118\097\108\111\114',
+"\078\097\032\115\101\108\101\099\097\111\032\112\111\114\032\112\114\111\120\105\109\105\100\097\100\101\044\032\112\114\111\099\117\114\097\032\118\097\114\105\097\110\116\101\115\032\118\097\108\105\111\115\097\115\032\113\117\097\110\100\111\032\115\117\097\032\105\100\101\110\116\105\100\097\100\101\032\101\115\116\105\118\101\114\032\100\105\115\112\111\110\105\118\101\108\046"
+)w(X,'\100\101\108\105\118\101\114\121\077\111\100\101','\069\110\116\114\101\103\097\114\032\112\111\114',{{'\065\109\111\117\110\116','\081\117\097\110\116\105\100\097\100\101'},{'\080\101\114\099\101\110\116',
+'\080\111\114\099\101\110\116\097\103\101\109'}})w(X,'\100\101\108\105\118\101\114\121\084\097\114\103\101\116','\068\101\115\116\105\110\111',{{'\067\114\097\116\101','\067\097\105\120\097'},{'\084\097\098\108\101',
+'\077\101\115\097'},{'\077\097\110\117\097\108','\077\097\110\117\097\108'},{'\065\117\116\111','\065\117\116\111\109\097\116\105\099\097'}})x(X,'\100\101\108\105\118\101\114\121\070\105\108\108',
+'\069\110\116\114\101\103\097\114\032\099\111\109\032\097\032\098\111\108\115\097\032\101\109',10,100,5,'\037')x(X,'\100\101\108\105\118\101\114\121\066\097\116\099\104',
+'\081\117\097\110\116\105\100\097\100\101\032\112\111\114\032\101\110\116\114\101\103\097',1,1000000,1,'')s+=1 local Z=aP('\070\114\097\109\101',{
+BackgroundTransparency=1,Size=UDim2.new(1,0,0,44),LayoutOrder=s},X)aP(
+'\085\073\076\105\115\116\076\097\121\111\117\116',{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,6
+)},Z)for _,bj in ipairs({100,500,1000,5000})do local bk=aT(Z,tostring(bj))bk.
+Size=UDim2.new(0.25,-5,0,38)table.insert(aH,bk.Activated:Connect(function()az.
+change('\100\101\108\105\118\101\114\121\066\097\116\099\104',bj)end))end v(X,'\105\110\102\105\110\105\116\101\066\097\103','\084\101\110\104\111\032\098\111\108\115\097\032\105\110\102\105\110\105\116\097',
+"\085\115\097\032\111\032\108\111\116\101\032\099\111\110\102\105\103\117\114\097\100\111\032\110\111\032\112\108\097\110\101\106\097\109\101\110\116\111\046\032\069\115\116\097\032\111\112\099\097\111\032\110\097\111\032\099\111\110\099\101\100\101\032\097\032\109\111\099\104\105\108\097\032\110\111\032\106\111\103\111\046"
+)x(X,'\109\097\120\068\105\115\116\097\110\099\101','\065\108\099\097\110\099\101\032\100\101\032\098\117\115\099\097',10,1000,10,'\032\115\116\117\100\115')local bj=q('\067\111\114\116\101',3)
+local bk=r(bj,'\077\101\115\097\032\101\032\102\101\114\114\097\109\101\110\116\097\115')v(bk,'\097\117\116\111\067\117\116','\065\117\116\111\032\067\117\116')v(bk,'\097\105\109\084\097\098\108\101',
+'\065\108\105\110\104\097\114\032\097\032\099\097\109\101\114\097\032\097\111\032\101\110\116\114\097\114\032\110\097\032\109\101\115\097')w(bk,'\099\117\116\077\111\100\101','\077\111\100\111\032\100\101\032\099\111\114\116\101',{{'\070\097\115\116',
+'\082\097\112\105\100\111'},{'\078\097\116\105\118\101','\078\097\116\105\118\111'}})x(bk,'\099\117\116\084\097\114\103\101\116\082\097\116\101',
+'\077\101\116\097\032\100\101\032\116\101\110\116\097\116\105\118\097\115\032\112\111\114\032\115\101\103\117\110\100\111',1,40,1,'\047\115')x(bk,'\099\117\116\084\111\111\108\077\117\108\116\105\112\108\105\101\114',
+'\077\117\108\116\105\112\108\105\099\097\100\111\114\032\099\111\109\032\102\101\114\114\097\109\101\110\116\097\115',1,4,0.5,'\120')w(bk,'\116\097\098\108\101\067\104\111\105\099\101','\077\101\115\097',{{
+'\078\101\097\114\101\115\116','\077\097\105\115\032\112\101\114\116\111'},{'\080\101\101\108\105\110\103\084\097\098\108\101\049','\077\101\115\097\032\049'},{'\080\101\101\108\105\110\103\084\097\098\108\101\050','\077\101\115\097\032\050'},{
+'\080\101\101\108\105\110\103\084\097\098\108\101\051','\077\101\115\097\032\051'},{'\080\101\101\108\105\110\103\084\097\098\108\101\052','\077\101\115\097\032\052'}})v(bk,'\099\117\116\066\117\121\084\111\111\108\115',
+'\067\111\109\112\114\097\114\032\110\111\032\065\117\116\111\032\067\117\116',
+'\067\111\109\112\114\097\032\102\101\114\114\097\109\101\110\116\097\115\032\100\101\032\099\111\114\116\101\032\117\115\097\110\100\111\032\111\032\111\114\099\097\109\101\110\116\111\032\099\111\110\102\105\103\117\114\097\100\111\046')v(bk,'\097\117\116\111\067\114\097\110\107',
+'\071\105\114\097\114\032\099\111\114\116\097\100\111\114\032\109\097\110\117\097\108',
+"\065\099\105\111\110\097\032\097\032\109\097\113\117\105\110\097\032\113\117\097\110\100\111\032\101\115\116\105\118\101\114\032\099\097\114\114\101\103\097\100\097\032\101\032\108\105\098\101\114\097\100\097\032\112\101\108\111\032\106\111\103\111\046")local _=q(
+'\086\101\110\100\097\115',4)local bl=r(_,'\086\101\110\100\097\032\101\032\114\101\116\111\114\110\111',
+"\086\101\110\100\101\032\111\032\101\115\116\111\113\117\101\032\099\111\114\116\097\100\111\032\101\032\114\101\116\111\109\097\032\097\032\114\111\116\105\110\097\046\032\065\032\112\114\111\120\105\109\097\032\102\101\114\114\097\109\101\110\116\097\032\116\101\109\032\112\114\105\111\114\105\100\097\100\101\032\097\112\111\115\032\097\032\118\101\110\100\097\046"
+)v(bl,'\097\117\116\111\083\101\108\108','\065\117\116\111\032\083\101\108\108')x(bl,'\115\101\108\108\084\104\114\101\115\104\111\108\100','\086\101\110\100\101\114\032\097\032\112\097\114\116\105\114\032\100\101',1,1000000
+,1,'\032\098\097\116\097\116\097\115')v(bl,'\098\117\121\065\102\116\101\114\083\101\108\108','\067\111\109\112\114\097\114\032\102\101\114\114\097\109\101\110\116\097\032\097\112\111\115\032\118\101\110\100\101\114')v(bl,
+'\114\101\116\117\114\110\065\102\116\101\114\083\101\108\108','\086\111\108\116\097\114\032\112\097\114\097\032\097\032\109\101\115\097')v(bl,'\115\101\108\108\082\101\109\097\105\110\100\101\114',
+'\086\101\110\100\101\114\032\111\032\114\101\115\116\097\110\116\101\032\110\111\032\102\105\109')local bm=q('\082\101\115\102\114\105\097\114',5)local bn=r(bm,
+'\086\097\108\118\117\108\097\032\100\101\032\097\103\117\097',
+"\067\111\110\102\105\114\109\097\032\111\032\114\101\115\102\114\105\097\109\101\110\116\111\032\112\101\108\097\032\097\103\117\097\032\102\108\117\105\110\100\111\032\111\117\032\112\101\108\097\032\113\117\101\100\097\032\100\111\032\099\097\108\111\114\046")v(bn,
+'\097\117\116\111\067\111\111\108','\065\117\116\111\032\067\111\111\108\105\110\103')x(bn,'\099\111\111\108\072\111\108\100\083\101\099\111\110\100\115','\084\101\109\112\111\032\115\101\103\117\114\097\110\100\111\032\097\032\118\097\108\118\117\108\097',1,5
+,1,'\032\115')v(bn,'\099\111\111\108\072\111\108\100\070\097\108\108\098\097\099\107','\082\101\112\101\116\105\114\032\100\117\114\097\099\097\111\032\111\114\105\103\105\110\097\108\032\115\101\032\110\101\099\101\115\115\097\114\105\111',
+"\083\101\032\111\032\116\111\113\117\101\032\099\117\114\116\111\032\110\097\111\032\114\101\115\102\114\105\097\114\044\032\112\101\114\109\105\116\101\032\117\109\097\032\116\101\110\116\097\116\105\118\097\032\099\111\109\032\111\032\116\101\109\112\111\032\111\114\105\103\105\110\097\108\032\100\111\032\106\111\103\111\046"
+)x(bn,'\104\101\097\116\083\116\097\114\116','\067\111\109\101\099\097\114\032\097\032\114\101\115\102\114\105\097\114\032\101\109',15,100,5,'\037')x(bn,'\104\101\097\116\083\116\111\112',
+'\067\111\110\115\105\100\101\114\097\114\032\102\114\105\111\032\101\109',0,90,5,'\037')x(bn,'\099\111\111\108\105\110\103\082\101\116\114\121','\069\115\112\101\114\097\032\101\110\116\114\101\032\116\101\110\116\097\116\105\118\097\115',5,
+120,1,'\032\115')v(bn,'\114\101\116\117\114\110\065\102\116\101\114\067\111\111\108\105\110\103','\086\111\108\116\097\114\032\097\111\032\112\111\110\116\111\032\097\110\116\101\114\105\111\114')local bo=q(
+'\067\111\109\112\114\097\115',6)local bp=r(bo,'\077\069\076\072\079\082\073\065\083\032\069\077\032\084\069\077\080\079\032\082\069\065\076',
+"\078\105\118\101\105\115\032\099\111\110\102\105\114\109\097\100\111\115\032\112\101\108\111\032\106\111\103\111\046\032\067\111\110\115\117\108\116\097\114\032\101\115\116\097\032\108\105\115\116\097\032\109\097\110\116\101\109\032\097\032\114\111\116\105\110\097\032\101\109\032\101\120\101\099\117\099\097\111\046"
+)bp.LayoutOrder=-10 local bq=aP('\083\099\114\111\108\108\105\110\103\070\114\097\109\101',{Size=UDim2.new(1,0,0,260),
+LayoutOrder=2,CanvasSize=UDim2.fromOffset(0,0),AutomaticCanvasSize=Enum.
+AutomaticSize.Y,ScrollingDirection=Enum.ScrollingDirection.Y,ScrollBarThickness=
+4,ScrollBarImageColor3=aO.mint,BackgroundColor3=aO.background,BorderSizePixel=0}
+,bp)aQ(bq,10)aP('\085\073\080\097\100\100\105\110\103',{PaddingTop=UDim.new(0,6),PaddingBottom=UDim.new(0,6
+),PaddingLeft=UDim.new(0,6),PaddingRight=UDim.new(0,9)},bq)aP('\085\073\076\105\115\116\076\097\121\111\117\116',{
+Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder},bq)local br=aS(bq,
+'\065\103\117\097\114\100\097\110\100\111\032\110\105\118\101\105\115\046\046\046',12,aO.muted,false)br.Size=UDim2.new(1,0,0,24)local bs={}
+local bt={PickAmount='\081\117\097\110\116\105\100\097\100\101',PickSpeed='\086\101\108\111\099\105\100\097\100\101',HoldPick=
+'\067\111\108\101\116\097\032\099\111\110\116\105\110\117\097',Charge='\067\097\114\103\097',Cooling='\082\101\115\102\114\105\097\109\101\110\116\111',PeelAmount='\081\117\097\110\116\105\100\097\100\101',
+PeelSpeed='\086\101\108\111\099\105\100\097\100\101',PotatoWorth='\086\097\108\111\114\032\100\097\032\098\097\116\097\116\097',WalkSpeed='\086\101\108\111\099\105\100\097\100\101\032\097\032\112\101'
+,Luck='\083\111\114\116\101',Capacity='\067\097\112\097\099\105\100\097\100\101',Grasp='\071\097\114\114\097',FlySpeed='\086\111\111'}local function
+bu(bv)local bw=bv.toolId..'\047'..bv.id if bs[bw]then return bs[bw]end local bx=aP(
+'\070\114\097\109\101',{Size=UDim2.new(1,0,0,58),BackgroundColor3=aO.card,BorderSizePixel=0},bq
+)aQ(bx,9)local by=aP('\073\109\097\103\101\076\097\098\101\108',{Position=UDim2.fromOffset(7,9),Size=UDim2.
+fromOffset(37,37),BackgroundColor3=aO.background,BorderSizePixel=0,ScaleType=
+Enum.ScaleType.Fit},bx)aQ(by,7)local bz=aS(bx,bt[bv.id]or bv.id,12,aO.text,true)
+bz.Position,bz.Size=UDim2.fromOffset(51,8),UDim2.new(1,-142,0,18)bz.TextTruncate
+=Enum.TextTruncate.AtEnd local bA=aS(bx,'',10,aO.muted,false)bA.Position,bA.Size
+=UDim2.fromOffset(51,30),UDim2.new(1,-142,0,16)bA.TextTruncate=Enum.TextTruncate
+.AtEnd local bB=aT(bx,'\077\069\076\072\079\082\065\082')bB.Position,bB.Size=UDim2.new(1,-86,0,11),UDim2
+.fromOffset(79,36)bB.TextSize=10 table.insert(aH,bB.Activated:Connect(function()
+if bB.Active then az.manualUpgrade(bv.toolId,bv.id)end end))local bC={frame=bx,
+icon=by,detail=bA,buy=bB}bs[bw]=bC return bC end local bv=r(bo,'\079\114\099\097\109\101\110\116\111',
+"\067\111\109\112\114\097\115\032\097\117\116\111\109\097\116\105\099\097\115\032\117\115\097\109\032\115\111\109\101\110\116\101\032\100\105\110\104\101\105\114\111\032\099\111\109\117\109\032\100\111\032\106\111\103\111\046\032\082\101\115\101\114\118\097\032\101\032\108\105\109\105\116\101\032\112\111\114\032\099\111\109\112\114\097\032\115\097\111\032\097\112\108\105\099\097\100\111\115\032\097\110\116\101\115\032\100\101\032\099\097\100\097\032\097\099\097\111\046"
+)v(bv,'\097\117\116\111\066\117\121\084\111\111\108\115','\070\101\114\114\097\109\101\110\116\097\115')v(bv,'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115','\077\101\108\104\111\114\105\097\115')v(bv,
+'\097\117\116\111\066\117\121\083\116\111\114\097\103\101','\066\111\108\115\097\115\032\101\032\099\097\112\097\099\105\100\097\100\101')v(bv,'\105\110\102\105\110\105\116\101\066\097\103',
+'\084\101\110\104\111\032\109\111\099\104\105\108\097\032\105\110\102\105\110\105\116\097',
+"\073\109\112\101\100\101\032\099\111\109\112\114\097\115\032\100\101\032\109\111\099\104\105\108\097\115\032\101\032\117\115\097\032\111\032\108\105\109\105\116\101\032\100\101\032\101\110\116\114\101\103\097\032\112\111\114\032\113\117\097\110\116\105\100\097\100\101\046")v(bv,
+'\098\117\121\077\097\099\104\105\110\101\115','\067\111\109\112\114\097\114\032\099\111\114\116\097\100\111\114\101\115\032\109\097\110\117\097\108\032\101\032\097\117\116\111\109\097\116\105\099\111',
+"\068\101\112\111\105\115\032\100\101\032\109\097\120\105\109\105\122\097\114\032\097\115\032\100\117\097\115\032\109\101\108\104\111\114\105\097\115\032\100\101\032\100\105\110\097\109\105\116\101\046\032\079\032\109\097\110\117\097\108\032\110\097\111\032\114\101\099\101\098\101\032\109\101\108\104\111\114\105\097\115\046"
+)x(bv,'\112\114\111\100\117\099\116\105\111\110\066\097\116\099\104','\076\111\116\101\032\112\097\114\097\032\111\032\097\117\116\111\109\097\116\105\099\111\032\110\111\032\109\097\120\105\109\111',50,10000,50,
+'\032\098\097\116\097\116\097\115')v(bv,'\102\105\120\077\101\110\117\066\108\117\114','\067\111\114\114\105\103\105\114\032\100\101\115\102\111\113\117\101\032\097\111\032\102\101\099\104\097\114\032\109\101\110\117\115')v(bv,
+'\115\097\118\101\070\111\114\078\101\120\116\084\111\111\108','\071\117\097\114\100\097\114\032\112\097\114\097\032\097\032\112\114\111\120\105\109\097\032\097\114\109\097')v(bv,'\097\117\116\111\066\117\121\068\114\111\110\101',
+'\079\102\101\114\101\099\101\114\032\099\111\109\112\114\097\032\100\111\032\100\114\111\110\101\032\097\032\099\097\100\097\032\112\097\114\116\105\100\097',
+"\083\111\108\105\099\105\116\097\032\099\111\110\102\105\114\109\097\099\097\111\032\100\101\032\056\048\032\103\101\109\097\115\059\032\097\032\111\102\101\114\116\097\032\114\101\097\108\032\116\097\109\098\101\109\032\112\114\101\099\105\115\097\032\099\111\110\102\105\114\109\097\114\032\101\115\115\101\032\118\097\108\111\114\046"
+)v(bv,'\117\112\103\114\097\100\101\068\114\111\110\101','\077\101\108\104\111\114\097\114\032\100\114\111\110\101\032\099\111\109\112\114\097\100\111')v(bv,'\099\108\101\097\114\080\105\108\101\070\105\114\115\116',
+'\076\105\109\112\097\114\032\097\110\116\101\115\032\100\101\032\099\111\114\116\097\114',
+"\083\111\109\101\110\116\101\032\099\111\109\032\100\105\110\097\109\105\116\101\044\032\112\097\044\032\097\117\116\111\109\097\116\105\099\111\032\101\032\115\117\103\097\100\111\114\032\110\111\032\109\097\120\105\109\111\046\032\065\110\116\101\115\032\100\105\115\115\111\044\032\099\111\110\116\105\110\117\097\032\117\115\097\110\100\111\032\097\032\102\097\099\097\032\112\097\114\097\032\103\101\114\097\114\032\114\101\110\100\097\046"
+)v(bv,'\117\112\103\114\097\100\101\077\097\099\104\105\110\101\115','\077\101\108\104\111\114\097\114\032\109\097\113\117\105\110\097\115\032\099\111\109\112\114\097\100\097\115')v(bv,'\117\112\103\114\097\100\101\071\101\110\101\114\097\108',
+'\077\101\108\104\111\114\105\097\115\032\103\101\114\097\105\115\032\100\111\032\099\097\112\105\116\117\108\111\032\050')x(bv,'\114\101\115\101\114\118\101\067\097\115\104','\082\101\115\101\114\118\097\032\100\101\032\100\105\110\104\101\105\114\111',0,
+100000,0.01,'\032\036')x(bv,'\109\097\120\080\117\114\099\104\097\115\101','\076\105\109\105\116\101\032\112\111\114\032\099\111\109\112\114\097\032\040\048\032\061\032\108\105\118\114\101\041',0,100000,
+0.01,'\032\036')local bw=q('\077\105\115\115\111\101\115',7)local bx=r(bw,'\065\085\084\079\032\081\085\069\083\084',
+"\069\115\099\111\108\104\097\032\117\109\097\032\109\105\115\115\097\111\032\099\111\109\032\112\114\111\103\114\101\115\115\111\032\100\111\032\106\111\103\111\046\032\079\032\065\117\116\111\032\080\114\111\103\114\101\115\115\032\112\114\105\111\114\105\122\097\032\097\032\116\097\114\101\102\097\032\101\032\118\111\108\116\097\032\097\111\032\099\105\099\108\111\032\110\111\114\109\097\108\032\097\112\111\115\032\097\032\099\111\110\102\105\114\109\097\099\097\111\046"
+)local by=aS(bx,
+"\065\098\114\097\032\097\032\116\101\108\097\032\100\101\032\109\105\115\115\111\101\115\032\111\117\032\100\111\032\112\097\115\115\101\032\100\111\032\106\111\103\111\032\112\097\114\097\032\099\097\114\114\101\103\097\114\032\097\032\108\105\115\116\097\046",12,aO.
+muted,false)by.Size=UDim2.new(1,0,0,35)by.TextWrapped=true by.LayoutOrder=2
+local bz={}local function bA(bB)if bz[bB.id]then return bz[bB.id]end local bC=
+aT(bx,'')bC.Size=UDim2.new(1,0,0,48)bC.TextWrapped=true bC.TextXAlignment=Enum.
+TextXAlignment.Left aP('\085\073\080\097\100\100\105\110\103',{PaddingLeft=UDim.new(0,9),PaddingRight=UDim.
+new(0,9)},bC)table.insert(aH,bC.Activated:Connect(function()az.selectQuest(bB.id
+)end))bz[bB.id]=bC return bC end local bB=q('\065\106\117\115\116\101\115',8)local bC=r(bB,'\067\111\110\116\097')
+local bD=aT(bC,'\073\068\073\079\077\065')bD.Size=UDim2.new(1,0,0,40)bD.LayoutOrder=3 table.
+insert(aH,bD.Activated:Connect(az.language))local bE=aT(bC,'\069\078\067\069\082\082\065\082\032\072\085\066')bE.
+Size=UDim2.new(1,0,0,40)bE.LayoutOrder=4 table.insert(aH,bE.Activated:Connect(
+function()aW:Destroy()end))local bF=r(bB,'\084\101\108\097\032\101\032\116\111\113\117\101',
+"\065\114\114\097\115\116\101\032\111\032\116\111\112\111\032\112\097\114\097\032\109\111\118\101\114\032\111\032\112\097\105\110\101\108\046\032\079\032\098\111\116\097\111\032\065\032\116\097\109\098\101\109\032\112\111\100\101\032\115\101\114\032\097\114\114\097\115\116\097\100\111\046\032\085\115\101\032\111\032\099\097\110\116\111\032\105\110\102\101\114\105\111\114\032\112\097\114\097\032\114\101\100\105\109\101\110\115\105\111\110\097\114\046"
+)x(bF,'\117\105\083\099\097\108\101','\069\115\099\097\108\097\032\100\097\032\105\110\116\101\114\102\097\099\101',65,150,5,'\037')x(bF,'\117\105\087\105\100\116\104',
+'\076\097\114\103\117\114\097\032\100\111\032\112\097\105\110\101\108',300,1100,10,'\032\112\120')x(bF,'\117\105\072\101\105\103\104\116','\065\108\116\117\114\097\032\100\111\032\112\097\105\110\101\108',340,900
+,10,'\032\112\120')x(bF,'\098\117\116\116\111\110\083\105\122\101','\084\097\109\097\110\104\111\032\100\111\032\098\111\116\097\111\032\065',44,88,2,'\032\112\120')local bG=aT(bF,
+'\067\069\078\084\082\065\076\073\090\065\082\032\069\032\082\069\083\084\065\085\082\065\082\032\084\065\077\065\078\072\079')bG.Size=UDim2.new(1,0,0,44)bG.LayoutOrder=1000
+table.insert(aH,bG.Activated:Connect(function()m({uiX=0.5,uiY=0.5,uiWidth=760,
+uiHeight=580,uiScale=65,buttonX=0.03,buttonY=0.22,buttonSize=56})end))local bH=
+r(bB,'\067\097\109\101\114\097')v(bH,'\102\111\114\099\101\084\104\105\114\100\080\101\114\115\111\110','\070\111\114\099\097\114\032\116\101\114\099\101\105\114\097\032\112\101\115\115\111\097')x(bH,
+'\099\097\109\101\114\097\068\105\115\116\097\110\099\101','\068\105\115\116\097\110\099\105\097\032\109\097\120\105\109\097\032\100\097\032\099\097\109\101\114\097',8,100,1,'\032\115\116\117\100\115')v(bH,'\097\105\109\067\111\111\108\105\110\103'
+,'\065\112\111\110\116\097\114\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101\032\112\097\114\097\032\097\032\118\097\108\118\117\108\097',
+"\065\108\105\110\104\097\032\097\032\099\097\109\101\114\097\032\100\117\114\097\110\116\101\032\097\032\105\110\116\101\114\097\099\097\111\032\101\032\114\101\115\116\097\117\114\097\032\097\032\118\105\115\097\111\032\097\111\032\116\101\114\109\105\110\097\114\046")local bI
+=r(bB,'\069\120\101\099\117\099\097\111')v(bI,'\097\110\116\105\065\102\107','\065\110\116\105\045\065\070\075',
+"\065\116\117\097\032\112\111\114\032\101\118\101\110\116\111\032\100\101\032\105\110\097\116\105\118\105\100\097\100\101\032\101\110\113\117\097\110\116\111\032\097\108\103\117\109\097\032\114\111\116\105\110\097\032\101\115\116\105\118\101\114\032\097\116\105\118\097\059\032\112\097\117\115\097\032\106\117\110\116\111\032\100\097\115\032\114\111\116\105\110\097\115\046"
+)v(bI,'\097\117\116\111\069\115\099\097\112\101','\083\097\105\100\097\032\097\117\116\111\109\097\116\105\099\097\032\109\097\110\117\097\108',
+"\085\115\097\032\097\032\099\104\097\118\101\032\114\101\097\108\032\112\097\114\097\032\112\114\111\099\117\114\097\114\032\097\032\115\097\105\100\097\046\032\079\032\079\080\032\101\032\111\032\065\117\116\111\032\080\114\111\103\114\101\115\115\032\106\097\032\099\111\111\114\100\101\110\097\109\032\115\117\097\032\112\114\111\112\114\105\097\032\115\097\105\100\097\046"
+)v(bI,'\115\107\105\112\069\110\100\105\110\103\083\099\101\110\101','\080\117\108\097\114\032\099\101\110\097\032\102\105\110\097\108',
+"\085\115\097\032\111\032\098\111\116\097\111\032\080\117\108\097\114\032\113\117\097\110\100\111\032\100\105\115\112\111\110\105\118\101\108\046\032\065\112\111\115\032\097\032\102\117\103\097\032\099\111\110\102\105\114\109\097\100\097\044\032\116\097\109\098\101\109\032\116\101\110\116\097\032\097\032\102\117\110\099\097\111\032\067\097\110\099\101\108\032\100\097\032\099\101\110\097\046"
+)v(bI,'\114\101\108\101\097\115\101\069\110\100\105\110\103\067\097\109\101\114\097','\076\105\098\101\114\097\114\032\099\097\109\101\114\097\032\097\112\111\115\032\118\105\116\111\114\105\097',
+"\083\101\032\097\032\099\101\110\097\032\110\097\111\032\111\102\101\114\101\099\101\114\032\117\109\032\098\111\116\097\111\044\032\116\101\110\116\097\032\100\101\118\111\108\118\101\114\032\097\032\118\105\115\097\111\032\097\111\032\112\101\114\115\111\110\097\103\101\109\032\100\101\112\111\105\115\032\100\097\032\099\111\110\102\105\114\109\097\099\097\111\032\100\097\032\102\117\103\097\046"
+)v(bI,'\116\104\114\111\117\103\104\112\117\116\077\111\100\101','\082\105\116\109\111\032\100\101\032\108\105\109\112\101\122\097',
+"\067\111\109\032\101\113\117\105\112\097\109\101\110\116\111\115\032\110\111\032\109\097\120\105\109\111\044\032\112\114\101\102\101\114\101\032\097\108\118\111\115\032\112\114\111\120\105\109\111\115\032\101\032\101\118\105\116\097\032\100\101\115\118\105\111\115\032\112\111\114\032\114\097\114\105\100\097\100\101\115\046"
+)v(bI,'\102\097\115\116\068\101\108\105\118\101\114\121','\082\101\100\117\122\105\114\032\105\110\116\101\114\118\097\108\111\032\108\111\099\097\108\032\100\097\032\101\110\116\114\101\103\097',
+"\065\099\101\108\101\114\097\032\101\110\116\114\101\103\097\115\032\101\032\114\101\115\116\097\117\114\097\032\111\032\105\110\116\101\114\118\097\108\111\032\110\111\114\109\097\108\032\115\101\032\097\032\101\110\116\114\101\103\097\032\102\097\108\104\097\114\046")x(bI,
+'\112\108\097\099\101\109\101\110\116\068\101\108\097\121','\073\110\116\101\114\118\097\108\111\032\108\111\099\097\108\032\112\111\114\032\099\111\108\111\099\097\099\097\111',0.005,0.08,0.005,'\032\115')w(bI,
+'\109\111\118\101\109\101\110\116','\068\101\115\108\111\099\097\109\101\110\116\111',{{'\084\101\108\101\112\111\114\116','\084\101\108\101\112\111\114\116\101'},{'\087\097\108\107','\067\097\109\105\110\104\097\114'}})w(bI,
+'\115\112\101\101\100\077\111\100\101','\082\105\116\109\111',{{'\084\117\114\098\111','\084\117\114\098\111'},{'\083\116\097\110\100\097\114\100','\078\111\114\109\097\108'}})x(bI,'\112\105\099\107\066\097\116\099\104',
+'\067\111\108\101\116\097\115\032\112\111\114\032\114\111\100\097\100\097',1,16,1,'')v(bI,'\097\117\114\097\067\111\108\108\101\099\116','\067\111\108\101\116\097\114\032\097\111\032\114\101\100\111\114\032\115\101\109\032\109\105\114\097\114',
+"\085\115\097\032\073\068\115\032\100\111\115\032\097\108\118\111\115\032\112\114\111\120\105\109\111\115\059\032\116\101\108\101\112\111\114\116\097\032\113\117\097\110\100\111\032\110\101\099\101\115\115\097\114\105\111\046\032\079\032\115\101\114\118\105\100\111\114\032\097\105\110\100\097\032\118\097\108\105\100\097\032\111\032\097\108\099\097\110\099\101\046"
+)x(bI,'\097\117\114\097\082\097\100\105\117\115','\082\097\105\111\032\108\111\099\097\108\032\100\097\032\099\111\108\101\116\097',5,18,1,'\032\115\116\117\100\115')w(bI,'\099\111\108\108\101\099\116\084\111\111\108',
+'\070\101\114\114\097\109\101\110\116\097\032\100\101\032\099\111\108\101\116\097',{{'\065\117\116\111','\077\101\108\104\111\114\032\097\100\113\117\105\114\105\100\097'},{'\072\097\110\100','\077\097\111'},{'\083\104\111\118\101\108',
+'\080\097'},{'\080\111\116\097\116\111\083\117\099\107\101\114','\080\048\084\052\084\048\045\051\048\048\048'}})v(bI,'\108\111\103\105\099\097\108\083\112\101\099\105\097\108\115',
+'\069\115\112\101\099\105\097\105\115\032\115\101\109\032\109\111\100\101\108\111\032\118\105\115\105\118\101\108',
+"\085\115\097\032\111\115\032\073\068\115\032\101\032\097\115\032\112\111\115\105\099\111\101\115\032\097\116\117\097\105\115\032\100\111\032\106\111\103\111\046\032\084\101\110\116\097\116\105\118\097\115\032\114\101\099\117\115\097\100\097\115\032\114\101\099\101\098\101\109\032\117\109\097\032\112\097\117\115\097\059\032\114\101\099\111\109\112\101\110\115\097\115\032\100\101\112\101\110\100\101\109\032\100\111\032\115\101\114\118\105\100\111\114\046"
+)v(bI,'\097\117\116\111\082\101\099\111\118\101\114','\082\101\099\117\112\101\114\097\114\032\101\116\097\112\097\115\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101',
+'\070\097\108\104\097\115\032\100\101\032\099\111\108\101\116\097\032\101\032\101\110\116\114\101\103\097\032\097\100\105\097\109\032\115\111\109\101\110\116\101\032\097\032\101\116\097\112\097\032\097\102\101\116\097\100\097\046')local bJ=aT(bI,
+'\082\069\083\084\065\085\082\065\082\032\067\079\078\084\082\079\076\069\083\032\068\079\032\074\079\071\079')bJ.Size=UDim2.new(1,0,0,40)bJ.LayoutOrder=1000
+table.insert(aH,bJ.Activated:Connect(function()if az.restore then az.restore()
+end end))x(bI,'\097\099\116\105\111\110\068\101\108\097\121','\073\110\116\101\114\118\097\108\111\032\101\110\116\114\101\032\097\099\111\101\115',0.02,5,0.01,'\032\115')x(bI,
+'\097\099\116\105\111\110\084\105\109\101\111\117\116','\084\101\109\112\111\032\108\105\109\105\116\101\032\100\101\032\097\099\097\111',2,60,1,'\032\115')x(bI,'\116\114\097\118\101\108\084\105\109\101\111\117\116',
+'\084\101\109\112\111\032\108\105\109\105\116\101\032\100\101\032\116\114\097\106\101\116\111',5,120,1,'\032\115')v(bI,'\097\117\116\111\068\121\110\097\109\105\116\101','\068\105\110\097\109\105\116\101\032\097\117\116\111\109\097\116\105\099\097'
+,
+"\065\116\117\097\032\113\117\097\110\100\111\032\097\032\102\101\114\114\097\109\101\110\116\097\032\102\111\105\032\097\100\113\117\105\114\105\100\097\032\101\032\111\032\112\114\111\116\111\099\111\108\111\032\100\101\032\108\097\110\099\097\109\101\110\116\111\032\102\111\105\032\105\100\101\110\116\105\102\105\099\097\100\111\046"
+)v(bI,'\100\121\110\097\109\105\116\101\065\103\103\114\101\115\115\105\118\101','\073\110\116\101\114\118\097\108\111\032\097\099\101\108\101\114\097\100\111',
+"\082\101\100\117\122\032\097\032\101\115\112\101\114\097\032\108\111\099\097\108\059\032\116\101\110\116\097\116\105\118\097\115\032\115\101\109\032\099\111\110\102\105\114\109\097\099\097\111\032\114\101\099\101\098\101\109\032\117\109\032\105\110\116\101\114\118\097\108\111\032\109\097\105\111\114\046"
+)x(bI,'\100\121\110\097\109\105\116\101\073\110\116\101\114\118\097\108','\073\110\116\101\114\118\097\108\111\032\100\097\032\100\105\110\097\109\105\116\101',0.1,15,0.1,'\032\115')v(bI,
+'\112\097\117\115\101\079\110\077\111\118\101\109\101\110\116','\080\097\117\115\097\114\032\099\111\109\032\109\111\118\105\109\101\110\116\111\032\109\097\110\117\097\108')v(bI,'\110\111\116\105\102\105\099\097\116\105\111\110\115',
+'\078\111\116\105\102\105\099\097\099\111\101\115')local bK=r(bB,'\065\116\097\108\104\111\115')for bL,bM in ipairs({{'\107\101\121\080\114\111\103\114\101\115\115',
+'\065\117\116\111\032\080\114\111\103\114\101\115\115'},{'\107\101\121\067\117\116','\065\117\116\111\032\067\117\116'},{'\107\101\121\070\097\114\109','\067\111\108\101\116\097'},{'\107\101\121\067\111\111\108',
+'\082\101\115\102\114\105\097\109\101\110\116\111'},{'\107\101\121\066\117\121','\070\101\114\114\097\109\101\110\116\097\115'},{'\107\101\121\068\101\108\105\118\101\114','\069\110\116\114\101\103\097\114'},{'\107\101\121\080\117\109\112\107\105\110'
+,'\065\098\111\098\111\114\097\115'},{'\107\101\121\083\116\111\114\097\103\101','\066\111\108\115\097\115'},{'\107\101\121\085\112\103\114\097\100\101\115','\077\101\108\104\111\114\105\097\115'},{'\107\101\121\067\114\097\110\107',
+'\067\111\114\116\097\100\111\114\032\109\097\110\117\097\108'},{'\107\101\121\083\101\108\108','\086\101\110\100\101\114'},{'\107\101\121\068\121\110\097\109\105\116\101','\068\105\110\097\109\105\116\101'},{'\107\101\121\077\101\110\117',
+'\080\097\105\110\101\108'},{'\107\101\121\080\097\117\115\101','\080\097\117\115\097\114'}})do local bN,bO=bM[1],bM[2]local bP=t(bK,bO,nil,
+36)local bQ=aT(bP,ay[bN])bQ.Position,bQ.Size=UDim2.new(1,-96,0,0),UDim2.
+fromOffset(96,27)u(bN,function(bR)bQ.Text=bR end)table.insert(aH,bQ.Activated:
+Connect(function()az.bind(bN)end))end local bL=r(bB,'\079\080\032\065\108\116\111\032\090\101\114\097\114',
+'\067\105\099\108\111\032\099\111\109\112\108\101\116\111\032\099\111\109\032\112\114\105\111\114\105\100\097\100\101\032\112\097\114\097\032\108\105\109\112\097\114\032\097\032\109\111\110\116\097\110\104\097\046')v(bL,'\111\112\065\117\116\111\070\105\110\105\115\104',
+'\079\080\032\065\108\116\111\032\090\101\114\097\114',
+"\083\117\103\097\100\111\114\032\077\065\088\032\105\110\105\099\105\097\032\099\111\108\101\116\097\032\099\111\110\116\105\110\117\097\032\097\116\101\032\097\099\097\098\097\114\032\097\032\109\111\110\116\097\110\104\097\046\032\069\110\116\114\101\103\097\032\097\111\032\101\110\099\104\101\114\032\115\101\032\097\032\098\111\108\115\097\032\102\111\114\032\102\105\110\105\116\097\046\032\079\032\079\080\032\099\111\111\114\100\101\110\097\032\115\101\117\115\032\115\101\114\118\105\099\111\115\032\115\101\109\032\108\105\103\097\114\032\111\115\032\105\110\116\101\114\114\117\112\116\111\114\101\115\032\100\097\115\032\114\111\116\105\110\097\115\032\109\097\110\117\097\105\115\046"
+)v(bL,'\111\112\066\097\116\099\104\070\117\110\100\105\110\103','\086\101\110\100\101\114\032\108\111\116\101\115\032\109\097\105\111\114\101\115\032\110\111\032\079\080',
+"\085\115\097\032\108\111\116\101\115\032\100\101\032\053\048\044\032\057\048\032\111\117\032\049\053\048\032\099\111\110\102\111\114\109\101\032\111\032\115\097\108\100\111\032\113\117\101\032\102\097\108\116\097\032\112\097\114\097\032\097\032\112\114\111\120\105\109\097\032\099\111\109\112\114\097\044\032\114\101\115\112\101\105\116\097\110\100\111\032\111\032\108\105\109\105\116\101\032\100\101\032\118\101\110\100\097\046"
+)v(bL,'\111\112\070\097\115\116\080\114\111\109\112\116\115','\082\101\116\101\110\116\097\114\032\109\101\115\097\032\101\032\118\101\110\100\097\032\109\097\105\115\032\099\101\100\111',
+"\081\117\097\110\100\111\032\111\032\112\114\111\109\112\116\032\101\032\105\110\115\116\097\110\116\097\110\101\111\044\032\116\101\110\116\097\032\111\117\116\114\097\032\102\111\114\109\097\032\100\101\032\105\110\116\101\114\097\099\097\111\032\109\097\105\115\032\099\101\100\111\046\032\079\032\114\101\115\117\108\116\097\100\111\032\097\105\110\100\097\032\100\101\112\101\110\100\101\032\100\097\032\099\111\110\102\105\114\109\097\099\097\111\032\100\111\032\106\111\103\111\046"
+)l=function()if aL then return end if aX.AbsoluteSize.X<100 or aX.AbsoluteSize.Y
+<100 then return end local bM=aA.resolve(aX.AbsoluteSize.X,aX.AbsoluteSize.Y,ay)
+aY.Size=UDim2.fromOffset(bM.width,bM.height)aZ.Scale=bM.scale aY.Position=UDim2.
+fromOffset(bM.x,bM.y)aY.Visible=aN local bN=aA.launcher(aX.AbsoluteSize.X,aX.
+AbsoluteSize.Y,ay)g.Size=UDim2.fromOffset(bN.size,bN.size)g.Position=UDim2.
+fromOffset(bN.x,bN.y)local bO=bM.compact local bP=bO and 66 or 174 a_.Size=UDim2
+.new(0,bP,1,0)a_.Visible=not bO a4.Position=UDim2.fromOffset(bO and 16 or bP+16,
+43)a4.Size=UDim2.new(1,bO and-32 or-bP-32,1,-59)a8.Size=UDim2.new(1,0,1,bO and-
+224 or-185)a2.Parent=bO and aY or a_ a2.Position=bO and UDim2.new(0,12,1,-150)or
+UDim2.fromOffset(12,90)a2.Size=bO and UDim2.new(1,-24,0,40)or UDim2.new(1,-24,1,
+-108)a2.AutomaticCanvasSize=bO and Enum.AutomaticSize.X or Enum.AutomaticSize.Y
+a2.ScrollingDirection=bO and Enum.ScrollingDirection.X or Enum.
+ScrollingDirection.Y a3.FillDirection=bO and Enum.FillDirection.Horizontal or
+Enum.FillDirection.Vertical i.Text=c(bO and
+'\u{2261}\032\032\032\065\078\079\078\072\085\066\032\047\032\080\079\084\065\084\079\032\032\032\u{b7}\032\032\032\065\082\082\065\083\084\069'or
+'\u{2261}\032\032\032\065\082\082\065\083\084\069\032\080\065\082\065\032\077\079\086\069\082')i.TextXAlignment=bO and Enum.TextXAlignment.Left
+or Enum.TextXAlignment.Right a0.Text=bO and'\065'or'\065\078\079\078\072\085\066'a0.TextSize=bO and 27
+or 20 a1.Visible=not bO for bQ,bR in pairs(aK)do local bS=({Inicio=1,Coleta=2,
+Corte=3,Vendas=4,Resfriar=5,Compras=6,Missoes=7,Ajustes=8})[bQ]bR.Text=bO and c(
+({Inicio='\073\078\073\067\073\079',Coleta='\067\079\076\069\084\065',Corte='\067\079\082\084\069',Vendas='\086\069\078\068\069\082',Resfriar='\065\071\085\065',
+Compras='\076\079\074\065',Missoes='\077\073\083\083\079\069\083',Ajustes='\065\074\085\083\084\069'})[bQ])or string.format(
+'\037\048\050\100\032\032\032\037\115',bS,c(bQ))bR.TextSize=bO and 11 or 12 bR.Size=bO and UDim2.
+fromOffset(76,38)or UDim2.new(1,0,0,43)bR.TextXAlignment=bO and Enum.
+TextXAlignment.Center or Enum.TextXAlignment.Left local bT=bR:
+FindFirstChildOfClass('\085\073\080\097\100\100\105\110\103')if bT then bT.PaddingLeft=UDim.new(0,bO and 0
+or 10)end end bg.Size=UDim2.new(0.24,-4,0,35)e.TextSize=10 e.Position,e.Size=
+UDim2.new(0.24,2,0,0),UDim2.new(0.4,-5,0,35)f.Position,f.Size=UDim2.new(0.64,4,0
+,0),UDim2.new(0.36,-4,0,35)end table.insert(aH,aX:GetPropertyChangedSignal(
+'\065\098\115\111\108\117\116\101\083\105\122\101'):Connect(l))task.defer(l)p('\073\110\105\099\105\111')local function bM()if aL then
+return end aL=true for bN,bO in ipairs(aH)do bO:Disconnect()end if az.close then
+az.close()end end aW.Destroying:Connect(bM)return{confirmDrone=function(bN)local
+bO=aP('\070\114\097\109\101',{Name='\068\114\111\110\101\067\111\110\102\105\114\109\097\116\105\111\110',Size=UDim2.fromScale(1,1),
+BackgroundColor3=aO.background,BackgroundTransparency=0.1,ZIndex=100},aX)local
+bP=aP('\070\114\097\109\101',{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5
+),Size=UDim2.new(0.85,0,0,180),BackgroundColor3=aO.card,ZIndex=101},bO)aQ(bP,12)
+local bQ=aS(bP,'\068\101\115\101\106\097\032\109\101\115\109\111\032\099\111\109\112\114\097\114\032\111\032\100\114\111\110\101\063\n\080\114\101\099\111\058\032\056\048\032\103\101\109\097\115',17,aO.text,true)
+bQ.Position,bQ.Size=UDim2.fromOffset(15,15),UDim2.new(1,-30,0,80)bQ.TextWrapped=
+true bQ.ZIndex=102 local bR,bS=aT(bP,'\067\079\077\080\082\065\082\058\032\056\048\032\071\069\077\065\083'),aT(bP,'\065\071\079\082\065\032\078\065\079')bR.
+Position,bR.Size=UDim2.new(0.04,0,1,-65),UDim2.new(0.45,0,0,48)bS.Position,bS.
+Size=UDim2.new(0.51,0,1,-65),UDim2.new(0.45,0,0,48)bR.ZIndex=102 bS.ZIndex=102
+local bT=false local function bU(bV)if bT then return end bT=true bO:Destroy()
+bN(bV)end bR.Activated:Connect(function()bU(true)end)bS.Activated:Connect(
+function()bU(false)end)end,refresh=function(bN)if aL then return end for bO,bP
+in pairs(aI)do if not bN or bO==bN then local bQ=az.value and az.value(bO)if bQ
+==nil then bQ=ay[bO]end for bR,bS in ipairs(bP)do bS(bQ)end end end if l then l(
+)end end,recoveryInfo=function(bN)if aL or not bN then return end B.Text=c(#(bN.
+missing or{})>0 and
+'\065\108\103\117\110\115\032\099\111\110\116\114\111\108\101\115\032\097\105\110\100\097\032\110\u{e3}\111\032\101\115\116\u{e3}\111\032\100\105\115\112\111\110\u{ed}\118\101\105\115\046'or
+'\067\111\110\116\114\111\108\101\115\032\114\101\115\116\097\117\114\097\100\111\115\046')B.TextColor3=#(bN.missing or{})>0 and Color3.fromRGB(
+255,192,110)or aO.mint end,dashboard=function(bN,bO)if aL or not bN then return
+end if aM=='\067\111\109\112\114\097\115'and bN.details then local bP={}for bQ,bR in ipairs(bN.
+details)do local bS=bu(bR)bP[bS]=true bS.frame.Visible=true bS.frame.LayoutOrder
+=bQ bS.icon.Image=type(bR.icon)=='\115\116\114\105\110\103'and bR.icon or
+'\114\098\120\097\115\115\101\116\105\100\058\047\047\049\048\051\050\050\053\057\049\052\054\051\057\055\050\050'bS.detail.Text=string.format('\037\115\032\032\u{b7}\032\032\037\115\047\037\115',
+bR.tool,tostring(bR.level or'\u{2014}'),tostring(bR.maximum or'\u{2014}'))local
+bT=type(bR.level)=='\110\117\109\098\101\114'and type(bR.maximum)=='\110\117\109\098\101\114'local bU=bT and bR.
+level>=bR.maximum bS.buy.Active=bT and not bU bS.buy.Text=bU and'\077\065\088'or type(bR.
+price)=='\110\117\109\098\101\114'and string.format('\036\037\046\050\102',bR.price)or c('\077\069\076\072\079\082\065\082')bS.buy.
+BackgroundColor3=bS.buy.Active and aO.line or aO.background end for bQ,bR in
+pairs(bs)do if not bP[bR]then bR.frame.Visible=false end end br.Visible=#bN.
+details==0 end for bP,bQ in ipairs(bN.tools)do local bR=R[bQ.id]if bR then local
+bS=bQ.total>0 and math.clamp(bQ.current/bQ.total,0,1)or 0 bR.title.Text=c(bQ.
+title)bR.level.Text=not bQ.owned and c('\078\065\079\032\065\068\081\085\073\082\073\068\079')or bS==1 and c(
+'\077\065\088\032\032\047\032\032\080\082\079\078\084\079')or tostring(bQ.current)..'\032\047\032'..tostring(bQ.total)bR.level.
+TextColor3=bS==1 and aO.mint or aO.muted bR.fill.Size=UDim2.fromScale(bQ.owned
+and bS or 0,1)bR.fill.BackgroundColor3=bS==1 and aO.mint or aO.accent local bT=
+type(bQ.icon)=='\115\116\114\105\110\103'and bQ.icon:find('\114\098\120\097\115\115\101\116',1,true)~=nil bR.icon.Visible=
+bT bR.letter.Visible=not bT if bT then bR.icon.Image=bQ.icon end end end local
+bP=bN.finished and 4 or bN.hasKey and 4 or bN.production and 3 or(bN.cash or 0)>
+0 and 2 or 1 G.Text=bN.finished and c('\077\079\068\079\032\032\u{2022}\032\032\067\079\078\067\076\085\073\068\079')or c(bN.role)
+or bN.op and c('\077\079\068\079\032\032\u{2022}\032\032\079\080\032\065\084\073\086\079\032\032\047\032\032')..tostring(c(bN.phase or'\108\105\109\112\101\122\097'
+))or bN.progress and c('\077\079\068\079\032\032\u{2022}\032\032\065\085\084\079\032\080\082\079\071\082\069\083\083')or c(
+'\077\079\068\079\032\032\u{2022}\032\032\080\065\085\083\065\068\079\032\047\032\082\079\084\073\078\065\083\032\077\065\078\085\065\073\083')for bQ,bR in ipairs(bi)do bR.
+BackgroundColor3=bQ==bP and aO.accent or aO.background bR.TextColor3=bQ==bP and
+aO.background or aO.muted end S.Text=string.format(c('\037\048\050\100\058\037\048\050\100\032\032\047\032\032\083\079\082\084\069\032\037\100\037\115')
+,math.floor(bO/60),math.floor(bO%60),bN.gemLuck,bN.finished and c(
+'\032\032\047\032\032\067\079\078\067\076\085\073\068\079')or'')end,membership=function(bN)if aL or not bN then return end
+bf(bN)end,quests=function(bN,bO)if aL then return end local bP={}for bQ,bR in
+ipairs(bN)do local bS=bA(bR)bP[bS]=true bS.LayoutOrder=10+bQ bS.Visible=true
+local bT=bR.id==bO local bU=bR.done and'\067\079\078\067\076\085\073\068\065'or bT and'\080\082\073\079\082\073\090\065\078\068\079'or bR.
+action and'\083\069\076\069\067\073\079\078\065\082'or'\077\065\078\085\065\076'bS.Text=string.format(
+'\037\115\032\032\u{b7}\032\032\037\115\032\032\032\091\037\100\047\037\100\093\n\037\115',bR.source,bR.title,bR.current,bR.goal,c(bU))bS.
+BackgroundColor3=bT and aO.line or aO.background bS.TextColor3=bT and aO.mint or
+aO.text end for bQ,bR in pairs(bz)do if not bP[bR]then bR.Visible=false end end
+by.Visible=#bN==0 end,status=function(bN)if not aL then a7.Text=c(bN)end end,
+summary=function(bN)if not aL then V.Text=bN end end,show=function()o(true)end,
+toggle=function()o(not aN)end,close=function()if aW.Parent then aW:Destroy()end
+end,gui=aW}end return aw end)()local ax=(function()local ax={}function ax.create
+(ay,az,aA,aB)local aC=aB and aB.clock or os.clock local aD=ay.Players.
+LocalPlayer local aE=aB and aB.nativePrompt or type(fireproximityprompt)==
+'\102\117\110\099\116\105\111\110'and fireproximityprompt or nil local aF,aG,aH=nil,0,true local aI=nil
+local aJ=nil local aK=nil local aL=nil local aM={attempts=0,held=0,native=0,
+lastMethod='\110\111\110\101',lastPath='\110\111\110\101'}local function aN()local aO=aD.Character local
+aP=aO and aO:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')local aQ=aO and aO:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')if not aP or not aQ or aQ.Health<=0 then return
+nil,nil end return aP,aQ end local function aO()if aG>0 then aG=aG+1 return end
+if not aF then local aP=aD:FindFirstChild('\080\108\097\121\101\114\083\099\114\105\112\116\115')and aD.PlayerScripts:
+FindFirstChild('\080\108\097\121\101\114\077\111\100\117\108\101')if aP then local aQ,aR=pcall(require,aP)if aQ and
+type(aR)=='\116\097\098\108\101'and type(aR.GetControls)=='\102\117\110\099\116\105\111\110'then local aS,aT=pcall(aR.
+GetControls,aR)if aS then aF=aT end end end end aH=not aF or aF.controlsEnabled
+~=false if aF and type(aF.Disable)=='\102\117\110\099\116\105\111\110'then pcall(aF.Disable,aF)end aG=1
+end local function aP(aQ)aG=aQ and 0 or math.max(0,aG-1)if aG==0 and aF and aH
+and type(aF.Enable)=='\102\117\110\099\116\105\111\110'then pcall(aF.Enable,aF)end end local function aQ
+()if aK then aK()end if aJ then pcall(aJ.InputHoldEnd,aJ)aJ=nil end local aR,aS=
+aN()if aS and aR then aS:MoveTo(aR.Position)end aI=nil aP(true)end local
+function aR(aS,aT)local aU=aC()+aS while aC()<aU do if not aT()then return false
+end ay.RunService.Heartbeat:Wait()end return true end local function aS(aT,aU,aV
+)for aW,aX in ipairs(aT)do local aY,aZ=aN()if not aY or not aU()or aC()>aV then
+return false,'\116\114\097\106\101\116\111\032\105\110\116\101\114\114\111\109\112\105\100\111'end aI=aZ if aX.Action==Enum.
+PathWaypointAction.Jump then aZ.Jump=true end aZ:MoveTo(aX.Position)local a_,a0=
+math.huge,aC()while Vector2.new(aY.Position.X-aX.Position.X,aY.Position.Z-aX.
+Position.Z).Magnitude>2.5 or math.abs(aY.Position.Y-aX.Position.Y)>7 do if not
+aU()or aZ.Health<=0 or not aY.Parent or aC()>aV then return false,
+'\116\114\097\106\101\116\111\032\105\110\116\101\114\114\111\109\112\105\100\111'end local a1=Vector2.new(aY.Position.X-aX.Position.X,aY.
+Position.Z-aX.Position.Z).Magnitude if a1<a_-0.15 then a_,a0=a1,aC()end if aC()-
+a0>3 then return false,'\099\097\109\105\110\104\111\032\098\108\111\113\117\101\097\100\111'end ay.RunService.Heartbeat:Wait()end
+end return true end local function aT(aU,aV,aW)local aX,aY=aN()if not aX then
+return false,'\112\101\114\115\111\110\097\103\101\109\032\105\110\100\105\115\112\111\110\105\118\101\108'end if not aV()then return false,
+'\099\097\110\099\101\108\097\100\111'end if az.movement=='\084\101\108\101\112\111\114\116'then local aZ=aD.Character local a_=aW
+and 0 or math.max(2,aY.HipHeight+aX.Size.Y/2)local a0=CFrame.new(aU+Vector3.new(
+0,a_,0))*aX.CFrame.Rotation local a1,a2=pcall(function()local a1=aZ:GetPivot():
+ToObjectSpace(aX.CFrame)aZ:PivotTo(a0*a1:Inverse())aX.AssemblyLinearVelocity=
+Vector3.zero aX.AssemblyAngularVelocity=Vector3.zero end)if not a1 then return
+false,tostring(a2)end if not aR(az.teleportSettle,aV)then return false,
+'\099\097\110\099\101\108\097\100\111'end local a3=aN()if not a3 or(a3.Position-a0.Position).Magnitude>8
+then return false,'\079\032\115\101\114\118\105\100\111\114\032\114\101\112\111\115\105\099\105\111\110\111\117\032\111\032\112\101\114\115\111\110\097\103\101\109\032\097\112\111\115\032\111\032\116\101\108\101\112\111\114\116\101\046'end
+return true end aO()local aZ,a_ local a0,a1=pcall(function()local a0=ay.
+PathfindingService:CreatePath({AgentRadius=1.6,AgentHeight=5,AgentCanJump=true,
+AgentCanClimb=true,WaypointSpacing=3})a0:ComputeAsync(aX.Position,aU)if not aV()
+then aZ,a_=false,'\099\097\110\099\101\108\097\100\111'return end if a0.Status~=Enum.PathStatus.Success
+then aZ,a_=false,'\115\101\109\032\099\097\109\105\110\104\111\032\110\097\118\101\103\097\118\101\108'return end aZ,a_=aS(a0:GetWaypoints(),aV
+,aC()+az.travelTimeout)end)if not a0 then aZ,a_=false,tostring(a1)end aP()if not
+aZ then local a2,a3=aN()if a2 and a3 then a3:MoveTo(a2.Position)end end aI=nil
+return aZ,a_ end local function aU(aV)local aW=aV and aV.Parent if not aW then
+return nil end if aW:IsA('\065\116\116\097\099\104\109\101\110\116')then return aW.WorldPosition end if aW:
+IsA('\066\097\115\101\080\097\114\116')then return aW.Position end if aW:IsA('\077\111\100\101\108')then return aW:
+GetPivot().Position end return nil end local function aV(aW,aX)local aY=aU(aW)
+local aZ=aN()if not aY or not aZ then return false,'\112\114\111\109\112\116\032\105\110\100\105\115\112\111\110\105\118\101\108'end
+local a_=math.max(1,aW.MaxActivationDistance-1)if(aZ.Position-aY).Magnitude<=a_
+then return true end local a0=Vector3.new(aZ.Position.X-aY.X,0,aZ.Position.Z-aY.
+Z)local a1=a0.Magnitude>0.01 and a0.Unit or Vector3.new(0,0,1)local a2=Vector3.
+new(-a1.Z,0,a1.X)local a3={a1,a2,-a2,-a1}if az.movement=='\084\101\108\101\112\111\114\116'then local a4
+=aY+a1*math.min(3,a_*0.45)+Vector3.new(0,1.4,0)return aT(a4,aX,true)end local a4
+=RaycastParams.new()a4.FilterType=Enum.RaycastFilterType.Exclude a4.
+FilterDescendantsInstances={aD.Character,aW:FindFirstAncestorOfClass('\077\111\100\101\108')or
+aW.Parent}for a5,a6 in ipairs(a3)do if not aX()then return false,'\099\097\110\099\101\108\097\100\111'end
+local a7=aY+a6*math.min(4,a_*0.6)local a8=workspace:Raycast(a7+Vector3.new(0,8,0
+),Vector3.new(0,-80,0),a4)if a8 then local a9=aT(a8.Position,aX)local ba=aN()if
+a9 and ba and(ba.Position-aY).Magnitude<=a_ then return true end end end return
+false,'\110\097\111\032\102\111\105\032\112\111\115\115\105\118\101\108\032\099\104\101\103\097\114\032\097\111\032\112\114\111\109\112\116'end local function aW(aX,aY,aZ)aZ=aZ or
+{}if not aX or not aX.Parent then return false,'\112\114\111\109\112\116\032\114\101\109\111\118\105\100\111'end local a_,a0=
+aV(aX,aY)if not a_ then return false,a0 end if not aY()then return false,
+'\099\097\110\099\101\108\097\100\111'end local a1=aU(aX)local a2=aN()if not a2 or not a1 or(a2.Position-a1
+).Magnitude>aX.MaxActivationDistance then return false,'\102\111\114\097\032\100\111\032\097\108\099\097\110\099\101'end aM.
+attempts+=1 aM.lastPath=aX:GetFullName()local a3=aZ.method~='\110\097\116\105\118\101'and(aX.
+HoldDuration>0 or aZ.method=='\104\111\108\100')if aE and not a3 then local a4,a5=pcall(aE,
+aX)if a4 then aM.native+=1 aM.lastMethod='\110\097\116\105\118\101'return true end aA(
+'\065\099\105\111\110\097\109\101\110\116\111\032\110\097\116\105\118\111\032\100\111\032\112\114\111\109\112\116\032\102\097\108\104\111\117\058\032'..tostring(a5),'\101\114\114\111\114')end local a4,a5=
+pcall(aX.InputHoldBegin,aX)if not a4 then if aE then local a6,a7=pcall(aE,aX)if
+a6 then aM.native+=1 aM.lastMethod='\110\097\116\105\118\101\032\102\097\108\108\098\097\099\107'return true end return false
+,tostring(a7)end return false,tostring(a5)end aJ=aX aM.held+=1 aM.lastMethod=
+'\099\111\110\116\105\110\117\111\117\115\032\104\111\108\100'local a6,a7=pcall(aR,aX.HoldDuration>0 and aX.HoldDuration+0.2
+or 0.08,aY)pcall(aX.InputHoldEnd,aX)if aJ==aX then aJ=nil end if not a6 then
+return false,tostring(a7)end if not a7 then return false,
+'\105\110\116\101\114\097\099\097\111\032\105\110\116\101\114\114\111\109\112\105\100\097'end return true end local function aX(aY,aZ,a_)if not aY
+or not aY.Parent then return false,'\112\114\111\109\112\116\032\114\101\109\111\118\105\100\111'end local a0,a1,a2=aY.
+Enabled,aY.RequiresLineOfSight,aY.HoldDuration local a3=nil local a4,a5,a6=
+pcall(function()aY.Enabled=true aY.RequiresLineOfSight=false if a_ and type(a_.
+holdSeconds)=='\110\117\109\098\101\114'and a_.holdSeconds==a_.holdSeconds then a3=math.clamp(a_.
+holdSeconds,1,5)aY.HoldDuration=a3 end return aW(aY,aZ,a_)end)if aY.Parent then
+pcall(function()aY.RequiresLineOfSight=a1 end)if a3 then pcall(function()if aY.
+HoldDuration==a3 then aY.HoldDuration=a2 end end)end if not a0 then pcall(
+function()aY.Enabled=false end)end end if not a4 then return false,tostring(a5)
+end return a5,a6 end local function aY()if az.forceThirdPerson then if not aL
+then aL={mode=aD.CameraMode,min=aD.CameraMinZoomDistance,max=aD.
+CameraMaxZoomDistance}end aD.CameraMode=Enum.CameraMode.Classic aD.
+CameraMaxZoomDistance=math.max(8,az.cameraDistance)aD.CameraMinZoomDistance=6
+elseif aL then aD.CameraMinZoomDistance=0.5 aD.CameraMaxZoomDistance=aL.max aD.
+CameraMinZoomDistance=aL.min aD.CameraMode=aL.mode aL=nil end end local function
+aZ()if aK then aK()end end local function a_(a0,a1)aZ()if not a1 then return end
+local a2=ay.Workspace.CurrentCamera if not a2 then return end local a3={mode=aD.
+CameraMode,min=aD.CameraMinZoomDistance,max=aD.CameraMaxZoomDistance,frame=a2.
+CFrame,focus=a2.Focus}local a4='\065\110\111\110\121\109\111\117\115\080\111\116\097\116\111\087\097\116\101\114\065\105\109'local a5=false aK=
+function()if a5 then return end a5=true ay.RunService:UnbindFromRenderStep(a4)
+pcall(function()aD.CameraMinZoomDistance=0.5 aD.CameraMaxZoomDistance=a3.max aD.
+CameraMinZoomDistance=a3.min aD.CameraMode=a3.mode if a2.Parent then a2.CFrame=
+a3.frame a2.Focus=a3.focus end end)aK=nil aY()end ay.RunService:
+BindToRenderStep(a4,Enum.RenderPriority.Camera.Value+1,function()local a6=aU(a0)
+local a7=aN()if not a6 or not a7 then return end aD.CameraMode=Enum.CameraMode.
+Classic aD.CameraMaxZoomDistance=math.max(12,az.cameraDistance)aD.
+CameraMinZoomDistance=6 local a8=a7.Position-a6 a8=Vector3.new(a8.X,0,a8.Z)if a8
+.Magnitude<0.1 then a8=Vector3.new(0,0,1)end local a9=a6+a8.Unit*math.min(12,az.
+cameraDistance)+Vector3.new(0,4,0)a2.CFrame=CFrame.lookAt(a9,a6)a2.Focus=CFrame.
+new(a6)end)end return{actor=aN,goTo=aT,approach=aV,trigger=aX,promptPosition=aU,
+stop=aQ,waitFor=aR,stats=aM,aim=a_,clearAim=aZ,updateCamera=aY,close=function()
+aQ()az.forceThirdPerson=false aY()end}end return ax end)()local ay=(function()
+local ay={}function ay.create(az,aA,aB,aC,aD,aE,aF)local aG=aE and aE.typeOf or
+typeof local aH=az['\083\104\097\114\101\100\046\080\111\116\097\116\111\080\105\108\101\083\104\097\114\101\100']or{}local aI=az[
+'\077\111\100\117\108\101\115\046\082\101\115\111\117\114\099\101\115\046\080\097\099\107\101\116\115']or{}local aJ=aA.Workspace local aK={
+'\071\101\116\083\108\111\116\080\111\115\105\116\105\111\110','\071\101\116\082\111\116\097\116\105\111\110','\071\101\116\075\105\110\100','\071\101\116\080\111\116\097\116\111\083\108\111\116','\071\101\116\080\111\116\097\116\111\073\110\083\108\111\116',
+'\073\115\080\117\109\112\107\105\110','\073\115\068\105\097\109\111\110\100'}local aL,aM,aN={},{},{}local aO=setmetatable({},{__mode=
+'\107'})local aP=nil local aQ={}local aR=setmetatable({},{__mode='\107'})local aS=nil
+local aT=-math.huge local aU=false local aV=0 local aW=false local aX={}local aY
+=nil local aZ=0 local a_={}local a0=nil local a1,a2,a3=nil,nil,nil local a4=0
+local a5=nil local a6={slot='\112\101\110\100\105\110\103\032\115\112\097\116\105\097\108\032\105\110\100\101\120',kind=
+'\112\101\110\100\105\110\103\032\099\097\112\116\117\114\101\100\032\097\114\103\117\109\101\110\116\115',generation=0,mapped=0,parts=0,syncRequests=0,
+contracts={},scores={},upvalues=false}for a7,a8 in ipairs(aK)do aL[a8]=aH[a8]aM[
+a8]={}end local function a7(a8)return type(a8)=='\110\117\109\098\101\114'and a8%1==0 and a8>=1
+and a8<=(aH.SLOT_COUNT or 30009)end local function a8(a9,ba,bb)local bc=aG(a9)if
+bc=='\086\101\099\116\111\114\051'then return a9 end if bc=='\067\070\114\097\109\101'then return a9.Position end if
+type(a9)=='\116\097\098\108\101'and aG(a9.Position)=='\086\101\099\116\111\114\051'then return a9.Position end if
+type(a9)=='\110\117\109\098\101\114'and type(ba)=='\110\117\109\098\101\114'and type(bb)=='\110\117\109\098\101\114'then return
+Vector3.new(a9,ba,bb)end return nil end local function a9(ba)if type(ba)==
+'\116\097\098\108\101'then ba=ba.Name or ba.Id end if type(ba)=='\110\117\109\098\101\114'then return({'\078\111\114\109\097\108',
+'\071\111\108\100\101\110','\068\105\097\109\111\110\100','\082\097\105\110\098\111\119','\075\101\121','\067\104\097\114\114\101\100'})[ba]end if type(ba)=='\115\116\114\105\110\103'then
+for bb,bc in ipairs({'\078\111\114\109\097\108','\071\111\108\100\101\110','\068\105\097\109\111\110\100','\082\097\105\110\098\111\119','\075\101\121','\067\104\097\114\114\101\100'})do
+if string.lower(ba)==string.lower(bc)then return bc end end end return nil end
+local function ba(bb)local bc=aG(bb)if type(bb)=='\110\117\109\098\101\114'or type(bb)=='\115\116\114\105\110\103'
+then return bb end local bd=a8(bb)if bd then return{type=bc,x=bd.X,y=bd.Y,z=bd.Z
+}end return{type=bc}end local function bb(bc)local bd=aM[bc]if#bd<3 then return
+nil end local be,bf=nil,0 for bg=1,bd[1].args.n do local bh={}local bi=true for
+bj,bk in ipairs(bd)do local bl=bk.args[bg]if not a7(bl)then bi=false break end
+bh[bl]=true end local bj=0 for bk in pairs(bh)do bj+=1 end if bi and bj>bf then
+be,bf=bg,bj end end if not be or bf<2 then return nil end local bg=table.clone(
+bd[#bd].args)local bh=aL[bc]aN[bc]=function(bi)local bj=table.clone(bg)bj[be]=bi
+return pcall(bh,table.unpack(bj,1,bj.n))end local bi={index_argument=be,samples=
+#bd,arguments={}}for bj=1,bg.n do bi.arguments[bj]=ba(bg[bj])end bi.result=ba(bd
+[#bd].result[1])a6.contracts[bc]=bi if bc=='\071\101\116\075\105\110\100'then a6.kind=
+'\099\097\112\116\117\114\101\100\032\099\104\097\110\103\105\110\103\032\115\108\111\116\032\097\114\103\117\109\101\110\116'end return be end a0=aC.create(aH,aK,function(
+bc,bd,be)if aW then return true end for bf=1,bd.n do local bg=bd[bf]if type(bg)
+=='\116\097\098\108\101'and(rawget(bg,'\080\111\116\097\116\111\083\108\111\116\115')~=nil or type(rawget(bg,'\083\101\101\100'))=='\110\117\109\098\101\114'
+or rawget(bg,'\075\101\121\080\111\116\097\116\111\073\100')~=nil)then aX[bg]=true end end if bc=='\071\101\116\080\111\116\097\116\111\083\108\111\116'
+and a7(be[1])then local bf=aJ:FindFirstChild('\080\111\116\097\116\111\080\105\108\101')for bg=1,bd.n do local
+bh=bd[bg]if aG(bh)=='\073\110\115\116\097\110\099\101'and bh:IsA('\066\097\115\101\080\097\114\116')and bf and bh:
+IsDescendantOf(bf)then aO[bh]=be[1]end end end local bf=aM[bc]if#bf<16 then
+table.insert(bf,{args=table.clone(bd),result=table.clone(be)})end return bb(bc)
+~=nil or#bf>=16 end)a6.observer=a0.stats local bc=az['\083\104\097\114\101\100\046\070\105\114\101\083\104\097\114\101\100']or{}
+local bd=bc.GetHeat local be=nil local bf=nil if type(bd)=='\102\117\110\099\116\105\111\110'then bf=
+function(bg)be=bg return bd(bg)end pcall(function()bc.GetHeat=bf end)end local
+bg=0 local bh={}local function bi()if be~=nil and type(bd)=='\102\117\110\099\116\105\111\110'then local
+bj,bk=pcall(bd,be)if bj and type(bk)=='\110\117\109\098\101\114'and bk>=0 and bk<=1 then local bl=
+false if type(bc.IsFlowing)=='\102\117\110\099\116\105\111\110'then local bm,bn=pcall(bc.IsFlowing,be)bl
+=bm and bn==true end return bk*100,bl,'\099\097\112\116\117\114\101\100\032\110\097\116\105\118\101\032\070\105\114\101\083\104\097\114\101\100\032\105\110\112\117\116'end end
+if os.clock()>=bg then bg=os.clock()+5 bh={}local bj=aJ:FindFirstChild('\077\097\112')for
+bk,bl in ipairs({'\070\105\114\101','\087\097\116\101\114'})do local bm=bj and bj:FindFirstChild(bl)if bm
+then table.insert(bh,bm)for bn,bo in ipairs(bm:GetDescendants())do table.insert(
+bh,bo)end end end end local bj=false for bk,bl in ipairs(bh)do if bl.Parent then
+bj=bj or bl:GetAttribute('\070\108\111\119\105\110\103')==true local bm=bl:GetAttribute('\072\101\097\116')if
+type(bm)=='\110\117\109\098\101\114'and bm>=0 and bm<=1 then return bm*100,bj,
+'\114\101\112\108\105\099\097\116\101\100\032\072\101\097\116\032\097\116\116\114\105\098\117\116\101'end end end return nil,bj,'\097\108\097\114\109\032\111\110\108\121'end local
+function bj()if a6.syncRequests>=2 or os.clock()-aT<10 then return false end
+local bk=aI.PotatoPileRequest if not bk or type(bk.Fire)~='\102\117\110\099\116\105\111\110'then return
+false end aT=os.clock()a6.syncRequests+=1 return pcall(bk.Fire,bk)end local
+function bk()if aE and aE.transforms then return aE.transforms end local bl={{
+name='\119\111\114\108\100',apply=function(bl)return bl end}}local bm=aJ:FindFirstChild('\077\097\112')
+local bn=bm and bm:FindFirstChild('\080\111\116\097\116\111\080\105\108\101')if bn and bn:IsA('\066\097\115\101\080\097\114\116')then
+local bo=bn.CFrame table.insert(bl,{name='\109\097\114\107\101\114\045\108\111\099\097\108',apply=function(bp)return
+bo:PointToWorldSpace(bp)end})if type(aH.GetPileCFrame)=='\102\117\110\099\116\105\111\110'then local bp,
+bq=pcall(aH.GetPileCFrame,bn)if bp and aG(bq)=='\067\070\114\097\109\101'and bq~=bo then table.
+insert(bl,{name='\112\105\108\101\045\108\111\099\097\108',apply=function(br)return bq:PointToWorldSpace(br)
+end})end end end return bl end local function bl()local bm=aJ:FindFirstChild(
+'\080\111\116\097\116\111\080\105\108\101')if aF and bm then if a3~=bm then a1=nil a2=nil a3=bm a4=0 a5=nil
+end if not a1 and os.clock()>=a4 then a4=os.clock()+5 local bn a1,a2,bn=aF.
+discover(az['\067\111\110\116\114\111\108\108\101\114\115\046\080\111\116\097\116\111\080\105\108\101\067\111\110\116\114\111\108\108\101\114']or{},bm,aE and aE.nativeOptions)
+a6.upvalues=bn.api a6.native_discovery=bn a6.native_map=a1~=nil if a2 then aX[a2
+]=true end if a1 then aB('\077\097\112\097\032\110\097\116\105\118\111\032\100\101\032\098\097\116\097\116\097\115\032\105\100\101\110\116\105\102\105\099\097\100\111\046')end end if a1
+then a6.slot='\110\097\116\105\118\101\032\112\097\114\116\045\116\111\045\073\068\032\109\097\112'return true end end return false end local
+function bm(bn)local bo=aJ:FindFirstChild('\080\111\116\097\116\111\080\105\108\101')if bl()then return true
+end if aS==bo and aP then return true end if aU or os.clock()<aV then return
+false,'\080\114\101\112\097\114\097\110\100\111\032\111\115\032\105\110\100\105\099\101\115\032\100\097\032\112\105\108\104\097\046'end if not aN.GetSlotPosition then bj()aV
+=os.clock()+1 return false,
+'\065\103\117\097\114\100\097\110\100\111\032\111\115\032\097\114\103\117\109\101\110\116\111\115\032\100\101\032\112\111\115\105\099\097\111\032\117\115\097\100\111\115\032\112\101\108\111\032\106\111\103\111\046'end if not bo then return
+false,'\080\105\108\104\097\032\105\110\100\105\115\112\111\110\105\118\101\108\046'end aU=true local bp,bq=pcall(function()local bp={}
+local bq=aD.new(0.09)for br,bs in ipairs(bo:GetChildren())do if bs:IsA(
+'\066\097\115\101\080\097\114\116')then table.insert(bp,bs)bq.add(bs.Position,bs)end end a6.parts=#bp
+local br=bk()local bs,bt,bu={},{},{}for bv=1,#br do bs[bv]={}bt[bv]=0 end local
+bv=os.clock()+0.003 for bw=1,(aH.SLOT_COUNT or 30009)do if not bn()or aW then
+error('\099\097\110\099\101\108\097\100\111')end local bx,by,bz,bA=aN.GetSlotPosition(bw)local bB=bx and
+a8(by,bz,bA)if bB then bu[bw]=bB for bC,bD in ipairs(br)do local bE=bD.apply(bB)
+local bF=bq.find(bE)if bF and bs[bC][bF]==nil then bs[bC][bF]=bw bt[bC]+=1 end
+end end if os.clock()>bv then aA.RunService.Heartbeat:Wait()bv=os.clock()+0.003
+end end local bw,bx=1,0 for by,bz in ipairs(bt)do a6.scores[br[by].name]=bz if
+bz>bx then bw,bx=by,bz end end if#bp==0 or bx<math.max(1,math.ceil(#bp*0.7))then
+a6.slot='\103\101\111\109\101\116\114\121\032\109\105\115\109\097\116\099\104'a6.position_samples={}for by,bz in pairs(bu)do table.
+insert(a6.position_samples,{slot=by,x=bz.X,y=bz.Y,z=bz.Z})if#a6.position_samples
+==4 then break end end error('\080\111\115\105\099\111\101\115\032\110\097\111\032\099\111\105\110\099\105\100\101\109\032\099\111\109\032\097\032\112\105\108\104\097\058\032'..bx..'\047'..#
+bp)end local by=br[bw]aP=aD.new(0.09)aQ={}for bz,bA in pairs(bu)do local bB=by.
+apply(bA)aP.add(bB,bz)aQ[bz]=bB end for bz,bA in pairs(bs[bw])do aO[bz]=bA aR[bz
+]=bz.Position end aS=bo a6.mapped=bx a6.slot='\115\112\097\116\105\097\108\032\047\032'..by.name a6.generation
++=1 aB('\073\110\100\105\099\101\115\032\099\111\110\102\105\114\109\097\100\111\115\032\112\111\114\032\103\101\111\109\101\116\114\105\097\058\032'..bx..'\047'..#bp..'\046')end)aU=false aV=
+os.clock()+(bp and 0 or 5)return bp,bp and nil or tostring(bq)end local function
+bn(bo)if not bo or not bo.Parent then return nil end local bp=aR[bo]local bq=bo.
+Position if aO[bo]and bp and bp.X==bq.X and bp.Y==bq.Y and bp.Z==bq.Z then
+return aO[bo]end if aP then local br=aP.find(bq)if br then aO[bo]=br aR[bo]=bq
+return br end end return nil end local function bo(bp)if not aN.GetPotatoInSlot
+then return nil end local bq,br=aN.GetPotatoInSlot(bp)if not bq or not a7(br)
+then return nil end return br end local bp='\103\101\111\109\101\116\114\121'local bq={geometry=0,
+permuted=0}local br=setmetatable({},{__mode='\107'})local function bs(bt,bu)if not
+bu or not bt.CFrame or not aN.GetRotation then return nil end local bv,bw=aN.
+GetRotation(bu)if not bv or aG(bw)~='\067\070\114\097\109\101'then return nil end local bx={bt.
+CFrame:GetComponents()}local by={bw:GetComponents()}local bz=0 for bA=4,12 do bz
++=math.abs(bx[bA]-by[bA])end return bz end local function bt(bu)if a1 then
+return aF.id(a1,bu,a3,aG)end local bv=bn(bu)if not bv then return nil end local
+bw=br[bu]if bw and bw.frame==bu.CFrame then return bw.id end local bx=bo(bv)if
+bu.CFrame and bx and bx~=bv then local by,bz=bs(bu,bv),bs(bu,bx)if by and bz
+then local bA=nil if by<0.02 and bz>0.1 then bA=bv elseif bz<0.02 and by>0.1
+then bA=bx end if bA then br[bu]={frame=bu.CFrame,id=bA}a6.rotation_matches=(a6.
+rotation_matches or 0)+1 return bA end end end if bp=='\112\101\114\109\117\116\101\100'then return bx
+end return bv end local function bu(bv,bw)if a1 then return nil end local bx=bn(
+bv)local by=bx and(bw==bx and bo(bx)or bx)return by~=bw and by or nil end local
+function bv(bw,bx,by)local bz=by or bn(bw)if not bz then return end local bA=bx
+==bz and'\103\101\111\109\101\116\114\121'or'\112\101\114\109\117\116\101\100'bq[bA]+=1 if bq[bA]>=3 and bq[bA]>bq[bp]then bp=bA
+end a6.identity={mode=bp,confirmed_geometry=bq.geometry,confirmed_permuted=bq.
+permuted}end local function bw(bx)return a7(bx)end local function bx(by,bz)bz=bz
+or bt(by)if not bz then return nil,by and by.Name=='\080\117\109\112\107\105\110'or false,false end
+local bA,bB,bC=nil,by and by.Name=='\080\117\109\112\107\105\110'or false,false if aN.GetKind then
+local bD,bE=aN.GetKind(bz)if bD then bA=a9(bE)end elseif a2 and type(aL.GetKind)
+=='\102\117\110\099\116\105\111\110'then local bD,bE=pcall(aL.GetKind,a2,bz)if bD then bA=a9(bE)end end
+if aN.IsPumpkin then local bD,bE=aN.IsPumpkin(bz)bB=bB or bD and bE==true end if
+aN.IsDiamond then local bD,bE=aN.IsDiamond(bz)bC=bD and bE==true end if a2 and
+not aN.IsPumpkin and type(aL.IsPumpkin)=='\102\117\110\099\116\105\111\110'then local bD,bE=pcall(aL.
+IsPumpkin,a2,bz)bB=bB or bD and bE==true end if a2 and not aN.IsDiamond and
+type(aL.IsDiamond)=='\102\117\110\099\116\105\111\110'then local bD,bE=pcall(aL.IsDiamond,a2,bz)bC=bD
+and bE==true end return bA,bB,bC end local function by(bz,bA)if not a2 or type(
+aL.GetPotatoSlot)~='\102\117\110\099\116\105\111\110'or type(aH.IsExposed)~='\102\117\110\099\116\105\111\110'then return nil
+end local bB,bC=pcall(aL.GetPotatoSlot,a2,bA)if not bB or not a7(bC)then return
+nil end local bD,bE=pcall(aH.IsExposed,a2,bC)if bD and type(bE)=='\098\111\111\108\101\097\110'then
+return bE end return nil end local function bz(bA)local bB={}if not aP or not aN
+.GetPotatoSlot or not aN.GetPotatoInSlot then return bB end local bC=os.clock()+
+0.002 for bD=1,(aH.SLOT_COUNT or 30009)do if aW or not bA()then return{}end
+local bE=bo(bD)if bE then local bF,bG,bH=bx(nil,bE)if(bG or bH)and aQ[bD]then
+table.insert(bB,{slot=bE,position=aQ[bD],kind=bF,pumpkin=bG,gem=bH,logical=true}
+)end end if os.clock()>bC then aA.RunService.Heartbeat:Wait()bC=os.clock()+0.002
+end end return bB end local bA=aI.PotatoKeyMoved and aI.PotatoKeyMoved.
+OnClientEvent if bA and type(bA.Connect)=='\102\117\110\099\116\105\111\110'then local bB,bC=pcall(bA.
+Connect,bA,function(bB)if bB==0 or a7(bB)then if aY~=bB then aZ+=1 end aY=bB end
+end)if bB and bC then table.insert(a_,bC)end end local bB=aI.KeyRevealed and aI.
+KeyRevealed.OnClientEvent if bB and type(bB.Connect)=='\102\117\110\099\116\105\111\110'then local bC,bD
+=pcall(bB.Connect,bB,function()aZ+=1 end)if bC and bD then table.insert(a_,bD)
+end end local function bC()local bD=aY local bE=bD~=nil and'\080\111\116\097\116\111\075\101\121\077\111\118\101\100'or
+nil local bF=a2 and rawget(a2,'\075\101\121\080\111\116\097\116\111\073\100')if(bD==nil or bD==0)and a7(bF)then
+bD=bF bE='\110\097\116\105\118\101\032\099\111\110\116\114\111\108\108\101\114\032\075\101\121\080\111\116\097\116\111\073\100'end if bD==nil then for bG in pairs(aX)
+do local bH=rawget(bG,'\075\101\121\080\111\116\097\116\111\073\100')if a7(bH)then bD=bH bE=
+'\099\097\112\116\117\114\101\100\032\110\097\116\105\118\101\032\075\101\121\080\111\116\097\116\111\073\100'break end end end a6.key={known=a7(bD),source=bE,id
+=a7(bD)and bD or nil}if not a7(bD)then a6.key.reason=
+'\099\108\105\101\110\116\032\104\097\115\032\110\111\116\032\100\105\115\099\108\111\115\101\100\032\097\032\118\097\108\105\100\032\107\101\121\032\073\068'return nil end if a1 then for bG,bH in
+pairs(a1)do if bH==bD and aF.id(a1,bG,a3,aG)==bD then return{slot=bD,part=bG,
+position=bG.Position,logical=true,key=true,source=bE,revision=aZ}end end if a2
+and type(aL.GetPotatoSlot)=='\102\117\110\099\116\105\111\110'and type(aL.GetSlotPosition)=='\102\117\110\099\116\105\111\110'
+then if not a5 then for bG,bH in ipairs(bk())do local bI,bJ=0,0 for bK,bL in
+pairs(a1)do if aF.id(a1,bK,a3,aG)then bJ+=1 local bM,bN=pcall(aL.GetPotatoSlot,
+a2,bL)local bO,bP=pcall(aL.GetSlotPosition,a2,bM and bN or 0)local bQ=bO and a8(
+bP)if bQ then local bR=bH.apply(bQ)local bS=bK.Position if math.abs(bR.X-bS.X)+
+math.abs(bR.Y-bS.Y)+math.abs(bR.Z-bS.Z)<0.15 then bI+=1 end end if bJ>=8 or bI>=
+3 then break end end end if bI>=3 then a5=bH a6.native_key_transform=bH.name
+break end end end if a5 then local bG,bH=pcall(aL.GetPotatoSlot,a2,bD)if bG and
+a7(bH)then local bI,bJ=pcall(aL.GetSlotPosition,a2,bH)local bK=bI and a8(bJ)if
+bK then return{slot=bD,position=a5.apply(bK),logical=true,key=true,source=bE,
+revision=aZ}end end end end end if not aN.GetPotatoSlot then a6.key.reason=
+'\110\097\116\105\118\101\032\115\108\111\116\032\109\097\112\112\105\110\103\032\117\110\097\118\097\105\108\097\098\108\101'return nil end local bG,bH=aN.GetPotatoSlot(bD)
+local bI=bG and a7(bH)and aQ[bH]or nil if not bI then a6.key.reason=
+'\107\101\121\032\112\111\115\105\116\105\111\110\032\117\110\097\118\097\105\108\097\098\108\101'return nil end return{slot=bD,position=bI,logical=true
+,key=true,source=bE,revision=aZ}end local function bD()aW=true a0.close()for bE,
+bF in ipairs(a_)do pcall(function()bF:Disconnect()end)end if bf then pcall(
+function()if bc.GetHeat==bf then bc.GetHeat=bd end end)end end return{slot=bt,
+alternate=bu,confirm=bv,physicalSlot=bn,live=bw,specialTargets=bz,keyTarget=bC,
+exposed=by,kind=bx,heat=bi,prepare=bm,discover=bl,requestSync=bj,stats=a6,close=
+bD,ready=function()return aN.GetKind~=nil and aN.GetSlotPosition~=nil and aN.
+GetPotatoInSlot~=nil end,refresh=function()aV=0 end}end return ay end)()local az
+=(function()local az={}function az.create(aA,aB)local aC=aA.Players.LocalPlayer:
+WaitForChild('\080\108\097\121\101\114\071\117\105')local aD=type(firesignal)=='\102\117\110\099\116\105\111\110'and firesignal or
+nil local aE=type(getconnections)=='\102\117\110\099\116\105\111\110'and getconnections or nil local
+function aF(aG)local aH=aG while aH and aH~=aC do if aH:IsA('\071\117\105\079\098\106\101\099\116')and not
+aH.Visible then return false end if aH:IsA('\083\099\114\101\101\110\071\117\105')and not aH.Enabled then
+return false end aH=aH.Parent end return aH==aC end local function aG(aH)local
+aI={}if aH:IsA('\084\101\120\116\076\097\098\101\108')or aH:IsA('\084\101\120\116\066\117\116\116\111\110')or aH:IsA('\084\101\120\116\066\111\120')then table
+.insert(aI,aH.Text)end for aJ,aK in ipairs(aH:GetDescendants())do if aK:IsA(
+'\084\101\120\116\076\097\098\101\108')or aK:IsA('\084\101\120\116\066\117\116\116\111\110')then table.insert(aI,aK.Text)end end return
+table.concat(aI,'\032'):gsub('\060\046\045\062','')end local function aH(aI)if type(aI)~=
+'\115\116\114\105\110\103'then return nil end local aJ=string.upper(aI)if aJ:find('\082\036',1,true)or
+aJ:find('\082\079\066\085\088',1,true)then return nil end local aK=aI:match(
+'\037\036\037\115\042\091\037\100\093\091\037\100\037\046\044\093\042\091\075\107\077\109\066\098\084\116\093\063')return aK and aB.parseAmount(aK)or nil end local
+function aI(aJ,aK)if not aJ or not aJ:IsA('\071\117\105\066\117\116\116\111\110')or not aK and(not aF(aJ)or
+not aJ.Active)then return false,'\098\111\116\097\111\032\105\110\100\105\115\112\111\110\105\118\101\108'end if not aD then return
+false,'\102\105\114\101\115\105\103\110\097\108\032\110\097\111\032\100\105\115\112\111\110\105\098\105\108\105\122\097\100\111\032\112\101\108\111\032\101\120\101\099\117\116\111\114'end local aL=aJ.Activated if
+aE then local aM,aN=pcall(aE,aL)if aM and#aN==0 then local aO,aP=pcall(aE,aJ.
+MouseButton1Click)if aO and#aP>0 then aL=aJ.MouseButton1Click end end end local
+aM,aN=pcall(aD,aL)return aM,aM and nil or tostring(aN)end local function aJ(aK)
+local aL=aC:FindFirstChild('\083\116\111\114\101\086\105\101\119')if not aL then return nil,
+'\106\097\110\101\108\097\032\083\116\111\114\101\086\105\101\119\032\097\117\115\101\110\116\101'end local aM={}for aN,aO in ipairs(aL:GetDescendants()
+)do if aO:IsA('\071\117\105\066\117\116\116\111\110')and aF(aO)and aO.Active then local aP=aG(aO)local aQ=
+string.upper(aP..'\032'..aO.Name)local aR=aQ:find('\083\079\076\068',1,true)or aQ:find('\079\087\078\069\068',
+1,true)or aQ:find('\076\079\067\075\069\068',1,true)or aQ:find('\082\079\066\085\088',1,true)or aQ:find('\082\036',1,
+true)or aQ:find('\080\069\082\077\065\078\069\078\084',1,true)if not aR and(aQ:find('\066\085\089',1,true)or aQ:
+find('\080\085\082\067\072\065\083\069',1,true)or aQ:find('\067\079\077\080\082\065\082',1,true))then local aS=aP local aT=
+aH(aS)if not aT and aO.Parent then aS=aG(aO.Parent)aT=aH(aS)end if not aT and aO
+.Parent then for aU,aV in ipairs(aO.Parent:GetChildren())do if aV:IsA(
+'\084\101\120\116\076\097\098\101\108')then local aW=aH(aV.Text)if aW and math.abs(aW-aK)<0.005 then aT=aW
+break end end end end if aT and math.abs(aT-aK)<0.005 then table.insert(aM,aO)
+end end end end if#aM~=1 then return nil,
+'\099\111\109\112\114\097\032\115\101\109\032\098\111\116\097\111\032\117\110\105\099\111\032\099\111\109\032\111\032\112\114\101\099\111\032\101\109\032\100\105\110\104\101\105\114\111\032\101\115\112\101\114\097\100\111'end return aM[1]end
+local function aK()local aL={}for aM,aN in ipairs({'\083\116\111\114\101\086\105\101\119','\084\111\111\108\085\112\103\114\097\100\101\115'})
+do local aO=aC:FindFirstChild(aN)if aO then for aP,aQ in ipairs(aO:
+GetDescendants())do if aQ:IsA('\071\117\105\066\117\116\116\111\110')and aF(aQ)and#aL<40 then table.insert(
+aL,{path=aQ:GetFullName(),text=aG(aQ),active=aQ.Active})end end end end return
+aL end return{available=aD~=nil,visible=aF,texts=aG,cash=aH,activate=aI,
+buyButton=aJ,diagnostic=aK}end return az end)()local aA=(function()local aA={}
+function aA.create(aB,aC,aD,aE,aF,aG,aH,aI,aJ,aK,aL,aM,aN)local aO=aB.Players.
+LocalPlayer local aP=nil local aQ=aO:WaitForChild('\080\108\097\121\101\114\071\117\105')local aR=aB.
+Workspace local aS=aC['\077\111\100\117\108\101\115\046\082\101\115\111\117\114\099\101\115\046\080\097\099\107\101\116\115']or{}local aT=aL.create(aS,aC[
+'\077\111\100\105\102\105\101\100\080\097\099\107\097\103\101\115\046\080\097\099\107\101\116\046\095\084\121\112\101\115'])local aU,aV=false,false local aW,aX=nil,nil
+local aY,aZ,a_=0,0,0 local a0={}local a1={}local a2=aK.upgradeGuard()local a3=
+false local a4=0 local a5=0 local a6,a7=0,0 local a8={}local a9=false local ba={
+}local bb=nil local bc=false local bd=nil local be=0.1 local bf=setmetatable({},
+{__mode='\107'})local bg=nil local bh=0 local bi=aC['\067\111\110\116\114\111\108\108\101\114\115\046\080\101\101\108\105\110\103\067\111\110\116\114\111\108\108\101\114'
+]or{}local bj=aC['\067\111\110\116\114\111\108\108\101\114\115\046\067\117\116\116\105\110\103\067\111\110\116\114\111\108\108\101\114']or{}local bk=aC[
+'\067\111\110\116\114\111\108\108\101\114\115\046\080\111\116\097\116\111\080\105\108\101\067\111\110\116\114\111\108\108\101\114']or{}local bl=aC[
+'\067\111\110\116\114\111\108\108\101\114\115\046\084\111\111\108\069\113\117\105\112\067\111\110\116\114\111\108\108\101\114']or{}local bm=aC[
+'\067\111\110\116\114\111\108\108\101\114\115\046\083\116\111\114\101\086\105\101\119\067\111\110\116\114\111\108\108\101\114']or{}local bn=aC[
+'\067\111\110\116\114\111\108\108\101\114\115\046\084\111\111\108\085\112\103\114\097\100\101\067\111\110\116\114\111\108\108\101\114']or{}local bo=aC['\083\104\097\114\101\100\046\080\108\097\121\101\114\083\116\097\116\101\083\104\097\114\101\100']
+or{}local bp=aC['\083\104\097\114\101\100\046\067\117\116\084\111\111\108\083\104\097\114\101\100']or{}local bq=aC[
+'\083\104\097\114\101\100\046\067\097\114\114\121\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}local br={}local bs=false local bt=nil local bu=
+setmetatable({},{__mode='\107'})local bv=setmetatable({},{__mode='\107'})local bw=0
+local bx,by=nil,0 local bz,bA,bB={},1,0 local bC=false local bD=false local bE,
+bF,bG=0,0,0 local bH=0 local bI=0.04 local bJ,bK,bL=nil,0,nil local bM=false
+local bN,bO=0,0 local bP={collected=0,pumpkins=0,gems=0,sold=0,sales=0,throws=0,
+delivered=0,cuts=0,cooled=0,purchases=0}local bQ={}local bR=nil local bS={}local
+bT={}local bU=nil local bV=nil local e,f,g=false,false,nil local h,i=0,false
+local j=false local k=false local l=false local m=nil local n={entered=0,seconds
+=0,completed=false}local o=nil local p=0 local q={attempts=0,confirmed=false}
+local r=aK.keyProbeGuard()local s={remaining=0,source='\117\110\097\118\097\105\108\097\098\108\101'}local t=0
+local u=0 local v=aK.placementTiming(aC['\083\104\097\114\101\100\046\080\111\116\097\116\111\084\097\098\108\101\083\104\097\114\101\100'])local w=
+false local x={}local y=aN.new()local z,A=0,nil local B=nil local C={opens=0,
+closed_seconds=0}local D,E=false,false local F=nil local G,H={},0 local I=0
+local J={}local L,M,N,O=os.clock(),nil,0,0 local function P(Q)return Q.part and
+Q.part.Position or Q.position end local function Q(R)return R and(R.part and R.
+part.Parent~=nil and R.part.Transparency<0.99 or R.logical and aG.live(R.slot))
+end local function R(S,T)for U,V in ipairs(T)do S=S and S:FindFirstChild(V)end
+return S end local function S(T,U,...)if type(T[U])~='\102\117\110\099\116\105\111\110'then return false
+,nil end return pcall(T[U],...)end local function T()local U,V=S(bo,
+'\084\114\121\071\101\116\080\108\097\121\101\114\083\116\097\116\101',aO)if U and type(V)=='\116\097\098\108\101'and(V.Cash~=nil or V.CarryLevel
+~=nil)then return V end U,V=S(bo,'\084\114\121\071\101\116\080\108\097\121\101\114\083\116\097\116\101',aO.UserId)if U and type(V)
+=='\116\097\098\108\101'and(V.Cash~=nil or V.CarryLevel~=nil)then return V end return nil end
+local function U()local V=T()if V and type(V.Cash)=='\110\117\109\098\101\114'and V.Cash==V.Cash
+then return V.Cash end local W=R(aQ,{'\067\097\115\104','\067\111\117\110\116\101\114','\086\097\108\117\101'})return W and aD.
+parseAmount(W.Text)or nil end local function V()local W=R(aQ,{'\066\097\103','\067\111\117\110\116\101\114',
+'\086\097\108\117\101'})local X,Z=aD.parseCapacity(W and W.Text)local _=T()X,bM=aD.bagCount(_,W
+and W.Text)if _ then if type(_.Potatoes)=='\110\117\109\098\101\114'and _.Potatoes>=0 and _.
+Potatoes%1==0 then X=_.Potatoes bM=true end local bW,bX=S(bq,
+'\072\097\115\073\110\102\105\110\105\116\101\083\116\111\114\097\103\101',_)if bW and bX==true then Z=math.huge end if not Z and
+type(_.CarryLevel)=='\110\117\109\098\101\114'then local bY=bq.Levels and bq.Levels[_.CarryLevel]
+if type(bY)=='\116\097\098\108\101'and type(bY.Capacity)=='\110\117\109\098\101\114'then Z=bY.Capacity end end
+end if aE.infiniteBag and not aE.opAutoFinish then Z=math.huge end return X,Z
+end local function bW()local bX=aQ:FindFirstChild('\081\117\101\115\116\067\097\114\100')local bY=bX and R(
+bX,{'\080\105\108\101\072\111\108\100\101\114','\072\101\097\116','\076\097\098\101\108'})if not bY then return nil end local W=string.
+upper(bY.Text)return W:find('\067\072\065\082\082\073\078\071',1,true)~=nil or W:find('\067\079\079\076\032\073\084',1,true)
+~=nil or W:find('\066\085\082\078\073\078\071',1,true)~=nil end local function bX()if type(bi.
+IsPeeling)=='\098\111\111\108\101\097\110'then return bi.IsPeeling end local bY,W=S(bj,'\071\101\116\080\111\116\097\116\111')if
+bY and W~=nil and W~=false then return true end local X=aQ:FindFirstChild(
+'\080\101\101\108\105\110\103')local Z=X and X:FindFirstChild('\067\097\110\099\101\108',true)return Z~=nil and aH.
+visible(Z)and Z.AbsoluteSize.X>0 end bR=aJ.create(aE,{clock=os.clock,allowed=
+function()return not E and D and aD.effective(aE,'\097\117\116\111\067\117\116')end,schedule=function
+(bY,W)task.delay(bY,W)end,finish=function()if not bX()then return false,
+'\065\032\109\101\115\097\032\110\097\111\032\101\115\116\097\032\097\116\105\118\097\046'end if not aS.PeelingFinished or type(aS.PeelingFinished
+.Fire)~='\102\117\110\099\116\105\111\110'then return false,'\067\111\110\099\108\117\115\097\111\032\100\101\032\099\111\114\116\101\032\105\110\100\105\115\112\111\110\105\118\101\108\046'end return
+pcall(aS.PeelingFinished.Fire,aS.PeelingFinished)end,native=function(bY)local W=
+S(bj,'\083\101\116\065\117\116\111',bY)local X=S(bj,'\083\101\116\072\101\108\100',bY)if bY and not W and not X then
+error('\067\111\110\116\114\111\108\097\100\111\114\032\100\101\032\109\111\118\105\109\101\110\116\111\032\100\101\032\099\111\114\116\101\032\105\110\100\105\115\112\111\110\105\118\101\108\046')end end})local function
+bY()y.cancel()S(bl,'\083\101\116\085\115\105\110\103',false)D=false F=nil if bR then bR.pause()end S(bj,
+'\083\101\116\072\101\108\100',false)S(bj,'\083\101\116\065\117\116\111',false)a3=false S(bk,'\083\101\116\085\115\101\072\101\108\100',false)if aT.
+matches('\084\111\111\108\085\115\105\110\103',{'\066\111\111\108\101\097\110'})then aT.fire('\084\111\111\108\085\115\105\110\103',false)end end local
+function W()bY()if bX()then if type(aS.PeelingCancel)=='\116\097\098\108\101'and type(aS.
+PeelingCancel.Fire)=='\102\117\110\099\116\105\111\110'then pcall(aS.PeelingCancel.Fire,aS.PeelingCancel
+)end S(bi,'\083\116\111\112\080\101\101\108\105\110\103')end if bV and bi.IsPeeling~=true then for X,Z in pairs(
+bV)do if X.Parent then pcall(function()if X:IsA('\083\099\114\101\101\110\071\117\105')then X.Enabled=Z
+else X.Visible=Z end end)end end bV=nil end end local function X(Z,_,bZ)local b_
+=os.clock()+_ repeat if not bZ()then return false,'\099\097\110\099\101\108\097\100\111'end if Z()then
+return true end aB.RunService.Heartbeat:Wait()until os.clock()>=b_ return false,
+'\111\032\106\111\103\111\032\110\097\111\032\099\111\110\102\105\114\109\111\117\032\097\032\097\099\097\111\032\110\111\032\116\101\109\112\111\032\099\111\110\102\105\103\117\114\097\100\111'end local function bZ(b_)if b_
+==F then return end local Z=false if type(bl.Equip)=='\102\117\110\099\116\105\111\110'then local _=S(bl
+,'\069\113\117\105\112',b_)local b0,b1=S(bl,'\071\101\116\069\113\117\105\112\112\101\100\084\111\111\108')Z=_ and(not b0 or b1==b_)end
+local b0=aQ:FindFirstChild('\072\111\116\098\097\114')local b1={PotatoSucker='\080\048\084\052\084\048\045\051\048\048\048',Shovel=
+'\083\104\111\118\101\108',Dynamite='\068\121\110\097\109\105\116\101',Hand='\072\097\110\100'}local _=nil for b2,b3 in ipairs((aC[
+'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}).Tools or{})do if b3.Id==b_ then _=b3.Icon end
+end if b0 and not Z then for b2,b3 in ipairs(b0:GetDescendants())do local b4=b3.
+Name==b_ or b3:GetAttribute('\084\111\111\108\073\100')==b_ if b3:IsA('\071\117\105\066\117\116\116\111\110')and not b4 then
+for b5,b6 in ipairs(b3:GetDescendants())do if b6:IsA('\084\101\120\116\076\097\098\101\108')and b6.Text==b1
+[b_]or _ and(b6:IsA('\073\109\097\103\101\076\097\098\101\108')or b6:IsA('\073\109\097\103\101\066\117\116\116\111\110'))and b6.Image==_ then
+b4=true break end end end if b3:IsA('\071\117\105\066\117\116\116\111\110')and b4 then Z=aH.activate(b3,
+true)if Z then break end end end end if not Z and aT.matches('\084\111\111\108\069\113\117\105\112',{
+'\083\116\114\105\110\103'})then Z=aT.fire('\084\111\111\108\069\113\117\105\112',b_)end if Z then F=b_ end end local
+function b_()W()bZ('\072\097\110\100')end local function b0()if os.clock()<a7 then return a9
+end a7=os.clock()+0.3 local b1=T()a9=b1 and(b1.SuckerOverheated==true or b1.
+PotatoSuckerOverheated==true)or aO:GetAttribute('\083\117\099\107\101\114\079\118\101\114\104\101\097\116\101\100')==true if os.
+clock()>=a6 then a8={}a6=os.clock()+5 for b2,b3 in ipairs(aQ:GetChildren())do if
+b3.Name~='\065\110\111\110\121\109\111\117\115\080\111\116\097\116\111\072\117\098'then for b4,b5 in ipairs(b3:GetDescendants())do if
+b5:IsA('\084\101\120\116\076\097\098\101\108')or b5:IsA('\084\101\120\116\066\117\116\116\111\110')then table.insert(a8,b5)end end end
+end end if not a9 then for b2,b3 in ipairs(a8)do if b3.Parent and aH.visible(b3)
+then local b4=string.upper(b3.Text)if b4:find('\079\086\069\082\072\069\065\084',1,true)or b4:find(
+'\083\085\080\069\082\065\081\085\069\067',1,true)then a9=true break end end end end return a9 end local
+function b1()local b2=T()local b3=aE.opAutoFinish and'\065\117\116\111'or aE.collectTool if
+b3=='\065\117\116\111'and b2 and aK.owns(b2,'\080\111\116\097\116\111\083\117\099\107\101\114')then b3='\080\111\116\097\116\111\083\117\099\107\101\114'end if b3==
+'\065\117\116\111'and aE.clearPileFirst and j and b2 and aK.owns(b2,'\083\104\111\118\101\108')then b3=
+'\083\104\111\118\101\108'end if b3=='\065\117\116\111'then b3=b2 and aK.owns(b2,'\080\111\116\097\116\111\083\117\099\107\101\114')and
+'\080\111\116\097\116\111\083\117\099\107\101\114'or b2 and aK.owns(b2,'\083\104\111\118\101\108')and'\083\104\111\118\101\108'or'\072\097\110\100'end if b3==
+'\080\111\116\097\116\111\083\117\099\107\101\114'and(b0()or os.clock()<a4)then b3=b2 and aK.owns(b2,'\083\104\111\118\101\108')and
+'\083\104\111\118\101\108'or'\072\097\110\100'end if b3~='\072\097\110\100'and not(b2 and aK.owns(b2,b3))then b3='\072\097\110\100'end
+bZ(b3)a3=not aE.opAutoFinish and not aE.auraCollect and b3=='\080\111\116\097\116\111\083\117\099\107\101\114'and aE
+.rarity=='\065\110\121'and aD.effective(aE,'\097\117\116\111\070\097\114\109')S(bk,'\083\101\116\085\115\101\072\101\108\100',a3)end local
+function b2()local b3={}local b4=R(aR,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115'})for b5=1,4 do
+local b6=b4 and b4:FindFirstChild('\080\101\101\108\105\110\103\084\097\098\108\101'..b5)if b6 and(aE.tableChoice==
+'\078\101\097\114\101\115\116'or aE.tableChoice==b6.Name)then local Z=R(b6,{'\084\097\098\101\108\084\111\112','\080\101\101\108\080\114\111\109\112\116',
+'\080\101\101\108'})if Z and Z:IsA('\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116')then table.insert(b3,Z)end end end
+local b5=aF.actor()if b5 then table.sort(b3,function(b6,Z)local _,b7=aF.
+promptPosition(b6),aF.promptPosition(Z)return(_ and(_-b5.Position).Magnitude or
+math.huge)<(b7 and(b7-b5.Position).Magnitude or math.huge)end)end return b3 end
+local function b3()local b4=R(aR,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115','\080\111\116\097\116\111\067\114\097\116\101',
+'\080\111\116\097\116\111\065\114\101\097'})return b4 and tonumber(b4:GetAttribute('\080\111\116\097\116\111\067\111\117\110\116'))or 0 end
+local function b4(b5)local b6=b2()for b7,Z in ipairs(b6)do if Z.Enabled and os.
+clock()>=(bf[Z]or 0)then return Z end end if b5 and b3()>0 then for b7,Z in
+ipairs(b6)do if os.clock()>=(bf[Z]or 0)then return Z end end end return nil end
+local function b5(b6,b7)local Z=R(aR,{'\077\097\112','\083\116\111\114\101\073\116\101\109\115',b6,b7})return Z and R(Z
+,{'\080\114\105\099\101','\080\114\111\109\112\116\065\116\116\097\099\104\109\101\110\116','\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116'})end local function b6(b7,Z,_,b8)
+if os.clock()<(a0[Z]or 0)then return nil end local b9=b5(b7,Z)if not b9 or not
+b9.Enabled or string.upper(b9.ActionText)~='\066\085\089'then return nil end local ca=aH.
+cash(b9.ObjectText)if not ca then return nil end return{id=Z,category=b7,group=_
+,rank=b8,prompt=b9,price=ca,name=Z}end local function b7(b8,b9)if type(b8)~=
+'\116\097\098\108\101'then return false end if b8[b9]==true then return true end for ca,Z in
+pairs(b8)do if Z==b9 or ca==b9 and Z~=false and Z~=nil then return true end end
+return false end local function b8(b9)local ca=1 local Z=aO:GetAttribute(
+'\067\117\116\084\111\111\108\073\100')local _,cb=S(bp,'\071\101\116\066\101\115\116\084\111\111\108',b9)if _ then Z=type(cb)=='\116\097\098\108\101'and cb
+.Id or cb end for cc,cd in ipairs(bp.Tools or{})do local ce,cf=S(bp,'\079\119\110\115\084\111\111\108',
+b9,cd.Id)if cd.Id==Z or b7(b9.CutTools,cd.Id)or ce and cf==true then ca=math.
+max(ca,cc)end end return ca end local function b9(ca,cb,cc,cd,ce)local cf=aC[
+'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}if type(cf.GetUpgradeCost)=='\102\117\110\099\116\105\111\110'then local
+Z,_=pcall(cf.GetUpgradeCost,ca,cb,cc)if Z and type(_)=='\110\117\109\098\101\114'and _>0 then
+return _ end end local Z=aC['\077\111\100\117\108\101\115\046\082\101\115\111\117\114\099\101\115\046\080\114\105\099\101\115']or{}local _,cg=S(Z,'\071\101\116',
+aO)if _ then local ch=aK.profilePrice(cg,cb,cc,cd)if ch then return ch end end
+if ce and ce.Parent then return aH.cash(aH.texts(ce))end return nil end local
+function ca(cb,cc,cd)local ce={}ba={}local cf=aC['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}
+for cg,ch in ipairs({'\083\104\111\118\101\108','\068\121\110\097\109\105\116\101','\080\111\116\097\116\111\083\117\099\107\101\114','\072\097\110\100','\065\117\116\111\080\101\101\108\101\114',
+'\072\097\110\100\080\101\101\108\101\114','\068\114\111\110\101','\066\111\100\121'})do for Z,_ in ipairs(aK.allowed[ch]or{})do if aK.
+canUpgrade(cb,ch,_,aE)and(_~='\076\117\099\107'or aK.luckAllowed(cf,cb))then local ci=aK.
+level(cf,cb,ch,_)local cj=aK.definition(cf,ch,_)local ck=cj~=nil local cl=ck and
+aK.maximum(cf,cj)or nil local cm,cn=S(bn,'\071\101\116\085\112\103\114\097\100\101\066\117\116\116\111\110',ch,_)if not cm or
+typeof(cn)~='\073\110\115\116\097\110\099\101'or not cn:IsA('\071\117\105\066\117\116\116\111\110')then cn=nil end local co=b9(cb,
+ch,_,ci,cn)ba[ch..'\047'.._]={level=ci,maximum=cl,price=co,reason=ci==nil and
+'\108\101\118\101\108\032\117\110\097\118\097\105\108\097\098\108\101'or cl==nil and'\109\097\120\105\109\117\109\032\117\110\097\118\097\105\108\097\098\108\101'or ci>=cl and
+'\109\097\120\105\109\117\109\032\114\101\097\099\104\101\100'or co==nil and'\112\114\105\099\101\032\117\110\097\118\097\105\108\097\098\108\101'or not a2.allowed(ch..'\047'.._,
+ci)and'\114\101\102\117\115\101\100\032\119\105\116\104\111\117\116\032\112\114\111\103\114\101\115\115'or'\101\108\105\103\105\098\108\101'}local cp=cn and cn:FindFirstChild(
+'\077\097\120\101\100')if ci~=nil and cl~=nil and a2.allowed(ch..'\047'.._,ci)and ci<aK.limit(ch,_
+,b8(cb),#(bp.Tools or{}),aE.worthEarlyLimit,aE.nativeWalkUpgrade)and not(cl and
+ci>=cl)and(cn or aT.matches('\084\111\111\108\085\112\103\114\097\100\101\080\117\114\099\104\097\115\101',{'\083\116\114\105\110\103','\083\116\114\105\110\103'}))then
+local cq=ch..'\047'.._ if os.clock()>=(a0[cq]or 0)and type(co)=='\110\117\109\098\101\114'and(cd or
+aD.purchaseReady(aE,cc,co,ci,a1[cq]))then table.insert(ce,{group='\117\112\103\114\097\100\101',name=
+cq,tool=ch,upgrade=_,button=cn,price=co,level=ci,rank=_=='\080\111\116\097\116\111\087\111\114\116\104'and(ci<aE.
+worthEarlyLimit and-300 or-80)or ch=='\068\121\110\097\109\105\116\101'and-200+aK.rank(ch,_)or ch==
+'\083\104\111\118\101\108'and-150 or ch=='\068\114\111\110\101'and-175 or _=='\076\117\099\107'and-50 or aK.rank(ch,_)})end
+end end end end table.sort(ce,function(cg,ch)return cg.rank<ch.rank end)return
+ce end local function cb(cc,cd,ce)if not aE.buyMachines then return nil end
+local cf=aC['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}if not aK.maxed(cf,cc,'\068\121\110\097\109\105\116\101')then
+return nil end for cg,ch in ipairs({{'\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\072\097\110\100\080\101\101\108\101\114',
+'\072\097\115\072\097\110\100\080\101\101\108\101\114'},{'\065\117\116\111\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\065\117\116\111\080\101\101\108\101\114','\072\097\115\065\117\116\111\080\101\101\108\101\114'}})do if cc[
+ch[3] ]~=true then local ci=R(aR,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115',ch[1]})local cj=ci and
+ci:FindFirstChild('\080\114\105\099\101')local ck=cj and R(cj,{'\080\114\111\109\112\116\065\116\116\097\099\104\109\101\110\116',
+'\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116'})local cl=ck and(aH.cash(ck.ObjectText)or aH.cash(aH.texts(cj)
+))if ck and string.upper(ck.ActionText)=='\066\085\089'and cl and(ce or aD.affordable(aE,
+cd,cl,'\067\097\115\104'))then return{id=ch[2],name=ch[2],group='\109\097\099\104\105\110\101',unlock=ch[3],
+prompt=ck,price=cl,rank=-75}end end end return nil end local function cc()if not
+aE.fixMenuBlur or bX()then return end local cd,ce=S(bn,'\073\115\079\112\101\110')local cf,cg=S(bm
+,'\073\115\079\112\101\110')if not cd or not cf then return end for ch,ci in ipairs({aB.Lighting,
+aR.CurrentCamera})do if ci then for cj,ck in ipairs(ci:GetChildren())do if ck:
+IsA('\066\108\117\114\069\102\102\101\099\116')and ck.Size>0 then ck.Size=0 end end end end end local function
+cd()local ce=U()local cf=T()if not ce or not cf then return nil end local cg=aC[
+'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}bb=nil bc=false if aE.opAutoFinish and aK.
+opBulkReady(cg,cf)and bS.mountainEmpty~=true then bg=nil return nil end if not
+aE.opAutoFinish and not aE.teamFunding and aE.clearPileFirst and aK.maxed(cg,cf,
+'\068\121\110\097\109\105\116\101')then local ch=cb(cf,ce,true)if not ch and cf.HasAutoPeeler and aD.
+effective(aE,'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115')then for ci,cj in ipairs(ca(cf,ce,true))do if cj.
+tool=='\065\117\116\111\080\101\101\108\101\114'then ch=cj break end end end if not ch and not aK.owns(cf,
+'\080\111\116\097\116\111\083\117\099\107\101\114')then ch=b6('\084\111\111\108\115','\080\048\084\052\084\048\045\051\048\048\048','\099\111\108\108\101\099\116',1)end if not ch and
+not aK.owns(cf,'\083\104\111\118\101\108')then ch=b6('\084\111\111\108\115','\083\104\111\118\101\108','\099\111\108\108\101\099\116',40)end if not ch
+and aK.owns(cf,'\080\111\116\097\116\111\083\117\099\107\101\114')and aD.effective(aE,'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115')then for ci,
+cj in ipairs(ca(cf,ce,true))do if cj.tool=='\080\111\116\097\116\111\083\117\099\107\101\114'and(not ch or cj.
+upgrade=='\080\105\099\107\065\109\111\117\110\116')then ch=cj end end end if not ch and aD.effective(aE,
+'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115')then for ci,cj in ipairs(ca(cf,ce,true))do if cj.tool==
+'\083\104\111\118\101\108'or cj.tool=='\068\121\110\097\109\105\116\101'or cj.tool=='\065\117\116\111\080\101\101\108\101\114'or cj.tool=='\080\111\116\097\116\111\083\117\099\107\101\114'
+or cj.tool=='\068\114\111\110\101'or cj.tool=='\066\111\100\121'and cj.upgrade=='\076\117\099\107'then ch=cj break end
+end end bb=ch bg=ch if ch then local ci=a1[ch.name]local cj=aD.affordable(aE,ce,
+ch.price,'\067\097\115\104')and(not ci or ci.level~=ch.level or ce>=ci.cash)bc=not cj if cj
+then return ch end end return nil end local ch={}if aD.effective(aE,
+'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115')then local ci=ca(cf,ce,true)local cj=ba['\066\111\100\121\047\080\111\116\097\116\111\087\111\114\116\104']if
+cj and(cj.level==nil or cj.maximum==nil or cj.level<cj.maximum and cj.price==nil
+)then bg={name='\066\111\100\121\047\080\111\116\097\116\111\087\111\114\116\104\058\032'..cj.reason}return nil end for ck,cl in
+ipairs(ci)do local cm=a1[cl.name]if not cm or cm.level~=cl.level or ce>=cm.cash
+then table.insert(ch,cl)end end end if aD.effective(aE,'\097\117\116\111\066\117\121\084\111\111\108\115')or aU and
+aE.buyAfterSell then local ci=b8(cf)if not aE.teamFunding then for cj,ck in
+ipairs(bp.Tools or{})do if cj>ci then local cl=b6('\075\110\105\118\101\115',ck.Id,'\099\117\116',10)if cl
+then cl.tier=cj table.insert(ch,cl)end end end end if aD.effective(aE,'\097\117\116\111\070\097\114\109'
+)then for cj,ck in ipairs({'\068\121\110\097\109\105\116\101','\083\104\111\118\101\108','\080\048\084\052\084\048\045\051\048\048\048'})do local cl=ck==
+'\080\048\084\052\084\048\045\051\048\048\048'and'\080\111\116\097\116\111\083\117\099\107\101\114'or ck if not aK.owns(cf,cl)then local cm=b6(
+'\084\111\111\108\115',ck,'\099\111\108\108\101\099\116',20)if cm then table.insert(ch,cm)end end end end end local
+ci,cj=V()if aE.opAutoFinish then local ck=cb(cf,ce,true)if ck then table.insert(
+ch,ck)end end if aD.effective(aE,'\097\117\116\111\066\117\121\083\116\111\114\097\103\101')and not aE.infiniteBag and cj
+~=math.huge and type(cf.CarryLevel)=='\110\117\109\098\101\114'then local ck=bq.Levels and bq.
+Levels[cf.CarryLevel+1]if type(ck)=='\116\097\098\108\101'and ck.ItemName then local cl=b6(
+'\083\116\111\114\097\103\101',ck.ItemName,'\115\116\111\114\097\103\101',90)if cl then cl.capacity=ck.Capacity table.
+insert(ch,cl)end end end local ck=aE.opAutoFinish and bS.mountainEmpty==true and
+aK.opBulkReady(cg,cf)local cl,cm=aK.selectPurchase(aD,aE,ce,ch,ck)bg=cl if cm
+then return cl end return nil end local function ce()local cf=R(aR,{'\077\097\112',
+'\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115','\083\101\108\108\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097'})local cg=cf and cf:GetAttribute(
+'\080\111\116\097\116\111\067\111\117\110\116')return type(cg)=='\110\117\109\098\101\114'and cg>=0 and cg or nil end local
+function cf()if os.clock()<bh then return bS end bh=os.clock()+0.12 v.apply(aE.
+fastDelivery and not w,aE.placementDelay)if bd and os.clock()>=bd.deadline then
+bd=nil be=math.min(12,math.max(0.5,be*1.75))aZ=os.clock()+be end local cg,ch=V()
+local ci,cj=y.observe(os.clock(),cg)bP.collected+=ci if cj and F=='\080\111\116\097\116\111\083\117\099\107\101\114'
+then a4=os.clock()+2 end local ck,cl,cm=aG.heat()bD=aD.coolingLatch(bD,ck,aE,bW(
+))local cn=U()if os.clock()>=bK then bJ=cd()bK=os.clock()+0.7 bL=cn end local co
+=os.clock()>=bF and bJ or nil local cp=R(aR,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115',
+'\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\114\097\110\107\080\114\111\109\112\116\080\097\114\116','\067\114\097\110\107'})bS={cash=cn,carried=cg,capacity=ch,
+heat=ck,flowing=cl,heatSource=cm,needCooling=bD and not cl,cutting=bX(),
+tableReady=b4(true)~=nil,retryAt=bT,deliveryPending=bU~=nil,hasCandidate=Q(bx)or
+bA<=#bz and os.clock()<bB,noCandidate=bC,candidatePumpkin=bx~=nil and bx.pumpkin
+==true,purchase=co,canBuy=co~=nil,buyRetryAt=bF,coolingRetryAt=bE}bS.crankReady=
+cp~=nil and cp.Enabled bS.stock=ce()if bS.stock and M and bS.stock>M then N+=bS.
+stock-M end M=bS.stock if os.clock()-L>=1 then O=N/(os.clock()-L)N=0 L=os.clock(
+)end bS.cutRate=O local cq,Z=S(bk,'\071\101\116\082\101\109\111\118\101\100\070\114\097\099\116\105\111\110')bS.mountainEmpty=cq and
+type(Z)=='\110\117\109\098\101\114'and Z>=1 bS.sellReady=aK.sellReady(aE,bS.stock,{cutting=bS.
+cutting,crate=b3(),carried=cg,exhausted=bC or bS.mountainEmpty})if not aE.
+opAutoFinish and bg and bg.price and cn and cn<bg.price+aE.reserveCash and bS.
+stock and bS.stock>=math.min(50,aE.sellThreshold)then bS.sellReady=true end bS.
+sellRetryAt=aY bS.afterSale=aU bS.returnToTable=aU and aW~=nil bS.
+postSaleWeaponBought=aV bS.goal=bg local _=T()if os.clock()>=h then local cr=aC[
+'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}j=aK.maxed(cr,_,'\068\121\110\097\109\105\116\101')i=aK.maxed(cr,_,
+'\083\104\111\118\101\108')and j k=aK.productionReady(cr,_)l=aK.opBulkReady(cr,_)h=os.clock()+1
+end local cr=aK.clearReady(aE,aC['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{},_)bS.focusClear
+=aD.effective(aE,'\097\117\116\111\070\097\114\109')and(aE.clearPileFirst or aE.opAutoFinish)and cr and
+cq and type(Z)=='\110\117\109\098\101\114'and Z<1 local cs=aK.fundingPlan(aD,aE,cn,bg,b3(),bS.
+stock,ch,aE.opAutoFinish and l or k)bS.opFunding=cs if cs.needed and cs.cut then
+bS.focusClear=false end if cs.sell then bS.sellReady=true end bS.bulkOnly=aE.
+opAutoFinish and l and bS.focusClear bS.postClearUnload=aE.opAutoFinish and l
+and bS.mountainEmpty and cg and cg>0 if bS.bulkOnly then if not m then m=os.
+clock()n.entered+=1 n.completed=false aI(
+"\083\117\103\097\100\111\114\032\077\065\088\058\032\105\110\105\099\105\097\110\100\111\032\099\111\108\101\116\097\032\099\111\110\116\105\110\117\097\032\097\116\101\032\101\115\118\097\122\105\097\114\032\097\032\109\111\110\116\097\110\104\097\046")end n.
+seconds=os.clock()-m elseif m then n.seconds=os.clock()-m n.completed=bS.
+mountainEmpty m=nil if n.completed then aI(
+'\077\111\110\116\097\110\104\097\032\118\097\122\105\097\058\032\114\101\116\111\109\097\110\100\111\032\101\110\116\114\101\103\097\032\101\032\099\111\114\116\101\032\112\097\114\097\032\097\032\099\104\097\118\101\046')end end if aE.
+opAutoFinish and cq and type(Z)=='\110\117\109\098\101\114'and Z==Z and Z>=0 and Z<=1 then if not
+o then o={time=os.clock(),fraction=Z}end bS.pileProgress={source=
+'\110\097\116\105\118\101\032\071\101\116\082\101\109\111\118\101\100\070\114\097\099\116\105\111\110',removed_fraction=Z,delta_fraction=math.max(0,Z-o.
+fraction),elapsed=os.clock()-o.time}end bS.phase=j and(bb and'\101\113\117\105\112\109\101\110\116\058\032'..bb.
+name or'\099\108\101\097\114\032\112\105\108\101')or'\102\117\110\100\032\100\121\110\097\109\105\116\101'if aE.opAutoFinish then bS.phase=cs.needed
+and'\079\080\058\032\114\101\110\100\097\032\112\097\114\097\032'..tostring(bg and bg.name)or l and bS.focusClear and
+'\079\080\058\032\099\111\108\101\116\097\032\099\111\110\116\105\110\117\097\032\047\032\115\117\103\097\100\111\114\032\077\065\088'or bS.focusClear and'\079\080\058\032\108\105\109\112\101\122\097\032\101\032\109\101\108\104\111\114\105\097\115'
+or bS.mountainEmpty and'\079\080\058\032\099\111\114\116\097\114\032\101\115\116\111\113\117\101\032\101\032\098\117\115\099\097\114\032\099\104\097\118\101'or
+'\079\080\058\032\112\114\101\112\097\114\097\114\032\101\113\117\105\112\097\109\101\110\116\111\115'end bS.productionReady=k bS.deliveryGoal=bS.
+focusClear and aD.productionGoal(aE,ch,b3())or nil if cs.needed and not cs.cut
+then bS.deliveryGoal=cs.deliveryGoal end bS.opBurst=y.stats local ct=aE.
+opAutoFinish and aE.opKeyShortcut and aG.keyTarget and aG.keyTarget()or nil bS.
+keyProbeReady=ct~=nil and _ and _.HasKey~=true and cg and ch and cg<ch and os.
+clock()>=p and r.allowed(ct,bS.mountainEmpty,os.clock())if bS.focusClear and os.
+clock()<t and ch==math.huge then bS.deliveryGoal=math.huge end local cu=_ and#(
+bp.Tools or{})>1 and b8(_)>=#bp.Tools local cv=math.max(0,aE.cutBuffer-b3())bS.
+needBuffer=false bS.bufferDeliveryGoal=bS.needBuffer and math.min(cv,aD.
+deliveryGoal(aE,ch)or cv)or nil if os.clock()>=u then u=os.clock()+1 cc()end bS.
+drone=_ and _.HasDrone==true local cw=_ and _.RunStartTime or 0 if g~=cw then g=
+cw e=false f=false a2.reset()end bS.droneReady=aE.autoBuyDrone and e and not bS.
+drone and aD.effective(aE,'\097\117\116\111\070\097\114\109')bS.askDrone=not bS.bulkOnly and aE.
+autoBuyDrone and not f and not bS.drone and aD.effective(aE,'\097\117\116\111\070\097\114\109')bS.
+dynamiteReady=_ and aK.owns(_,'\068\121\110\097\109\105\116\101')and os.clock()>=aZ and not bd and aT.
+matches('\068\121\110\097\109\105\116\101\084\104\114\111\119',{'\078\117\109\098\101\114\085\051\050'})and Q(bx)if bS.dynamiteReady then s.
+remaining,s.interval,s.source=aK.pickTiming(aC['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{},
+bl,bk,_,'\068\121\110\097\109\105\116\101')bS.dynamiteReady=s.remaining<=0 end bS.canStageCut=R(aR,{
+'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115','\080\111\116\097\116\111\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097','\080\108\097\099\101\080\114\111\109\112\116'})~=nil return
+bS end local function cg(ch,ci)local cj=aR:FindFirstChild('\080\111\116\097\116\111\080\105\108\101')if not cj
+then return nil end local ck=RaycastParams.new()ck.FilterType=Enum.
+RaycastFilterType.Include ck.FilterDescendantsInstances={cj}local cl=0 while bA
+<=#bz and os.clock()<bB do if not ch()then return nil end local cm=bz[bA]bA+=1
+local cn=cm.part and bu[cm.part]or J[cm.slot]or 0 if Q(cm)and os.clock()>=cn and
+(not ci or cm.pumpkin)then if cm.part then cm.slot=aG.slot(cm.part)end local co=
+aG.exposed and aG.exposed(cm.part,cm.slot)local cp=co==nil and cm.part and aR:
+Raycast(cm.part.Position+Vector3.new(0,25,0),Vector3.new(0,-25.5,0),ck)if cm.
+slot and(cm.logical or co==true or cp and cp.Instance==cm.part)then bx=cm bC=
+false bh=0 return cm end end cl+=1 if cl%24==0 then aB.RunService.Heartbeat:
+Wait()end end return nil end local function ch(ci)bh=0 local cj=aD.batchCollect(
+aE)local ck=cj or k and aE.throughputMode and aE.rarity=='\065\110\121'local cl,cm=aG.
+prepare(ci)if not cl then return nil,cm end local cn,co=V()local cp=cn~=nil and
+co~=nil and cn>=co and not aD.effective(aE,'\097\117\116\111\068\121\110\097\109\105\116\101')if bw~=aG.stats.
+generation then bw=aG.stats.generation bv=setmetatable({},{__mode='\107'})bx=nil bz
+={}bA=1 bB=0 end if Q(bx)and os.clock()>=(bx.part and bu[bx.part]or J[bx.slot]or
+0)and(not cp or bx.pumpkin)then return bx end if os.clock()<bB then local cq=cg(
+ci,cp)if cq then return cq end end if os.clock()<by then return nil end bx=nil
+by=os.clock()+0.4 local cq=aF.actor()if not cq then return nil end local cr=aR:
+FindFirstChild('\080\111\116\097\116\111\080\105\108\101')if not cr then return nil end local cs=cr:
+GetChildren()local ct=aM.new(256)local cu=false local cv=0 if bw~=aG.stats.
+generation then bw=aG.stats.generation bv=setmetatable({},{__mode='\107'})end for
+cw,Z in ipairs(cs)do if not ci()then return nil end if Z:IsA('\066\097\115\101\080\097\114\116')and Z.
+Transparency<0.99 and os.clock()>=(bu[Z]or 0)then local _=(Z.Position-cq.
+Position).Magnitude if _<=aE.maxDistance then local cx=Z.Name=='\080\117\109\112\107\105\110'local cy
+,cz,cA local cB=not cj if cB then local cC=bv[Z]if cC and aG.slot(Z)==cC.slot
+then cy,cx,cz,cA=cC.kind,cC.pumpkin,cC.slot,cC.gem else if cv<8 or aG.stats.kind
+~='\117\110\114\101\115\111\108\118\101\100'then cv+=1 cz=aG.slot(Z)if cz then cy,cx,cA=aG.kind(Z,cz)end end
+if cy then bv[Z]={kind=cy,pumpkin=cx,slot=cz,gem=cA}end end if not cy and not cx
+then cu=true end end if(aP=='\103\101\109'and cA or aD.acceptVariant(aE,cy,cx,cA))and(not
+cp or cx)then local cC=({Normal=1,Golden=3,Diamond=6,Rainbow=10,Key=1,Charred=
+0.5})[cy]or 1 local cD=not aE.opAutoFinish and aE.selection=='\082\097\110\100\111\109'and math.
+random()*1000 or _ if aE.keyPriority and cy=='\075\101\121'then cD-=10000000000 end if aE
+.pumpkinPriority and cx then cD-=1000000000 end if cA and(aP=='\103\101\109'or not ck and
+aE.gemPriority and aE.collectGems)then cD-=1000000 end if not ck and aE.
+priorityValue and aE.rarity=='\065\110\121'then cD-=cC*10000 end ct.add({part=Z,kind=cy,
+pumpkin=cx,gem=cA,slot=cz,distance=_,worth=cC,score=cD})end end end if cw%700==0
+then aB.RunService.Heartbeat:Wait()end end if not ck and(aP=='\103\101\109'or aE.
+logicalSpecials and(aE.collectPumpkins or aE.collectGems))then if os.clock()>=H
+then G=aG.specialTargets(ci)H=os.clock()+20 end local cw={}for cx,cy in ipairs(
+ct.values())do if cy.slot then cw[cy.slot]=true end end for cx,cy in ipairs(G)do
+if not ci()then return nil end if os.clock()>=I and not cw[cy.slot]and os.clock(
+)>=(J[cy.slot]or 0)and aG.live(cy.slot)and(aP=='\103\101\109'and cy.gem or aD.
+acceptVariant(aE,cy.kind,cy.pumpkin,cy.gem))and(not cp or cy.pumpkin)then local
+cz=(cy.position-cq.Position).Magnitude if cz<=aE.maxDistance then cy.score=cz-(
+cy.pumpkin and aE.pumpkinPriority and 1000000000 or cy.gem and(aE.gemPriority or
+aP=='\103\101\109')and 1000000 or 0)ct.add(cy)end end end end local cw=ct.values()bz,bA,
+bB=cw,1,os.clock()+5 bx=cg(ci,cp)bC=bx==nil if not bx and cu and aE.rarity~=
+'\065\110\121'then return nil,
+"\082\097\114\105\100\097\100\101\032\105\110\100\105\115\112\111\110\105\118\101\108\058\032\111\032\099\108\105\101\110\116\101\032\110\097\111\032\101\120\112\111\115\032\117\109\032\118\105\110\099\117\108\111\032\118\101\114\105\102\105\099\097\118\101\108\032\101\110\116\114\101\032\112\101\099\097\044\032\105\110\100\105\099\101\032\101\032\101\115\116\097\100\111\046"
+end return bx end local function ci(cj,ck)local cl=aF.actor()if not cl or not Q(
+cj)then return false,'\097\108\118\111\032\105\110\100\105\115\112\111\110\105\118\101\108'end local cm=P(cj)if(cl.Position-cm).
+Magnitude<=math.min(18,aE.auraRadius)then return true end if aE.movement==
+'\084\101\108\101\112\111\114\116'then return aF.goTo(cm+Vector3.new(0,3.5,0),ck,true)end local cn=cl.
+Position-cm local co=Vector3.new(cn.X,0,cn.Z)local cp=cm+(co.Magnitude>0.1 and
+co.Unit or Vector3.new(0,0,1))*5 local cq=RaycastParams.new()cq.FilterType=Enum.
+RaycastFilterType.Exclude cq.FilterDescendantsInstances={aO.Character,aR:
+FindFirstChild('\080\111\116\097\116\111\080\105\108\101')}local cr=aR:Raycast(cp+Vector3.new(0,12,0),Vector3.
+new(0,-120,0),cq)if not cr then return false,'\115\101\109\032\112\105\115\111\032\112\114\111\120\105\109\111\032\100\097\032\098\097\116\097\116\097'end
+local cs,ct=aF.goTo(cr.Position,ck)cl=aF.actor()if not cs then return false,ct
+end return cl~=nil and Q(cj)and(cl.Position-cm).Magnitude<=18,
+'\097\108\118\111\032\102\111\114\097\032\100\111\032\097\108\099\097\110\099\101'end local cj local function ck(cl)local cm=aG.keyTarget
+and aG.keyTarget()if not cm then return true end p=os.clock()+10 bh=0 if not aT.
+matches('\080\111\116\097\116\111\080\105\099\107',{'\078\117\109\098\101\114\085\051\050'})or not aT.matches('\084\111\111\108\083\119\105\110\103',{})then return
+true end b_()local cn,co=ci(cm,cl)if not cn then q.last_result=tostring(co)
+return false,co end local cp=aG.keyTarget()if not cl()or not cp or cp.slot~=cm.
+slot then return true end if not r.begin(cp,bS.mountainEmpty,os.clock())then
+return true end p=0 q.attempts+=1 q.id=cm.slot q.source=cm.source local cq=aT.
+fire('\084\111\111\108\083\119\105\110\103')local cr,cs=false,'\070\101\114\114\097\109\101\110\116\097\032\100\101\032\099\111\108\101\116\097\032\105\110\100\105\115\112\111\110\105\118\101\108\046'if cq
+then cr,cs=aT.fire('\080\111\116\097\116\111\080\105\099\107',cm.slot)end if not cr then q.last_result=
+'\108\111\099\097\108\032\115\101\110\100\032\102\097\105\108\101\100'return false,cs end local ct=X(function()local ct=T()return
+ct and ct.HasKey==true end,0.8,cl)q.confirmed=ct==true q.last_result=ct and
+'\072\097\115\075\101\121\032\099\111\110\102\105\114\109\101\100\032\098\121\032\112\108\097\121\101\114\032\115\116\097\116\101'or
+'\110\111\032\072\097\115\075\101\121\032\099\111\110\102\105\114\109\097\116\105\111\110\059\032\110\111\114\109\097\108\032\112\114\111\103\114\101\115\115\105\111\110\032\099\111\110\116\105\110\117\101\115'bh=0 bx=nil if ct then aI(
+'\065\116\097\108\104\111\032\100\097\032\099\104\097\118\101\032\099\111\110\102\105\114\109\097\100\111\032\112\101\108\111\032\101\115\116\097\100\111\032\100\111\032\106\111\103\111\046')else aI(
+"\084\101\115\116\101\032\100\097\032\099\104\097\118\101\058\032\111\032\115\101\114\118\105\100\111\114\032\110\097\111\032\099\111\110\102\105\114\109\111\117\032\097\032\099\111\108\101\116\097\032\097\110\116\101\099\105\112\097\100\097\046")end return
+true end local function cl(cm)local cn=aD.batchCollect(aE)if cn and(y.stats.
+pending>0 or os.clock()<bG)then return true end if bX()then W()end local co,cp=
+ch(cm)if not co then if cp then aI(cp,'\101\114\114\111\114')end return true end b1()local cq=
+nil if cn then local cr cr,cq=aK.pickTiming(aC['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{},
+bl,bk,T(),F or'\072\097\110\100')if cr>0 then bG=os.clock()+math.min(cr,0.25)return true end
+end local cr,cs=V()local ct,cu=bN,bO if not cr or not cs or cr>=cs and not co.
+pumpkin then return false,'\098\111\108\115\097\032\099\104\101\105\097\032\111\117\032\099\097\112\097\099\105\100\097\100\101\032\100\101\115\099\111\110\104\101\099\105\100\097'end local cv=
+aG.stats.identity local cw=aG.stats.native_map or cv and math.max(cv.
+confirmed_geometry or 0,cv.confirmed_permuted or 0)>=3 if cn and cw and bM and
+not co.logical and not co.pumpkin then local cx=aE.teamFunding and aD.effective(
+aE,'\097\117\116\111\068\101\108\105\118\101\114')and aD.deliveryGoal(aE,cs)local cy=cx or cs local cz=y.budget(
+os.clock(),cr,cy)if cz==0 then return true end local cA,cB=ci(co,cm)if not cA
+then bx=nil return false,cB end if cm()and aD.effective(aE,'\097\117\116\111\068\121\110\097\109\105\116\101')and
+not bd and os.clock()>=aZ then cj(cm)end local cC=aF.actor()local cD=aR:
+FindFirstChild('\080\111\116\097\116\111\080\105\108\101')if not cC or not cD then return true end local Z=
+RaycastParams.new()Z.FilterType=Enum.RaycastFilterType.Include Z.
+FilterDescendantsInstances={cD}local _={}local function cE(cF)if not Q(cF)or cF.
+pumpkin or not cF.part or(cF.part.Position-cC.Position).Magnitude>math.min(18,aE
+.auraRadius)then return end local cG=aG.slot(cF.part)local cH=aG.exposed and aG.
+exposed(cF.part,cG)local cI=cH==nil and aR:Raycast(cF.part.Position+Vector3.new(
+0,25,0),Vector3.new(0,-25.5,0),Z)if cH~=true and(not cI or cI.Instance~=cF.part)
+then return end if not y.available(cG,os.clock())or table.find(_,cG)then return
+end table.insert(_,cG)end cE(co)local cF=0 while#_<cz and bA<=#bz and cF<64 do
+local cG=bz[bA]if Q(cG)and(P(cG)-cC.Position).Magnitude>math.min(18,aE.
+auraRadius)then break end bA+=1 cF+=1 cE(cG)end bx=nil bh=0 if not cm()or#_==0
+then return true end if not aT.matches('\080\111\116\097\116\111\080\105\099\107',{'\078\117\109\098\101\114\085\051\050'})or not aT.
+matches('\084\111\111\108\083\119\105\110\103',{})then return false,'\080\114\111\116\111\099\111\108\111\032\100\101\032\099\111\108\101\116\097\032\079\080\032\105\110\100\105\115\112\111\110\105\118\101\108\046'
+end if not y.begin(os.clock(),cr,_)then return true end bG=os.clock()+math.max(
+0.08,cq or 0.08)if aT.matches('\084\111\111\108\085\115\105\110\103',{'\066\111\111\108\101\097\110'})then aT.fire('\084\111\111\108\085\115\105\110\103',
+true)end for cG,cH in ipairs(_)do if not cm()then y.cancel()return false,
+'\099\097\110\099\101\108\097\100\111'end local cI=aT.fire('\084\111\111\108\083\119\105\110\103')local cJ=cI and aT.fire('\080\111\116\097\116\111\080\105\099\107'
+,cH)if not cJ then y.cancel()return false,
+'\080\101\100\105\100\111\032\079\080\032\114\101\099\117\115\097\100\111\032\112\101\108\111\032\112\114\111\116\111\099\111\108\111\032\108\111\099\097\108\046'end end return true end local function
+cx()local cy=V()return cy~=nil and cy>cr or co.pumpkin and bN>ct or co.gem and
+bO>cu end if os.clock()<bG then return true end local cy,cz=ci(co,cm)if not cy
+then if co.part then bu[co.part]=os.clock()+5 else J[co.slot]=os.clock()+30 end
+bx=nil by=0 return false,cz end if not cm()then return false,'\099\097\110\099\101\108\097\100\111'end co.
+slot=co.part and aG.slot(co.part)or co.slot co.geometry=co.part and aG.
+physicalSlot(co.part)or nil if co.slot then co.kind,co.pumpkin,co.gem=aG.kind(co
+.part,co.slot)if not(aP=='\103\101\109'and co.gem or aD.acceptVariant(aE,co.kind,co.
+pumpkin,co.gem))then bx=nil return true end end if co.logical then I=os.clock()+
+5 end local cA=false if co.slot and type(aS.PotatoPick)=='\116\097\098\108\101'and type(aS.
+PotatoPick.Fire)=='\102\117\110\099\116\105\111\110'and type(aS.ToolSwing)=='\116\097\098\108\101'and type(aS.ToolSwing
+.Fire)=='\102\117\110\099\116\105\111\110'then local cB={co}local cC=aF.actor()local cD=aD.pickLimit(aE,
+cr,cs,co.pumpkin)if bS.deliveryGoal and bS.deliveryGoal<math.huge then cD=math.
+min(cD,math.max(1,bS.deliveryGoal-cr))end if bS.needBuffer then cD=math.min(cD,
+math.max(1,(bS.bufferDeliveryGoal or 1)-cr))end local cE=aG.stats.identity if
+not cE or math.max(cE.confirmed_geometry or 0,cE.confirmed_permuted or 0)<3 then
+cD=1 end while#cB<cD and bA<=#bz and cC do local cF=bz[bA]if not Q(cF)then bA+=1
+elseif cF.pumpkin or cF.logical or(P(cF)-cC.Position).Magnitude>math.min(18,aE.
+auraRadius)then break else cF.slot=cF.part and aG.slot(cF.part)or cF.slot if not
+cF.slot then break end bA+=1 table.insert(cB,cF)end end local cF,cG=pcall(
+function()if aT.matches('\084\111\111\108\085\115\105\110\103',{'\066\111\111\108\101\097\110'})then aT.fire('\084\111\111\108\085\115\105\110\103',true)
+end for cF,cG in ipairs(cB)do if not cm()then break end aS.ToolSwing:Fire()aS.
+PotatoPick:Fire(cG.slot)end end)if not cF then aI(
+'\067\111\108\101\116\097\032\100\105\114\101\116\097\032\105\110\100\105\115\112\111\110\105\118\101\108\059\032\117\115\097\110\100\111\032\101\110\116\114\097\100\097\032\110\097\116\105\118\097\058\032'..tostring(cG),'\101\114\114\111\114')end
+cA=cF end if not cA then return false,
+"\073\110\100\105\099\101\032\100\097\032\098\097\116\097\116\097\032\110\097\111\032\099\111\110\102\105\114\109\097\100\111\059\032\102\105\108\116\114\111\032\101\115\112\101\099\105\102\105\099\111\032\109\097\110\116\105\100\111\032\101\109\032\101\115\112\101\114\097\046"end
+local cB,cC=X(cx,aE.speedMode=='\084\117\114\098\111'and math.min(0.65,aE.actionTimeout)or aE.
+actionTimeout,cm)if not cB and cm()and co.part and aG.alternate then local cD=aG
+.alternate(co.part,co.slot)if cD then local cE,cF,cG=aG.kind(co.part,cD)if aD.
+acceptVariant(aE,cE,cF,cG)then local cH=aT.fire('\080\111\116\097\116\111\080\105\099\107',cD)if cH then cB,cC
+=X(cx,0.4,cm)if cB then co.slot=cD end end end end end local cD=V()if cB then a5
+=0 if co.part and not a3 then aG.confirm(co.part,co.slot,co.geometry)end bP.
+collected+=math.max(0,(cD or cr)-cr)bI=math.max(0.04,bI*0.9)else if F==
+'\080\111\116\097\116\111\083\117\099\107\101\114'then a5+=1 if a5>=2 then a4=os.clock()+2 a5=0 end end if co.part
+then bu[co.part]=os.clock()+3 else J[co.slot]=os.clock()+30 end bI=math.min(0.6,
+math.max(0.08,bI*1.3))end bh=0 local cE=aE.speedMode=='\084\117\114\098\111'and bI or aD.
+tickInterval(aE)local cF=T()if cF and aE.speedMode~='\084\117\114\098\111'then local cG,cH=S(bk
+,'\071\101\116\080\105\099\107\067\111\111\108\100\111\119\110',F or'\072\097\110\100')if cG and type(cH)=='\110\117\109\098\101\114'and cH>0 and cH<3 then
+cE=math.max(cE,cH)end end bG=os.clock()+cE bx=nil return cB,cC end local
+function cm(cn)local co=V()if not co or co<=0 then bU=nil bh=0 return true end
+if not bU then b_()local cp=R(aR,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115'})local cq local cr=aD.
+progress(aE)and(bS.focusClear and k and'\065\117\116\111'or'\067\114\097\116\101')or aE.deliveryTarget if
+cr=='\084\097\098\108\101'then cq=b4(true)elseif cr=='\077\097\110\117\097\108'then cq=cp and R(cp,{
+'\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\117\098\101\046\048\051\051','\076\111\097\100'})elseif cr=='\065\117\116\111'then cq=cp and R(cp,{
+'\065\117\116\111\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\117\098\101\046\048\052\050','\076\111\097\100'})else local cs=T()local ct=cp and R(cp,{
+'\065\117\116\111\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\117\098\101\046\048\052\050','\076\111\097\100'})if aE.buyMachines and(bS.mountainEmpty
+or bS.focusClear)and k and cs and cs.HasAutoPeeler and ct and ct.Enabled then cq
+=ct else cq=cp and R(cp,{'\080\111\116\097\116\111\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097','\080\108\097\099\101\080\114\111\109\112\116'})end end if
+not cq then return false,'\068\101\115\116\105\110\111\032\115\101\108\101\099\105\111\110\097\100\111\032\105\110\100\105\115\112\111\110\105\118\101\108\046'end if cr=='\065\117\116\111'and
+not cq.Enabled then t=os.clock()+3 bh=0 if select(2,V())==math.huge then return
+true,'\065\117\116\111\109\097\116\105\099\111\032\111\099\117\112\097\100\111\059\032\099\111\110\116\105\110\117\097\110\100\111\032\099\111\108\101\116\097\046'end cq=cp and R(cp,{'\080\111\116\097\116\111\067\114\097\116\101',
+'\080\111\116\097\116\111\065\114\101\097','\080\108\097\099\101\080\114\111\109\112\116'})end local cs,ct=aF.trigger(cq,cn)if not cs then
+return false,ct end bU={prompt=cq,last=co,remaining=co,progressAt=os.clock(),
+began=os.clock(),total=0}end local cp=bU local cq=os.clock()+math.max(4,math.
+min(8,aE.actionTimeout))repeat if not cn()then return false,'\099\097\110\099\101\108\097\100\111'end local
+cr=V()if cr and cr<cp.last then local cs=cp.last-cr bP.delivered+=cs cp.total+=
+cs cp.progressAt=os.clock()bh=0 end if cr then cp.last=cr cp.remaining=cr end if
+cr==0 then aI('\069\110\116\114\101\103\097\032\099\111\110\099\108\117\105\100\097\058\032'..tostring(cp.total)..'\032\098\097\116\097\116\097\115\046')bU=nil bh=0
+bx=nil return true end if os.clock()-cp.progressAt>2 then local cs=cp.prompt if
+cs and cs.Parent and cs.Enabled then local ct,cu=aF.trigger(cs,cn)if not ct then
+return false,cu end cp.progressAt=os.clock()elseif cp.total>0 and os.clock()-cp.
+progressAt>1 then bU=nil t=os.clock()+3 bh=0 return true,
+'\067\097\114\103\097\032\112\097\114\099\105\097\108\032\099\111\110\102\105\114\109\097\100\097\059\032\114\101\116\111\109\097\110\100\111\032\099\111\108\101\116\097\046'elseif os.clock()-cp.progressAt>
+math.max(8,aE.actionTimeout)then bU=nil bh=0 return false,
+'\069\110\116\114\101\103\097\032\112\097\114\111\117\032\115\101\109\032\112\114\111\103\114\101\115\115\111\059\032\100\101\115\116\105\110\111\032\115\101\114\097\032\114\101\097\118\097\108\105\097\100\111\046'end end aB.RunService.
+Heartbeat:Wait()until os.clock()>=cq return true,'\069\110\116\114\101\103\097\032\101\109\032\097\110\100\097\109\101\110\116\111\046'end
+local function cn(co)if not bX()then return true end local cp,cq=S(bj,
+'\071\101\116\080\111\116\097\116\111')local cr=T()local cs=cr and bp.Tools and bp.Tools[b8(cr)]or nil D=
+true local ct,cu=bR.tick(true,cq,U(),cs)if not ct then W()table.clear(bf)bT.
+enterCut=os.clock()+1 bh=0 end if not co()then return false,'\099\097\110\099\101\108\097\100\111'end
+return ct,cu end local function co(cp)b_()local cq=b4(true)if not cq then return
+false,'\078\101\110\104\117\109\097\032\109\101\115\097\032\108\105\098\101\114\097\100\097\032\099\111\109\032\098\097\116\097\116\097\115\046'end bV={}for cr,cs in ipairs(aQ:
+GetChildren())do if cs:IsA('\083\099\114\101\101\110\071\117\105')and cs.Name~='\065\110\111\110\121\109\111\117\115\080\111\116\097\116\111\072\117\098'then bV[
+cs]=cs.Enabled for ct,cu in ipairs(cs:GetChildren())do if cu:IsA('\071\117\105\079\098\106\101\099\116')
+then bV[cu]=cu.Visible end end end end aF.aim(cq,aE.aimTable)local cr,cs=aF.
+trigger(cq,cp)if not cr then aF.clearAim()bf[cq]=os.clock()+3 bh=0 return false,
+cs end local ct=aE.opAutoFinish and aE.opFastPrompts and cq.HoldDuration==0
+local cu,cv=X(bX,math.min(ct and 1.25 or 3,aE.actionTimeout),cp)if not cu and
+cp()and cq.Enabled then local cw=aF.trigger(cq,cp,{method='\104\111\108\100'})if cw then cu,
+cv=X(bX,math.min(2,aE.actionTimeout),cp)end elseif not cu and ct and cp()then cu
+,cv=X(bX,0.75,cp)end aF.clearAim()if cu then aX=cq D=true else bf[cq]=os.clock()
++3 bh=0 end return cu,cv end local function cp(cq)bE=os.clock()+2 local cr=aF.
+actor()local cs=cr and cr.Position b_()local ct=R(aR,{'\077\097\112','\087\097\116\101\114',
+'\087\097\116\101\114\084\101\114\109\105\110\097\108','\051','\066\117\116\116\111\110','\087\097\116\101\114\080\114\111\109\112\116'})if not ct then return false,
+'\087\097\116\101\114\080\114\111\109\112\116\032\110\097\111\032\101\110\099\111\110\116\114\097\100\111\046'end local cu=aG.heat()local cv=ct.HoldDuration aF.
+aim(ct,aE.aimCooling)local cw,cx=false,nil local cy={{method='\104\111\108\100',holdSeconds=
+aE.coolHoldSeconds},{method='\110\097\116\105\118\101'}}if aE.coolHoldFallback and aE.
+coolHoldSeconds<cv then table.insert(cy,{method='\104\111\108\100',holdSeconds=cv})end for
+cz,cA in ipairs(cy)do local cB,cC=aF.trigger(ct,cq,cA)if not cB then cx=cC else
+cw,cx=X(function()local cD,cE=aG.heat()return cE or cD and(cD<=aE.heatStop or cu
+and cD<cu-1)end,cz==1 and 1 or 2,cq)end if cw or not cq()then break end end aF.
+clearAim()bh=0 if cw then bP.cooled+=1 aI(
+'\086\097\108\118\117\108\097\032\099\111\110\102\105\114\109\097\100\097\058\032\097\103\117\097\032\102\108\117\105\110\100\111\032\111\117\032\099\097\108\111\114\032\100\105\109\105\110\117\105\110\100\111\046')bE=os.clock()+aE.
+coolingRetry if aE.returnAfterCooling and cs and cq()then aF.goTo(cs,cq,true)end
+end return cw,cx end local function cq(cr)W()local cs=R(aR,{'\077\097\112',
+'\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115','\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\114\097\110\107\080\114\111\109\112\116\080\097\114\116','\067\114\097\110\107'})if not cs or not
+cs.Enabled then return false,'\067\111\114\116\097\100\111\114\032\109\097\110\117\097\108\032\105\110\100\105\115\112\111\110\105\118\101\108\046'end local ct=cs.
+ObjectText local cu,cv=aF.trigger(cs,cr)if not cu then return false,cv end
+return X(function()return not cs.Parent or not cs.Enabled or cs.ObjectText~=ct
+end,aE.actionTimeout,cr)end local function cr(cs,ct)local cu=ct or cd()if not cu
+then return true end local cv=T()local cw=U()local cx=cv and b8(cv)local cy=cv
+and cv.CarryLevel local cz=aC['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}local cA=cu.group==
+'\117\112\103\114\097\100\101'and aK.level(cz,cv,cu.tool,cu.upgrade)or nil local cB=aF.actor()cB=cB
+and cB.Position local cC=bX()local function cD()local cE=T()if not cE then
+return false end if cu.group=='\109\097\099\104\105\110\101'then return cE[cu.unlock]==true end if cu
+.group=='\117\112\103\114\097\100\101'then local cF=aK.level(cz,cE,cu.tool,cu.upgrade)return cF~=nil
+and cA~=nil and cF>cA end if cu.group=='\099\117\116'and cx and b8(cE)>cx then return
+true end if cu.group=='\115\116\111\114\097\103\101'and cy and cE.CarryLevel>cy then return true end
+if cu.group=='\099\111\108\108\101\099\116'and aK.owns(cE,cu.id=='\080\048\084\052\084\048\045\051\048\048\048'and'\080\111\116\097\116\111\083\117\099\107\101\114'or cu.
+id)then return true end local cF=U()return cF and cw and cF<cw-0.001 end local
+function cE(cF,cG,cH)if cu.group=='\117\112\103\114\097\100\101'then if bt then bt()bt=nil end else
+S(bm,'\067\108\111\115\101')end if cF and not cH then bP.purchases+=1 if#bQ<100 then table.
+insert(bQ,{name=cu.name,group=cu.group})end if aU and cu.group=='\099\117\116'then aV=
+true end aI('\067\111\109\112\114\097\032\099\111\110\102\105\114\109\097\100\097\058\032'..cu.name..'\046')end if cu.group=='\117\112\103\114\097\100\101'and
+not cH then a2.result(cu.name,cA,cF)end if cu.group=='\117\112\103\114\097\100\101'and not cF then a1
+[cu.name]={cash=math.max((cw or 0)*1.5,(cw or 0)+math.max(0.1,(cu.price or 0)*
+0.5)),level=cA}elseif cF and not cH then a1[cu.name]=nil end cc()a0[cu.name]=cF
+and not cH and 0 or os.clock()+20 bF=os.clock()+(cF and 0.15 or 1)bJ=nil bK=0 bh
+=0 if cC and cB and cs()and cu.group~='\117\112\103\114\097\100\101'and not aU then aF.goTo(cB,cs,
+true)end return cF,cG end if cu.group=='\117\112\103\114\097\100\101'then local cF=aK.definition(cz,
+cu.tool,cu.upgrade)local cG=cF~=nil local cH=cG and aK.maximum(cz,cF)if cH==nil
+or cA==nil or cA>=cH or not a2.allowed(cu.name,cA)then return cE(true,
+'\077\101\108\104\111\114\105\097\032\099\111\110\099\108\117\105\100\097\032\111\117\032\098\108\111\113\117\101\097\100\097\032\112\097\114\097\032\114\101\097\118\097\108\105\097\099\097\111\046',true)end if cA==nil then
+return cE(true,'\078\105\118\101\108\032\100\101\032\109\101\108\104\111\114\105\097\032\105\110\100\105\115\112\111\110\105\118\101\108\046',true)end local cI,cJ=S(bn,
+'\071\101\116\085\112\103\114\097\100\101\066\117\116\116\111\110',cu.tool,cu.upgrade)if cI and typeof(cJ)=='\073\110\115\116\097\110\099\101'and cJ:
+IsA('\071\117\105\066\117\116\116\111\110')then cu.button=cJ end cu.price=b9(T(),cu.tool,cu.upgrade,cA,cu.
+button)or cu.price if not cs()then return cE(false,'\099\097\110\099\101\108\097\100\111')end if not cu.
+price or not aD.affordable(aE,U(),cu.price,'\067\097\115\104')then return cE(true,
+'\065\103\117\097\114\100\097\110\100\111\032\115\097\108\100\111\032\112\097\114\097\032'..cu.name,true)end local Z,_ if aT.matches(
+'\084\111\111\108\085\112\103\114\097\100\101\080\117\114\099\104\097\115\101',{'\083\116\114\105\110\103','\083\116\114\105\110\103'})then Z,_=aT.fire('\084\111\111\108\085\112\103\114\097\100\101\080\117\114\099\104\097\115\101'
+,cu.tool,cu.upgrade)elseif cu.button then Z,_=aH.activate(cu.button,true)else
+return cE(true,'\066\111\116\097\111\032\100\101\032\109\101\108\104\111\114\105\097\032\097\105\110\100\097\032\105\110\100\105\115\112\111\110\105\118\101\108\046',true)end if not Z then
+return cE(false,_)end local cK,cL=X(cD,math.min(3,aE.actionTimeout),cs)return
+cE(cK,cL)end if not aD.affordable(aE,cw,cu.price,'\067\097\115\104')then return cE(true,
+'\065\103\117\097\114\100\097\110\100\111\032\115\097\108\100\111\046',true)end b_()local cF,cG=aF.trigger(cu.prompt,cs)if not cF
+then return cE(false,cG)end local cH,cI local cJ,cK=X(function()if cD()then
+return true end cH,cI=aH.buyButton(cu.price)return cH~=nil end,2,cs)if cD()then
+return cE(true)end if aT.matches('\083\116\111\114\101\080\117\114\099\104\097\115\101',{'\073\110\115\116\097\110\099\101','\083\116\114\105\110\103'})then
+local cL=cu.prompt:FindFirstAncestorOfClass('\077\111\100\101\108')if cL then local Z=aT.fire(
+'\083\116\111\114\101\080\117\114\099\104\097\115\101',cL,'\066\117\121')if Z then local _=X(cD,1.5,cs)if _ then return cE(true)
+end end end end if not cJ then return cE(false,cI or cK)end if not aD.
+affordable(aE,U(),cu.price,'\067\097\115\104')then return cE(true,'\083\097\108\100\111\032\097\108\116\101\114\097\100\111\046',true)end
+local cL,Z=aH.activate(cH)if not cL then return cE(false,Z)end local _,cM=X(cD,
+math.min(3,aE.actionTimeout),cs)return cE(_,cM)end local function cs(ct,cu,cv)if
+not table.find(aK.allowed[ct]or{},cu)then return false,'\077\101\108\104\111\114\105\097\032\100\101\115\099\111\110\104\101\099\105\100\097\046'
+end local cw=T()if not aK.owns(cw,ct)then return false,
+'\070\101\114\114\097\109\101\110\116\097\032\097\105\110\100\097\032\110\097\111\032\097\100\113\117\105\114\105\100\097\046'end local cx=aC['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}
+local cy=aK.level(cx,cw,ct,cu)local cz=aK.maximum(cx,aK.definition(cx,ct,cu))if
+cy==nil or cz==nil then return false,
+'\079\032\106\111\103\111\032\097\105\110\100\097\032\110\097\111\032\105\110\102\111\114\109\111\117\032\111\032\110\105\118\101\108\032\100\097\032\109\101\108\104\111\114\105\097\046'end if cy>=cz then return false,
+'\077\101\108\104\111\114\105\097\032\106\097\032\101\115\116\097\032\110\111\032\109\097\120\105\109\111\046'end local cA,cB=S(bn,'\071\101\116\085\112\103\114\097\100\101\066\117\116\116\111\110',ct,cu)if
+not cA or typeof(cB)~='\073\110\115\116\097\110\099\101'or not cB:IsA('\071\117\105\066\117\116\116\111\110')then cB=nil end local
+cC=b9(cw,ct,cu,cy,cB)if not cC then return false,
+'\079\032\106\111\103\111\032\097\105\110\100\097\032\110\097\111\032\105\110\102\111\114\109\111\117\032\111\032\112\114\101\099\111\046'end if not aD.affordable(aE,U(),cC,'\067\097\115\104')
+then return false,'\083\097\108\100\111\032\111\117\032\108\105\109\105\116\101\032\100\101\032\099\111\109\112\114\097\032\105\110\115\117\102\105\099\105\101\110\116\101\046'end return cr(cv,{
+group='\117\112\103\114\097\100\101',name=ct..'\047'..cu,tool=ct,upgrade=cu,button=cB,price=cC,level=cy}
+)end local function ct(cu)local cv=ce()if not cv or cv<=0 then return true end
+local cw=aF.actor()aW=aE.returnAfterSell and cw and cw.Position or nil b_()local
+cx=R(aR,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115','\083\101\108\108\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097','\083\101\108\108\080\114\111\109\112\116'})aY=os.
+clock()+3 local cy,cz=aF.trigger(cx,cu)if not cy then return false,cz end local
+function cA()local cB=ce()return cB~=nil and cB<cv end local cB=aE.opAutoFinish
+and aE.opFastPrompts and cx.HoldDuration==0 local cC,cD=X(cA,math.min(cB and
+1.25 or 4,aE.actionTimeout),cu)if not cC and cB and cu()then if cx.Parent and cx
+.Enabled and not cA()then aF.trigger(cx,cu,{method='\104\111\108\100'})end cC,cD=X(cA,math.
+min(1.75,aE.actionTimeout),cu)end if cC then bP.sales+=1 bP.sold+=math.max(0,cv-
+(ce()or cv))aU=true aV=false bJ=nil bK=0 bh=0 aI('\086\101\110\100\097\032\099\111\110\102\105\114\109\097\100\097\058\032'..tostring(
+cv-(ce()or cv))..'\032\098\097\116\097\116\097\115\046')end return cC,cD end local function cu(cv)local cw=
+aW aU=false aW=nil aV=false bh=0 if not cw or bS.focusClear or bS.needBuffer
+then return true end local cx,cy=aF.goTo(cw,cv,true)if not cx then return false,
+cy end if aD.effective(aE,'\097\117\116\111\067\117\116')and b4(true)then return co(cv)end return
+true end cj=function(cv)local cw=T()if not aK.owns(cw,'\068\121\110\097\109\105\116\101')or not Q(bx)
+then return true end if not aT.matches('\068\121\110\097\109\105\116\101\084\104\114\111\119',{'\078\117\109\098\101\114\085\051\050'})then return
+true end local cx,cy,cz=aK.pickTiming(aC['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{},bl,bk,
+cw,'\068\121\110\097\109\105\116\101')s={remaining=cx,interval=cy,source=cz}if cx>0 then aZ=os.clock()+
+cx return true end local cA=aF.actor()if not cA then return false,
+'\112\101\114\115\111\110\097\103\101\109\032\105\110\100\105\115\112\111\110\105\118\101\108'end local cB=P(bx)if(cA.Position-cB).Magnitude>18 then
+local cC,cD=ci(bx,cv)if not cC then return false,cD end end local cC=aT.matches(
+'\084\111\111\108\069\113\117\105\112',{'\083\116\114\105\110\103'})if cC then bZ('\068\121\110\097\109\105\116\101')end S(bk,'\083\101\116\085\115\101\072\101\108\100',false)
+local cD=a_ local cE,cF=aT.fire('\068\121\110\097\109\105\116\101\084\104\114\111\119',bx.slot)local cG=aE.opAutoFinish
+and 0.1 or math.max(aE.dynamiteInterval,aE.dynamiteAggressive and 0.1 or 1)aZ=os
+.clock()+math.max(cG,cy or 0)if cE then bd={serial=cD,deadline=os.clock()+0.8}
+end if cC then local cH=aK.owns(cw,'\080\111\116\097\116\111\083\117\099\107\101\114')and'\080\111\116\097\116\111\083\117\099\107\101\114'or aK.owns(cw
+,'\083\104\111\118\101\108')and'\083\104\111\118\101\108'or'\072\097\110\100'bZ(cH)end b1()if cC and aK.owns(cw,'\080\111\116\097\116\111\083\117\099\107\101\114')
+and aT.matches('\084\111\111\108\085\115\105\110\103',{'\066\111\111\108\101\097\110'})then aT.fire('\084\111\111\108\085\115\105\110\103',true)end return
+cE,cF end if bj.PotatoCut and type(bj.PotatoCut.Connect)=='\102\117\110\099\116\105\111\110'then local
+cv,cw=pcall(bj.PotatoCut.Connect,bj.PotatoCut,function()bP.cuts+=1 end)if cv
+then table.insert(br,cw)end end for cv,cw in ipairs({{'\080\101\101\108\105\110\103\083\116\097\114\116\101\100','\115\116\097\114\116'},
+{'\080\101\101\108\105\110\103\078\101\120\116\080\111\116\097\116\111','\110\101\120\116'},{'\080\101\101\108\105\110\103\083\116\111\112\112\101\100','\115\116\111\112'}})do local cx=aS[cw[1] ]
+local cy=cx and cx.OnClientEvent if type(cy)=='\116\097\098\108\101'and type(cy.Connect)==
+'\102\117\110\099\116\105\111\110'then local cz=cw[2]local cA,cB=pcall(cy.Connect,cy,function()bR.event(
+cz)end)if cA then table.insert(br,cB)end end end local cv=aS.
+PotatoPumpkinCollected and aS.PotatoPumpkinCollected.OnClientEvent if type(cv)==
+'\116\097\098\108\101'and type(cv.Connect)=='\102\117\110\099\116\105\111\110'then local cw,cx=pcall(cv.Connect,cv,
+function(cw)if typeof(cw)=='\073\110\115\116\097\110\099\101'and cw:IsA('\080\108\097\121\101\114')and cw~=aO then return
+end bN+=1 bP.pumpkins+=1 end)if cw then table.insert(br,cx)end end local
+function cw(cx,cy)local cz=aS[cx]local cA=cz and cz.OnClientEvent if type(cA)==
+'\116\097\098\108\101'and type(cA.Connect)=='\102\117\110\099\116\105\111\110'then local cB,cC=pcall(cA.Connect,cA,
+function(cB)if typeof(cB)=='\073\110\115\116\097\110\099\101'and cB:IsA('\080\108\097\121\101\114')and cB~=aO then return
+end cy()end)if cB then table.insert(br,cC)end end end cw(
+'\080\111\116\097\116\111\068\105\097\109\111\110\100\067\111\108\108\101\099\116\101\100',function()bO+=1 bP.gems+=1 end)cw('\068\121\110\097\109\105\116\101\084\104\114\111\119\110',
+function()a_+=1 if bd then bP.throws+=1 bd=nil be=math.max(0.1,be*0.8)end end)
+local function cx(cy)local cz=R(aR,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115','\080\111\116\097\116\111\067\114\097\116\101',
+'\080\111\116\097\116\111\065\114\101\097','\080\108\097\099\101\080\114\111\109\112\116'})local cA=V()if not cA or cA<=0 then return true end
+local cB,cC=aF.trigger(cz,cy)if not cB then return false,cC end return X(
+function()local cD=V()return cD and cD<cA end,aE.actionTimeout,cy)end local
+function cy()y.cancel()bh=0 bx=nil by=0 bz={}bA=1 bB=0 bC=false bJ=nil bK=0 bv=
+setmetatable({},{__mode='\107'})G={}H=0 F=nil end local function cz(cA,cB)bT[cA]=os
+.clock()+(cA=='\099\111\108\108\101\099\116'and math.min(0.6,0.1*(cB or 1))or math.min(12,0.5*2^math.
+min(cB or 1,4)))bh=0 if cA=='\099\111\108\108\101\099\116'or cA=='\100\121\110\097\109\105\116\101'then bx=nil by=0 end if cA
+=='\101\110\116\101\114\067\117\116'or cA=='\099\117\116'or cA=='\114\101\116\117\114\110\084\097\098\108\101'then W()end if cA=='\100\101\108\105\118\101\114'or cA==
+'\115\116\097\103\101\067\117\116'then if not bU or bU.total==0 then w=true v.apply(false,aE.
+placementDelay)end local cC=V()if not cC or cC<=0 then bU=nil end end if cA==
+'\098\117\121'then bJ=nil bK=0 end end local function cA(cB)if not e or not aE.
+autoBuyDrone then return true end local cC=T()if cC and cC.HasDrone then return
+true end b_()local cD=R(aR,{'\077\097\112','\083\116\111\114\101\073\116\101\109\115','\082\111\098\117\120','\068\114\111\110\101','\080\114\105\099\101',
+'\080\114\111\109\112\116\065\116\116\097\099\104\109\101\110\116','\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116'})if not cD then return false,
+'\076\111\106\097\032\100\111\032\100\114\111\110\101\032\105\110\100\105\115\112\111\110\105\118\101\108\046'end local cE,cF=aF.trigger(cD,cB)if not cE then
+return false,cF end local cG=nil X(function()local cH=aQ:FindFirstChild(
+'\083\116\111\114\101\086\105\101\119')if not cH then return false end for cI,cJ in ipairs(cH:
+GetDescendants())do if cJ:IsA('\071\117\105\066\117\116\116\111\110')and aH.visible(cJ)and cJ.Active then
+local cK=string.upper(aH.texts(cJ.Parent or cJ))local cL=cK:find('\071\069\077',1,true)or
+cK:find('\068\073\065\077\079\078\068',1,true)or cK:find('\u{1f48e}',1,true)local cM=string.upper(aH.
+texts(cJ)..'\032'..cJ.Name)local Z=cM:find('\066\085\089',1,true)or cM:find('\080\085\082\067\072\065\083\069',1,
+true)or cM:find('\067\079\077\080\082\065\082',1,true)if Z and cL and not cK:find('\082\079\066\085\088',1,true)and
+not cK:find('\082\036',1,true)and aD.parseAmount(cK)==80 then cG=cJ return true end
+end end return false end,2,cB)local cH=false if cG and cB()then local cI=aH.
+activate(cG)if cI then cH=X(function()local cJ=T()return cJ and cJ.HasDrone==
+true end,3,cB)end end S(bm,'\067\108\111\115\101')bT.drone=os.clock()+30 if cH then e=false bP.
+purchases+=1 aI('\068\114\111\110\101\032\097\100\113\117\105\114\105\100\111\059\032\109\101\108\104\111\114\105\097\115\032\100\101\032\100\114\111\110\101\032\108\105\098\101\114\097\100\097\115\046')return true end
+return false,
+"\067\111\109\112\114\097\032\100\111\032\100\114\111\110\101\032\110\097\111\032\099\111\110\102\105\114\109\097\100\097\058\032\101\120\105\103\101\032\111\102\101\114\116\097\032\118\105\115\105\118\101\108\032\100\101\032\056\048\032\103\101\109\097\115\032\101\032\115\097\108\100\111\032\115\117\102\105\099\105\101\110\116\101\046"
+end local function cB()b_()aF.stop()S(bm,'\067\108\111\115\101')S(bn,'\083\101\116\079\112\101\110',false)for cC,cD
+in ipairs({'\067\097\115\104','\066\097\103','\072\111\116\098\097\114','\084\111\111\108\072\111\116\098\097\114'})do local cE=aQ:FindFirstChild(cD)
+if cE and cE:IsA('\083\099\114\101\101\110\071\117\105')then cE.Enabled=true end end cc()table.clear(bT)
+table.clear(bf)cy()end local function cC(cD,cE,cF)local cG={}for cH,cI in
+ipairs(aK.allowed[cF])do cG[cI]={level=aK.level(cD,cE,cF,cI),maximum=aK.maximum(
+cD,aK.definition(cD,cF,cI))}end return cG end return{recordAction=function(cD,cE
+,cF)local cG=x[cD]or{calls=0,seconds=0,failures=0,max=0}cG.calls+=1 cG.seconds+=
+cE cG.max=math.max(cG.max,cE)if not cF then cG.failures+=1 end x[cD]=cG end,
+dashboard=function()if os.clock()<z then return A end z=os.clock()+1 local cD,cE
+=S(bn,'\073\115\079\112\101\110')if cD and cE and not B then B=os.clock()C.opens+=1 elseif cD and
+not cE and B then C.closed_seconds+=os.clock()-B B=nil end local cF=T()local cG=
+aC['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}local cH,cI={},{}local cJ={{'\068\121\110\097\109\105\116\101',
+'\068\073\078\065\077\073\084\069'},{'\083\104\111\118\101\108','\080\065'},{'\065\117\116\111\080\101\101\108\101\114','\065\085\084\079\077\065\084\073\067\079'},{'\080\111\116\097\116\111\083\117\099\107\101\114',
+'\080\048\084\052\084\048\045\051\048\048\048'},{'\066\111\100\121','\071\069\082\065\076'},{'\072\097\110\100','\077\065\079'},{'\068\114\111\110\101','\068\082\079\078\069'}}for cK,cL in
+ipairs(cJ)do local cM=cL[1]local Z=aK.owns(cF,cM)local _,cN=0,0 local cO=nil for
+cP,cQ in ipairs(cG.Tools or{})do if cQ.Id==cM then cO=cQ.Icon end end if Z then
+local cP=cC(cG,cF,cM)for cQ,cR in ipairs(aK.allowed[cM])do local cS=cP[cR]_+=cS.
+level or 0 cN+=cS.maximum or 0 local cT=ba[cM..'\047'..cR]table.insert(cI,{tool=cL[
+2],toolId=cM,id=cR,level=cS.level,maximum=cS.maximum,icon=cO,price=cT and cT.
+price})end end table.insert(cH,{id=cM,title=cL[2],owned=Z,current=_,total=cN,
+icon=cO})end A={tools=cH,details=cI,production=aE.opAutoFinish and l or k,phase=
+bS.phase,cash=U(),gemLuck=aK.level(cG,cF,'\066\111\100\121','\076\117\099\107')or 0,op=aE.opAutoFinish,
+progress=aE.autoProgress}return A end,droneAsked=function()f=true end,
+droneConfirm=function(cD)e=cD==true bh=0 end,snapshot=cf,findCandidate=ch,
+release=bY,cancelCut=W,reset=cy,recover=cz,restoreGame=cB,counts=bP,purchases=bQ
+,manualUpgrade=cs,questMode=function(cD)if cD==aP then return end aP=cD bx=nil
+bz={}bA=1 by=0 bh=0 end,actions={keyProbe=ck,drone=cA,collect=cl,deliver=cm,cut=
+cn,enterCut=co,cool=cp,buy=cr,crank=cq,stageCut=cx,sell=ct,returnTable=cu,
+dynamite=cj},stop=function()W()aF.stop()if bt then bt()bt=nil end if bs then S(
+bn,'\083\101\116\079\112\101\110',false)bs=false end end,defer=function(cD,cE)if cD=='\098\117\121'then bF=os.
+clock()+cE end if cD=='\099\111\111\108'then bE=os.clock()+cE end if cD=='\101\115\099\097\112\101'then bT.
+escape=os.clock()+cE end end,close=function()E=true v.close()W()aF.close()aG.
+close()if bt then bt()bt=nil end for cD,cE in ipairs(br)do cE:Disconnect()end
+end,diagnostic=function()local cD=cf()local cE={}local cF=T()local cG=aC[
+'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}for cH in pairs(aK.allowed)do if aK.owns(cF,cH)
+then for cI,cJ in pairs(cC(cG,cF,cH))do cE[cH..'\047'..cI]=cJ end end end return{
+place_id=game.PlaceId,place_version=game.PlaceVersion,bindings=aG.stats,
+pile_progress=cD.pileProgress,op_funding=cD.opFunding,op_bulk=n,dynamite_timing=
+s,key_shortcut={results=q,guard=r.records},upgrade_audit=ba,upgrade_levels=cE,
+native_upgrade_menu={opens=C.opens,seconds_open=C.closed_seconds+(B and os.
+clock()-B or 0)},state={cash=cD.cash,stock=cD.stock,goal=cD.goal and cD.goal.
+name,carried=cD.carried,capacity=cD.capacity==math.huge and'\105\110\102\105\110\105\116\101'or cD.
+capacity,heat=cD.heat,heat_source=cD.heatSource,cutting=cD.cutting,
+production_ready=k,sucker_overheated=a9,sucker_retry_at=a4,inventory_source=bM
+and'\114\101\112\108\105\099\097\116\101\100\032\080\111\116\097\116\111\101\115'or'\085\073',phase=cD.phase,upgrade_guard=a2.records,
+water_flowing=cD.flowing,cut_units_per_second=cD.cutRate,delivery_pending=bU~=
+nil,equipped_request=F},counts=bP,op_burst=y.stats,cut_engine=bR.stats,
+placement_timing=v.stats,action_timings=x,prompts=aF.stats,retry_at=bT,schemas={
+using=aT.schema('\084\111\111\108\085\115\105\110\103'),upgrade=aT.schema('\084\111\111\108\085\112\103\114\097\100\101\080\117\114\099\104\097\115\101'),throw=aT.
+schema('\068\121\110\097\109\105\116\101\084\104\114\111\119'),equip=aT.schema('\084\111\111\108\069\113\117\105\112')},buttons=aH.diagnostic()}
+end}end return aA end)()local aB='\048\046\051\055\046\053'local function aC()local aD=aB local aE
+=116701845804918 local aF=10767408330 local aG=
+'\104\116\116\112\115\058\047\047\114\097\119\046\103\105\116\104\117\098\117\115\101\114\099\111\110\116\101\110\116\046\099\111\109\047\065\110\111\110\121\109\111\115\083\099\114\105\112\116\115\047'local aH=
+'\047\109\097\105\110\047\108\111\097\100\101\114\046\108\117\097\063\118\061'..aD local aI=string.format(
+"\032\032\032\032\108\111\099\097\108\032\114\117\110\010\032\032\032\032\102\111\114\032\095\044\117\114\108\032\105\110\032\105\112\097\105\114\115\040\123\037\113\044\037\113\125\041\032\100\111\010\032\032\032\032\032\032\032\032\108\111\099\097\108\032\111\107\044\115\111\117\114\099\101\061\112\099\097\108\108\040\103\097\109\101\046\072\116\116\112\071\101\116\044\103\097\109\101\044\117\114\108\041\010\032\032\032\032\032\032\032\032\105\102\032\111\107\032\097\110\100\032\116\121\112\101\040\115\111\117\114\099\101\041\061\061\034\115\116\114\105\110\103\034\032\097\110\100\032\115\116\114\105\110\103\046\102\105\110\100\040\115\111\117\114\099\101\044\037\113\044\049\044\116\114\117\101\041\032\116\104\101\110\010\032\032\032\032\032\032\032\032\032\032\032\032\114\117\110\061\108\111\097\100\115\116\114\105\110\103\040\115\111\117\114\099\101\041\010\032\032\032\032\032\032\032\032\032\032\032\032\105\102\032\114\117\110\032\116\104\101\110\032\098\114\101\097\107\032\101\110\100\010\032\032\032\032\032\032\032\032\101\110\100\010\032\032\032\032\101\110\100\010"
+,aG..'\065\110\111\110\072\117\098'..aH,aG..'\083\099\114\105\112\116\045\049\045\069\118\111\108\118\121\045\072\117\098'..aH,'\108\111\099\097\108\032\118\101\114\115\105\111\110\061\034'..aD..'\034')
+local aJ={}for aK,aL in ipairs({'\080\108\097\121\101\114\115','\087\111\114\107\115\112\097\099\101','\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101',
+'\072\116\116\112\083\101\114\118\105\099\101','\082\117\110\083\101\114\118\105\099\101','\076\105\103\104\116\105\110\103','\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116\083\101\114\118\105\099\101',
+'\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101','\084\119\101\101\110\083\101\114\118\105\099\101','\080\097\116\104\102\105\110\100\105\110\103\083\101\114\118\105\099\101','\083\116\097\114\116\101\114\071\117\105',
+'\084\101\108\101\112\111\114\116\083\101\114\118\105\099\101'})do aJ[aL]=game:GetService(aL)end local aK,aL=pcall(game.
+GetService,game,'\086\105\114\116\117\097\108\085\115\101\114')if aK then aJ.VirtualUser=aL end local aM,aN=
+pcall(game.GetService,game,'\067\111\114\101\071\117\105')if aM then aJ.CoreGui=aN end local aO=aJ.
+Players.LocalPlayer assert(aO,
+'\069\120\101\099\117\116\101\032\111\032\104\117\098\032\110\111\032\099\108\105\101\110\116\101\032\082\111\098\108\111\120\032\100\101\110\116\114\111\032\100\097\032\101\120\112\101\114\105\101\110\099\105\097\046')if game.PlaceId~=aE or
+game.GameId~=aF then pcall(aJ.StarterGui.SetCore,aJ.StarterGui,
+'\083\101\110\100\078\111\116\105\102\105\099\097\116\105\111\110',{Title='\065\110\111\110\072\117\098',Text=
+'\069\115\116\101\032\097\114\113\117\105\118\111\032\101\032\112\097\114\097\032\068\101\115\099\097\115\113\117\101\032\097\032\066\097\116\097\116\097\044\032\080\108\097\099\101\073\100\032'..aE,Duration=8})return end
+local aP=type(getgenv)=='\102\117\110\099\116\105\111\110'and getgenv()or _G local aQ=aP.
+AnonymousPotatoSession if type(aQ)=='\116\097\098\108\101'and type(aQ.close)=='\102\117\110\099\116\105\111\110'then
+pcall(aQ.close)end local aR=av.lifecycle()local aS=am.newCancellation()local aT=
+{close=aR.close,version=aD}aP.AnonymousPotatoSession=aT a.attach(aR.close)aR.
+add(function()if aP.AnonymousPotatoSession==aT then aP.AnonymousPotatoSession=
+nil end end)local aU={encode=function(aU)return aJ.HttpService:JSONEncode(aU)end
+,decode=function(aU)return aJ.HttpService:JSONDecode(aU)end}local aV={read=type(
+readfile)=='\102\117\110\099\116\105\111\110'and readfile or nil,write=type(writefile)=='\102\117\110\099\116\105\111\110'and
+writefile or nil}local aW=type(queue_on_teleport)=='\102\117\110\099\116\105\111\110'and
+queue_on_teleport or type(queueonteleport)=='\102\117\110\099\116\105\111\110'and queueonteleport or
+type(syn)=='\116\097\098\108\101'and type(syn.queue_on_teleport)=='\102\117\110\099\116\105\111\110'and syn.
+queue_on_teleport or nil local aX=string.format(
+"\032\032\032\032\108\111\099\097\108\032\100\101\097\100\108\105\110\101\061\111\115\046\099\108\111\099\107\040\041\043\051\053\010\032\032\032\032\119\104\105\108\101\032\040\110\111\116\032\103\097\109\101\058\073\115\076\111\097\100\101\100\040\041\032\111\114\032\103\097\109\101\046\071\097\109\101\073\100\061\061\048\032\111\114\032\103\097\109\101\046\074\111\098\073\100\061\061\034\034\010\032\032\032\032\032\032\032\032\111\114\032\110\111\116\032\103\097\109\101\058\071\101\116\083\101\114\118\105\099\101\040\034\080\108\097\121\101\114\115\034\041\046\076\111\099\097\108\080\108\097\121\101\114\041\032\097\110\100\032\111\115\046\099\108\111\099\107\040\041\060\100\101\097\100\108\105\110\101\032\100\111\032\116\097\115\107\046\119\097\105\116\040\048\046\050\041\032\101\110\100\010\032\032\032\032\108\111\099\097\108\032\112\108\097\121\101\114\061\103\097\109\101\058\071\101\116\083\101\114\118\105\099\101\040\034\080\108\097\121\101\114\115\034\041\046\076\111\099\097\108\080\108\097\121\101\114\010\032\032\032\032\105\102\032\103\097\109\101\046\080\108\097\099\101\073\100\126\061\037\100\032\111\114\032\103\097\109\101\046\071\097\109\101\073\100\126\061\037\100\032\111\114\032\110\111\116\032\112\108\097\121\101\114\032\111\114\032\116\121\112\101\040\114\101\097\100\102\105\108\101\041\126\061\034\102\117\110\099\116\105\111\110\034\032\116\104\101\110\032\114\101\116\117\114\110\032\101\110\100\010\032\032\032\032\108\111\099\097\108\032\111\107\044\100\097\116\097\061\112\099\097\108\108\040\102\117\110\099\116\105\111\110\040\041\010\032\032\032\032\032\032\032\032\114\101\116\117\114\110\032\103\097\109\101\058\071\101\116\083\101\114\118\105\099\101\040\034\072\116\116\112\083\101\114\118\105\099\101\034\041\058\074\083\079\078\068\101\099\111\100\101\040\114\101\097\100\102\105\108\101\040\034\069\118\111\108\118\121\095\067\104\097\112\116\101\114\050\095\084\114\097\110\115\102\101\114\095\118\049\046\106\115\111\110\034\041\041\010\032\032\032\032\101\110\100\041\010\032\032\032\032\105\102\032\110\111\116\032\111\107\032\111\114\032\116\121\112\101\040\100\097\116\097\041\126\061\034\116\097\098\108\101\034\032\111\114\032\100\097\116\097\046\097\099\099\111\117\110\116\126\061\112\108\097\121\101\114\046\085\115\101\114\073\100\032\111\114\032\100\097\116\097\046\103\097\109\101\126\061\103\097\109\101\046\071\097\109\101\073\100\010\032\032\032\032\032\032\032\032\111\114\032\100\097\116\097\046\102\114\111\109\061\061\103\097\109\101\046\074\111\098\073\100\032\111\114\032\116\121\112\101\040\100\097\116\097\046\117\110\116\105\108\084\105\109\101\041\126\061\034\110\117\109\098\101\114\034\032\111\114\032\111\115\046\116\105\109\101\040\041\062\100\097\116\097\046\117\110\116\105\108\084\105\109\101\032\116\104\101\110\032\114\101\116\117\114\110\032\101\110\100\010\032\032\032\032\037\115\010\032\032\032\032\105\102\032\114\117\110\032\116\104\101\110\032\114\117\110\040\041\032\101\110\100\010"
+,aE,aF,aI)local aY=ae.create({read=aV.read,write=aV.write,queue=aW,encode=aU.
+encode,decode=aU.decode,clock=os.time},{account=aO.UserId,game=game.GameId,job=
+game.JobId},aX)local aZ=av.create(am,aU,aV)local a_=aZ.load()local a0,a1,a2=nil,
+nil,nil local a3=nil local a4=nil local a5=nil local a6,a7=false,false local a8=
+nil local a9={}local ba=nil local bb=os.clock()local bc={}local function bd()end
+local function be(bf)if a_.notifications then pcall(aJ.StarterGui.SetCore,aJ.
+StarterGui,'\083\101\110\100\078\111\116\105\102\105\099\097\116\105\111\110',{Title='\065\110\111\110\072\117\098',Text=c(tostring(bf)),Duration=5})
+end end local bf=os.clock()+24 a.progress(0.5,
+'\073\100\101\110\116\105\102\105\099\097\110\100\111\032\108\111\098\098\121\032\111\117\032\112\097\114\116\105\100\097\u{2026}','\073\100\101\110\116\105\102\121\105\110\103\032\108\111\098\098\121\032\111\114\032\109\097\116\099\104\u{2026}')
+local bg=aY.destination()local bh=d.stage(aJ.Workspace)while(not bh or bg and bh
+~=bg)and aR.alive()and os.clock()<bf do task.wait(0.2)bh=d.stage(aJ.Workspace)
+end if not bh or not aR.alive()then be(
+"\079\032\104\117\098\032\110\097\111\032\101\110\099\111\110\116\114\111\117\032\111\032\108\111\098\098\121\032\110\101\109\032\097\032\097\114\101\097\032\100\101\032\112\097\114\116\105\100\097\046\032\065\103\117\097\114\100\101\032\111\032\109\097\112\097\032\101\032\101\120\101\099\117\116\101\032\110\111\118\097\109\101\110\116\101\046"
+)aR.close()return end local function bi(bj)am.pause(a_)aS.cancel()if a1 then a1.
+stop()end if a0 then a0.refresh()a0.status(bj or'\082\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\046')end if bj
+then bd(bj)end end aR.add(function()aS.cancel()if a1 then a1.close()end end)
+local function bj()aS.cancel()if a1 then a1.restoreGame()end ba=al.restore(aJ,a9
+)table.clear(bc)if a0 then a0.show()a0.refresh()a0.recoveryInfo(ba)end bd(
+'\082\101\099\117\112\101\114\097\099\097\111\032\100\101\032\105\110\116\101\114\102\097\099\101\058\032'..ba.restored..'\032\099\111\109\112\111\110\101\110\116\101\115\059\032'..#ba.cloned..
+'\032\116\101\108\097\115\032\114\101\099\114\105\097\100\097\115\059\032'..ba.errors..'\032\102\097\108\104\097\115\046')if#ba.missing>0 then local bk=
+'\079\032\106\111\103\111\032\097\105\110\100\097\032\110\097\111\032\100\105\115\112\111\110\105\098\105\108\105\122\111\117\058\032'..table.concat(ba.missing,'\044\032')..
+'\046\032\078\101\110\104\117\109\032\109\111\100\101\108\111\032\114\101\099\117\112\101\114\097\118\101\108\032\102\111\105\032\101\110\099\111\110\116\114\097\100\111\046'bd(bk,'\101\114\114\111\114')end end if bh==
+'\099\104\097\112\116\101\114'and a_.autoRepairGui then bj()end local bk=aY.take(bh)local bl={plan=a.
+access.plan or'\077\101\109\098\101\114',keyLabel=a.access.keyLabel or
+'\u{2022}\u{2022}\u{2022}\u{2022}',expiresAt=a.access.expiresAt,lifetime=a.
+access.lifetime,source=a.access.source}local bm={membership=function()return ag.
+describe(bl,os.time())end,expired=function()return ag.expired(bl,os.time())end}
+local bn=a.startNow==true local function bo(bp)if bm.expired()then return false,
+'\065\032\108\105\099\101\110\099\097\032\101\120\112\105\114\111\117\046'end local bq=ae.options(bp)if bq.reconnectCount>=2 then
+return false,'\076\105\109\105\116\101\032\100\101\032\114\101\099\111\110\101\120\111\101\115\032\097\116\105\110\103\105\100\111\046\032\065\098\114\097\032\111\032\106\111\103\111\032\110\111\118\097\109\101\110\116\101\046'end bq.
+reconnectCount+=1 local br,bs=aY.arm('\108\111\098\098\121',bq)if not br then aY.clear()return
+false,bs end local bt=pcall(aJ.TeleportService.Teleport,aJ.TeleportService,aE,aO
+)if not bt then aY.clear()return false,'\079\032\082\111\098\108\111\120\032\114\101\099\117\115\111\117\032\097\032\114\101\099\111\110\101\120\097\111\046'end return
+true end local function bp(bq)local br=ah.create(aJ.VirtualUser and aO.Idled,
+function()return aR.alive()and a_.antiAfk and bq()end,function()aJ.VirtualUser:
+CaptureController()aJ.VirtualUser:ClickButton2(Vector2.new(0,0))end,bd)aR.add(br
+.close)return br end if bh=='\108\111\098\098\121'then a.progress(0.8,
+'\065\098\114\105\110\100\111\032\097\032\099\101\110\116\114\097\108\032\100\111\032\108\111\098\098\121\u{2026}','\079\112\101\110\105\110\103\032\116\104\101\032\108\111\098\098\121\032\112\097\110\101\108\u{2026}')local bq=
+am.validate({movement='\087\097\108\107',travelTimeout=20},true)local br=ax.create(aJ,bq,bd)
+aR.add(br.close)local bs=az.create(aJ,am)d.open(aJ,aR,bm,bs,br,aY,ae.options,bk,
+bn or bk~=nil,{idle=bp,reconnect=bo,watch=function(bt,bu)af.watch(aJ,aR,bt,bu)
+end,features=aa.create(aJ,bs,br,aR),settings=ac({read=aV.read,write=aV.write,
+encode=aU.encode,decode=aU.decode},aO.UserId),view=ab.create,rarest=aa.rarest,
+language=a.chooseLanguage})a.ready()return end bn=bn or bk~=nil local bq=bn
+local br=nil local bs=nil local bt,bu=nil,nil local bv,bw={},0 local function bx
+()bt=nil bu=nil if a1 then a1.questMode(nil)end end local by=bk and bk.repeatRun
+==true or false if bk then a_.skipEndingScene=bk.skipOutro a_.
+releaseEndingCamera=bk.skipOutro if bk.autoCrates then a_.collectPumpkins=true
+end end local bz,bA=false,nil local bB=false local bC=nil local function bD()by=
+false bq=false bs=nil bx()aY.clear()end local bE={'\083\104\097\114\101\100\046\080\108\097\121\101\114\083\116\097\116\101\083\104\097\114\101\100',
+'\083\104\097\114\101\100\046\080\111\116\097\116\111\080\105\108\101\083\104\097\114\101\100','\083\104\097\114\101\100\046\080\111\116\097\116\111\075\105\110\100\083\104\097\114\101\100','\083\104\097\114\101\100\046\080\111\116\097\116\111\072\111\108\100\083\104\097\114\101\100',
+'\083\104\097\114\101\100\046\080\111\116\097\116\111\084\097\098\108\101\083\104\097\114\101\100','\083\104\097\114\101\100\046\067\097\114\114\121\085\112\103\114\097\100\101\083\104\097\114\101\100','\083\104\097\114\101\100\046\067\117\116\084\111\111\108\083\104\097\114\101\100',
+'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100','\083\104\097\114\101\100\046\070\105\114\101\083\104\097\114\101\100','\077\111\100\117\108\101\115\046\082\101\115\111\117\114\099\101\115\046\080\114\105\099\101\115',
+'\077\111\100\117\108\101\115\046\082\101\115\111\117\114\099\101\115\046\080\097\099\107\101\116\115','\067\111\110\116\114\111\108\108\101\114\115\046\083\121\110\099\067\111\110\116\114\111\108\108\101\114',
+'\067\111\110\116\114\111\108\108\101\114\115\046\080\111\116\097\116\111\080\105\108\101\067\111\110\116\114\111\108\108\101\114','\067\111\110\116\114\111\108\108\101\114\115\046\080\111\116\097\116\111\084\097\098\108\101\067\111\110\116\114\111\108\108\101\114',
+'\067\111\110\116\114\111\108\108\101\114\115\046\080\101\101\108\105\110\103\067\111\110\116\114\111\108\108\101\114','\067\111\110\116\114\111\108\108\101\114\115\046\067\117\116\116\105\110\103\067\111\110\116\114\111\108\108\101\114',
+'\067\111\110\116\114\111\108\108\101\114\115\046\070\105\114\101\067\111\110\116\114\111\108\108\101\114','\067\111\110\116\114\111\108\108\101\114\115\046\083\116\111\114\101\086\105\101\119\067\111\110\116\114\111\108\108\101\114',
+'\067\111\110\116\114\111\108\108\101\114\115\046\084\111\111\108\085\112\103\114\097\100\101\067\111\110\116\114\111\108\108\101\114','\067\111\110\116\114\111\108\108\101\114\115\046\084\111\111\108\069\113\117\105\112\067\111\110\116\114\111\108\108\101\114',
+'\067\111\110\116\114\111\108\108\101\114\115\046\067\104\097\112\116\101\114\050\079\117\116\114\111\067\111\110\116\114\111\108\108\101\114','\077\111\100\105\102\105\101\100\080\097\099\107\097\103\101\115\046\080\097\099\107\101\116\046\095\084\121\112\101\115'}for bF,bG
+in ipairs(bE)do if not aR.alive()then return end if bF==1 or bF%4==0 then a.
+progress(0.5+0.35*(bF-1)/#bE,'\067\097\114\114\101\103\097\110\100\111\032\102\117\110\u{e7}\u{f5}\101\115\032\100\111\032\106\111\103\111\u{2026}',
+'\076\111\097\100\105\110\103\032\103\097\109\101\032\102\101\097\116\117\114\101\115\u{2026}')end local bH=aJ.ReplicatedStorage for bI in
+string.gmatch(bG,'\091\094\037\046\093\043')do bH=bH and bH:FindFirstChild(bI)end if bH and bH:
+IsA('\077\111\100\117\108\101\083\099\114\105\112\116')then local bI,bJ,bK=false,false,nil task.spawn(function()bJ,
+bK=pcall(require,bH)bI=true end)local bL=os.clock()+6 while not bI and aR.alive(
+)and os.clock()<bL do task.wait(0.05)end if bI and bJ and type(bK)=='\116\097\098\108\101'then
+a9[bG]=bK end end end if not aR.alive()then return end local bF=ax.create(aJ,a_,
+bd)local bG=ay.create(a9,aJ,bd,ap,aq,nil,ai)aR.add(bG.close)local bH,bI=pcall(bG
+.discover)if not bH then bd('\076\101\105\116\117\114\097\032\100\111\032\109\097\112\097\032\110\097\116\105\118\111\032\105\110\100\105\115\112\111\110\105\118\101\108\058\032'..tostring(bI
+),'\101\114\114\111\114')end bG.requestSync()local bJ=os.clock()+1.2 while aR.alive()and not bG
+.ready()and os.clock()<bJ do task.wait(0.05)end if not aR.alive()then bG.close()
+return end local bK=az.create(aJ,am)a1=aA.create(aJ,a9,am,a_,bF,bG,bK,bd,au,as,
+at,ar,aj)a3=ak.create(aJ,a9,bF,bd)a4=ak.endingSkipper(aO.PlayerGui,bK,os.clock,
+function()local bL=aJ.Workspace.CurrentCamera local bM=aO.Character local bN=bM
+and bM:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')if not bL or bL.CameraType~=Enum.
+CameraType.Scriptable or not bN or bN.Health<=0 then return false end bL.
+CameraSubject=bN bL.CameraType=Enum.CameraType.Custom return true end,function()
+local bL=aJ.Workspace.CurrentCamera return bL and bL.CameraType.Name end)local
+bL=a9['\077\111\100\117\108\101\115\046\082\101\115\111\117\114\099\101\115\046\080\097\099\107\101\116\115']or{}for bM,bN in ipairs({
+'\067\105\110\101\109\097\116\105\099\066\097\114\115\069\110\097\098\108\101\100','\067\105\110\101\109\097\116\105\099\066\097\114\115\068\105\115\097\098\108\101\100','\082\117\110\082\101\112\111\114\116\083\104\111\119\110','\069\115\099\097\112\101\070\097\105\108\101\100'})
+do local bO=bL[bN]local bP=bO and bO.OnClientEvent if bP and type(bP.Connect)==
+'\102\117\110\099\116\105\111\110'then local bQ=bN local bR,bS=pcall(bP.Connect,bP,function()if bQ==
+'\082\117\110\082\101\112\111\114\116\083\104\111\119\110'then bA=os.clock()end a4.event(bQ)end)if bR and bS then aR.add(
+function()bS:Disconnect()end)end end end local bM=a9[
+'\067\111\110\116\114\111\108\108\101\114\115\046\067\104\097\112\116\101\114\050\079\117\116\114\111\067\111\110\116\114\111\108\108\101\114']or{}local function bN(bO)local bP=a4.stats
+if not bO or bP.outro_attempted or bP.sent or os.clock()-bO>12 or type(bM.
+IsPlaying)~='\102\117\110\099\116\105\111\110'or type(bM.Cancel)~='\102\117\110\099\116\105\111\110'then return end local bQ,bR=
+pcall(bM.IsPlaying)if not bQ or bR~=true then return end bP.outro_attempted=true
+local bS=pcall(bM.Cancel,nil)local bT,bU=pcall(bM.IsPlaying)bP.outro_stopped=bS
+and bT and bU==false a4.event(bP.outro_stopped and'\111\117\116\114\111\095\099\097\110\099\101\108\095\099\111\110\102\105\114\109\101\100'or
+'\111\117\116\114\111\095\099\097\110\099\101\108\095\117\110\099\111\110\102\105\114\109\101\100')end local function bO()local bP=aO.PlayerGui local bQ
+=nil local bR={returntolobby=true,backtolobby=true,lobby=true,voltaraolobby=true
+}for bS,bT in ipairs(bP:GetChildren())do local bU=bT.Name:lower()if bT:IsA(
+'\083\099\114\101\101\110\071\117\105')and bT.Enabled and(bU=='\101\115\099\097\112\101'or bU=='\118\105\099\116\111\114\121'or bU=='\114\117\110\114\101\112\111\114\116'or
+bU=='\114\117\110\114\101\115\117\108\116\115'or bU=='\111\117\116\114\111')then for bV,bW in ipairs(bT:GetDescendants())do
+if bW:IsA('\071\117\105\066\117\116\116\111\110')and bW.Active and bK.visible(bW)then local bX=bK.texts(bW)
+:lower():gsub('\091\094\037\119\093','')local bY=bW.Name:lower():gsub('\091\094\037\119\093','')if bR[bX]or bR
+[bY]then if bQ then return false end bQ=bW end end end end end return bQ and bK.
+activate(bQ)or false end local bP=aJ.TeleportService.TeleportInitFailed:Connect(
+function(bP,bQ,bR,bS)if bP==aO and bS==aE and bz then bD()bC=
+'\079\032\082\111\098\108\111\120\032\114\101\099\117\115\111\117\032\097\032\118\111\108\116\097\032\097\111\032\108\111\098\098\121\046\032\082\101\116\111\114\110\101\032\109\097\110\117\097\108\109\101\110\116\101\046'bd(bC,'\101\114\114\111\114')end end)
+aR.add(function()bP:Disconnect()end)local bR=aO.OnTeleport:Connect(function(bR,
+bS)if bz and bS==aE and(bR.Name=='\082\101\113\117\101\115\116\101\100\070\114\111\109\083\101\114\118\101\114'or bR.Name=='\083\116\097\114\116\101\100'or bR
+.Name=='\073\110\080\114\111\103\114\101\115\115')then bB=true end end)aR.add(function()bR:Disconnect()end)
+local function bS()if not by or bz then return end local bT=a3.finishTime()local
+bU=os.clock()-bT local bV,bW=false,true if bU>=24 and type(bM.IsPlaying)==
+'\102\117\110\099\116\105\111\110'then bV,bW=pcall(bM.IsPlaying)end if(not bA or bA<bT-8)and not(bV and
+bW==false)then bC='\086\073\084\079\082\073\065\032\067\079\078\070\073\082\077\065\068\065\032\047\032\065\071\085\065\082\068\065\078\068\079\032\082\069\083\085\076\084\065\068\079\032\080\065\082\065\032\086\079\076\084\065\082'if a8
+and os.clock()-bb-a8>60 then bD()bC=
+'\079\032\114\101\108\097\116\111\114\105\111\032\102\105\110\097\108\032\110\097\111\032\099\104\101\103\111\117\046\032\086\111\108\116\101\032\097\111\032\108\111\098\098\121\032\109\097\110\117\097\108\109\101\110\116\101\046'end return end bz=
+true bC='\086\073\084\079\082\073\065\032\067\079\078\070\073\082\077\065\068\065\032\047\032\086\079\076\084\065\078\068\079\032\065\079\032\076\079\066\066\089'local bX=ae.options(bk)bX.
+reconnectCount=0 local bY,bZ=aY.arm('\108\111\098\098\121',bX)if not bY then bD()bC=bZ bd(bZ,
+'\101\114\114\111\114')return end local b_=bO()task.delay(b_ and 5 or 2,function()if not aR.
+alive()or not by or bB or bm.expired()then return end local b0=pcall(aJ.
+TeleportService.Teleport,aJ.TeleportService,aE,aO)if not b0 then bD()bC=
+'\065\032\118\111\108\116\097\032\097\117\116\111\109\097\116\105\099\097\032\102\097\108\104\111\117\046\032\082\101\116\111\114\110\101\032\097\111\032\108\111\098\098\121\032\112\101\108\111\032\106\111\103\111\046'bd(bC,'\101\114\114\111\114')end end)
+task.delay(25,function()if aR.alive()and by and not bB then bD()bC=
+'\079\032\082\111\098\108\111\120\032\110\097\111\032\099\111\110\102\105\114\109\111\117\032\097\032\118\111\108\116\097\032\097\111\032\108\111\098\098\121\046'bd(bC,'\101\114\114\111\114')end end)end af.watch(aJ,
+aR,function()return by and not bz and not a6 and not bm.expired()end,function(bT
+)bz=true bi('\067\111\110\101\120\097\111\032\112\101\114\100\105\100\097\032\040'..bT..'\041\059\032\116\101\110\116\097\110\100\111\032\118\111\108\116\097\114\032\097\111\032\108\111\098\098\121\046')local bU,bV=
+bo(bk)if not bU then bD()bC=bV bd(bV,'\101\114\114\111\114')return end task.delay(25,function()
+if aR.alive()and by and not bB then bD()bC='\079\032\082\111\098\108\111\120\032\110\097\111\032\099\111\110\102\105\114\109\111\117\032\097\032\114\101\099\111\110\101\120\097\111\046'
+bd(bC,'\101\114\114\111\114')end end)end)aR.add(a3.close)a1.actions.escape=function(bT)a1.
+cancelCut()local bU,bV=a3.step(bT)a1.defer('\101\115\099\097\112\101',bU and 2 or 5)return bU,bV
+end local bT=nil local bU={keyProgress='\097\117\116\111\080\114\111\103\114\101\115\115',keyCut='\097\117\116\111\067\117\116',keyFarm=
+'\097\117\116\111\070\097\114\109',keyCool='\097\117\116\111\067\111\111\108',keyBuy='\097\117\116\111\066\117\121\084\111\111\108\115',keyDeliver='\097\117\116\111\068\101\108\105\118\101\114',
+keyPumpkin='\099\111\108\108\101\099\116\080\117\109\112\107\105\110\115',keyStorage='\097\117\116\111\066\117\121\083\116\111\114\097\103\101',keyUpgrades=
+'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115',keyCrank='\097\117\116\111\067\114\097\110\107',keySell='\097\117\116\111\083\101\108\108',keyDynamite=
+'\097\117\116\111\068\121\110\097\109\105\116\101'}local bV={'\097\117\116\111\070\097\114\109','\097\117\116\111\068\101\108\105\118\101\114','\097\117\116\111\067\117\116','\097\117\116\111\067\111\111\108',
+'\097\117\116\111\066\117\121\084\111\111\108\115','\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115','\097\117\116\111\066\117\121\083\116\111\114\097\103\101','\097\117\116\111\067\114\097\110\107','\097\117\116\111\083\101\108\108',
+'\097\117\116\111\068\121\110\097\109\105\116\101','\097\117\116\111\069\115\099\097\112\101'}local bW={}for bX,bY in ipairs(bV)do bW[bY]=true end
+local function bX(bY)return am.displayed(a_,bY)end local function bY()aS.cancel(
+)a1.stop()a1.reset()table.clear(bc)if a0 then a0.refresh()end end local function
+bZ()if a6 or bm.expired()then a0.status(a6 and'\080\097\114\116\105\100\097\032\099\111\110\099\108\117\105\100\097\046'or
+'\076\105\099\101\110\099\097\032\101\120\112\105\114\097\100\097\046')return end bx()am.applyPartyProfile(a_)bY()bd(
+'\080\101\114\102\105\108\032\105\110\105\099\105\097\100\111\058\032'..a_.partyProfile..(a_.partyProfile=='\084\101\097\109'and'\032\047\032'..a_.
+partyRole or''))end local function b_(b0,b1)if a_[b0]==nil then return end if b0
+=='\112\097\114\116\121\080\114\111\102\105\108\101'or b0=='\112\097\114\116\121\082\111\108\101'or b0=='\112\097\114\116\121\083\105\122\101'or b0=='\112\097\114\116\121\083\108\111\116'then a_[b0
+]=am.validate({[b0]=b1},false)[b0]if a0 then a0.refresh()end return end if b0==
+'\097\117\116\111\066\117\121\068\114\111\110\101'and b1==true then a1.droneConfirm(false)end if b1==true and(b0==
+'\111\112\065\117\116\111\070\105\110\105\115\104'or b0=='\097\117\116\111\080\114\111\103\114\101\115\115'or bW[b0]or b0=='\099\111\108\108\101\099\116\080\117\109\112\107\105\110\115')and bm.
+expired()then if a0 then a0.status(
+'\076\105\099\101\110\099\097\032\101\120\112\105\114\097\100\097\046\032\086\097\108\105\100\101\032\117\109\097\032\107\101\121\032\097\116\105\118\097\032\112\097\114\097\032\099\111\110\116\105\110\117\097\114\046')end return end if a_[b0
+]==b1 and not(a_.autoProgress and bW[b0])then return end if b0=='\097\117\116\111\067\111\111\108'and a_
+.autoProgress and b1==false then if a0 then a0.status(
+"\079\032\114\101\115\102\114\105\097\109\101\110\116\111\032\102\097\122\032\112\097\114\116\101\032\100\111\032\065\117\116\111\032\080\114\111\103\114\101\115\115\046\032\080\097\117\115\101\032\111\032\099\105\099\108\111\032\112\097\114\097\032\100\101\115\108\105\103\097\045\108\111\046")a0
+.refresh()end return end if a_.autoProgress and bW[b0]and type(b1)=='\098\111\111\108\101\097\110'
+then for b2,b3 in ipairs(bV)do a_[b3]=am.effective(a_,b3)end a_.autoProgress=
+false a_.opAutoFinish=false end if b0=='\097\117\116\111\066\117\121\084\111\111\108\115'and b1==false then a_.
+cutBuyTools=false end local b2=am.clone(a_)b2[b0]=b1 if b1==true and b0==
+'\097\117\116\111\080\114\111\103\114\101\115\115'then b2.opAutoFinish=false end if b1==true and b0=='\111\112\065\117\116\111\070\105\110\105\115\104'
+then b2.autoProgress=false end if b1==true and(b0=='\111\112\065\117\116\111\070\105\110\105\115\104'or b0==
+'\097\117\116\111\080\114\111\103\114\101\115\115')then b2.teamFunding=false b2.teamLead=false b2.supportCut=false
+b2.nativeWalkUpgrade=false end local b3=am.validate(b2,false)for b4,b5 in pairs(
+b3)do a_[b4]=b5 end if b0=='\111\112\065\117\116\111\070\105\110\105\115\104'and b1 or b0=='\097\117\116\111\080\114\111\103\114\101\115\115'and not b1
+then bx()end local b4=string.sub(b0,1,2)=='\117\105'or string.sub(b0,1,6)=='\098\117\116\116\111\110'if
+not b4 then bY()elseif a0 then a0.refresh()end end a.progress(0.9,
+'\077\111\110\116\097\110\100\111\032\111\115\032\099\111\110\116\114\111\108\101\115\u{2026}','\066\117\105\108\100\105\110\103\032\116\104\101\032\099\111\110\116\114\111\108\115\u{2026}')a0=aw.create(aJ,
+a_,{decorateLauncher=a.decorateLauncher,value=bX,change=b_,parseNumber=am.
+parseAmount,membership=bm.membership,startProfile=bZ,manualUpgrade=function(b0,
+b1)if bm.expired()or a6 then return end if bs then be(
+'\085\109\097\032\109\101\108\104\111\114\105\097\032\106\097\032\101\115\116\097\032\110\097\032\102\105\108\097\046')return end bs={b0,b1}be(c('\083\111\108\105\099\105\116\097\100\097\032\109\101\108\104\111\114\105\097\032'
+)..b0..'\032\047\032'..b1..'\046')end,selectQuest=function(b0)if bm.expired()or a6 then
+return end if bt==b0 then bx()be('\080\114\105\111\114\105\100\097\100\101\032\100\101\032\109\105\115\115\097\111\032\114\101\109\111\118\105\100\097\046')return end for
+b1,b2 in ipairs(bv)do if b2.id==b0 then if b2.done then be(
+'\079\032\106\111\103\111\032\106\097\032\099\111\110\102\105\114\109\111\117\032\101\115\115\097\032\109\105\115\115\097\111\046')return end if not b2.action then be(
+'\079\098\106\101\116\105\118\111\032\115\101\109\032\114\111\116\097\032\097\117\116\111\109\097\116\105\099\097\032\099\111\110\102\105\114\109\097\100\097\046')return end b_('\097\117\116\111\080\114\111\103\114\101\115\115',true)bt=
+b0 bu=b2.action a1.questMode(b2.action)be(c('\080\114\105\111\114\105\100\097\100\101\058\032')..b2.title)return end
+end end,save=function()local b0,b1=aZ.save(a_)bd(b1,b0 and'\105\110\102\111'or'\101\114\114\111\114')be(b1)
+end,pause=function()bD()bi('\080\097\117\115\097\100\111\032\112\101\108\111\032\112\097\105\110\101\108\046')end,bind=function(b0)if not aJ
+.UserInputService.KeyboardEnabled then a0.status(
+"\085\115\101\032\111\115\032\099\111\110\116\114\111\108\101\115\032\112\111\114\032\116\111\113\117\101\059\032\097\116\097\108\104\111\115\032\115\097\111\032\111\112\099\105\111\110\097\105\115\032\112\097\114\097\032\116\101\099\108\097\100\111\046")return end
+if bT==b0 then bT=nil a0.status('\069\100\105\099\097\111\032\100\101\032\097\116\097\108\104\111\032\099\097\110\099\101\108\097\100\097\046')return end bT=b0
+a0.status("\080\114\101\115\115\105\111\110\101\032\117\109\097\032\116\101\099\108\097\032\112\097\114\097\032\111\032\097\116\097\108\104\111\059\032\069\115\099\032\099\097\110\099\101\108\097\032\101\032\066\097\099\107\115\112\097\099\101\032\114\101\109\111\118\101\046"
+)end,language=a.chooseLanguage,close=function()bD()a.unload()end,restore=bj,
+layout=function(b0)local b1=am.clone(a_)for b2,b3 in pairs(b0)do b1[b2]=b3 end
+local b2=am.validate(b1,false)for b3,b4 in pairs(b2)do a_[b3]=b4 end if a0 then
+a0.refresh()end end},an,ag)aR.add(function()if a0 then a0.close()end end)a5=bp(
+function()return am.anyActive(a_)end)a0.refresh()if ba then a0.recoveryInfo(ba)
+end a.ready()if bn then a0.status('\065\103\117\097\114\100\097\110\100\111\032\111\032\112\101\114\115\111\110\097\103\101\109\032\112\097\114\097\032\105\110\105\099\105\097\114\032\111\032\079\080\046')
+else a0.status('\080\114\111\110\116\111\046\032\067\111\110\102\105\103\117\114\101\032\117\109\032\109\111\100\111\032\101\032\097\116\105\118\101\032\097\032\114\111\116\105\110\097\032\100\101\115\101\106\097\100\097\046')end local
+b0=aJ.UserInputService.InputBegan:Connect(function(b0,b1)if not aR.alive()then
+return end if bT then if b0.UserInputType~=Enum.UserInputType.Keyboard then
+return end local b2=bT bT=nil if b0.KeyCode==Enum.KeyCode.Escape then a0.status(
+'\065\116\097\108\104\111\032\099\097\110\099\101\108\097\100\111\046')return end local b3=b0.KeyCode==Enum.KeyCode.Backspace and
+'\078\111\110\101'or b0.KeyCode.Name for b4,b5 in pairs(a_)do if b4~=b2 and string.sub(b4,1,
+3)=='\107\101\121'and b3~='\078\111\110\101'and b5==b3 then a0.status(string.format(c(
+'\069\115\115\097\032\116\101\099\108\097\032\106\097\032\101\115\116\097\032\101\109\032\117\115\111\032\112\111\114\032\037\115\046'),b4))return end end b_(b2,b3)a0.status(
+'\065\116\097\108\104\111\032\097\116\117\097\108\105\122\097\100\111\046')return end if aJ.UserInputService:GetFocusedTextBox()then
+return end local b2=b0.KeyCode.Name if b2==a_.keyPause and b2~='\078\111\110\101'then bD()
+bi('\080\097\117\115\097\100\111\032\112\101\108\111\032\097\116\097\108\104\111\046')return end if b1 then return end if b2==a_.keyMenu and
+b2~='\078\111\110\101'then a0.toggle()return end for b3,b4 in pairs(bU)do if a_[b3]~='\078\111\110\101'
+and b2==a_[b3]then b_(b4,not bX(b4))return end end if a2 and a_.pauseOnMovement
+and({W=true,A=true,S=true,D=true,Space=true,Up=true,Down=true,Left=true,Right=
+true})[b2]then bD()bi('\080\097\117\115\097\100\111\032\112\111\114\032\101\110\116\114\097\100\097\032\109\097\110\117\097\108\032\100\101\032\109\111\118\105\109\101\110\116\111\046')end end)aR.add(
+function()b0:Disconnect()end)local b1=aO.CharacterAdded:Connect(function(b1)if
+bq or b1==br then return end bi('\080\101\114\115\111\110\097\103\101\109\032\114\101\099\097\114\114\101\103\097\100\111\059\032\114\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\046')a1.
+reset()if by and not a6 then bq=true end if a_.autoRepairGui then local b2=aO.
+Character task.delay(1,function()if aR.alive()and aO.Character==b2 then bj()end
+end)end end)aR.add(function()b1:Disconnect()end)local b2={keyProbe=
+'\084\101\115\116\097\110\100\111\032\099\104\097\118\101\032\097\110\116\101\099\105\112\097\100\097',escape='\073\110\100\111\032\112\097\114\097\032\097\032\115\097\105\100\097\032\099\111\109\032\097\032\099\104\097\118\101',drone=
+'\067\111\109\112\114\097\110\100\111\032\100\114\111\110\101',cool='\082\101\115\102\114\105\097\110\100\111',collect='\067\111\108\101\116\097\110\100\111',deliver='\069\110\116\114\101\103\097\110\100\111',cut
+='\067\111\114\116\097\110\100\111',enterCut='\073\110\100\111\032\112\097\114\097\032\097\032\109\101\115\097',buy='\067\111\109\112\114\097\110\100\111',crank='\071\105\114\097\110\100\111\032\099\111\114\116\097\100\111\114'
+,search='\073\110\100\101\120\097\110\100\111\032\101\032\115\101\108\101\099\105\111\110\097\110\100\111',stageCut='\065\098\097\115\116\101\099\101\110\100\111\032\097\032\109\101\115\097',sell='\086\101\110\100\101\110\100\111'
+,returnTable='\082\101\116\111\114\110\097\110\100\111\032\097\032\109\101\115\097',dynamite='\076\097\110\099\097\110\100\111\032\100\105\110\097\109\105\116\101'}local b3=0 local
+b4=aJ.RunService.Heartbeat:Connect(function()if not aR.alive()or os.clock()<b3
+then return end b3=os.clock()+0.5 if bq and not a6 and not bm.expired()and bF.
+actor()then bq=false br=aO.Character b_('\111\112\065\117\116\111\070\105\110\105\115\104',true)bd(bk and
+'\079\080\032\114\101\116\111\109\097\100\111\032\097\112\111\115\032\099\111\110\102\105\114\109\097\114\032\111\032\112\101\114\115\111\110\097\103\101\109\032\100\097\032\112\097\114\116\105\100\097\046'or
+'\079\080\032\105\110\105\099\105\097\100\111\032\112\101\108\097\032\116\101\108\097\032\100\097\032\107\101\121\046')end bF.updateCamera()local b4=bm.membership()if
+os.clock()>=bw then bw=os.clock()+1.5 local b5,b6=pcall(ad.scan,aO.PlayerGui)if
+b5 then bv=b6 end if bt then local b7=nil for b8,b9 in ipairs(bv)do if b9.id==bt
+then b7=b9 break end end if b7 and b7.done then bd(
+'\077\105\115\115\097\111\032\099\111\110\102\105\114\109\097\100\097\032\112\101\108\111\032\106\111\103\111\058\032'..b7.title)be(
+'\077\105\115\115\097\111\032\099\111\110\099\108\117\105\100\097\046\032\086\111\108\116\097\110\100\111\032\097\111\032\065\117\116\111\032\080\114\111\103\114\101\115\115\032\110\111\114\109\097\108\046')bx()end end a0.quests(bv,
+bt)end if a0.membership then a0.membership(b4)end if b4.expired and not a7 then
+a7=true bi('\076\105\099\101\110\099\097\032\101\120\112\105\114\097\100\097\059\032\114\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\046')end local b5,b6=pcall(a1.
+snapshot)if not b5 then bd('\070\097\108\104\097\032\100\101\032\108\101\105\116\117\114\097\058\032'..tostring(b6),'\101\114\114\111\114')return end
+if b6.askDrone then a1.droneAsked()a0.confirmDrone(function(b7)a1.droneConfirm(
+b7)end)end local b7=b6.deliveryGoal or am.deliveryGoal(a_,b6.capacity)local b8=
+b6.cash and string.format('\036\037\046\050\102',b6.cash)or'\105\110\100\105\115\112\111\110\105\118\101\108'local b9=b6.capacity==
+math.huge and'\u{221e}'or b6.capacity and tostring(b6.capacity)or'\063'local ca=b6.
+carried and tostring(b6.carried)..'\047'..b9 or'\105\110\100\105\115\112\111\110\105\118\101\108'local cb=b6.heat and
+string.format('\037\046\048\102\037\037',b6.heat)or'\115\111\109\101\110\116\101\032\097\118\105\115\111\032\100\111\032\106\111\103\111'local cc=a2 and b2[a2]or
+'\065\103\117\097\114\100\097\110\100\111\032\114\111\116\105\110\097\032\111\117\032\114\101\099\117\114\115\111\032\100\105\115\112\111\110\105\118\101\108'local cd=b6.stock and tostring(b6.stock
+)or'\063'local ce=b6.goal and b6.goal.name or'\099\111\108\101\116\097\114\032\101\032\099\111\114\116\097\114'a0.summary(string.
+format(c(
+"\037\115\032\032\124\032\032\066\111\108\115\097\058\032\037\115\010\069\110\116\114\101\103\097\058\032\037\115\032\032\124\032\032\067\111\114\116\097\100\097\115\058\032\037\115\047\037\100\010\077\101\116\097\058\032\037\115\010\067\097\108\111\114\058\032\037\115\032\032\124\032\032\071\101\109\097\115\058\032\037\100\010\037\046\049\102\032\099\111\114\116\097\100\097\115\047\115\032\124\032\037\115\032\124\032\118\101\110\100\097\115\058\032\037\100"
+),c(b8),c(ca),b7 and tostring(b7)or'\063',cd,a_.sellThreshold,c(ce),c(cb),a1.counts
+.gems,b6.cutRate or 0,c(cc),a1.counts.sales))if a0.dashboard then local cf=a1.
+dashboard()local cg=a3.diagnostic()a4.poll(cg.started or cg.finished,a_.
+skipEndingScene and not b4.expired)if a_.skipEndingScene and not b4.expired then
+bN(a3.finishTime())end a4.afterVictory(cg.finished,a_.skipEndingScene and a_.
+releaseEndingCamera and not b4.expired)if cg.finished and not a6 then a6=true a8
+=(a3.finishTime()or os.clock())-bb bi('\067\097\112\105\116\117\108\111\032\050\032\099\111\110\099\108\117\105\100\111\059\032\114\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\046')
+end if cg.finished and not b4.expired then bS()end cf.hasKey=cg.has_key cf.
+finished=cg.finished cf.role=nil if am.anyActive(a_)then if a_.teamLead then cf.
+role='\069\081\085\073\080\069\032\032\047\032\032\076\073\068\069\082\032\079\080'elseif a_.teamFunding then cf.role=
+'\069\081\085\073\080\069\032\032\047\032\032\067\079\076\069\084\065\032\069\032\069\078\084\082\069\071\065'elseif a_.supportCut then cf.role=a_.
+nativeWalkUpgrade and'\071\082\085\080\079\032\077\073\083\084\079\032\032\047\032\032\065\080\079\073\079'or'\069\081\085\073\080\069\032\032\047\032\032\067\079\082\084\069\032\069\032\086\069\078\068\065'end end
+a0.dashboard(cf,a8 or os.clock()-bb)end if a6 or bC then cc=bC or
+'\067\065\080\073\084\085\076\079\032\073\073\032\067\079\078\067\076\085\073\068\079\032\032\047\032\032\082\079\084\073\078\065\083\032\080\065\085\083\065\068\065\083'elseif b4.expired then cc=
+'\076\073\067\069\078\067\065\032\069\088\080\073\082\065\068\065\032\032\047\032\032\082\079\084\073\078\065\083\032\080\065\085\083\065\068\065\083'end if not bT then a0.status(cc)end if a2
+and a2~='\099\111\111\108'and b6.needCooling and am.effective(a_,'\097\117\116\111\067\111\111\108')and os.clock()>=
+b6.coolingRetryAt then aS.cancel()a1.stop()end end)aR.add(function()b4:
+Disconnect()end)task.spawn(function()while aR.alive()do local b5=aS.current()
+local function b6()return aR.alive()and aS.valid(b5)and not bm.expired()end
+local b7,b8=pcall(function()if a6 or a3.finishTime()or bm.expired()then return
+end local b7=a1.snapshot()b7.hasKey=a3.ready()b7.questAction=a_.autoProgress and
+bu or nil local b8=bF.actor()~=nil if not b8 then return end if bs and not b7.
+needCooling then local b9=bs bs=nil a2='\098\117\121'local ca,cb=a1.manualUpgrade(b9[1],
+b9[2],b6)a2=nil if b6()then be(cb or(ca and'\077\101\108\104\111\114\105\097\032\099\111\110\102\105\114\109\097\100\097\046'or
+'\077\101\108\104\111\114\105\097\032\110\097\111\032\099\111\110\102\105\114\109\097\100\097\046'))end return end local b9=am.choose(a_,b7,os.clock())
+if b9=='\105\100\108\101'and not b7.mountainEmpty and(am.effective(a_,'\097\117\116\111\070\097\114\109')or am.
+effective(a_,'\097\117\116\111\068\121\110\097\109\105\116\101'))and not(am.batchCollect(a_)and b7.opBurst and b7.
+opBurst.pending>0)and(am.effective(a_,'\097\117\116\111\068\121\110\097\109\105\116\101')or a_.collectPumpkins or b7
+.carried and b7.capacity and b7.carried<b7.capacity)then a2='\115\101\097\114\099\104'local ca,cb=
+a1.findCandidate(b6)a2=nil if cb then bd(cb,'\101\114\114\111\114')end if not b6()then return
+end b7=a1.snapshot()b7.hasKey=a3.ready()b7.questAction=a_.autoProgress and bu or
+nil b7.hasCandidate=ca~=nil b9=am.choose(a_,b7,os.clock())end if b9=='\105\100\108\101'or
+not b6()then return end a2=b9 local ca=os.clock()local cb,cc=a1.actions[b9](b6)
+a1.recordAction(b9,os.clock()-ca,cb)a2=nil if not b6()then return end if cb then
+bc[b9]=0 else bc[b9]=(bc[b9]or 0)+1 bd((b2[b9]or b9)..'\058\032'..tostring(cc),'\101\114\114\111\114'
+)if b9=='\098\117\121'then a1.defer(b9,3)end if b9=='\099\111\111\108'then a1.defer(b9,a_.
+coolingRetry)end if a_.autoRecover then a1.recover(b9,bc[b9])if bc[b9]==3 then
+bd('\082\101\099\117\112\101\114\097\099\097\111\032\097\117\116\111\109\097\116\105\099\097\032\100\101\032'..(b2[b9]or b9)..'\059\032\111\117\116\114\097\115\032\101\116\097\112\097\115\032\099\111\110\116\105\110\117\097\109\046')end
+elseif bc[b9]>=3 and b9~='\098\117\121'and b9~='\101\110\116\101\114\067\117\116'and b9~='\115\101\108\108'and b9~='\100\121\110\097\109\105\116\101'
+then bi(string.format(c('\082\111\116\105\110\097\115\032\112\097\117\115\097\100\097\115\032\097\112\111\115\032\116\114\101\115\032\102\097\108\104\097\115\032\101\109\032\037\115\046'),c(b2[b9]or
+b9)))be('\082\111\116\105\110\097\032\112\097\117\115\097\100\097\046\032\082\101\097\116\105\118\101\032\112\097\114\097\032\116\101\110\116\097\114\032\110\111\118\097\109\101\110\116\101\046')end if bc[b9]>=3 and(b9
+=='\098\117\121'or b9=='\101\110\116\101\114\067\117\116'or b9=='\115\101\108\108'or b9=='\100\121\110\097\109\105\116\101')then bc[b9]=0 bd(
+'\065\032\101\116\097\112\097\032\102\111\105\032\097\100\105\097\100\097\059\032\097\115\032\111\117\116\114\097\115\032\114\111\116\105\110\097\115\032\099\111\110\116\105\110\117\097\109\046')end end end)if not b7 then
+local b9=a2 or'\099\111\108\108\101\099\116'a2=nil a1.stop()bd('\070\097\108\104\097\032\100\101\032\101\120\101\099\117\099\097\111\058\032'..tostring(b8),
+'\101\114\114\111\114')if a_.autoRecover then bc[b9]=(bc[b9]or 0)+1 a1.recover(b9,bc[b9])else
+bi('\070\097\108\104\097\032\100\101\032\101\120\101\099\117\099\097\111\059\032\099\111\110\116\114\111\108\101\115\032\114\101\115\116\097\117\114\097\100\111\115\046')end end task.wait(am.
+tickInterval(a_))end end)end aC()

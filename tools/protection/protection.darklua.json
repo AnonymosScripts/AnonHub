@@ -1,0 +1,7 @@
+{
+  "generator": "dense",
+  "rules": [
+    "remove_comments",
+    {"rule":"rename_variables","include_functions":true,"globals":["$default","$roblox"],"detect_globals":true}
+  ]
+}

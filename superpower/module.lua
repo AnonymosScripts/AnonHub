@@ -1,677 +1,352 @@
--- Luau · superpower/module.lua · AnonHub integration · Roblox/Delta · Luau
--- Implemented against the client inventory captured on 2026-11-11. No Luarmor code used.
-local Logic={}
-function Logic.manualEligible(mode,boss,padId,bossId,npcId)
-    if mode=="Mixed" then return (boss and padId==bossId) or (not boss and padId==npcId) end
-    if mode=="Boss" then return boss and padId==bossId end
-    return mode=="NPC" and not boss and padId==npcId
-end
-function Logic.protected(data,id,keep)
-    local card=data.Cards and data.Cards[id]
-    return not card or keep[id] or card.Favorite==true or card.Locked==true
-        or table.find(data.Equipped or {},id)~=nil
-end
-function Logic.sacrificeCount(data,id,keep,reserve,rank,spare,maxRank)
-    if Logic.protected(data,id,keep) or rank>(maxRank or 3) then return 0 end
-    for _,held in pairs(data.Base and data.Base.Holders or {}) do if held==id then return 0 end end
-    return math.min(1000,spare,math.max(0,math.floor(data.Cards[id].Count)-reserve))
-end
-function Logic.nextBoss(pads,gates)
-    for _,pad in ipairs(pads) do if pad.gate and not gates[pad.gate] then return pad end end
-end
-function Logic.sameList(a,b)
-    if #a~=#b then return false end
-    for i,v in ipairs(a) do if b[i]~=v then return false end end
-    return true
-end
-function Logic.sameArea(a,b)
- if not a or not b or a.gate or b.gate then return false end
- if a.minZ~=nil and a.maxZ~=nil and b.minZ~=nil and b.maxZ~=nil then return a.minZ==b.minZ and a.maxZ==b.maxZ end
- return a.id==b.id
-end
-function Logic.carried(raw)
- local ids,count={},0
- if type(raw)=="string" then
-  for id in raw:gmatch("(%d+):[%w_]+") do if not ids[id] then ids[id]=true;count+=1 end end
- end
- return ids,count
-end
-function Logic.displayName(value)
- return tostring(value or ""):gsub("_"," "):gsub("(%l)(%u)","%1 %2"):gsub("%s+"," "):match("^%s*(.-)%s*$")
-end
-function Logic.tripState(count,atHome,elapsed)
- if count==0 then return atHome and "delivered" or "lost" end
- if elapsed>15 then return "timeout" end
- return "waiting"
-end
--- END PURE LOGIC
-return function(ctx)
-    assert(game.PlaceId==74183246285569 and game.GameId==10770228857,"Wrong game")
-    local ui,page,T=ctx.ui,ctx.page,ctx.T
-    local RS=game:GetService("ReplicatedStorage")
-    local Players=game:GetService("Players")
-    local Http=game:GetService("HttpService")
-    local Input=game:GetService("UserInputService")
-    local player=Players.LocalPlayer
-    local alive=true
-    local connections,patches,enemyConnections={},{},{}
-    local restoreSettings
-    local function cleanup()
-        alive=false
-        for _,connection in ipairs(connections) do connection:Disconnect() end
-        for _,list in pairs(enemyConnections) do for _,connection in ipairs(list) do connection:Disconnect() end end
-        table.clear(enemyConnections)
-        for i=#patches,1,-1 do local p=patches[i]; if p.object[p.key]==p.replacement then p.object[p.key]=p.original end end
-        if restoreSettings then pcall(restoreSettings) end
-    end
-    ctx.attach(cleanup)
-    local order=0
-    local function label(text,height)
-        order=order+1
-        local l=ui.label(page,"TextLabel",text,height or 42,order)
-        l.TextSize=12; l.TextWrapped=true
-        return l
-    end
-    local info=label(T("Carregando interfaces do jogo...","Loading game interfaces..."),62)
-    info.LayoutOrder=800
-    local bossInfo=label("",110)
-    bossInfo.LayoutOrder=801
-    local log={}
-    local function report(text)
-        log[#log+1]=os.date("%H:%M:%S").." "..tostring(text)
-        if #log>30 then table.remove(log,1) end
-        info.Text=tostring(text)
-    end
-    local cfg={returnFull=false,farm=false,progress=false,boss=false,open=false,equip=false,place=false,fuse=false,
-        sacrifice=false,tree=false,upgrades=false,abilities=false,boost=false,guard=false,stun=false,
-        multiplier=1e12,reserve=1,maxRank=3,protected="",branch="Power",farmMode="Auto",bossId=2,npcId=1,rarities={Common=true,Uncommon=true,Rare=true}}
-    local settingsFile="AnonHub_Superpower_"..player.UserId..".json"
-    if type(readfile)=="function" then
-        local ok,s=pcall(function() return Http:JSONDecode(readfile(settingsFile)) end)
-        if ok and type(s)=="table" then
-            if type(s.protected)=="string" then cfg.protected=s.protected:sub(1,2000) end
-            if type(s.multiplier)=="number" and s.multiplier==s.multiplier then cfg.multiplier=math.clamp(s.multiplier,1,1e12) end
-            if type(s.reserve)=="number" and s.reserve==s.reserve then cfg.reserve=math.clamp(math.floor(s.reserve),1,1000) end
-            if table.find({"Auto","Boss","NPC","Mixed"},s.farmMode) then cfg.farmMode=s.farmMode end
-            if type(s.bossId)=="number" then cfg.bossId=s.bossId end
-            if type(s.npcId)=="number" then cfg.npcId=s.npcId end
-            if type(s.rarities)=="table" then cfg.rarities=s.rarities end
-            if table.find({"Cash","Luck","Power","Speed","Boss"},s.branch) then cfg.branch=s.branch end
-        end
-    end
-    local function save()
-        if type(writefile)=="function" then pcall(writefile,settingsFile,Http:JSONEncode({protected=cfg.protected,multiplier=cfg.multiplier,reserve=cfg.reserve,branch=cfg.branch,farmMode=cfg.farmMode,bossId=cfg.bossId,npcId=cfg.npcId,rarities=cfg.rarities})) end
-    end
-    local function connect(signal,fn)
-        connections[#connections+1]=signal:Connect(fn)
-    end
-    local function module(path)
-        local obj=RS
-        for name in path:gmatch("[^/]+") do obj=obj:FindFirstChild(name); assert(obj,"Missing module: "..path) end
-        local done,ok,result=false,false,nil
-        local worker=task.spawn(function() ok,result=pcall(require,obj);done=true end)
-        local deadline=os.clock()+12
-        while alive and not done and os.clock()<deadline do task.wait(.05) end
-        if not done then
-            pcall(task.cancel,worker)
-            error(T("Tempo limite ao carregar: ","Loading timed out: ")..path)
-        end
-        if not ok then error(tostring(result)) end
-        return result
-    end
-    local modules={}
-    local names={State="Client/Core/PlayerState",Cards="Shared/Config/CardConfig",Stats="Shared/Rules/CardStats",
-        Base="Shared/Config/BaseConfig",Shrine="Shared/Rules/Shrine",Progress="Shared/Rules/Progression",
-        Big="Shared/Util/Big",Packs="Shared/Config/PackConfig",Opening="Client/UI/Packs/PackOpening",
-        Registry="Client/Core/LocalEnemyRegistry",Shields="Shared/Combat/Shields",Ability="Shared/Config/AbilityConfig",
-        Settings="Client/Controllers/SettingsController",Power="Shared/Config/PowerConfig"}
-    local loaded,total=0,0
-    for _ in pairs(names) do total+=1 end
-    local ok,reason=pcall(function()
-        for name,path in pairs(names) do
-            if ctx.progress then ctx.progress(.18+.46*loaded/total,"Carregando funções do jogo… ("..loaded.."/"..total..")","Loading game features… ("..loaded.."/"..total..")") end
-            modules[name]=module(path);loaded+=1
-        end
-    end)
-    if not ok then error(reason) end
-    if ctx.progress then ctx.progress(.7,"Preparando controles e automações…","Preparing controls and automation…") end
-    local State=modules.State
-    local remotes=RS:FindFirstChild("Remotes")
-    assert(remotes,"Remotes missing")
-    local oldAuto=modules.Settings.Get("AutoAttack")
-    local changedAuto=false
-    restoreSettings=function() if changedAuto then modules.Settings.Set("AutoAttack",oldAuto) end end
-    local function setAuto(value)
-        if modules.Settings.Get("AutoAttack")~=value then modules.Settings.Set("AutoAttack",value) end
-        changedAuto=true
-    end
-    local function patch(object,key,wrap)
-        assert(type(object[key])=="function","Missing function: "..key)
-        local original=object[key]
-        local replacement=wrap(original)
-        object[key]=replacement
-        patches[#patches+1]={object=object,key=key,original=original,replacement=replacement}
-    end
-    local patchOK,patchError=pcall(function()
-        patch(modules.Registry,"Damage",function(original)
-            return function(target,damage,...)
-                if alive and cfg.boost and typeof(target)=="Instance" and target:GetAttribute("Local")==true
-                    and type(damage)=="number" and damage>0 and damage<math.huge then
-                    damage=math.min(damage*cfg.multiplier,1e100)
-                end
-                return original(target,damage,...)
-            end
-        end)
-        patch(modules.Shields,"Absorb",function(original)
-            return function(target,...)
-                if alive and cfg.guard and target==player.Character then return true,false end
-                return original(target,...)
-            end
-        end)
-        patch(modules.Shields,"Guarded",function(original)
-            return function(target,...)
-                if alive and cfg.stun and target==player.Character then return true end
-                return original(target,...)
-            end
-        end)
-    end)
-    if not patchOK then
-        for i=#patches,1,-1 do local p=patches[i]; if p.object[p.key]==p.replacement then p.object[p.key]=p.original end end
-        table.clear(patches)
-        report(T("Combate experimental indisponivel: ","Experimental combat unavailable: ")..tostring(patchError))
-    end
-    local updates={}
-    local function toggle(key,pt,en)
-        order=order+1
-        local b,check=ui.checkbox(page,T(pt,en),order)
-        local function update() check(cfg[key]) end
-        updates[#updates+1]=update; update()
-        connect(b.Activated,function()
-            if (key=="boost" or key=="guard" or key=="stun") and not patchOK then
-                report(T("Interfaces de combate indisponiveis: ","Combat interfaces unavailable: ")..tostring(patchError)); return
-            end
-            cfg[key]=not cfg[key]
-            if key=="progress" then
-                for _,k in ipairs({"farm","boss","open","equip","place","fuse","tree","upgrades","abilities","returnFull"}) do cfg[k]=cfg.progress end
-                for _,refresh in ipairs(updates) do refresh() end
-            end
-            if key=="abilities" or key=="progress" then pcall(setAuto,cfg.abilities) end
-            update()
-        end)
-    end
-    ctx.quick(function()
-        cfg.progress=not cfg.progress
-        for _,k in ipairs({"farm","boss","open","equip","place","fuse","tree","upgrades","abilities","returnFull"}) do cfg[k]=cfg.progress end
-        pcall(setAuto,cfg.abilities)
-        for _,refresh in ipairs(updates) do refresh() end
-        report(cfg.progress and T("Progressao ligada","Progression enabled") or T("Progressao desligada","Progression disabled"))
-    end)
-    toggle("progress","Progressão automática","Auto progression")
-    toggle("farm","Farm de inimigos","Enemy farm")
-    toggle("returnFull","Mochila cheia: portal e retomar farm","Full bag: portal and resume farming")
-    toggle("boss","Priorizar bosses","Prioritize bosses")
-    toggle("abilities","Habilidades automáticas","Automatic abilities")
-    page=ctx.section("Cartas")
-    toggle("open","Abrir pacotes","Open packs")
-    toggle("equip","Equipar melhor carta","Equip best card")
-    toggle("place","Melhores cartas na base","Best cards on base")
-    toggle("fuse","Fundir cartas","Fuse cards")
-    toggle("tree","Comprar nós da árvore","Buy skill tree nodes")
-    toggle("upgrades","Upgrades com dinheiro do jogo","Upgrades with game cash")
-    toggle("sacrifice","Sacrificar cartas excedentes","Sacrifice spares according to Settings")
-    label(T("Sacrifício preserva cartas equipadas, posicionadas, protegidas e a reserva. Desligado por padrão.","Sacrifice preserves equipped, placed, protected cards and the reserve. Off by default."),54)
-    page=ctx.section("Combate")
-    toggle("boost","Dano NPC local ampliado (experimental)","Boost local NPC damage (experimental)")
-    toggle("guard","Bloquear dano local (experimental)","Block local damage (experimental)")
-    toggle("stun","Bloquear stun local (experimental)","Block local stun (experimental)")
-    label(T("Nao garante imunidade no servidor. Multiplicador atua em NPCs marcados Local.","Does not guarantee server immunity. Multiplier affects NPCs marked Local."),42)
-    label(T("Farm usa teleporte até o alvo selecionado.","Farm teleports to the selected target."),36)
-    page=ctx.section("Ajustes")
-    local function textbox(key,caption,parse)
-        label(caption,28); order=order+1
-        local box=ui.label(page,"TextBox",tostring(cfg[key]),38,order)
-        box.TextEditable=true; box.ClearTextOnFocus=false
-        connect(box.FocusLost,function()
-            local v=parse(box.Text)
-            if v~=nil then cfg[key]=v; save() end
-            box.Text=tostring(cfg[key])
-        end)
-    end
-    textbox("multiplier",T("Multiplicador (1 ate 1000000000000)","Multiplier (1 to 1000000000000)"),function(s)
-        local n=tonumber(s); if n and n==n and n<math.huge then return math.clamp(n,1,1e12) end
-    end)
-    textbox("reserve",T("Copias reservadas por carta","Reserved copies per card"),function(s)
-        local n=tonumber(s); if n and n==n and n<math.huge then return math.clamp(math.floor(n),1,1000) end
-    end)
-    textbox("protected",T("IDs de cartas protegidas, separados por virgula","Protected card IDs, comma separated"),function(s) return s:sub(1,2000) end)
-    label(T("Raridades permitidas no sacrifício","Allowed sacrifice rarities (individual selection)"),42)
-    local rarityNames={Common="Comum",Uncommon="Incomum",Rare="Rara",Epic="Épica",Legendary="Lendária",Mythic="Mítica",God="Divina",Secret="Secreta",Cosmic="Cósmica",Ancient="Ancestral"}
-    for _,rarity in ipairs(modules.Cards.RarityOrder) do
-        order=order+1
-        local b,check=ui.checkbox(page,T(rarityNames[rarity] or rarity,rarity),order)
-        local function refresh() check(cfg.rarities[rarity]==true) end
-        refresh()
-        connect(b.Activated,function() cfg.rarities[rarity]=not cfg.rarities[rarity];save();refresh() end)
-    end
-    textbox("branch",T("Ramo: Cash, Luck, Power, Speed ou Boss","Branch: Cash, Luck, Power, Speed or Boss"),function(s)
-        return table.find({"Cash","Luck","Power","Speed","Boss"},s) and s or nil
-    end)
-    local function keepSet()
-        local keep={}; for s in cfg.protected:gmatch("[^,]+") do keep[s:match("^%s*(.-)%s*$")]=true end; return keep
-    end
-    local pads={}
-    local padRoot=RS:FindFirstChild("EnemyPads")
-    if padRoot then for _,p in ipairs(padRoot:GetChildren()) do
-        local a=p:GetAttributes()
-        pads[#pads+1]={id=tonumber(p.Name),level=a.Level or 1,gate=a.Gate,enemy=a.Enemy,name=a.Name or a.Enemy,
-            respawn=a.RespawnTime or 90,cf=a.PadCFrame,minZ=a.ZoneMinZ,maxZ=a.ZoneMaxZ}
-    end end
-    table.sort(pads,function(a,b) return a.level<b.level end)
-    local padById={}; for _,p in ipairs(pads) do padById[p.id]=p end
-    local settingsPage=page
-    page=ctx.section("Farm")
-    local targetInfo=label("",54)
-    local function selector(caption,key,options)
-        order=order+1
-        local b=ui.button(page,"",order)
-        order=order+1
-        local list=Instance.new("ScrollingFrame")
-        list.Size=UDim2.new(1,-8,0,160);list.LayoutOrder=order;list.Visible=false
-        list.BackgroundTransparency=1;list.ScrollBarThickness=5
-        list.CanvasSize=UDim2.new();list.AutomaticCanvasSize=Enum.AutomaticSize.Y;list.Parent=page
-        local layout=Instance.new("UIListLayout");layout.Padding=UDim.new(0,4);layout.SortOrder=Enum.SortOrder.LayoutOrder;layout.Parent=list
-        local function update()
-            local selected=T("Selecione","Select")
-            for _,option in ipairs(options) do if option.id==cfg[key] then selected=option.text end end
-            b.Text=caption..": "..selected.." ▼"
-        end
-        for i,option in ipairs(options) do
-            local row=ui.button(list,option.text,i)
-            connect(row.Activated,function() cfg[key]=option.id;list.Visible=false;save();update() end)
-        end
-        connect(b.Activated,function() list.Visible=not list.Visible end)
-        update()
-    end
-    selector(T("Modo de farm","Farm mode"),"farmMode",{{id="Auto",text=T("Progressão automática","Automatic progression")},{id="Boss",text=T("Boss escolhido","Selected boss")},{id="NPC",text=T("Área de NPCs escolhida","Selected NPC area")},{id="Mixed",text=T("NPCs + Boss (prioridade ao boss)","NPCs + Boss (boss priority)")}})
-    local bosses,areas,areaRepresentatives={},{},{}
-    for _,pad in ipairs(pads) do
-        local option={id=pad.id,text=Logic.displayName(pad.name).." · Lv "..pad.level.." · "..pad.respawn.."s"}
-        if pad.gate then bosses[#bosses+1]=option else
-            local representative
-            for _,entry in ipairs(areaRepresentatives) do if Logic.sameArea(pad,entry) then representative=entry;break end end
-            if representative then
-                if cfg.npcId==pad.id then cfg.npcId=representative.id end
-            else
-                areaRepresentatives[#areaRepresentatives+1]=pad
-                local count=0;for _,other in ipairs(pads) do if Logic.sameArea(pad,other) then count+=1 end end
-                option.text=Logic.displayName(pad.name)..T(" · Área completa · "," · Full area · ")..count..T(" pontos"," spawn points")
-                areas[#areas+1]=option
-            end
-        end
-    end
-    selector("Boss","bossId",bosses)
-    selector(T("Área de NPCs","NPC area"),"npcId",areas)
-    label(T("NPCs + Boss: farma a area escolhida na espera e volta ao boss quando ele aparece. Verifica periodicamente a arena se o boss estiver fora do streaming.","NPCs + Boss: farms the selected area while waiting, then switches to the boss. Periodically checks the arena when the boss is outside streaming range."),70)
-    label(T("Escolher o alvo nao liga o farm. Ative Farm ou Progressão automática acima.","Selecting a target does not start farming. Enable Farm or Auto progression above."),46)
-    page=settingsPage
-    local enemyRoot=workspace:FindFirstChild("Enemies")
-    local watched=setmetatable({}, {__mode="k"})
-    local respawns={}
-    local requestStep
-    local recentSpawns=setmetatable({}, {__mode="k"})
-    local function watch(enemy)
-        if watched[enemy] then return end
-        local h=enemy:FindFirstChildOfClass("Humanoid")
-        if not h then return end
-        watched[enemy]=true
-        local list={}
-        enemyConnections[enemy]=list
-        list[#list+1]=h.Died:Connect(function()
-            local pad=padById[enemy:GetAttribute("PadId")]
-            if pad and pad.gate then respawns[pad.id]=os.clock()+pad.respawn end
-            if requestStep then requestStep() end
-        end)
-        list[#list+1]=enemy.AncestryChanged:Connect(function()
-            if enemy.Parent~=enemyRoot then
-                for _,connection in ipairs(list) do connection:Disconnect() end
-                enemyConnections[enemy]=nil; watched[enemy]=nil
-            end
-        end)
-        if enemy:GetAttribute("Boss")==true then respawns[enemy:GetAttribute("PadId")]=nil end
-    end
-    local pending=false
-    local backoff={}
-    local function call(name,...)
-        if not alive or pending or os.clock()<(backoff[name] or 0) then return nil end
-        local remote=remotes:FindFirstChild(name)
-        if not remote or not remote:IsA("RemoteFunction") then report(T("RemoteFunction ausente: ","Missing RemoteFunction: ")..name); return nil end
-        pending=true
-        local args=table.pack(...)
-        local finished,result=false,nil
-        task.spawn(function() result=table.pack(pcall(remote.InvokeServer,remote,table.unpack(args,1,args.n))); finished=true; pending=false end)
-        local start=os.clock()
-        while alive and not finished and os.clock()-start<10 do task.wait(0.1) end
-        if not alive then return nil end
-        if not finished then report(name..T(": aguardando servidor; sem repeticao concorrente",": waiting for server; no concurrent retry")); backoff[name]=os.clock()+15; return nil end
-        if not result[1] or result[2]==false then
-            report(name..": "..tostring(result[3] or result[2])); backoff[name]=os.clock()+8; return nil
-        end
-        report(name..T(": resposta recebida",": response received"))
-        return table.unpack(result,2,result.n)
-    end
-    local actions={}
-    actions[1]=function(data)
-        if not cfg.open or modules.Opening.Playing then return end
-        for pack,count in pairs(data.Packs or {}) do
-            if type(count)=="number" and count>0 then
-                local n=math.min(count,modules.Packs.MaxOpenAtOnce or 1)
-                local previous={}; for card,v in pairs(data.Cards or {}) do previous[card]=v.Level end
-                local result=call("OpenPack",pack,n)
-                if alive and type(result)=="table" then modules.Opening.Play(pack,function() return result end,previous,nil,n) end
-                return
-            end
-        end
-    end
-    actions[2]=function(data)
-        if not cfg.fuse then return end
-        local keep=keepSet()
-        for card,v in pairs(data.Cards or {}) do
-            if not keep[card] and not v.Favorite and not v.Locked and modules.Stats.Fuse(v) then call("Fuse",card); return end
-        end
-    end
-    actions[3]=function(data)
-        if not cfg.equip then return end
-        local best=modules.Stats.Best(data.Cards,function(card) return modules.Base.SlotOf(data,card)~=nil end)
-        if not Logic.sameList(best,data.Equipped or {}) then call("EquipBest") end
-    end
-    actions[4]=function(data)
-        if not cfg.place or not data.Base then return end
-        local best,changed=modules.Base.BestHolders(data)
-        if changed then for slot,card in pairs(best) do
-            if data.Base.Holders[slot]~=card then call("BasePlace",tonumber(slot),card); return end
-        end end
-    end
-    actions[5]=function(data)
-        if not cfg.tree then return end
-        if not modules.Shrine.Open(data) then report(T("Arvore bloqueada: derrote Dominus Infernus (Volcano).","Tree locked: defeat Dominus Infernus (Volcano).")); return end
-        local candidates={}
-        for _,node in pairs(modules.Shrine.Tree or {}) do
-            if node.Branch==cfg.branch and not modules.Shrine.CantBuy(data,node.Id) then candidates[#candidates+1]=node end
-        end
-        table.sort(candidates,function(a,b) return a.Cost==b.Cost and a.Id<b.Id or a.Cost<b.Cost end)
-        if candidates[1] then call("TreeBuy",candidates[1].Id)
-        else
-            local explanation=T("Nenhum no elegivel no ramo ","No eligible node in branch ")..cfg.branch
-            for _,node in pairs(modules.Shrine.Tree or {}) do
-                if node.Branch==cfg.branch and not modules.Shrine.Owns(data,node.Id) then explanation=tostring(modules.Shrine.CantBuy(data,node.Id)); break end
-            end
-            report(T("Arvore: ","Tree: ")..explanation)
-        end
-    end
-    actions[6]=function(data)
-        if not cfg.sacrifice then return end
-        if not modules.Shrine.Open(data) then report(T("Sacrificio bloqueado: derrote Dominus Infernus (Volcano).","Sacrifice locked: defeat Dominus Infernus (Volcano).")); return end
-        local keep=keepSet()
-        for card in pairs(data.Cards or {}) do
-            local def=modules.Cards.ById[card]
-            local rank=def and modules.Cards.RarityRank[def.Rarity] or 999
-            local n=Logic.sacrificeCount(data,card,keep,cfg.reserve,rank,modules.Shrine.Spare(data,card),cfg.rarities[def and def.Rarity or ""]==true and 999 or 0)
-            if n>0 then call("Sacrifice",card,n); return end
-        end
-        report(T("Sacrificio: nenhuma sobra elegivel. Confira reserva, raridade e cartas protegidas em Ajustes.","Sacrifice: no eligible spares. Check reserve, rarity and protected cards in Settings."))
-    end
-    actions[7]=function(data)
-        if not cfg.upgrades then return end
-        local chosen,price
-        for _,up in pairs(modules.Progress.Upgrades or {}) do
-            local level=modules.Progress.UpgradeLevel(data,up.Id)
-            if level<up.MaxLevel then
-                local cost=modules.Progress.UpgradePrice(data,up.Id,level)
-                if not modules.Big.lt(data.Cash,cost) and (not price or modules.Big.lt(cost,price)) then chosen=up.Id; price=cost end
-            end
-        end
-        if chosen then call("BuyUpgrade",chosen) end
-    end
-    local nextAction=1
-    task.spawn(function()
-        while alive do
-            local data=State.Data
-            if data and not pending and not modules.Opening.Playing then
-                local success,err=pcall(actions[nextAction],data)
-                if not success then report(err) end
-                nextAction=nextAction%#actions+1
-            end
-            task.wait(0.8)
-        end
-    end)
-    local nextKey=1
-    local lastKey=0
-    local nextBossProbe,probeUntil=0,0
-    local patrolIndex,patrolAt,patrolSelection=0,0,nil
-    local function patrolPad(now,selectionId)
-        selectionId=selectionId or cfg.npcId
-        local selected=padById[selectionId]
-        local area={}
-        for _,pad in ipairs(pads) do if Logic.sameArea(pad,selected) then area[#area+1]=pad end end
-        if #area==0 then return selected end
-        if patrolSelection~=selectionId then patrolSelection=selectionId;patrolIndex=0;patrolAt=0 end
-        if now>=patrolAt then patrolIndex=patrolIndex%#area+1;patrolAt=now+8 end
-        return area[patrolIndex]
-    end
-    local bagInfo=label("",60)
-    bagInfo.LayoutOrder=799
-    local seenPacks=Logic.carried(player:GetAttribute("CarriedPacks"))
-    local collected,trips,bagCount=0,0,0
-    local trip,tripStarted,tripPosition,nextPortal,portalStatus=false,0,nil,0,""
-    local function syncBag()
-        local ids,count=Logic.carried(player:GetAttribute("CarriedPacks"))
-        for id in pairs(ids) do if not seenPacks[id] then seenPacks[id]=true;collected+=1 end end
-        bagCount=count
-    end
-    connect(player:GetAttributeChangedSignal("CarriedPacks"),syncBag);syncBag()
-    local function bagStep(root,humanoid,data)
-        local capacity=player:GetAttribute("CarryCapacity")
-        if type(capacity)~="number" or capacity<1 then capacity=modules.Progress.CarryCapacity(data) end
-        bagInfo.Text=T("Pacotes coletados: ","Packs collected: ")..collected..T(" · Mochila: "," · Bag: ")..bagCount.."/"..capacity..T(" · Viagens: "," · Trips: ")..trips.."\n"..portalStatus
-        if not cfg.returnFull or not (cfg.farm or cfg.boss) then trip=false;portalStatus="";return false end
-        if not root or not humanoid or humanoid.Health<=0 then trip=false;return false end
-        local home=player:GetAttribute("BaseSpawn")
-        local atHome=typeof(home)=="CFrame" and (root.Position-home.Position).Magnitude<45
-        if trip then
-            local state=Logic.tripState(bagCount,atHome,os.clock()-tripStarted)
-            if state=="delivered" or state=="lost" then
-                trip=false
-                if atHome then
-                    trips+=1;portalStatus=T("Entrega concluída. Retomando o farm.","Delivery complete. Resuming farming.")
-                    if tripPosition then root.CFrame=tripPosition end
-                    nextBossProbe=0;patrolAt=0
-                else portalStatus=T("Mochila vazia fora da base; viagem não contabilizada.","Bag emptied away from home; trip not counted.") end
-                return true
-            end
-            if state=="timeout" then
-                trip=false;nextPortal=os.clock()+5
-                portalStatus=T("Entrega não confirmada. Tentando o portal novamente.","Delivery not confirmed. Retrying the portal.")
-            end
-            return true
-        end
-        if bagCount<capacity then return false end
-        if os.clock()<nextPortal then return true end
-        nextPortal=os.clock()+3
-        local portalRoot=workspace:FindFirstChild("BossPortals")
-        local prompt,part,distance=nil,nil,math.huge
-        if portalRoot then for _,candidate in ipairs(portalRoot:GetDescendants()) do
-            if candidate:IsA("ProximityPrompt") and candidate.Name=="PortalPrompt" and candidate.Enabled then
-                local parent=candidate.Parent
-                local cf=parent:IsA("Attachment") and parent.WorldCFrame or parent:IsA("BasePart") and parent.CFrame
-                if cf then local d=(root.Position-cf.Position).Magnitude;if d<distance then prompt=candidate;part=cf;distance=d end end
-            end
-        end end
-        if not prompt then portalStatus=T("Mochila cheia. Aguardando um portal disponível.","Bag full. Waiting for an available portal.");return false end
-        tripPosition=root.CFrame;tripStarted=os.clock();trip=true
-        root.CFrame=part+Vector3.new(0,0,3)
-        portalStatus=T("Retornando pelo portal; aguardando confirmação da entrega.","Returning through the portal; waiting for delivery confirmation.")
-        task.spawn(function()
-            task.wait(.3)
-            if not alive or not trip or not cfg.returnFull or not prompt.Parent then return end
-            if type(fireproximityprompt)=="function" then pcall(fireproximityprompt,prompt)
-            else
-                prompt:InputHoldBegin();task.wait(prompt.HoldDuration+.1)
-                if prompt.Parent then prompt:InputHoldEnd() end
-            end
-        end)
-        return true
-    end
-    local function step()
-        local data=State.Data
-        if not data then report(T("Aguardando dados replicados...","Waiting for replicated data...")); return end
-        enemyRoot=workspace:FindFirstChild("Enemies")
-        local enemies=enemyRoot and enemyRoot:GetChildren() or {}
-        local bossLines={}
-        local currentBoss=Logic.nextBoss(pads,data.Gates or {})
-        local char=player.Character
-        local root=char and char:FindFirstChild("HumanoidRootPart")
-        local humanoid=char and char:FindFirstChildOfClass("Humanoid")
-        if bagStep(root,humanoid,data) then return end
-        local level=modules.Power.Level(data.Power or 0)
-        local autoArea
-        if cfg.farmMode=="Auto" and cfg.farm then
-            for _,pad in ipairs(pads) do if not pad.gate and pad.level<=level then autoArea=pad end end
-        end
-        local patrolling=(cfg.farmMode=="NPC" or cfg.farmMode=="Mixed") and patrolPad(os.clock()) or autoArea and patrolPad(os.clock(),autoArea.id)
-        local target,targetBoss,targetFresh,score=nil,false,false,math.huge
-        local livePads={}
-        for _,enemy in ipairs(enemies) do
-            watch(enemy)
-            local h=enemy:FindFirstChildOfClass("Humanoid")
-            local er=enemy:FindFirstChild("HumanoidRootPart")
-            if h and h.Health>0 and er then
-                local pid=enemy:GetAttribute("PadId")
-                if pid then livePads[pid]=true end
-                if root then
-                    local boss=enemy:GetAttribute("Boss")==true
-                    local el=enemy:GetAttribute("Level") or 1
-                    local available=cfg.boost or el<=level
-                    if cfg.farmMode~="Auto" then available=Logic.manualEligible(cfg.farmMode,boss,pid,cfg.bossId,cfg.npcId) or (not boss and (cfg.farmMode=="NPC" or cfg.farmMode=="Mixed") and Logic.sameArea(padById[pid],padById[cfg.npcId]))
-                    elseif cfg.progress and boss then available=available and currentBoss and pid==currentBoss.id end
-                    if available and (cfg.farm or (cfg.boss and (boss or cfg.farmMode=="Mixed"))) then
-                        local rank=(root.Position-er.Position).Magnitude
-                        local fresh=os.clock()-(recentSpawns[enemy] or -10)<1
-                        if fresh then rank-=2000000 end
-                        if patrolling and not boss and pid~=patrolling.id then rank+=1000000 end
-                        if (cfg.boss or cfg.farmMode=="Mixed") and boss then rank=rank-1000000000 end
-                        if rank<score then score=rank; target=er;targetBoss=boss;targetFresh=fresh end
-                    end
-                end
-            end
-        end
-        for _,pad in ipairs(pads) do if pad.gate then
-            local state=livePads[pad.id] and T("VIVO","ALIVE") or (respawns[pad.id] and (math.ceil(math.max(0,respawns[pad.id]-os.clock()))..T("s estimados","s estimated")) or T("não observado","not observed"))
-            bossLines[#bossLines+1]=Logic.displayName(pad.enemy)..": "..state
-        end end
-        bossInfo.Text=table.concat(bossLines," | ")
-        local selected=(cfg.farmMode=="Boss" or cfg.farmMode=="Mixed" and livePads[cfg.bossId]) and padById[cfg.bossId] or (cfg.farmMode=="NPC" or cfg.farmMode=="Mixed") and padById[cfg.npcId] or currentBoss
-        local modeLabel=cfg.farmMode=="Mixed" and "NPCs + Boss" or cfg.farmMode
-        targetInfo.Text=modeLabel.." · "..(selected and Logic.displayName(selected.name) or T("Sem alvo","No target")).." · "..(target and T("Alvo encontrado","Target found") or T("Aguardando spawn/streaming ou liberacao da area","Waiting for spawn/streaming or area unlock"))
-        if not (root and humanoid and humanoid.Health>0) or modules.Opening.Playing then return end
-        if cfg.farm or cfg.boss then
-            if cfg.farmMode=="Mixed" and not livePads[cfg.bossId] then
-                local bossPad=padById[cfg.bossId]
-                local now=os.clock()
-                if bossPad and typeof(bossPad.cf)=="CFrame" and now>=nextBossProbe and now>=(respawns[cfg.bossId] or 0) then
-                    nextBossProbe=now+20;probeUntil=now+2
-                    root.CFrame=bossPad.cf+Vector3.new(0,4,0)
-                end
-                if now<probeUntil then
-                    targetInfo.Text=T("Verificando spawn do boss...","Checking boss spawn...")
-                    return
-                end
-            end
-            if patrolling and not targetBoss and not targetFresh and not livePads[patrolling.id] and not (cfg.farmMode=="Mixed" and livePads[cfg.bossId]) and typeof(patrolling.cf)=="CFrame" then
-                local destination=patrolling.cf+Vector3.new(0,4,0)
-                if (root.Position-destination.Position).Magnitude>15 then root.CFrame=destination end
-                return
-            end
-            if target then
-                local delta=root.Position-target.Position
-                if delta.Magnitude>10 then
-                    local destination=target.Position+(delta.Magnitude>0 and delta.Unit or Vector3.new(0,0,1))*7
-                    root.CFrame=CFrame.lookAt(destination,target.Position)
-                end
-            else
-                local chosen=cfg.farmMode=="Boss" and padById[cfg.bossId] or (cfg.farmMode=="NPC" or cfg.farmMode=="Mixed") and padById[cfg.npcId] or cfg.progress and currentBoss
-                if patrolling then chosen=patrolling end
-                if chosen and typeof(chosen.cf)=="CFrame" and (cfg.farmMode~="Auto" or cfg.boost or chosen.level<=level) then
-                    local destination=chosen.cf.Position+Vector3.new(0,4,0)
-                    if (root.Position-destination).Magnitude>15 then root.CFrame=CFrame.new(destination) end
-                end
-            end
-        end
-        if cfg.abilities and target and os.clock()-lastKey>0.6 and not Input:GetFocusedTextBox() then
-            lastKey=os.clock()
-            local loadout=modules.Ability.Loadout(data)
-            if #loadout>0 then
-                nextKey=(nextKey-1)%#loadout+1
-                local key=modules.Ability.Keys[nextKey]
-                if key then
-                    local vim=game:GetService("VirtualInputManager")
-                    vim:SendKeyEvent(true,key,false,game); vim:SendKeyEvent(false,key,false,game)
-                end
-                nextKey=nextKey+1
-            end
-        end
-    end
-    local queued,running,lastStep=false,false,-1
-    requestStep=function()
-        if not alive or queued then return end
-        queued=true
-        task.delay(math.max(0,.05-(os.clock()-lastStep)),function()
-            queued=false
-            if not alive then return end
-            if running then requestStep();return end
-            running=true;lastStep=os.clock()
-            local success,err=pcall(step)
-            running=false
-            if not success then report(err) end
-        end)
-    end
-    local boundRoot,rootConnection
-    local function bindEnemies(folder)
-        if boundRoot==folder then return end
-        if rootConnection then rootConnection:Disconnect() end
-        boundRoot=folder
-        if not folder then return end
-        rootConnection=folder.DescendantAdded:Connect(function(object)
-            local enemy=object
-            while enemy and enemy.Parent~=folder do enemy=enemy.Parent end
-            if enemy and (object==enemy or object.Name=="HumanoidRootPart" or object:IsA("Humanoid")) and enemy:IsA("Model") and enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChildOfClass("Humanoid") then
-                recentSpawns[enemy]=os.clock()
-                requestStep()
-            end
-        end)
-        connections[#connections+1]=rootConnection
-    end
-    bindEnemies(enemyRoot)
-    connect(workspace.ChildAdded,function(child) if child.Name=="Enemies" then bindEnemies(child);requestStep() end end)
-    task.spawn(function()
-        while alive do requestStep();task.wait(.15) end
-    end)
-    order=order+1
-    local stop=ui.button(page,T("Parar todas as automações","Stop all automation"),order)
-    connect(stop.Activated,function()
-        for key,value in pairs(cfg) do if type(value)=="boolean" then cfg[key]=false end end
-        pcall(setAuto,oldAuto)
-        for _,update in ipairs(updates) do update() end
-        report(T("Automações paradas.","Automation stopped."))
-    end)
-    order=order+1
-    local export=ui.button(page,T("Exportar diagnóstico de teste","Export test diagnostics"),order)
-    connect(export.Activated,function()
-        if type(writefile)=="function" then
-            local name="AnonHub_Superpower_Test_"..os.time()..".json"
-            local saved,err=pcall(writefile,name,Http:JSONEncode({placeId=game.PlaceId,version=game.PlaceVersion,log=log,config=cfg,patches=patchOK,pending=pending}))
-            report(saved and name or tostring(err))
-        end
-    end)
-    report(T("Pronto para teste. Automações desligadas.","Ready for testing. Automation is off."))
-    return cleanup
-end
+-- Luau
+-- AnonHub protected distribution 0.38.10
+local a={}function a.manualEligible(b,c,d,e,f)if b=='\077\105\120\101\100'then return(c and d==
+e)or(not c and d==f)end if b=='\066\111\115\115'then return c and d==e end return b=='\078\080\067'
+and not c and d==f end function a.protected(b,c,d)local e=b.Cards and b.Cards[c]
+return not e or d[c]or e.Favorite==true or e.Locked==true or table.find(b.
+Equipped or{},c)~=nil end function a.sacrificeCount(b,c,d,e,f,g,h)if a.
+protected(b,c,d)or f>(h or 3)then return 0 end for i,j in pairs(b.Base and b.
+Base.Holders or{})do if j==c then return 0 end end return math.min(1000,g,math.
+max(0,math.floor(b.Cards[c].Count)-e))end function a.nextBoss(b,c)for d,e in
+ipairs(b)do if e.gate and not c[e.gate]then return e end end end function a.
+sameList(b,c)if#b~=#c then return false end for d,e in ipairs(b)do if c[d]~=e
+then return false end end return true end function a.sameArea(b,c)if not b or
+not c or b.gate or c.gate then return false end if b.minZ~=nil and b.maxZ~=nil
+and c.minZ~=nil and c.maxZ~=nil then return b.minZ==c.minZ and b.maxZ==c.maxZ
+end return b.id==c.id end function a.carried(b)local c,d={},0 if type(b)==
+'\115\116\114\105\110\103'then for e in b:gmatch('\040\037\100\043\041\058\091\037\119\095\093\043')do if not c[e]then c[e]=true d+=1
+end end end return c,d end function a.displayName(b)return tostring(b or''):
+gsub('\095','\032'):gsub('\040\037\108\041\040\037\117\041','\037\049\032\037\050'):gsub('\037\115\043','\032'):match('\094\037\115\042\040\046\045\041\037\115\042\036')end
+function a.tripState(b,c,d)if b==0 then return c and'\100\101\108\105\118\101\114\101\100'or'\108\111\115\116'end if d>
+15 then return'\116\105\109\101\111\117\116'end return'\119\097\105\116\105\110\103'end return function(b)assert(game.
+PlaceId==74183246285569 and game.GameId==10770228857,'\087\114\111\110\103\032\103\097\109\101')local c,d,e=b.
+ui,b.page,b.T local f=game:GetService('\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')local g=game:
+GetService('\080\108\097\121\101\114\115')local h=game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local i=game:
+GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local j=g.LocalPlayer local k=true local l,m,n={},
+{},{}local o local function p()k=false for q,r in ipairs(l)do r:Disconnect()end
+for q,r in pairs(n)do for s,t in ipairs(r)do t:Disconnect()end end table.clear(n
+)for q=#m,1,-1 do local r=m[q]if r.object[r.key]==r.replacement then r.object[r.
+key]=r.original end end if o then pcall(o)end end b.attach(p)local q=0 local
+function r(s,t)q=q+1 local u=c.label(d,'\084\101\120\116\076\097\098\101\108',s,t or 42,q)u.TextSize=12 u.
+TextWrapped=true return u end local s=r(e('\067\097\114\114\101\103\097\110\100\111\032\105\110\116\101\114\102\097\099\101\115\032\100\111\032\106\111\103\111\046\046\046',
+'\076\111\097\100\105\110\103\032\103\097\109\101\032\105\110\116\101\114\102\097\099\101\115\046\046\046'),62)s.LayoutOrder=800 local t=r('',110)t.
+LayoutOrder=801 local u={}local function v(w)u[#u+1]=os.date('\037\072\058\037\077\058\037\083')..'\032'..
+tostring(w)if#u>30 then table.remove(u,1)end s.Text=tostring(w)end local w={
+returnFull=false,farm=false,progress=false,boss=false,open=false,equip=false,
+place=false,fuse=false,sacrifice=false,tree=false,upgrades=false,abilities=false
+,boost=false,guard=false,stun=false,multiplier=1e12,reserve=1,maxRank=3,
+protected='',branch='\080\111\119\101\114',farmMode='\065\117\116\111',bossId=2,npcId=1,rarities={Common=
+true,Uncommon=true,Rare=true}}local x='\065\110\111\110\072\117\098\095\083\117\112\101\114\112\111\119\101\114\095'..j.UserId..'\046\106\115\111\110'if
+type(readfile)=='\102\117\110\099\116\105\111\110'then local y,z=pcall(function()return h:JSONDecode(
+readfile(x))end)if y and type(z)=='\116\097\098\108\101'then if type(z.protected)=='\115\116\114\105\110\103'then
+w.protected=z.protected:sub(1,2000)end if type(z.multiplier)=='\110\117\109\098\101\114'and z.
+multiplier==z.multiplier then w.multiplier=math.clamp(z.multiplier,1,1e12)end if
+type(z.reserve)=='\110\117\109\098\101\114'and z.reserve==z.reserve then w.reserve=math.clamp(math
+.floor(z.reserve),1,1000)end if table.find({'\065\117\116\111','\066\111\115\115','\078\080\067','\077\105\120\101\100'},z.
+farmMode)then w.farmMode=z.farmMode end if type(z.bossId)=='\110\117\109\098\101\114'then w.bossId
+=z.bossId end if type(z.npcId)=='\110\117\109\098\101\114'then w.npcId=z.npcId end if type(z.
+rarities)=='\116\097\098\108\101'then w.rarities=z.rarities end if table.find({'\067\097\115\104','\076\117\099\107',
+'\080\111\119\101\114','\083\112\101\101\100','\066\111\115\115'},z.branch)then w.branch=z.branch end end end local
+function y()if type(writefile)=='\102\117\110\099\116\105\111\110'then pcall(writefile,x,h:JSONEncode({
+protected=w.protected,multiplier=w.multiplier,reserve=w.reserve,branch=w.branch,
+farmMode=w.farmMode,bossId=w.bossId,npcId=w.npcId,rarities=w.rarities}))end end
+local function z(A,B)l[#l+1]=A:Connect(B)end local function A(B)local C=f for D
+in B:gmatch('\091\094\047\093\043')do C=C:FindFirstChild(D)assert(C,'\077\105\115\115\105\110\103\032\109\111\100\117\108\101\058\032'..B)end
+local D,E,F=false,false,nil local G=task.spawn(function()E,F=pcall(require,C)D=
+true end)local H=os.clock()+12 while k and not D and os.clock()<H do task.wait(
+0.05)end if not D then pcall(task.cancel,G)error(e('\084\101\109\112\111\032\108\105\109\105\116\101\032\097\111\032\099\097\114\114\101\103\097\114\058\032',
+'\076\111\097\100\105\110\103\032\116\105\109\101\100\032\111\117\116\058\032')..B)end if not E then error(tostring(F))end return F end
+local B={}local C={State='\067\108\105\101\110\116\047\067\111\114\101\047\080\108\097\121\101\114\083\116\097\116\101',Cards=
+'\083\104\097\114\101\100\047\067\111\110\102\105\103\047\067\097\114\100\067\111\110\102\105\103',Stats='\083\104\097\114\101\100\047\082\117\108\101\115\047\067\097\114\100\083\116\097\116\115',Base=
+'\083\104\097\114\101\100\047\067\111\110\102\105\103\047\066\097\115\101\067\111\110\102\105\103',Shrine='\083\104\097\114\101\100\047\082\117\108\101\115\047\083\104\114\105\110\101',Progress=
+'\083\104\097\114\101\100\047\082\117\108\101\115\047\080\114\111\103\114\101\115\115\105\111\110',Big='\083\104\097\114\101\100\047\085\116\105\108\047\066\105\103',Packs=
+'\083\104\097\114\101\100\047\067\111\110\102\105\103\047\080\097\099\107\067\111\110\102\105\103',Opening='\067\108\105\101\110\116\047\085\073\047\080\097\099\107\115\047\080\097\099\107\079\112\101\110\105\110\103',Registry=
+'\067\108\105\101\110\116\047\067\111\114\101\047\076\111\099\097\108\069\110\101\109\121\082\101\103\105\115\116\114\121',Shields='\083\104\097\114\101\100\047\067\111\109\098\097\116\047\083\104\105\101\108\100\115',Ability=
+'\083\104\097\114\101\100\047\067\111\110\102\105\103\047\065\098\105\108\105\116\121\067\111\110\102\105\103',Settings='\067\108\105\101\110\116\047\067\111\110\116\114\111\108\108\101\114\115\047\083\101\116\116\105\110\103\115\067\111\110\116\114\111\108\108\101\114',
+Power='\083\104\097\114\101\100\047\067\111\110\102\105\103\047\080\111\119\101\114\067\111\110\102\105\103'}local D,E=0,0 for F in pairs(C)do E+=1 end
+local F,G=pcall(function()for F,G in pairs(C)do if b.progress then b.progress(
+0.18+0.46*D/E,'\067\097\114\114\101\103\097\110\100\111\032\102\117\110\u{e7}\u{f5}\101\115\032\100\111\032\106\111\103\111\u{2026}\032\040'..D..'\047'..E..'\041',
+'\076\111\097\100\105\110\103\032\103\097\109\101\032\102\101\097\116\117\114\101\115\u{2026}\032\040'..D..'\047'..E..'\041')end B[F]=A(G)D+=1 end end)if
+not F then error(G)end if b.progress then b.progress(0.7,
+'\080\114\101\112\097\114\097\110\100\111\032\099\111\110\116\114\111\108\101\115\032\101\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115\u{2026}',
+'\080\114\101\112\097\114\105\110\103\032\099\111\110\116\114\111\108\115\032\097\110\100\032\097\117\116\111\109\097\116\105\111\110\u{2026}')end local H=B.State local I=f:
+FindFirstChild('\082\101\109\111\116\101\115')assert(I,'\082\101\109\111\116\101\115\032\109\105\115\115\105\110\103')local J=B.Settings.Get(
+'\065\117\116\111\065\116\116\097\099\107')local K=false o=function()if K then B.Settings.Set('\065\117\116\111\065\116\116\097\099\107',J)
+end end local function L(M)if B.Settings.Get('\065\117\116\111\065\116\116\097\099\107')~=M then B.Settings.
+Set('\065\117\116\111\065\116\116\097\099\107',M)end K=true end local function M(N,O,P)assert(type(N[O])==
+'\102\117\110\099\116\105\111\110','\077\105\115\115\105\110\103\032\102\117\110\099\116\105\111\110\058\032'..O)local Q=N[O]local R=P(Q)N[O]=R m[#m+1]={
+object=N,key=O,original=Q,replacement=R}end local N,O=pcall(function()M(B.
+Registry,'\068\097\109\097\103\101',function(N)return function(O,P,...)if k and w.boost and
+typeof(O)=='\073\110\115\116\097\110\099\101'and O:GetAttribute('\076\111\099\097\108')==true and type(P)=='\110\117\109\098\101\114'and
+P>0 and P<math.huge then P=math.min(P*w.multiplier,1e100)end return N(O,P,...)
+end end)M(B.Shields,'\065\098\115\111\114\098',function(N)return function(O,...)if k and w.guard
+and O==j.Character then return true,false end return N(O,...)end end)M(B.Shields
+,'\071\117\097\114\100\101\100',function(N)return function(O,...)if k and w.stun and O==j.Character
+then return true end return N(O,...)end end)end)if not N then for P=#m,1,-1 do
+local Q=m[P]if Q.object[Q.key]==Q.replacement then Q.object[Q.key]=Q.original
+end end table.clear(m)v(e('\067\111\109\098\097\116\101\032\101\120\112\101\114\105\109\101\110\116\097\108\032\105\110\100\105\115\112\111\110\105\118\101\108\058\032',
+'\069\120\112\101\114\105\109\101\110\116\097\108\032\099\111\109\098\097\116\032\117\110\097\118\097\105\108\097\098\108\101\058\032')..tostring(O))end local P={}local function Q
+(R,S,T)q=q+1 local U,V=c.checkbox(d,e(S,T),q)local function W()V(w[R])end P[#P+1
+]=W W()z(U.Activated,function()if(R=='\098\111\111\115\116'or R=='\103\117\097\114\100'or R=='\115\116\117\110')and not N
+then v(e('\073\110\116\101\114\102\097\099\101\115\032\100\101\032\099\111\109\098\097\116\101\032\105\110\100\105\115\112\111\110\105\118\101\105\115\058\032',
+'\067\111\109\098\097\116\032\105\110\116\101\114\102\097\099\101\115\032\117\110\097\118\097\105\108\097\098\108\101\058\032')..tostring(O))return end w[R]=not w[R]if R==
+'\112\114\111\103\114\101\115\115'then for X,Y in ipairs({'\102\097\114\109','\098\111\115\115','\111\112\101\110','\101\113\117\105\112','\112\108\097\099\101','\102\117\115\101',
+'\116\114\101\101','\117\112\103\114\097\100\101\115','\097\098\105\108\105\116\105\101\115','\114\101\116\117\114\110\070\117\108\108'})do w[Y]=w.progress end for X,Y in
+ipairs(P)do Y()end end if R=='\097\098\105\108\105\116\105\101\115'or R=='\112\114\111\103\114\101\115\115'then pcall(L,w.abilities
+)end W()end)end b.quick(function()w.progress=not w.progress for R,S in ipairs({
+'\102\097\114\109','\098\111\115\115','\111\112\101\110','\101\113\117\105\112','\112\108\097\099\101','\102\117\115\101','\116\114\101\101','\117\112\103\114\097\100\101\115','\097\098\105\108\105\116\105\101\115',
+'\114\101\116\117\114\110\070\117\108\108'})do w[S]=w.progress end pcall(L,w.abilities)for R,S in ipairs(P)do
+S()end v(w.progress and e('\080\114\111\103\114\101\115\115\097\111\032\108\105\103\097\100\097','\080\114\111\103\114\101\115\115\105\111\110\032\101\110\097\098\108\101\100')or e(
+'\080\114\111\103\114\101\115\115\097\111\032\100\101\115\108\105\103\097\100\097','\080\114\111\103\114\101\115\115\105\111\110\032\100\105\115\097\098\108\101\100'))end)Q('\112\114\111\103\114\101\115\115',
+'\080\114\111\103\114\101\115\115\u{e3}\111\032\097\117\116\111\109\u{e1}\116\105\099\097','\065\117\116\111\032\112\114\111\103\114\101\115\115\105\111\110')Q('\102\097\114\109','\070\097\114\109\032\100\101\032\105\110\105\109\105\103\111\115'
+,'\069\110\101\109\121\032\102\097\114\109')Q('\114\101\116\117\114\110\070\117\108\108','\077\111\099\104\105\108\097\032\099\104\101\105\097\058\032\112\111\114\116\097\108\032\101\032\114\101\116\111\109\097\114\032\102\097\114\109',
+'\070\117\108\108\032\098\097\103\058\032\112\111\114\116\097\108\032\097\110\100\032\114\101\115\117\109\101\032\102\097\114\109\105\110\103')Q('\098\111\115\115','\080\114\105\111\114\105\122\097\114\032\098\111\115\115\101\115',
+'\080\114\105\111\114\105\116\105\122\101\032\098\111\115\115\101\115')Q('\097\098\105\108\105\116\105\101\115','\072\097\098\105\108\105\100\097\100\101\115\032\097\117\116\111\109\u{e1}\116\105\099\097\115',
+'\065\117\116\111\109\097\116\105\099\032\097\098\105\108\105\116\105\101\115')d=b.section('\067\097\114\116\097\115')Q('\111\112\101\110','\065\098\114\105\114\032\112\097\099\111\116\101\115','\079\112\101\110\032\112\097\099\107\115'
+)Q('\101\113\117\105\112','\069\113\117\105\112\097\114\032\109\101\108\104\111\114\032\099\097\114\116\097','\069\113\117\105\112\032\098\101\115\116\032\099\097\114\100')Q('\112\108\097\099\101',
+'\077\101\108\104\111\114\101\115\032\099\097\114\116\097\115\032\110\097\032\098\097\115\101','\066\101\115\116\032\099\097\114\100\115\032\111\110\032\098\097\115\101')Q('\102\117\115\101','\070\117\110\100\105\114\032\099\097\114\116\097\115',
+'\070\117\115\101\032\099\097\114\100\115')Q('\116\114\101\101','\067\111\109\112\114\097\114\032\110\u{f3}\115\032\100\097\032\u{e1}\114\118\111\114\101','\066\117\121\032\115\107\105\108\108\032\116\114\101\101\032\110\111\100\101\115')
+Q('\117\112\103\114\097\100\101\115','\085\112\103\114\097\100\101\115\032\099\111\109\032\100\105\110\104\101\105\114\111\032\100\111\032\106\111\103\111','\085\112\103\114\097\100\101\115\032\119\105\116\104\032\103\097\109\101\032\099\097\115\104')Q(
+'\115\097\099\114\105\102\105\099\101','\083\097\099\114\105\102\105\099\097\114\032\099\097\114\116\097\115\032\101\120\099\101\100\101\110\116\101\115',
+'\083\097\099\114\105\102\105\099\101\032\115\112\097\114\101\115\032\097\099\099\111\114\100\105\110\103\032\116\111\032\083\101\116\116\105\110\103\115')r(e(
+'\083\097\099\114\105\102\u{ed}\099\105\111\032\112\114\101\115\101\114\118\097\032\099\097\114\116\097\115\032\101\113\117\105\112\097\100\097\115\044\032\112\111\115\105\099\105\111\110\097\100\097\115\044\032\112\114\111\116\101\103\105\100\097\115\032\101\032\097\032\114\101\115\101\114\118\097\046\032\068\101\115\108\105\103\097\100\111\032\112\111\114\032\112\097\100\114\u{e3}\111\046'
+,
+"\083\097\099\114\105\102\105\099\101\032\112\114\101\115\101\114\118\101\115\032\101\113\117\105\112\112\101\100\044\032\112\108\097\099\101\100\044\032\112\114\111\116\101\099\116\101\100\032\099\097\114\100\115\032\097\110\100\032\116\104\101\032\114\101\115\101\114\118\101\046\032\079\102\102\032\098\121\032\100\101\102\097\117\108\116\046"
+),54)d=b.section('\067\111\109\098\097\116\101')Q('\098\111\111\115\116','\068\097\110\111\032\078\080\067\032\108\111\099\097\108\032\097\109\112\108\105\097\100\111\032\040\101\120\112\101\114\105\109\101\110\116\097\108\041',
+'\066\111\111\115\116\032\108\111\099\097\108\032\078\080\067\032\100\097\109\097\103\101\032\040\101\120\112\101\114\105\109\101\110\116\097\108\041')Q('\103\117\097\114\100',
+'\066\108\111\113\117\101\097\114\032\100\097\110\111\032\108\111\099\097\108\032\040\101\120\112\101\114\105\109\101\110\116\097\108\041','\066\108\111\099\107\032\108\111\099\097\108\032\100\097\109\097\103\101\032\040\101\120\112\101\114\105\109\101\110\116\097\108\041')Q(
+'\115\116\117\110','\066\108\111\113\117\101\097\114\032\115\116\117\110\032\108\111\099\097\108\032\040\101\120\112\101\114\105\109\101\110\116\097\108\041','\066\108\111\099\107\032\108\111\099\097\108\032\115\116\117\110\032\040\101\120\112\101\114\105\109\101\110\116\097\108\041')r(
+e(
+"\078\097\111\032\103\097\114\097\110\116\101\032\105\109\117\110\105\100\097\100\101\032\110\111\032\115\101\114\118\105\100\111\114\046\032\077\117\108\116\105\112\108\105\099\097\100\111\114\032\097\116\117\097\032\101\109\032\078\080\067\115\032\109\097\114\099\097\100\111\115\032\076\111\099\097\108\046"
+,"\068\111\101\115\032\110\111\116\032\103\117\097\114\097\110\116\101\101\032\115\101\114\118\101\114\032\105\109\109\117\110\105\116\121\046\032\077\117\108\116\105\112\108\105\101\114\032\097\102\102\101\099\116\115\032\078\080\067\115\032\109\097\114\107\101\100\032\076\111\099\097\108\046"),
+42)r(e('\070\097\114\109\032\117\115\097\032\116\101\108\101\112\111\114\116\101\032\097\116\u{e9}\032\111\032\097\108\118\111\032\115\101\108\101\099\105\111\110\097\100\111\046',
+'\070\097\114\109\032\116\101\108\101\112\111\114\116\115\032\116\111\032\116\104\101\032\115\101\108\101\099\116\101\100\032\116\097\114\103\101\116\046'),36)d=b.section('\065\106\117\115\116\101\115')local
+function R(S,T,U)r(T,28)q=q+1 local V=c.label(d,'\084\101\120\116\066\111\120',tostring(w[S]),38,q)V.
+TextEditable=true V.ClearTextOnFocus=false z(V.FocusLost,function()local W=U(V.
+Text)if W~=nil then w[S]=W y()end V.Text=tostring(w[S])end)end R('\109\117\108\116\105\112\108\105\101\114',e(
+'\077\117\108\116\105\112\108\105\099\097\100\111\114\032\040\049\032\097\116\101\032\049\048\048\048\048\048\048\048\048\048\048\048\048\041','\077\117\108\116\105\112\108\105\101\114\032\040\049\032\116\111\032\049\048\048\048\048\048\048\048\048\048\048\048\048\041'),
+function(S)local T=tonumber(S)if T and T==T and T<math.huge then return math.
+clamp(T,1,1e12)end end)R('\114\101\115\101\114\118\101',e('\067\111\112\105\097\115\032\114\101\115\101\114\118\097\100\097\115\032\112\111\114\032\099\097\114\116\097',
+'\082\101\115\101\114\118\101\100\032\099\111\112\105\101\115\032\112\101\114\032\099\097\114\100'),function(S)local T=tonumber(S)if T and T==T and T<
+math.huge then return math.clamp(math.floor(T),1,1000)end end)R('\112\114\111\116\101\099\116\101\100',e(
+'\073\068\115\032\100\101\032\099\097\114\116\097\115\032\112\114\111\116\101\103\105\100\097\115\044\032\115\101\112\097\114\097\100\111\115\032\112\111\114\032\118\105\114\103\117\108\097',
+'\080\114\111\116\101\099\116\101\100\032\099\097\114\100\032\073\068\115\044\032\099\111\109\109\097\032\115\101\112\097\114\097\116\101\100'),function(S)return S:sub(1,2000)end)r(e(
+'\082\097\114\105\100\097\100\101\115\032\112\101\114\109\105\116\105\100\097\115\032\110\111\032\115\097\099\114\105\102\u{ed}\099\105\111',
+'\065\108\108\111\119\101\100\032\115\097\099\114\105\102\105\099\101\032\114\097\114\105\116\105\101\115\032\040\105\110\100\105\118\105\100\117\097\108\032\115\101\108\101\099\116\105\111\110\041'),42)local S={Common='\067\111\109\117\109',
+Uncommon='\073\110\099\111\109\117\109',Rare='\082\097\114\097',Epic='\u{c9}\112\105\099\097',Legendary='\076\101\110\100\u{e1}\114\105\097',
+Mythic='\077\u{ed}\116\105\099\097',God='\068\105\118\105\110\097',Secret='\083\101\099\114\101\116\097',Cosmic='\067\u{f3}\115\109\105\099\097',Ancient
+='\065\110\099\101\115\116\114\097\108'}for T,U in ipairs(B.Cards.RarityOrder)do q=q+1 local V,W=c.
+checkbox(d,e(S[U]or U,U),q)local function X()W(w.rarities[U]==true)end X()z(V.
+Activated,function()w.rarities[U]=not w.rarities[U]y()X()end)end R('\098\114\097\110\099\104',e(
+'\082\097\109\111\058\032\067\097\115\104\044\032\076\117\099\107\044\032\080\111\119\101\114\044\032\083\112\101\101\100\032\111\117\032\066\111\115\115',
+'\066\114\097\110\099\104\058\032\067\097\115\104\044\032\076\117\099\107\044\032\080\111\119\101\114\044\032\083\112\101\101\100\032\111\114\032\066\111\115\115'),function(T)return table.find({'\067\097\115\104'
+,'\076\117\099\107','\080\111\119\101\114','\083\112\101\101\100','\066\111\115\115'},T)and T or nil end)local function T()local U={}
+for V in w.protected:gmatch('\091\094\044\093\043')do U[V:match('\094\037\115\042\040\046\045\041\037\115\042\036')]=true end
+return U end local U={}local V=f:FindFirstChild('\069\110\101\109\121\080\097\100\115')if V then for W,X in
+ipairs(V:GetChildren())do local Y=X:GetAttributes()U[#U+1]={id=tonumber(X.Name),
+level=Y.Level or 1,gate=Y.Gate,enemy=Y.Enemy,name=Y.Name or Y.Enemy,respawn=Y.
+RespawnTime or 90,cf=Y.PadCFrame,minZ=Y.ZoneMinZ,maxZ=Y.ZoneMaxZ}end end table.
+sort(U,function(W,X)return W.level<X.level end)local W={}for X,Y in ipairs(U)do
+W[Y.id]=Y end local X=d d=b.section('\070\097\114\109')local Y=r('',54)local function Z(_,aa
+,ab)q=q+1 local ac=c.button(d,'',q)q=q+1 local ad=Instance.new('\083\099\114\111\108\108\105\110\103\070\114\097\109\101')
+ad.Size=UDim2.new(1,-8,0,160)ad.LayoutOrder=q ad.Visible=false ad.
+BackgroundTransparency=1 ad.ScrollBarThickness=5 ad.CanvasSize=UDim2.new()ad.
+AutomaticCanvasSize=Enum.AutomaticSize.Y ad.Parent=d local ae=Instance.new(
+'\085\073\076\105\115\116\076\097\121\111\117\116')ae.Padding=UDim.new(0,4)ae.SortOrder=Enum.SortOrder.LayoutOrder
+ae.Parent=ad local function af()local ag=e('\083\101\108\101\099\105\111\110\101','\083\101\108\101\099\116')for ah,ai in
+ipairs(ab)do if ai.id==w[aa]then ag=ai.text end end ac.Text=_..'\058\032'..ag..
+'\032\u{25bc}'end for ag,ah in ipairs(ab)do local ai=c.button(ad,ah.text,ag)z(ai.
+Activated,function()w[aa]=ah.id ad.Visible=false y()af()end)end z(ac.Activated,
+function()ad.Visible=not ad.Visible end)af()end Z(e('\077\111\100\111\032\100\101\032\102\097\114\109','\070\097\114\109\032\109\111\100\101'),
+'\102\097\114\109\077\111\100\101',{{id='\065\117\116\111',text=e('\080\114\111\103\114\101\115\115\u{e3}\111\032\097\117\116\111\109\u{e1}\116\105\099\097',
+'\065\117\116\111\109\097\116\105\099\032\112\114\111\103\114\101\115\115\105\111\110')},{id='\066\111\115\115',text=e('\066\111\115\115\032\101\115\099\111\108\104\105\100\111','\083\101\108\101\099\116\101\100\032\098\111\115\115')},{
+id='\078\080\067',text=e('\u{c1}\114\101\097\032\100\101\032\078\080\067\115\032\101\115\099\111\108\104\105\100\097','\083\101\108\101\099\116\101\100\032\078\080\067\032\097\114\101\097')},{id='\077\105\120\101\100',
+text=e('\078\080\067\115\032\043\032\066\111\115\115\032\040\112\114\105\111\114\105\100\097\100\101\032\097\111\032\098\111\115\115\041','\078\080\067\115\032\043\032\066\111\115\115\032\040\098\111\115\115\032\112\114\105\111\114\105\116\121\041')}})local
+aa,ab,ac={},{},{}for ad,ae in ipairs(U)do local af={id=ae.id,text=a.displayName(
+ae.name)..'\032\u{b7}\032\076\118\032'..ae.level..'\032\u{b7}\032'..ae.respawn..'\115'}if ae.gate then
+aa[#aa+1]=af else local ag for ah,ai in ipairs(ac)do if a.sameArea(ae,ai)then ag
+=ai break end end if ag then if w.npcId==ae.id then w.npcId=ag.id end else ac[#
+ac+1]=ae local ah=0 for ai,_ in ipairs(U)do if a.sameArea(ae,_)then ah+=1 end
+end af.text=a.displayName(ae.name)..e('\032\u{b7}\032\u{c1}\114\101\097\032\099\111\109\112\108\101\116\097\032\u{b7}\032',
+'\032\u{b7}\032\070\117\108\108\032\097\114\101\097\032\u{b7}\032')..ah..e('\032\112\111\110\116\111\115','\032\115\112\097\119\110\032\112\111\105\110\116\115')ab[#ab+1]=af end
+end end Z('\066\111\115\115','\098\111\115\115\073\100',aa)Z(e('\u{c1}\114\101\097\032\100\101\032\078\080\067\115','\078\080\067\032\097\114\101\097'),'\110\112\099\073\100',ab)r(e(
+"\078\080\067\115\032\043\032\066\111\115\115\058\032\102\097\114\109\097\032\097\032\097\114\101\097\032\101\115\099\111\108\104\105\100\097\032\110\097\032\101\115\112\101\114\097\032\101\032\118\111\108\116\097\032\097\111\032\098\111\115\115\032\113\117\097\110\100\111\032\101\108\101\032\097\112\097\114\101\099\101\046\032\086\101\114\105\102\105\099\097\032\112\101\114\105\111\100\105\099\097\109\101\110\116\101\032\097\032\097\114\101\110\097\032\115\101\032\111\032\098\111\115\115\032\101\115\116\105\118\101\114\032\102\111\114\097\032\100\111\032\115\116\114\101\097\109\105\110\103\046"
+,
+"\078\080\067\115\032\043\032\066\111\115\115\058\032\102\097\114\109\115\032\116\104\101\032\115\101\108\101\099\116\101\100\032\097\114\101\097\032\119\104\105\108\101\032\119\097\105\116\105\110\103\044\032\116\104\101\110\032\115\119\105\116\099\104\101\115\032\116\111\032\116\104\101\032\098\111\115\115\046\032\080\101\114\105\111\100\105\099\097\108\108\121\032\099\104\101\099\107\115\032\116\104\101\032\097\114\101\110\097\032\119\104\101\110\032\116\104\101\032\098\111\115\115\032\105\115\032\111\117\116\115\105\100\101\032\115\116\114\101\097\109\105\110\103\032\114\097\110\103\101\046"
+),70)r(e(
+'\069\115\099\111\108\104\101\114\032\111\032\097\108\118\111\032\110\097\111\032\108\105\103\097\032\111\032\102\097\114\109\046\032\065\116\105\118\101\032\070\097\114\109\032\111\117\032\080\114\111\103\114\101\115\115\u{e3}\111\032\097\117\116\111\109\u{e1}\116\105\099\097\032\097\099\105\109\097\046'
+,
+"\083\101\108\101\099\116\105\110\103\032\097\032\116\097\114\103\101\116\032\100\111\101\115\032\110\111\116\032\115\116\097\114\116\032\102\097\114\109\105\110\103\046\032\069\110\097\098\108\101\032\070\097\114\109\032\111\114\032\065\117\116\111\032\112\114\111\103\114\101\115\115\105\111\110\032\097\098\111\118\101\046"
+),46)d=X local ad=workspace:FindFirstChild('\069\110\101\109\105\101\115')local ae=setmetatable({},{
+__mode='\107'})local af={}local ag local ah=setmetatable({},{__mode='\107'})local
+function ai(_)if ae[_]then return end local aj=_:FindFirstChildOfClass(
+'\072\117\109\097\110\111\105\100')if not aj then return end ae[_]=true local ak={}n[_]=ak ak[#ak+1]=aj.
+Died:Connect(function()local al=W[_:GetAttribute('\080\097\100\073\100')]if al and al.gate then
+af[al.id]=os.clock()+al.respawn end if ag then ag()end end)ak[#ak+1]=_.
+AncestryChanged:Connect(function()if _.Parent~=ad then for al,am in ipairs(ak)do
+am:Disconnect()end n[_]=nil ae[_]=nil end end)if _:GetAttribute('\066\111\115\115')==true
+then af[_:GetAttribute('\080\097\100\073\100')]=nil end end local aj=false local ak={}local
+function al(am,...)if not k or aj or os.clock()<(ak[am]or 0)then return nil end
+local _=I:FindFirstChild(am)if not _ or not _:IsA('\082\101\109\111\116\101\070\117\110\099\116\105\111\110')then v(e(
+'\082\101\109\111\116\101\070\117\110\099\116\105\111\110\032\097\117\115\101\110\116\101\058\032','\077\105\115\115\105\110\103\032\082\101\109\111\116\101\070\117\110\099\116\105\111\110\058\032')..am)return nil end aj=
+true local an=table.pack(...)local ao,ap=false,nil task.spawn(function()ap=table
+.pack(pcall(_.InvokeServer,_,table.unpack(an,1,an.n)))ao=true aj=false end)local
+aq=os.clock()while k and not ao and os.clock()-aq<10 do task.wait(0.1)end if not
+k then return nil end if not ao then v(am..e(
+'\058\032\097\103\117\097\114\100\097\110\100\111\032\115\101\114\118\105\100\111\114\059\032\115\101\109\032\114\101\112\101\116\105\099\097\111\032\099\111\110\099\111\114\114\101\110\116\101',
+'\058\032\119\097\105\116\105\110\103\032\102\111\114\032\115\101\114\118\101\114\059\032\110\111\032\099\111\110\099\117\114\114\101\110\116\032\114\101\116\114\121'))ak[am]=os.clock()+15 return nil end
+if not ap[1]or ap[2]==false then v(am..'\058\032'..tostring(ap[3]or ap[2]))ak[am]=os.
+clock()+8 return nil end v(am..e('\058\032\114\101\115\112\111\115\116\097\032\114\101\099\101\098\105\100\097','\058\032\114\101\115\112\111\110\115\101\032\114\101\099\101\105\118\101\100'))
+return table.unpack(ap,2,ap.n)end local am={}am[1]=function(an)if not w.open or
+B.Opening.Playing then return end for ao,ap in pairs(an.Packs or{})do if type(ap
+)=='\110\117\109\098\101\114'and ap>0 then local aq=math.min(ap,B.Packs.MaxOpenAtOnce or 1)local _
+={}for ar,as in pairs(an.Cards or{})do _[ar]=as.Level end local ar=al('\079\112\101\110\080\097\099\107'
+,ao,aq)if k and type(ar)=='\116\097\098\108\101'then B.Opening.Play(ao,function()return ar end,
+_,nil,aq)end return end end end am[2]=function(an)if not w.fuse then return end
+local ao=T()for ap,aq in pairs(an.Cards or{})do if not ao[ap]and not aq.Favorite
+and not aq.Locked and B.Stats.Fuse(aq)then al('\070\117\115\101',ap)return end end end am[3]
+=function(an)if not w.equip then return end local ao=B.Stats.Best(an.Cards,
+function(ao)return B.Base.SlotOf(an,ao)~=nil end)if not a.sameList(ao,an.
+Equipped or{})then al('\069\113\117\105\112\066\101\115\116')end end am[4]=function(an)if not w.place or
+not an.Base then return end local ao,ap=B.Base.BestHolders(an)if ap then for aq,
+ar in pairs(ao)do if an.Base.Holders[aq]~=ar then al('\066\097\115\101\080\108\097\099\101',tonumber(aq),ar
+)return end end end end am[5]=function(an)if not w.tree then return end if not B
+.Shrine.Open(an)then v(e('\065\114\118\111\114\101\032\098\108\111\113\117\101\097\100\097\058\032\100\101\114\114\111\116\101\032\068\111\109\105\110\117\115\032\073\110\102\101\114\110\117\115\032\040\086\111\108\099\097\110\111\041\046'
+,'\084\114\101\101\032\108\111\099\107\101\100\058\032\100\101\102\101\097\116\032\068\111\109\105\110\117\115\032\073\110\102\101\114\110\117\115\032\040\086\111\108\099\097\110\111\041\046'))return end local ao={}for ap
+,aq in pairs(B.Shrine.Tree or{})do if aq.Branch==w.branch and not B.Shrine.
+CantBuy(an,aq.Id)then ao[#ao+1]=aq end end table.sort(ao,function(ap,aq)return
+ap.Cost==aq.Cost and ap.Id<aq.Id or ap.Cost<aq.Cost end)if ao[1]then al(
+'\084\114\101\101\066\117\121',ao[1].Id)else local ap=e('\078\101\110\104\117\109\032\110\111\032\101\108\101\103\105\118\101\108\032\110\111\032\114\097\109\111\032',
+'\078\111\032\101\108\105\103\105\098\108\101\032\110\111\100\101\032\105\110\032\098\114\097\110\099\104\032')..w.branch for aq,ar in pairs(B.Shrine.Tree or{})
+do if ar.Branch==w.branch and not B.Shrine.Owns(an,ar.Id)then ap=tostring(B.
+Shrine.CantBuy(an,ar.Id))break end end v(e('\065\114\118\111\114\101\058\032','\084\114\101\101\058\032')..ap)end end am[6
+]=function(an)if not w.sacrifice then return end if not B.Shrine.Open(an)then v(
+e('\083\097\099\114\105\102\105\099\105\111\032\098\108\111\113\117\101\097\100\111\058\032\100\101\114\114\111\116\101\032\068\111\109\105\110\117\115\032\073\110\102\101\114\110\117\115\032\040\086\111\108\099\097\110\111\041\046',
+'\083\097\099\114\105\102\105\099\101\032\108\111\099\107\101\100\058\032\100\101\102\101\097\116\032\068\111\109\105\110\117\115\032\073\110\102\101\114\110\117\115\032\040\086\111\108\099\097\110\111\041\046'))return end local ao=T()
+for ap in pairs(an.Cards or{})do local aq=B.Cards.ById[ap]local ar=aq and B.
+Cards.RarityRank[aq.Rarity]or 999 local as=a.sacrificeCount(an,ap,ao,w.reserve,
+ar,B.Shrine.Spare(an,ap),w.rarities[aq and aq.Rarity or'']==true and 999 or 0)if
+as>0 then al('\083\097\099\114\105\102\105\099\101',ap,as)return end end v(e(
+"\083\097\099\114\105\102\105\099\105\111\058\032\110\101\110\104\117\109\097\032\115\111\098\114\097\032\101\108\101\103\105\118\101\108\046\032\067\111\110\102\105\114\097\032\114\101\115\101\114\118\097\044\032\114\097\114\105\100\097\100\101\032\101\032\099\097\114\116\097\115\032\112\114\111\116\101\103\105\100\097\115\032\101\109\032\065\106\117\115\116\101\115\046"
+,
+"\083\097\099\114\105\102\105\099\101\058\032\110\111\032\101\108\105\103\105\098\108\101\032\115\112\097\114\101\115\046\032\067\104\101\099\107\032\114\101\115\101\114\118\101\044\032\114\097\114\105\116\121\032\097\110\100\032\112\114\111\116\101\099\116\101\100\032\099\097\114\100\115\032\105\110\032\083\101\116\116\105\110\103\115\046"
+))end am[7]=function(an)if not w.upgrades then return end local ao,ap for aq,ar
+in pairs(B.Progress.Upgrades or{})do local as=B.Progress.UpgradeLevel(an,ar.Id)
+if as<ar.MaxLevel then local _=B.Progress.UpgradePrice(an,ar.Id,as)if not B.Big.
+lt(an.Cash,_)and(not ap or B.Big.lt(_,ap))then ao=ar.Id ap=_ end end end if ao
+then al('\066\117\121\085\112\103\114\097\100\101',ao)end end local an=1 task.spawn(function()while k do local
+ao=H.Data if ao and not aj and not B.Opening.Playing then local ap,aq=pcall(am[
+an],ao)if not ap then v(aq)end an=an%#am+1 end task.wait(0.8)end end)local ao=1
+local ap=0 local aq,ar=0,0 local as,_,at=0,0,nil local function au(av,aw)aw=aw
+or w.npcId local ax=W[aw]local ay={}for az,aA in ipairs(U)do if a.sameArea(aA,ax
+)then ay[#ay+1]=aA end end if#ay==0 then return ax end if at~=aw then at=aw as=0
+_=0 end if av>=_ then as=as%#ay+1 _=av+8 end return ay[as]end local av=r('',60)
+av.LayoutOrder=799 local aw=a.carried(j:GetAttribute('\067\097\114\114\105\101\100\080\097\099\107\115'))local ax,ay
+,az=0,0,0 local aA,aB,aC,aD,aE=false,0,nil,0,''local function aF()local aG,aH=a.
+carried(j:GetAttribute('\067\097\114\114\105\101\100\080\097\099\107\115'))for aI in pairs(aG)do if not aw[aI]then
+aw[aI]=true ax+=1 end end az=aH end z(j:GetAttributeChangedSignal('\067\097\114\114\105\101\100\080\097\099\107\115'
+),aF)aF()local function aG(aH,aI,aJ)local aK=j:GetAttribute('\067\097\114\114\121\067\097\112\097\099\105\116\121')if
+type(aK)~='\110\117\109\098\101\114'or aK<1 then aK=B.Progress.CarryCapacity(aJ)end av.Text=e(
+'\080\097\099\111\116\101\115\032\099\111\108\101\116\097\100\111\115\058\032','\080\097\099\107\115\032\099\111\108\108\101\099\116\101\100\058\032')..ax..e('\032\u{b7}\032\077\111\099\104\105\108\097\058\032',
+'\032\u{b7}\032\066\097\103\058\032')..az..'\047'..aK..e('\032\u{b7}\032\086\105\097\103\101\110\115\058\032','\032\u{b7}\032\084\114\105\112\115\058\032')..ay..
+'\n'..aE if not w.returnFull or not(w.farm or w.boss)then aA=false aE=''return
+false end if not aH or not aI or aI.Health<=0 then aA=false return false end
+local aL=j:GetAttribute('\066\097\115\101\083\112\097\119\110')local aM=typeof(aL)=='\067\070\114\097\109\101'and(aH.Position
+-aL.Position).Magnitude<45 if aA then local aN=a.tripState(az,aM,os.clock()-aB)
+if aN=='\100\101\108\105\118\101\114\101\100'or aN=='\108\111\115\116'then aA=false if aM then ay+=1 aE=e(
+'\069\110\116\114\101\103\097\032\099\111\110\099\108\117\u{ed}\100\097\046\032\082\101\116\111\109\097\110\100\111\032\111\032\102\097\114\109\046',
+'\068\101\108\105\118\101\114\121\032\099\111\109\112\108\101\116\101\046\032\082\101\115\117\109\105\110\103\032\102\097\114\109\105\110\103\046')if aC then aH.CFrame=aC end aq=0 _=0 else
+aE=e('\077\111\099\104\105\108\097\032\118\097\122\105\097\032\102\111\114\097\032\100\097\032\098\097\115\101\059\032\118\105\097\103\101\109\032\110\u{e3}\111\032\099\111\110\116\097\098\105\108\105\122\097\100\097\046',
+'\066\097\103\032\101\109\112\116\105\101\100\032\097\119\097\121\032\102\114\111\109\032\104\111\109\101\059\032\116\114\105\112\032\110\111\116\032\099\111\117\110\116\101\100\046')end return true end if aN==
+'\116\105\109\101\111\117\116'then aA=false aD=os.clock()+5 aE=e(
+'\069\110\116\114\101\103\097\032\110\u{e3}\111\032\099\111\110\102\105\114\109\097\100\097\046\032\084\101\110\116\097\110\100\111\032\111\032\112\111\114\116\097\108\032\110\111\118\097\109\101\110\116\101\046',
+'\068\101\108\105\118\101\114\121\032\110\111\116\032\099\111\110\102\105\114\109\101\100\046\032\082\101\116\114\121\105\110\103\032\116\104\101\032\112\111\114\116\097\108\046')end return true end if az<aK then
+return false end if os.clock()<aD then return true end aD=os.clock()+3 local aN=
+workspace:FindFirstChild('\066\111\115\115\080\111\114\116\097\108\115')local aO,aP,aQ=nil,nil,math.huge if aN
+then for aR,aS in ipairs(aN:GetDescendants())do if aS:IsA('\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116')and
+aS.Name=='\080\111\114\116\097\108\080\114\111\109\112\116'and aS.Enabled then local aT=aS.Parent local aU=aT:IsA(
+'\065\116\116\097\099\104\109\101\110\116')and aT.WorldCFrame or aT:IsA('\066\097\115\101\080\097\114\116')and aT.CFrame if aU then
+local aV=(aH.Position-aU.Position).Magnitude if aV<aQ then aO=aS aP=aU aQ=aV end
+end end end end if not aO then aE=e(
+'\077\111\099\104\105\108\097\032\099\104\101\105\097\046\032\065\103\117\097\114\100\097\110\100\111\032\117\109\032\112\111\114\116\097\108\032\100\105\115\112\111\110\u{ed}\118\101\108\046',
+'\066\097\103\032\102\117\108\108\046\032\087\097\105\116\105\110\103\032\102\111\114\032\097\110\032\097\118\097\105\108\097\098\108\101\032\112\111\114\116\097\108\046')return false end aC=aH.CFrame aB=os
+.clock()aA=true aH.CFrame=aP+Vector3.new(0,0,3)aE=e(
+'\082\101\116\111\114\110\097\110\100\111\032\112\101\108\111\032\112\111\114\116\097\108\059\032\097\103\117\097\114\100\097\110\100\111\032\099\111\110\102\105\114\109\097\u{e7}\u{e3}\111\032\100\097\032\101\110\116\114\101\103\097\046',
+"\082\101\116\117\114\110\105\110\103\032\116\104\114\111\117\103\104\032\116\104\101\032\112\111\114\116\097\108\059\032\119\097\105\116\105\110\103\032\102\111\114\032\100\101\108\105\118\101\114\121\032\099\111\110\102\105\114\109\097\116\105\111\110\046")task.spawn(
+function()task.wait(0.3)if not k or not aA or not w.returnFull or not aO.Parent
+then return end if type(fireproximityprompt)=='\102\117\110\099\116\105\111\110'then pcall(
+fireproximityprompt,aO)else aO:InputHoldBegin()task.wait(aO.HoldDuration+0.1)if
+aO.Parent then aO:InputHoldEnd()end end end)return true end local function aH()
+local aI=H.Data if not aI then v(e('\065\103\117\097\114\100\097\110\100\111\032\100\097\100\111\115\032\114\101\112\108\105\099\097\100\111\115\046\046\046',
+'\087\097\105\116\105\110\103\032\102\111\114\032\114\101\112\108\105\099\097\116\101\100\032\100\097\116\097\046\046\046'))return end ad=workspace:FindFirstChild(
+'\069\110\101\109\105\101\115')local aJ=ad and ad:GetChildren()or{}local aK={}local aL=a.nextBoss(U,
+aI.Gates or{})local aM=j.Character local aN=aM and aM:FindFirstChild(
+'\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')local aO=aM and aM:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')if aG(aN,
+aO,aI)then return end local aP=B.Power.Level(aI.Power or 0)local aQ if w.
+farmMode=='\065\117\116\111'and w.farm then for aR,aS in ipairs(U)do if not aS.gate and aS.
+level<=aP then aQ=aS end end end local aR=(w.farmMode=='\078\080\067'or w.farmMode==
+'\077\105\120\101\100')and au(os.clock())or aQ and au(os.clock(),aQ.id)local aS,aT,aU,aV=nil,
+false,false,math.huge local aW={}for aX,aY in ipairs(aJ)do ai(aY)local aZ=aY:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local a_=aY:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')
+if aZ and aZ.Health>0 and a_ then local a0=aY:GetAttribute('\080\097\100\073\100')if a0 then aW
+[a0]=true end if aN then local a1=aY:GetAttribute('\066\111\115\115')==true local a2=aY:
+GetAttribute('\076\101\118\101\108')or 1 local a3=w.boost or a2<=aP if w.farmMode~='\065\117\116\111'then
+a3=a.manualEligible(w.farmMode,a1,a0,w.bossId,w.npcId)or(not a1 and(w.farmMode==
+'\078\080\067'or w.farmMode=='\077\105\120\101\100')and a.sameArea(W[a0],W[w.npcId]))elseif w.progress
+and a1 then a3=a3 and aL and a0==aL.id end if a3 and(w.farm or(w.boss and(a1 or
+w.farmMode=='\077\105\120\101\100')))then local a4=(aN.Position-a_.Position).Magnitude local a5
+=os.clock()-(ah[aY]or-10)<1 if a5 then a4-=2000000 end if aR and not a1 and a0~=
+aR.id then a4+=1000000 end if(w.boss or w.farmMode=='\077\105\120\101\100')and a1 then a4=a4-
+1000000000 end if a4<aV then aV=a4 aS=a_ aT=a1 aU=a5 end end end end end for aX,
+aY in ipairs(U)do if aY.gate then local aZ=aW[aY.id]and e('\086\073\086\079','\065\076\073\086\069')or(af[
+aY.id]and(math.ceil(math.max(0,af[aY.id]-os.clock()))..e('\115\032\101\115\116\105\109\097\100\111\115',
+'\115\032\101\115\116\105\109\097\116\101\100'))or e('\110\u{e3}\111\032\111\098\115\101\114\118\097\100\111','\110\111\116\032\111\098\115\101\114\118\101\100'))aK[#aK+1]=a.
+displayName(aY.enemy)..'\058\032'..aZ end end t.Text=table.concat(aK,'\032\124\032')local aX=(w
+.farmMode=='\066\111\115\115'or w.farmMode=='\077\105\120\101\100'and aW[w.bossId])and W[w.bossId]or(w.
+farmMode=='\078\080\067'or w.farmMode=='\077\105\120\101\100')and W[w.npcId]or aL local aY=w.farmMode==
+'\077\105\120\101\100'and'\078\080\067\115\032\043\032\066\111\115\115'or w.farmMode Y.Text=aY..'\032\u{b7}\032'..(aX and a.
+displayName(aX.name)or e('\083\101\109\032\097\108\118\111','\078\111\032\116\097\114\103\101\116'))..'\032\u{b7}\032'..(aS and e(
+'\065\108\118\111\032\101\110\099\111\110\116\114\097\100\111','\084\097\114\103\101\116\032\102\111\117\110\100')or e(
+'\065\103\117\097\114\100\097\110\100\111\032\115\112\097\119\110\047\115\116\114\101\097\109\105\110\103\032\111\117\032\108\105\098\101\114\097\099\097\111\032\100\097\032\097\114\101\097',
+'\087\097\105\116\105\110\103\032\102\111\114\032\115\112\097\119\110\047\115\116\114\101\097\109\105\110\103\032\111\114\032\097\114\101\097\032\117\110\108\111\099\107'))if not(aN and aO and aO.Health>0)
+or B.Opening.Playing then return end if w.farm or w.boss then if w.farmMode==
+'\077\105\120\101\100'and not aW[w.bossId]then local aZ=W[w.bossId]local a_=os.clock()if aZ and
+typeof(aZ.cf)=='\067\070\114\097\109\101'and a_>=aq and a_>=(af[w.bossId]or 0)then aq=a_+20 ar=a_+
+2 aN.CFrame=aZ.cf+Vector3.new(0,4,0)end if a_<ar then Y.Text=e(
+'\086\101\114\105\102\105\099\097\110\100\111\032\115\112\097\119\110\032\100\111\032\098\111\115\115\046\046\046','\067\104\101\099\107\105\110\103\032\098\111\115\115\032\115\112\097\119\110\046\046\046')return end end if aR and
+not aT and not aU and not aW[aR.id]and not(w.farmMode=='\077\105\120\101\100'and aW[w.bossId])
+and typeof(aR.cf)=='\067\070\114\097\109\101'then local aZ=aR.cf+Vector3.new(0,4,0)if(aN.Position-
+aZ.Position).Magnitude>15 then aN.CFrame=aZ end return end if aS then local aZ=
+aN.Position-aS.Position if aZ.Magnitude>10 then local a_=aS.Position+(aZ.
+Magnitude>0 and aZ.Unit or Vector3.new(0,0,1))*7 aN.CFrame=CFrame.lookAt(a_,aS.
+Position)end else local aZ=w.farmMode=='\066\111\115\115'and W[w.bossId]or(w.farmMode=='\078\080\067'
+or w.farmMode=='\077\105\120\101\100')and W[w.npcId]or w.progress and aL if aR then aZ=aR end
+if aZ and typeof(aZ.cf)=='\067\070\114\097\109\101'and(w.farmMode~='\065\117\116\111'or w.boost or aZ.level<=
+aP)then local a_=aZ.cf.Position+Vector3.new(0,4,0)if(aN.Position-a_).Magnitude>
+15 then aN.CFrame=CFrame.new(a_)end end end end if w.abilities and aS and os.
+clock()-ap>0.6 and not i:GetFocusedTextBox()then ap=os.clock()local aZ=B.Ability
+.Loadout(aI)if#aZ>0 then ao=(ao-1)%#aZ+1 local a_=B.Ability.Keys[ao]if a_ then
+local a0=game:GetService('\086\105\114\116\117\097\108\073\110\112\117\116\077\097\110\097\103\101\114')a0:SendKeyEvent(true,a_,false,
+game)a0:SendKeyEvent(false,a_,false,game)end ao=ao+1 end end end local aI,aJ,aK=
+false,false,-1 ag=function()if not k or aI then return end aI=true task.delay(
+math.max(0,0.05-(os.clock()-aK)),function()aI=false if not k then return end if
+aJ then ag()return end aJ=true aK=os.clock()local aL,aM=pcall(aH)aJ=false if not
+aL then v(aM)end end)end local aL,aM local function aN(aO)if aL==aO then return
+end if aM then aM:Disconnect()end aL=aO if not aO then return end aM=aO.
+DescendantAdded:Connect(function(aP)local aQ=aP while aQ and aQ.Parent~=aO do aQ
+=aQ.Parent end if aQ and(aP==aQ or aP.Name=='\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116'or aP:IsA(
+'\072\117\109\097\110\111\105\100'))and aQ:IsA('\077\111\100\101\108')and aQ:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')and aQ:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')then ah[aQ]=os.clock()ag()end end)l[#l+1]=aM
+end aN(ad)z(workspace.ChildAdded,function(aO)if aO.Name=='\069\110\101\109\105\101\115'then aN(aO)ag(
+)end end)task.spawn(function()while k do ag()task.wait(0.15)end end)q=q+1 local
+aO=c.button(d,e('\080\097\114\097\114\032\116\111\100\097\115\032\097\115\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115','\083\116\111\112\032\097\108\108\032\097\117\116\111\109\097\116\105\111\110'),q)
+z(aO.Activated,function()for aP,aQ in pairs(w)do if type(aQ)=='\098\111\111\108\101\097\110'then w[aP
+]=false end end pcall(L,J)for aP,aQ in ipairs(P)do aQ()end v(e(
+'\065\117\116\111\109\097\u{e7}\u{f5}\101\115\032\112\097\114\097\100\097\115\046','\065\117\116\111\109\097\116\105\111\110\032\115\116\111\112\112\101\100\046'))end)q=q+1 local aP=c.
+button(d,e('\069\120\112\111\114\116\097\114\032\100\105\097\103\110\u{f3}\115\116\105\099\111\032\100\101\032\116\101\115\116\101','\069\120\112\111\114\116\032\116\101\115\116\032\100\105\097\103\110\111\115\116\105\099\115'),q)z(
+aP.Activated,function()if type(writefile)=='\102\117\110\099\116\105\111\110'then local aQ=
+'\065\110\111\110\072\117\098\095\083\117\112\101\114\112\111\119\101\114\095\084\101\115\116\095'..os.time()..'\046\106\115\111\110'local aR,aS=pcall(writefile,aQ,h:
+JSONEncode({placeId=game.PlaceId,version=game.PlaceVersion,log=u,config=w,
+patches=N,pending=aj}))v(aR and aQ or tostring(aS))end end)v(e(
+'\080\114\111\110\116\111\032\112\097\114\097\032\116\101\115\116\101\046\032\065\117\116\111\109\097\u{e7}\u{f5}\101\115\032\100\101\115\108\105\103\097\100\097\115\046',
+'\082\101\097\100\121\032\102\111\114\032\116\101\115\116\105\110\103\046\032\065\117\116\111\109\097\116\105\111\110\032\105\115\032\111\102\102\046'))return p end

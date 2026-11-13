@@ -1,0 +1,55 @@
+{
+  "version": "0.38.10",
+  "tool": "darklua 0.19.0",
+  "protection": "AST local renaming, dense formatting, decimal string escapes; not encryption",
+  "files": [
+    {
+      "file": "loader.lua",
+      "sourceSha256": "b22dee47567f09416c330a8373f9f0a4cf85cae11f4b2aa0f3cc2245659902d2",
+      "outputSha256": "0e5406403fc37cbc98fcea523453c1879390c4faeea6ae9dcab593c496f73c19",
+      "bytes": 650892,
+      "stringsEncoded": 5726,
+      "compilerEquivalence": true
+    },
+    {
+      "file": "superpower/main.lua",
+      "sourceSha256": "7bb5dd6addd2f443dc2ee8505f50452d3d905f03c5101f5bcc24b3640e0fe5f2",
+      "outputSha256": "c17f3340b40ee762bfb2ec223b65b054b734f71efbc88b3dfe14c40b194adb0c",
+      "bytes": 82212,
+      "stringsEncoded": 696,
+      "compilerEquivalence": true
+    },
+    {
+      "file": "potato/chapter2.lua",
+      "sourceSha256": "6f3e91ed0b7092694c7ac14dd99f4ce5eda8dec638f1c3d34d83b0f2754da5af",
+      "outputSha256": "2c1a606b57568bdb16644cfca7e8b6f023d01400a528bfdd4fb5dcbb0fb549e9",
+      "bytes": 446580,
+      "stringsEncoded": 3791,
+      "compilerEquivalence": true
+    },
+    {
+      "file": "universal/main.lua",
+      "sourceSha256": "16b9dd8b5691ab82d828487db75cb420647855b00ff0ea893d35f95f2d46919b",
+      "outputSha256": "9d0a829f382aff40a6032f0e6b5ab3619d4f047c933675d7474b31b013b6b0f6",
+      "bytes": 72433,
+      "stringsEncoded": 718,
+      "compilerEquivalence": true
+    },
+    {
+      "file": "superpower/module.lua",
+      "sourceSha256": "e2795869283034553760e0688f3a8ccc39c628819fee6683f949f3efc9475e54",
+      "outputSha256": "227a7d97e33d48deaaf44c72215d6b48403e922a79ebd7d25e4bd46ede2f9eef",
+      "bytes": 44839,
+      "stringsEncoded": 394,
+      "compilerEquivalence": true
+    },
+    {
+      "file": "superpower/test.lua",
+      "sourceSha256": "b22dee47567f09416c330a8373f9f0a4cf85cae11f4b2aa0f3cc2245659902d2",
+      "outputSha256": "0e5406403fc37cbc98fcea523453c1879390c4faeea6ae9dcab593c496f73c19",
+      "bytes": 650892,
+      "stringsEncoded": 5726,
+      "compilerEquivalence": true
+    }
+  ]
+}
