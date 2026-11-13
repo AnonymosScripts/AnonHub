@@ -1,7 +1,7 @@
 -- Luau
--- AnonHub protected distribution 0.38.10
--- local BOOT_VERSION="0.38.10"
-local a='\048\046\051\056\046\049\048'local b=...assert(type(b)=='\116\097\098\108\101'and b.access,
+-- AnonHub protected distribution 0.38.11
+-- local BOOT_VERSION="0.38.11"
+local a='\048\046\051\056\046\049\049'local b=...assert(type(b)=='\116\097\098\108\101'and b.access,
 '\065\098\114\097\032\112\101\108\111\032\108\111\097\100\101\114\032\097\117\116\101\110\116\105\099\097\100\111')local c=game:GetService('\080\108\097\121\101\114\115')local d=game:
 GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local e=game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local f=game
 :GetService('\084\119\101\101\110\083\101\114\118\105\099\101')local g=c.LocalPlayer local h,i={},{}local j,k local
@@ -156,84 +156,83 @@ label(Y,'\084\101\120\116\076\097\098\101\108',p('\084\069\076\065\032\069\032\0
 "\068\114\097\103\032\116\104\101\032\104\101\097\100\101\114\032\116\111\032\109\111\118\101\046\032\085\115\101\032\116\104\101\032\098\111\116\116\111\109\032\099\111\114\110\101\114\032\116\111\032\114\101\115\105\122\101\046\032\067\104\097\110\103\101\115\032\097\114\101\032\115\097\118\101\100\032\097\117\116\111\109\097\116\105\099\097\108\108\121\046"
 ),64,-9)for Z,_ in ipairs({{'\115\099\097\108\101','\069\115\099\097\108\097\032\100\097\032\105\110\116\101\114\102\097\099\101','\073\110\116\101\114\102\097\099\101\032\115\099\097\108\101',5,
 '\037'},{'\119\105\100\116\104','\076\097\114\103\117\114\097\032\100\111\032\112\097\105\110\101\108','\080\097\110\101\108\032\119\105\100\116\104',10,'\032\112\120'},{'\104\101\105\103\104\116',
-'\065\108\116\117\114\097\032\100\111\032\112\097\105\110\101\108','\080\097\110\101\108\032\104\101\105\103\104\116',10,'\032\112\120'},{'\108\097\117\110\099\104\101\114',
-'\084\097\109\097\110\104\111\032\100\111\032\098\111\116\u{e3}\111\032\065','\076\097\117\110\099\104\101\114\032\115\105\122\101',2,'\032\112\120'}})do local ab=_[1]local ac=q(
-'\070\114\097\109\101',{Size=UDim2.new(1,-8,0,76),BackgroundColor3=m.tile,LayoutOrder=-8+Z},Y)
-t(ac,10)u(ac)local ad=N.label(ac,'\084\101\120\116\076\097\098\101\108',p(_[2],_[3]),28,0)ad.Size=UDim2.
-new(1,0,0,28)local ae=N.button(ac,'\u{2212}',0)ae.Size=UDim2.fromOffset(42,36)ae
-.Position=UDim2.fromOffset(12,32)ae.TextXAlignment=Enum.TextXAlignment.Center
-local af=N.label(ac,'\084\101\120\116\066\111\120','',36,0)af.Position=UDim2.fromOffset(62,32)af.Size
-=UDim2.new(1,-124,0,36)af.TextXAlignment=Enum.TextXAlignment.Center local ag=N.
-button(ac,'\043',0)ag.Size=UDim2.fromOffset(42,36)ag.Position=UDim2.new(1,-54,0,32)
-ag.TextXAlignment=Enum.TextXAlignment.Center local function ah()af.Text=
-tostring(math.floor(S[ab])).._[5]end aa[#aa+1]=ah local function ai(aj)if aj and
-aj==aj then S[ab]=math.clamp(aj,T[ab][1],T[ab][2])W()U()end ah()end r(ae.
-Activated,function()ai(S[ab]-_[4])end)r(ag.Activated,function()ai(S[ab]+_[4])end
-)r(af.FocusLost,function()ai(tonumber(af.Text:match('\091\037\100\037\046\093\043')))end)ah()end
-local ab=N.button(Y,p('\067\101\110\116\114\097\108\105\122\097\114\032\101\032\114\101\115\116\097\117\114\097\114\032\116\097\109\097\110\104\111',
-'\067\101\110\116\101\114\032\097\110\100\032\114\101\115\116\111\114\101\032\115\105\122\101'),-3)r(ab.Activated,function()S=table.clone(R)W()U()for
-ac,ad in ipairs(aa)do ad()end end)end local ab=q('\084\101\120\116\066\117\116\116\111\110',{Text='\u{25e2}',
-TextSize=20,TextColor3=m.muted,BackgroundTransparency=1,Size=UDim2.fromOffset(30
-,30),Position=UDim2.new(1,-30,1,-30)},w)local ac local function ad(ae,af)if ae.
-UserInputType~=Enum.UserInputType.MouseButton1 and ae.UserInputType~=Enum.
-UserInputType.Touch then return end ac={input=ae,kind=af,origin=ae.Position,pos=
-w.Position,width=w.Size.X.Offset,height=w.Size.Y.Offset}end r(y.InputBegan,
-function(ae)ad(ae,'\109\111\118\101')end)r(ab.InputBegan,function(ae)ad(ae,'\114\101\115\105\122\101')end)r(d.
-InputChanged,function(ae)if not ac or(ae~=ac.input and ae.UserInputType~=Enum.
-UserInputType.MouseMovement)then return end local af=ae.Position-ac.origin local
-ag=v.AbsoluteSize if ac.kind=='\114\101\115\105\122\101'then S.width=math.clamp(ac.width+af.X/V.
-Scale,300,1100)S.height=math.clamp(ac.height+af.Y/V.Scale,340,900)else local ah=
-math.max(1,ag.X-16-w.Size.X.Offset*V.Scale)local ai=math.max(1,ag.Y-16-w.Size.Y.
-Offset*V.Scale)S.x=math.clamp((ac.pos.X.Offset+af.X-8)/ah,0,1)S.y=math.clamp((ac
-.pos.Y.Offset+af.Y-8)/ai,0,1)end W()end)r(d.InputEnded,function(ae)if ac and ae
-==ac.input then ac=nil U()for af,ag in ipairs(aa)do ag()end end end)local
-function ae()if not l then return end l=false if j then pcall(j)end for af,ag in
-ipairs(h)do ag:Disconnect()end v:Destroy()end b.attach(ae)local function af(ag)w
-.Visible=ag if ag then W()local ah=w.Position w.Position=ah+UDim2.fromOffset(0,8
-)s(w,{Position=ah})end end local ag=q('\084\101\120\116\066\117\116\116\111\110',{Text='\u{2014}',Size=UDim2.
-fromOffset(32,32),Position=UDim2.new(1,-76,0,16)},y)local ah=q('\084\101\120\116\066\117\116\116\111\110',{
-Text='\u{d7}',Size=UDim2.fromOffset(32,32),Position=UDim2.new(1,-38,0,16)},y)for
-ai,aj in ipairs({ag,ah})do aj.BackgroundColor3=m.tile aj.TextColor3=m.text aj.
-Font=Enum.Font.GothamMedium aj.TextSize=18 t(aj,8)end r(ag.Activated,function()
-af(false)end)r(ah.Activated,function()b.unload()end)local ai,aj,Y,Z,_ r(F.
-InputBegan,function(ak)if ak.UserInputType==Enum.UserInputType.MouseButton1 or
-ak.UserInputType==Enum.UserInputType.Touch then ai=ak aj=ak.Position Y=F.
-Position Z=os.clock()_=false end end)r(d.InputChanged,function(ak)if ai and(ak==
-ai or ak.UserInputType==Enum.UserInputType.MouseMovement)then local al=ak.
-Position-aj if al.Magnitude>8 then _=true end if _ then local am=v.AbsoluteSize
-local an=math.clamp(Y.X.Scale*am.X+Y.X.Offset+al.X,0,math.max(0,am.X-S.launcher)
-)local ao=math.clamp(Y.Y.Scale*am.Y+Y.Y.Offset+al.Y,0,math.max(0,am.Y-S.launcher
-))F.Position=UDim2.fromOffset(an,ao)end end end)r(d.InputEnded,function(ak)if ai
-and(ak==ai or ak.UserInputType==Enum.UserInputType.MouseButton1)then if not _
-then if os.clock()-Z>=0.65 then if k then k()end else af(not w.Visible)end end
-ai=nil end end)r(d.InputBegan,function(ak,al)if not al and ak.KeyCode==Enum.
-KeyCode.RightControl then af(not w.Visible)end end)local ak=os.clock()local al,
-am=false,false local function an()return al and(am or os.clock()-ak>=2.5)end
-local ao=q('\070\114\097\109\101',{Name='\076\111\097\100\105\110\103',Size=UDim2.fromScale(1,1),BackgroundColor3=m.
-dark,ZIndex=50},w)t(ao,10)local ap=q('\084\101\120\116\076\097\098\101\108',{Text='\065\078\079\078\072\085\066',Position=UDim2.
-fromScale(0.1,0.045),Size=UDim2.fromScale(0.8,0.12),BackgroundTransparency=1,
-Font=Enum.Font.GothamBlack,TextSize=28,TextColor3=o,ZIndex=51},ao)local aq=q(
-'\084\101\120\116\076\097\098\101\108',{Text=p('\067\097\114\114\101\103\097\110\100\111\032\102\117\110\u{e7}\u{f5}\101\115','\076\111\097\100\105\110\103\032\102\101\097\116\117\114\101\115'),Position=
-UDim2.fromScale(0.1,0.59),Size=UDim2.fromScale(0.8,0.1),BackgroundTransparency=1
-,Font=Enum.Font.GothamBold,TextSize=18,TextWrapped=true,TextColor3=m.text,ZIndex
-=51},ao)local ar=q('\084\101\120\116\076\097\098\101\108',{Text='',Position=UDim2.fromScale(0.1,0.69),Size=
-UDim2.fromScale(0.8,0.1),BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize
-=13,TextWrapped=true,TextColor3=m.muted,ZIndex=51},ao)local as=q('\070\114\097\109\101',{
-Position=UDim2.fromScale(0.15,0.82),Size=UDim2.new(0.7,0,0,10),BackgroundColor3=
-m.edge,ZIndex=51},ao)t(as,4)local at=q('\070\114\097\109\101',{Size=UDim2.fromScale(0,1),
-BackgroundColor3=o,ZIndex=52},as)t(at,4)q('\085\073\071\114\097\100\105\101\110\116',{Color=ColorSequence.new(
-Color3.fromRGB(150,60,220),Color3.fromRGB(235,165,255)),Rotation=0},at)local au=
-q('\084\101\120\116\076\097\098\101\108',{Text='\083\085\080\069\082\080\079\087\069\082\032\047\032\065\078\079\078\072\085\066\032\032\u{b7}\032\032\118'..a,Position=UDim2.
-fromScale(0.1,0.145),Size=UDim2.fromScale(0.8,0.05),BackgroundTransparency=1,
-Font=Enum.Font.Code,TextSize=10,TextColor3=m.muted,ZIndex=51},ao)local av=q(
-'\084\101\120\116\076\097\098\101\108',{Text='',Position=UDim2.fromScale(0.15,0.87),Size=UDim2.fromScale(
-0.7,0.06),BackgroundTransparency=1,Font=Enum.Font.Code,TextSize=11,TextColor3=m.
-muted,ZIndex=51},ao)local aw=q('\070\114\097\109\101',{Name='\071\097\109\101\067\111\118\101\114',Position=UDim2.
-fromScale(0.12,0.22),Size=UDim2.fromScale(0.76,0.34),BackgroundColor3=m.tile,
-ClipsDescendants=true,ZIndex=51},ao)t(aw,14)q('\085\073\083\116\114\111\107\101',{Color=o,Thickness=2,
-Transparency=0.15,ApplyStrokeMode=Enum.ApplyStrokeMode.Border},aw)local ax=q(
-'\073\109\097\103\101\076\097\098\101\108',{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image=b.
-identity and b.identity.cover or
+'\065\108\116\117\114\097\032\100\111\032\112\097\105\110\101\108','\080\097\110\101\108\032\104\101\105\103\104\116',10,'\032\112\120'},{'\108\097\117\110\099\104\101\114','\084\097\109\097\110\104\111\032\100\111\032\102\108\117\116\117\097\110\116\101',
+'\070\108\111\097\116\105\110\103\032\098\117\116\116\111\110\032\115\105\122\101',2,'\032\112\120'}})do local ab=_[1]local ac=q('\070\114\097\109\101',{Size=UDim2.
+new(1,-8,0,76),BackgroundColor3=m.tile,LayoutOrder=-8+Z},Y)t(ac,10)u(ac)local ad
+=N.label(ac,'\084\101\120\116\076\097\098\101\108',p(_[2],_[3]),28,0)ad.Size=UDim2.new(1,0,0,28)local ae=N.
+button(ac,'\u{2212}',0)ae.Size=UDim2.fromOffset(42,36)ae.Position=UDim2.
+fromOffset(12,32)ae.TextXAlignment=Enum.TextXAlignment.Center local af=N.label(
+ac,'\084\101\120\116\066\111\120','',36,0)af.Position=UDim2.fromOffset(62,32)af.Size=UDim2.new(1,-124
+,0,36)af.TextXAlignment=Enum.TextXAlignment.Center local ag=N.button(ac,'\043',0)ag
+.Size=UDim2.fromOffset(42,36)ag.Position=UDim2.new(1,-54,0,32)ag.TextXAlignment=
+Enum.TextXAlignment.Center local function ah()af.Text=tostring(math.floor(S[ab])
+).._[5]end aa[#aa+1]=ah local function ai(aj)if aj and aj==aj then S[ab]=math.
+clamp(aj,T[ab][1],T[ab][2])W()U()end ah()end r(ae.Activated,function()ai(S[ab]-_
+[4])end)r(ag.Activated,function()ai(S[ab]+_[4])end)r(af.FocusLost,function()ai(
+tonumber(af.Text:match('\091\037\100\037\046\093\043')))end)ah()end local ab=N.button(Y,p(
+'\067\101\110\116\114\097\108\105\122\097\114\032\101\032\114\101\115\116\097\117\114\097\114\032\116\097\109\097\110\104\111','\067\101\110\116\101\114\032\097\110\100\032\114\101\115\116\111\114\101\032\115\105\122\101'),-3)r(ab.Activated,
+function()S=table.clone(R)W()U()for ac,ad in ipairs(aa)do ad()end end)end local
+ab=q('\084\101\120\116\066\117\116\116\111\110',{Text='\u{25e2}',TextSize=20,TextColor3=m.muted,
+BackgroundTransparency=1,Size=UDim2.fromOffset(30,30),Position=UDim2.new(1,-30,1
+,-30)},w)local ac local function ad(ae,af)if ae.UserInputType~=Enum.
+UserInputType.MouseButton1 and ae.UserInputType~=Enum.UserInputType.Touch then
+return end ac={input=ae,kind=af,origin=ae.Position,pos=w.Position,width=w.Size.X
+.Offset,height=w.Size.Y.Offset}end r(y.InputBegan,function(ae)ad(ae,'\109\111\118\101')end)
+r(ab.InputBegan,function(ae)ad(ae,'\114\101\115\105\122\101')end)r(d.InputChanged,function(ae)if
+not ac or(ae~=ac.input and ae.UserInputType~=Enum.UserInputType.MouseMovement)
+then return end local af=ae.Position-ac.origin local ag=v.AbsoluteSize if ac.
+kind=='\114\101\115\105\122\101'then S.width=math.clamp(ac.width+af.X/V.Scale,300,1100)S.height=
+math.clamp(ac.height+af.Y/V.Scale,340,900)else local ah=math.max(1,ag.X-16-w.
+Size.X.Offset*V.Scale)local ai=math.max(1,ag.Y-16-w.Size.Y.Offset*V.Scale)S.x=
+math.clamp((ac.pos.X.Offset+af.X-8)/ah,0,1)S.y=math.clamp((ac.pos.Y.Offset+af.Y-
+8)/ai,0,1)end W()end)r(d.InputEnded,function(ae)if ac and ae==ac.input then ac=
+nil U()for af,ag in ipairs(aa)do ag()end end end)local function ae()if not l
+then return end l=false if j then pcall(j)end for af,ag in ipairs(h)do ag:
+Disconnect()end v:Destroy()end b.attach(ae)local function af(ag)w.Visible=ag if
+ag then W()local ah=w.Position w.Position=ah+UDim2.fromOffset(0,8)s(w,{Position=
+ah})end end local ag=q('\084\101\120\116\066\117\116\116\111\110',{Text='\u{2014}',Size=UDim2.fromOffset(32,32
+),Position=UDim2.new(1,-76,0,16)},y)local ah=q('\084\101\120\116\066\117\116\116\111\110',{Text='\u{d7}',Size=
+UDim2.fromOffset(32,32),Position=UDim2.new(1,-38,0,16)},y)for ai,aj in ipairs({
+ag,ah})do aj.BackgroundColor3=m.tile aj.TextColor3=m.text aj.Font=Enum.Font.
+GothamMedium aj.TextSize=18 t(aj,8)end r(ag.Activated,function()af(false)end)r(
+ah.Activated,function()b.unload()end)local ai,aj,Y,Z,_ r(F.InputBegan,function(
+ak)if ak.UserInputType==Enum.UserInputType.MouseButton1 or ak.UserInputType==
+Enum.UserInputType.Touch then ai=ak aj=ak.Position Y=F.Position Z=os.clock()_=
+false end end)r(d.InputChanged,function(ak)if ai and(ak==ai or ak.UserInputType
+==Enum.UserInputType.MouseMovement)then local al=ak.Position-aj if al.Magnitude>
+8 then _=true end if _ then local am=v.AbsoluteSize local an=math.clamp(Y.X.
+Scale*am.X+Y.X.Offset+al.X,0,math.max(0,am.X-S.launcher))local ao=math.clamp(Y.Y
+.Scale*am.Y+Y.Y.Offset+al.Y,0,math.max(0,am.Y-S.launcher))F.Position=UDim2.
+fromOffset(an,ao)end end end)r(d.InputEnded,function(ak)if ai and(ak==ai or ak.
+UserInputType==Enum.UserInputType.MouseButton1)then if not _ then if os.clock()-
+Z>=0.65 then if k then k()end else af(not w.Visible)end end ai=nil end end)r(d.
+InputBegan,function(ak,al)if not al and ak.KeyCode==Enum.KeyCode.RightControl
+then af(not w.Visible)end end)local ak=os.clock()local al,am=false,false local
+function an()return al and(am or os.clock()-ak>=2.5)end local ao=q('\070\114\097\109\101',{Name
+='\076\111\097\100\105\110\103',Size=UDim2.fromScale(1,1),BackgroundColor3=m.dark,ZIndex=50},w)t(ao,
+10)local ap=q('\084\101\120\116\076\097\098\101\108',{Text='\065\078\079\078\072\085\066',Position=UDim2.fromScale(0.1,0.045),
+Size=UDim2.fromScale(0.8,0.12),BackgroundTransparency=1,Font=Enum.Font.
+GothamBlack,TextSize=28,TextColor3=o,ZIndex=51},ao)local aq=q('\084\101\120\116\076\097\098\101\108',{Text=
+p('\067\097\114\114\101\103\097\110\100\111\032\102\117\110\u{e7}\u{f5}\101\115','\076\111\097\100\105\110\103\032\102\101\097\116\117\114\101\115'),Position=UDim2.fromScale(
+0.1,0.59),Size=UDim2.fromScale(0.8,0.1),BackgroundTransparency=1,Font=Enum.Font.
+GothamBold,TextSize=18,TextWrapped=true,TextColor3=m.text,ZIndex=51},ao)local ar
+=q('\084\101\120\116\076\097\098\101\108',{Text='',Position=UDim2.fromScale(0.1,0.69),Size=UDim2.fromScale(
+0.8,0.1),BackgroundTransparency=1,Font=Enum.Font.Gotham,TextSize=13,TextWrapped=
+true,TextColor3=m.muted,ZIndex=51},ao)local as=q('\070\114\097\109\101',{Position=UDim2.
+fromScale(0.15,0.82),Size=UDim2.new(0.7,0,0,10),BackgroundColor3=m.edge,ZIndex=
+51},ao)t(as,4)local at=q('\070\114\097\109\101',{Size=UDim2.fromScale(0,1),BackgroundColor3=o,
+ZIndex=52},as)t(at,4)q('\085\073\071\114\097\100\105\101\110\116',{Color=ColorSequence.new(Color3.fromRGB(150,
+60,220),Color3.fromRGB(235,165,255)),Rotation=0},at)local au=q('\084\101\120\116\076\097\098\101\108',{Text
+='\083\085\080\069\082\080\079\087\069\082\032\047\032\065\078\079\078\072\085\066\032\032\u{b7}\032\032\118'..a,Position=UDim2.fromScale(0.1,0.145),Size=
+UDim2.fromScale(0.8,0.05),BackgroundTransparency=1,Font=Enum.Font.Code,TextSize=
+10,TextColor3=m.muted,ZIndex=51},ao)local av=q('\084\101\120\116\076\097\098\101\108',{Text='',Position=
+UDim2.fromScale(0.15,0.87),Size=UDim2.fromScale(0.7,0.06),BackgroundTransparency
+=1,Font=Enum.Font.Code,TextSize=11,TextColor3=m.muted,ZIndex=51},ao)local aw=q(
+'\070\114\097\109\101',{Name='\071\097\109\101\067\111\118\101\114',Position=UDim2.fromScale(0.12,0.22),Size=UDim2.
+fromScale(0.76,0.34),BackgroundColor3=m.tile,ClipsDescendants=true,ZIndex=51},ao
+)t(aw,14)q('\085\073\083\116\114\111\107\101',{Color=o,Thickness=2,Transparency=0.15,ApplyStrokeMode=
+Enum.ApplyStrokeMode.Border},aw)local ax=q('\073\109\097\103\101\076\097\098\101\108',{Size=UDim2.fromScale(1,
+1),BackgroundTransparency=1,Image=b.identity and b.identity.cover or
 '\114\098\120\116\104\117\109\098\058\047\047\116\121\112\101\061\071\097\109\101\084\104\117\109\098\110\097\105\108\038\105\100\061\055\052\049\056\051\050\052\054\050\056\053\053\054\057\038\119\061\052\056\048\038\104\061\050\055\048',ScaleType=Enum.
 ScaleType.Crop,ZIndex=52},aw)t(ax,14)q('\084\101\120\116\076\097\098\101\108',{Text='\083\084\069\065\076\032\065\032\083\085\080\069\082\080\079\087\069\082',
 Size=UDim2.new(1,0,0,30),Position=UDim2.new(0,0,1,-30),BackgroundColor3=m.dark,

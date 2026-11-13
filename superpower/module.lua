@@ -1,5 +1,5 @@
 -- Luau
--- AnonHub protected distribution 0.38.10
+-- AnonHub protected distribution 0.38.11
 local a={}function a.manualEligible(b,c,d,e,f)if b=='\077\105\120\101\100'then return(c and d==
 e)or(not c and d==f)end if b=='\066\111\115\115'then return c and d==e end return b=='\078\080\067'
 and not c and d==f end function a.protected(b,c,d)local e=b.Cards and b.Cards[c]

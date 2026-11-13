@@ -14,7 +14,7 @@ if(JSON.stringify(declared)!==JSON.stringify([...routes].sort()))throw Error('Ro
 const begin=loader.indexOf('local function loadGame(route)'),end=loader.indexOf('\nlocal start',begin);
 if(begin<0||end<0)throw Error('Loader changed');
 const bundle='local bundled={}\n'+routes.map(f=>'bundled['+JSON.stringify(f)+']=function(...)\n'+read(f)+'\nend').join('\n')+'\n'+loader.slice(0,begin).replace(/^local root="https:\/\/raw\.githubusercontent\.com\/AnonymosScripts\/AnonHub\/main\/"\r?\n/m,'')+'local function loadGame(route) return bundled[route.path] end\n'+loader.slice(end);
-if(!bundle.includes('sdk.validate')||!bundle.trimEnd().endsWith('start(true)'))throw Error('Auth or language gate missing');
+if(!bundle.includes('sdk.validate')||!(/start\((true|not resumeTransfer)\)\s*$/.test(bundle)))throw Error('Auth or language gate missing');
 const config=path.join(__dirname,'protection.darklua.json');
 const temp=path.join(outputDir,'.build');fs.mkdirSync(temp,{recursive:true});
 function run(exe,args,binary=false){const r=cp.spawnSync(exe,args,{encoding:binary?undefined:'utf8',maxBuffer:40*1024*1024});if(r.error||r.status!==0)throw Error(String(r.error||r.stderr||r.stdout));return r.stdout;}
