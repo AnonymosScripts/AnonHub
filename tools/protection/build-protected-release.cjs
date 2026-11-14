@@ -5,7 +5,7 @@ const {escapeStrings}=require('./escape-luau-strings.cjs');
 const [sourceDir,outputDir,darklua,luau]=process.argv.slice(2);
 if(!luau)throw Error('Usage: node build-protected-release.cjs SOURCE OUTPUT DARKLUA_EXE LUAU_COMPILE_EXE');
 if(path.resolve(sourceDir)===path.resolve(outputDir))throw Error('Source and output must be separate');
-const routes=['superpower/main.lua','potato/chapter2.lua','universal/main.lua'];
+const routes=['superpower/main.lua','potato/chapter2.lua','universal/main.lua','hillclimb/main.lua'];
 const publicFiles=['loader.lua',...routes,'superpower/module.lua','superpower/test.lua'];
 function read(file){const s=fs.readFileSync(path.join(sourceDir,file),'utf8');if(s.includes('-- AnonHub protected distribution'))throw Error('Readable source required: '+file);return s;}
 const loader=read('loader.lua');
@@ -49,4 +49,4 @@ for(const [index,file] of publicFiles.entries()){
 // No distributable files are written until all comparisons pass.
 for(const {file,content} of pending){const dst=path.join(outputDir,file);fs.mkdirSync(path.dirname(dst),{recursive:true});fs.writeFileSync(dst,content);}
 fs.writeFileSync(path.join(outputDir,'protection-manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-console.log('All six outputs verified. Private intermediates remain in .build; never publish that folder.');
+console.log('All outputs verified. Private intermediates remain in .build; never publish that folder.');
