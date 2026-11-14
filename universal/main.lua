@@ -1,7 +1,7 @@
 -- Luau
--- AnonHub protected distribution 0.38.11
--- local BOOT_VERSION="0.37.6"
-local a='\048\046\051\055\046\054'local b=...if type(b)~='\116\097\098\108\101'then return end local c=game:
+-- AnonHub protected distribution 0.38.12
+-- local BOOT_VERSION="0.37.7"
+local a='\048\046\051\055\046\055'local b=...if type(b)~='\116\097\098\108\101'then return end local c=game:
 GetService('\080\108\097\121\101\114\115')local d=game:GetService('\082\117\110\083\101\114\118\105\099\101')local e=game:
 GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local f=game:GetService('\087\111\114\107\115\112\097\099\101')local g=e.
 TouchEnabled local function h()return g and(e.PreferredInput==nil or e.
@@ -639,5 +639,66 @@ b1(cf,as,cj,E.aimSticky and cq*1.12 or cq,cp,cm)if not cr then bq()end end if(
 not cr or not E.aimSticky)and os.clock()>=cd then cd=os.clock()+0.06 for ct,cu
 in ipairs(c:GetPlayers())do if cu~=as then local cv,cw=b1(cf,cu,cj,cq,cp,cm,cs)
 if cv then cr,cs,as=cv,cw,cu end end end end if j and E.aimResponse=='\115\105\108\101\110\116'
-then b9(cm,cr,cf)elseif cr then cc(cf,cr,cj,cg,ce)end cb(cg,cj,ci,true,cr)end)b.
-ready()
+then b9(cm,cr,cf)elseif cr then cc(cf,cr,cj,cg,ce)end cb(cg,cj,ci,true,cr)end)if
+game.PlaceId==100981917200669 then local ce=Vector3.new(-8483.69,2631.8,-478.82)
+local cf,cg,ch=true,true,true local ci=false local cj,ck local cl=l.make('\070\114\097\109\101'
+,{Name='\073\109\112\111\115\115\105\098\108\101\072\105\108\108\067\108\105\109\098',Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.
+AutomaticSize.Y,BackgroundColor3='\064\116\105\108\101',BorderSizePixel=0,LayoutOrder=20},aR)l.
+make('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,12)},cl)l.make('\085\073\083\116\114\111\107\101',{Color=
+'\064\101\100\103\101',Thickness=1},cl)l.make('\085\073\080\097\100\100\105\110\103',{PaddingLeft=UDim.new(0,12),
+PaddingRight=UDim.new(0,12),PaddingTop=UDim.new(0,12),PaddingBottom=UDim.new(0,
+12)},cl)l.make('\085\073\076\105\115\116\076\097\121\111\117\116',{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim
+.new(0,8)},cl)local cm=l.label(cl,'\084\101\120\116\076\097\098\101\108','\073\077\080\079\083\083\073\066\076\069\032\072\073\076\076\032\067\076\073\077\066',28,1)cm.
+Font,cm.TextSize,cm.TextXAlignment=Enum.Font.GothamBold,16,Enum.TextXAlignment.
+Left l.paint(cm,'\084\101\120\116\067\111\108\111\114\051','\097\099\099\101\110\116')local cn=l.label(cl,'\084\101\120\116\076\097\098\101\108',n(
+'\068\101\115\116\105\110\111\058\032\102\105\110\097\108\032\100\097\032\115\117\098\105\100\097','\068\101\115\116\105\110\097\116\105\111\110\058\032\116\111\112\032\111\102\032\116\104\101\032\104\105\108\108'),24,2)cn.
+TextXAlignment=Enum.TextXAlignment.Left local co=l.label(cl,'\084\101\120\116\076\097\098\101\108',
+'\088\032\u{2212}\056\052\056\051\046\054\057\032\032\u{b7}\032\032\089\032\050\054\051\049\046\056\048\032\032\u{b7}\032\032\090\032\u{2212}\052\055\056\046\056\050',36,3)co.
+TextSize,co.TextWrapped=11,true l.paint(co,'\084\101\120\116\067\111\108\111\114\051','\109\117\116\101\100')local function
+cp(cq,cr,cs,ct)local cu=l.button(cl,'',cr)cu.Size=UDim2.new(1,0,0,46)cu.
+AutoButtonColor=false local cv=l.label(cu,'\084\101\120\116\076\097\098\101\108',cq,46,0)cv.Position,cv.
+Size=UDim2.fromOffset(10,0),UDim2.new(1,-52,1,0)cv.TextXAlignment,cv.TextSize=
+Enum.TextXAlignment.Left,12 local cw=l.make('\084\101\120\116\076\097\098\101\108',{Size=UDim2.fromOffset(
+23,23),Position=UDim2.new(1,-33,0.5,-11),BackgroundColor3='\064\100\097\114\107',
+BorderSizePixel=0,Text='',TextSize=17,Font=Enum.Font.GothamBold,TextColor3=
+'\064\100\097\114\107'},cu)l.make('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,5)},cw)l.make('\085\073\083\116\114\111\107\101',
+{Color='\064\101\100\103\101',Thickness=1},cw)local function cx()cw.Text=cs()and'\u{2713}'or''l
+.paint(cw,'\066\097\099\107\103\114\111\117\110\100\067\111\108\111\114\051',cs()and'\097\099\099\101\110\116'or'\100\097\114\107')end ax(cu.Activated,
+function()if not ci then ct(not cs())cx()end end)cx()end cp(n(
+'\083\101\108\101\099\105\111\110\097\114\032\111\032\102\105\110\097\108','\083\101\108\101\099\116\032\116\104\101\032\102\105\110\105\115\104'),4,function()return cf end,function(cq)
+cf=cq end)cp(n('\080\097\114\097\114\032\111\032\105\109\112\117\108\115\111\032\097\111\032\099\104\101\103\097\114','\083\116\111\112\032\109\111\109\101\110\116\117\109\032\111\110\032\097\114\114\105\118\097\108'),5,
+function()return cg end,function(cq)cg=cq end)cp(n(
+'\071\117\097\114\100\097\114\032\097\032\112\111\115\105\u{e7}\u{e3}\111\032\112\097\114\097\032\118\111\108\116\097\114','\082\101\109\101\109\098\101\114\032\112\111\115\105\116\105\111\110\032\102\111\114\032\114\101\116\117\114\110'),6,
+function()return ch end,function(cq)ch=cq end)local cq=l.button(cl,n(
+'\073\114\032\112\097\114\097\032\111\032\102\105\110\097\108','\071\111\032\116\111\032\116\104\101\032\102\105\110\105\115\104'),7)l.paint(cq,'\066\097\099\107\103\114\111\117\110\100\067\111\108\111\114\051','\097\099\099\101\110\116')l
+.paint(cq,'\084\101\120\116\067\111\108\111\114\051','\100\097\114\107')local cr=l.button(cl,n(
+'\086\111\108\116\097\114\032\u{e0}\032\112\111\115\105\u{e7}\u{e3}\111\032\097\110\116\101\114\105\111\114','\082\101\116\117\114\110\032\116\111\032\112\114\101\118\105\111\117\115\032\112\111\115\105\116\105\111\110'),8)
+local cs=l.label(cl,'\084\101\120\116\076\097\098\101\108',n('\080\114\111\110\116\111\046\032\079\032\116\101\108\101\112\111\114\116\101\032\109\111\118\101\032\115\101\117\032\112\101\114\115\111\110\097\103\101\109\046',
+'\082\101\097\100\121\046\032\084\101\108\101\112\111\114\116\032\109\111\118\101\115\032\121\111\117\114\032\099\104\097\114\097\099\116\101\114\046'),54,9)cs.TextSize=12 cs.TextWrapped=true
+l.paint(cs,'\084\101\120\116\067\111\108\111\114\051','\109\117\116\101\100')local function ct()if not ad or game.PlaceId~=
+100981917200669 then return end local cu=k.Character local cv=cu and cu:
+FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')local cw=cu and cu:FindFirstChildOfClass(
+'\072\117\109\097\110\111\105\100')if cv and cw and cw.Health>0 then return cu,cv,cw end end local
+function cu(cv)if ci then return end if not cv and not cf then cs.Text=n(
+'\077\097\114\113\117\101\032\111\032\100\101\115\116\105\110\111\032\112\114\105\109\101\105\114\111\046','\083\101\108\101\099\116\032\116\104\101\032\100\101\115\116\105\110\097\116\105\111\110\032\102\105\114\115\116\046')return end local cw
+,cx,cy=ct()if not cw then cs.Text=n('\065\103\117\097\114\100\101\032\115\101\117\032\112\101\114\115\111\110\097\103\101\109\032\097\112\097\114\101\099\101\114\046',
+'\087\097\105\116\032\102\111\114\032\121\111\117\114\032\099\104\097\114\097\099\116\101\114\032\116\111\032\115\112\097\119\110\046')return end if cv and(not cj or ck~=cw)then
+cs.Text=n('\078\101\110\104\117\109\097\032\112\111\115\105\u{e7}\u{e3}\111\032\115\097\108\118\097\032\112\097\114\097\032\101\115\116\101\032\112\101\114\115\111\110\097\103\101\109\046',
+'\078\111\032\115\097\118\101\100\032\112\111\115\105\116\105\111\110\032\102\111\114\032\116\104\105\115\032\099\104\097\114\097\099\116\101\114\046')return end local cz=cv and cj or CFrame.
+new(ce)*cx.CFrame.Rotation local cA,cB=ch,cg ci=true cq.Active=false cr.Active=
+false cs.Text=n('\067\097\114\114\101\103\097\110\100\111\032\097\032\u{e1}\114\101\097\032\100\101\032\100\101\115\116\105\110\111\u{2026}',
+'\076\111\097\100\105\110\103\032\116\104\101\032\100\101\115\116\105\110\097\116\105\111\110\032\097\114\101\097\u{2026}')task.spawn(function()local cC,cD=pcall(
+function()pcall(k.RequestStreamAroundAsync,k,cz.Position,2)local cC,cD,cE=ct()if
+cC~=cw then return end local cF=cD.CFrame cE.Sit=false d.Heartbeat:Wait()if not
+ad or k.Character~=cC or cE.Health<=0 then return end cC:PivotTo(cz*cD.CFrame:
+Inverse()*cC:GetPivot())if cB then for cG,cH in ipairs(cC:GetDescendants())do if
+cH:IsA('\066\097\115\101\080\097\114\116')then cH.AssemblyLinearVelocity=Vector3.zero cH.
+AssemblyAngularVelocity=Vector3.zero end end end if not cv then cj=cA and cF or
+nil ck=cA and cC or nil end if ad then cs.Text=n('\080\101\114\115\111\110\097\103\101\109\032\114\101\112\111\115\105\099\105\111\110\097\100\111\046',
+'\067\104\097\114\097\099\116\101\114\032\114\101\112\111\115\105\116\105\111\110\101\100\046')end end)ci=false if ad then cq.Active=true cr.Active=
+true if not cC then cs.Text=n('\078\u{e3}\111\032\102\111\105\032\112\111\115\115\u{ed}\118\101\108\032\116\101\108\101\112\111\114\116\097\114\058\032',
+'\067\111\117\108\100\032\110\111\116\032\116\101\108\101\112\111\114\116\058\032')..tostring(cD)end end end)end ax(cq.Activated,function()
+cu(false)end)ax(cr.Activated,function()cu(true)end)ax(k.CharacterAdded,function(
+)cj=nil ck=nil if ad then cs.Text=n(
+'\080\101\114\115\111\110\097\103\101\109\032\114\101\099\097\114\114\101\103\097\100\111\046\032\080\111\115\105\u{e7}\u{e3}\111\032\097\110\116\101\114\105\111\114\032\108\105\109\112\097\046',
+'\067\104\097\114\097\099\116\101\114\032\114\101\115\112\097\119\110\101\100\046\032\080\114\101\118\105\111\117\115\032\112\111\115\105\116\105\111\110\032\099\108\101\097\114\101\100\046')end end)end b.ready()
