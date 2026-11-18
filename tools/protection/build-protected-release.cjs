@@ -13,7 +13,7 @@ const declared=[...new Set([...loader.matchAll(/path="([^"]+\.lua)"/g)].map(m=>m
 if(JSON.stringify(declared)!==JSON.stringify([...routes].sort()))throw Error('Route inventory mismatch');
 const begin=loader.indexOf('local function loadGame(route)'),end=loader.indexOf('\nlocal start',begin);
 if(begin<0||end<0)throw Error('Loader changed');
-const bundle='local bundled={}\n'+routes.map(f=>'bundled['+JSON.stringify(f)+']=function(...)\n'+read(f)+'\nend').join('\n')+'\n'+loader.slice(0,begin).replace(/^local root="https:\/\/raw\.githubusercontent\.com\/AnonymosScripts\/AnonHub\/main\/"\r?\n/m,'')+'local function loadGame(route) return bundled[route.path] end\n'+loader.slice(end);
+const bundle='local bundled={}\n'+routes.map(f=>'bundled['+JSON.stringify(f)+']=function(...)\n'+read(f)+'\nend').join('\n')+'\n'+loader.slice(0,begin)+'local function loadGame(route) return bundled[route.path] end\n'+loader.slice(end);
 if(!bundle.includes('sdk.validate')||!(/start\((true|not resumeTransfer)\)\s*$/.test(bundle)))throw Error('Auth or language gate missing');
 const config=path.join(__dirname,'protection.darklua.json');
 const temp=path.join(outputDir,'.build');fs.mkdirSync(temp,{recursive:true});
