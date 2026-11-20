@@ -1,0 +1,7 @@
+AnonHub 0.39.1
+
+Dungeon: avanço por teleporte em vez de caminhada. Entrada usa a altura do marcador da sala. Portas liberadas são atravessadas em duas etapas, com intervalo de 0,8 s e confirmação pelo andar replicado. Mantém combate, checkpoint de saída e autenticação.
+
+Dungeon: teleport-based floor transitions replace walking. Open doors use two steps with a 0.8-second interval.
+
+Validação: 66 verificações de regressão e equivalência dos sete arquivos protegidos aprovadas. Transição ao vivo no Delta ainda não verificada.

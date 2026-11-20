@@ -1,6 +1,6 @@
 -- Luau
--- AnonHub protected distribution 0.39.0
-local a={}a['\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097']=function(...)local b='\048\046\051\057\046\048'local c=...
+-- AnonHub protected distribution 0.39.1
+local a={}a['\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097']=function(...)local b='\048\046\051\057\046\049'local c=...
 assert(type(c)=='\116\097\098\108\101'and c.access,'\065\098\114\097\032\112\101\108\111\032\108\111\097\100\101\114\032\097\117\116\101\110\116\105\099\097\100\111')local d=game:
 GetService('\080\108\097\121\101\114\115')local e=game:GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local f=game:
 GetService('\072\116\116\112\083\101\114\118\105\099\101')local g=game:GetService('\084\119\101\101\110\083\101\114\118\105\099\101')local h=d.
@@ -759,22 +759,27 @@ co(cs,cx,a2.dungeonAbilities)elseif aQ:GetAttribute('\068\117\110\103\101\111\11
 FindFirstChild('\082\117\110'..tostring(ct)..'\095\070\108\111\111\114'..tostring(cu))if cA then local cB=
 cA:FindFirstChild('\069\120\105\116\068\111\111\114')local cC=cA:FindFirstChild('\069\110\116\114\121')if cB and cB:
 IsA('\066\097\115\101\080\097\114\116')and cC and cC:IsA('\066\097\115\101\080\097\114\116')then local cD=cB.Position-cC.
-Position cD=Vector3.new(cD.X,0,cD.Z)if cD.Magnitude>0 then local cE=cB.
-CanCollide==false and cB.Position or cC.Position local cF=Vector3.new(cE.X,cq.
-Position.Y,cE.Z)+cD.Unit*8 cr:MoveTo(cF)end end end end return true end local
-function cq()local cr=bg.Data if not cr then a1(aL(
-'\065\103\117\097\114\100\097\110\100\111\032\100\097\100\111\115\032\114\101\112\108\105\099\097\100\111\115\046\046\046','\087\097\105\116\105\110\103\032\102\111\114\032\114\101\112\108\105\099\097\116\101\100\032\100\097\116\097\046\046\046'))return end bH
-=workspace:FindFirstChild('\069\110\101\109\105\101\115')local cs=bH and bH:GetChildren()or{}local ct
-={}local cu=aG.nextBoss(bu,cr.Gates or{})local cv=aQ.Character local cw=cv and
-cv:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')local cx=cv and cv:FindFirstChildOfClass(
-'\072\117\109\097\110\111\105\100')local cy=aQ:GetAttribute('\068\117\110\103\101\111\110\082\117\110')~=nil if bj or a2.abilities or(
-cy and a2.dungeonFarm and a2.dungeonAbilities)then pcall(bk,cy and a2.
-dungeonFarm and a2.dungeonAbilities or(not cy and a2.abilities))end if cp(cw,cx,
-cr)then return end if cg(cw,cx,cr)then return end local cz=a9.Power.Level(cr.
-Power or 0)local cA if a2.farmMode=='\065\117\116\111'and a2.farm then for cB,cC in ipairs(
-bu)do if not cC.gate and cC.level<=cz then cA=cC end end end local cB=(a2.
-farmMode=='\078\080\067'or a2.farmMode=='\077\105\120\101\100')and b4(os.clock())or cA and b4(os.clock()
-,cA.id)local cC,cD,cE,cF=nil,false,false,math.huge local cG={}for cH,cI in
+Position cD=Vector3.new(cD.X,0,cD.Z)if cD.Magnitude>0 and os.clock()-ch.lastMove
+>=0.8 then local cE=tostring(ct)..'\058'..tostring(cu)if ch.moveRoom~=cE then ch.
+moveRoom=cE ch.crossing=0 end local cF=cB.CanCollide==false local cG=cF and cB.
+Position or cC.Position local cH=cF and((ch.crossing or 0)%2)*8 or 8 local cI=
+Vector3.new(cG.X,cC.Position.Y,cG.Z)+cD.Unit*cH ch.lastMove=os.clock()if cF then
+ch.crossing=(ch.crossing or 0)+1 end if(cq.Position-cI).Magnitude>2 then cr:
+Move(Vector3.zero)cq.AssemblyLinearVelocity=Vector3.zero cq.
+AssemblyAngularVelocity=Vector3.zero cq.CFrame=CFrame.lookAt(cI,cI+cD.Unit)end
+end end end end return true end local function cq()local cr=bg.Data if not cr
+then a1(aL('\065\103\117\097\114\100\097\110\100\111\032\100\097\100\111\115\032\114\101\112\108\105\099\097\100\111\115\046\046\046','\087\097\105\116\105\110\103\032\102\111\114\032\114\101\112\108\105\099\097\116\101\100\032\100\097\116\097\046\046\046'))
+return end bH=workspace:FindFirstChild('\069\110\101\109\105\101\115')local cs=bH and bH:GetChildren(
+)or{}local ct={}local cu=aG.nextBoss(bu,cr.Gates or{})local cv=aQ.Character
+local cw=cv and cv:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')local cx=cv and cv:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cy=aQ:GetAttribute('\068\117\110\103\101\111\110\082\117\110')~=nil if
+bj or a2.abilities or(cy and a2.dungeonFarm and a2.dungeonAbilities)then pcall(
+bk,cy and a2.dungeonFarm and a2.dungeonAbilities or(not cy and a2.abilities))end
+if cp(cw,cx,cr)then return end if cg(cw,cx,cr)then return end local cz=a9.Power.
+Level(cr.Power or 0)local cA if a2.farmMode=='\065\117\116\111'and a2.farm then for cB,cC in
+ipairs(bu)do if not cC.gate and cC.level<=cz then cA=cC end end end local cB=(a2
+.farmMode=='\078\080\067'or a2.farmMode=='\077\105\120\101\100')and b4(os.clock())or cA and b4(os.clock(
+),cA.id)local cC,cD,cE,cF=nil,false,false,math.huge local cG={}for cH,cI in
 ipairs(cs)do bM(cI)local cJ=cI:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cK=cI:
 FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if cJ and cJ.Health>0 and cK and cI:
 GetAttribute('\068\117\110\103\101\111\110')==nil then local cL=cI:GetAttribute('\080\097\100\073\100')if cL then cG
@@ -5468,12 +5473,12 @@ or bH)aE.Text=bI warn('\091\065\110\111\110\072\117\098\032'..aa..'\093\032'..bI
 '\089\111\117\114\032\112\097\110\101\108\032\105\115\032\114\101\097\100\121')bc=true if bf()then bg:Destroy()else task.spawn(function()
 while al and bg.Parent and not bf()do task.wait(0.05)end if al and bg.Parent
 then bg:Destroy()end end)end pcall(ab.ready)if bD then task.defer(function()bC(
-bD,2)end)end end local aa='\048\046\051\057\046\048'local ab={[10772968523]={name=
+bD,2)end)end end local aa='\048\046\051\057\046\049'local ab={[10772968523]={name=
 '\073\109\112\111\115\115\105\098\108\101\032\072\105\108\108\032\067\108\105\109\098',version='\048\046\051\056\046\049\051',world='\049',online=true,place=
 100981917200669,path='\104\105\108\108\099\108\105\109\098\047\109\097\105\110\046\108\117\097',cache='\065\110\111\110\072\117\098\095\072\105\108\108\095\048\051\056\049\051\046\108\117\097',theme=
-'\097\109\101\116\104\121\115\116'},[10770228857]={name='\083\116\101\097\108\032\097\032\083\117\112\101\114\112\111\119\101\114',version='\048\046\051\057\046\048',world=
+'\097\109\101\116\104\121\115\116'},[10770228857]={name='\083\116\101\097\108\032\097\032\083\117\112\101\114\112\111\119\101\114',version='\048\046\051\057\046\049',world=
 '\049\032\047\032\050',online=true,place=74183246285569,places={[74183246285569]=true,[
-82739382053686]=true},path='\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097',cache='\065\110\111\110\072\117\098\095\083\080\095\048\051\057\048\048\046\108\117\097',
+82739382053686]=true},path='\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097',cache='\065\110\111\110\072\117\098\095\083\080\095\048\051\057\048\049\046\108\117\097',
 theme='\099\097\114\098\111\110'},[10767408330]={name='\080\101\101\108\032\084\072\069\032\080\111\116\097\116\111',chapter='\050',version=
 '\048\046\051\055\046\054',place=116701845804918,path='\112\111\116\097\116\111\047\099\104\097\112\116\101\114\050\046\108\117\097',cache=
 '\069\118\111\108\118\121\095\067\104\097\112\116\101\114\050\095\077\097\105\110\046\108\117\097\117'}}local ac={name='\085\110\105\118\101\114\115\097\108',version='\048\046\051\055\046\056',path=

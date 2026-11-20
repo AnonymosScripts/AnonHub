@@ -1,7 +1,7 @@
 -- Luau
--- AnonHub protected distribution 0.39.0
--- local BOOT_VERSION="0.39.0"
-local a='\048\046\051\057\046\048'local b=...assert(type(b)=='\116\097\098\108\101'and b.access,
+-- AnonHub protected distribution 0.39.1
+-- local BOOT_VERSION="0.39.1"
+local a='\048\046\051\057\046\049'local b=...assert(type(b)=='\116\097\098\108\101'and b.access,
 '\065\098\114\097\032\112\101\108\111\032\108\111\097\100\101\114\032\097\117\116\101\110\116\105\099\097\100\111')local c=game:GetService('\080\108\097\121\101\114\115')local d=game:
 GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local e=game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local f=game
 :GetService('\084\119\101\101\110\083\101\114\118\105\099\101')local g=c.LocalPlayer local h,i={},{}local j,k local
@@ -759,22 +759,27 @@ cn(cr,cw,a1.dungeonAbilities)elseif aP:GetAttribute('\068\117\110\103\101\111\11
 FindFirstChild('\082\117\110'..tostring(cs)..'\095\070\108\111\111\114'..tostring(ct))if cz then local cA=
 cz:FindFirstChild('\069\120\105\116\068\111\111\114')local cB=cz:FindFirstChild('\069\110\116\114\121')if cA and cA:
 IsA('\066\097\115\101\080\097\114\116')and cB and cB:IsA('\066\097\115\101\080\097\114\116')then local cC=cA.Position-cB.
-Position cC=Vector3.new(cC.X,0,cC.Z)if cC.Magnitude>0 then local cD=cA.
-CanCollide==false and cA.Position or cB.Position local cE=Vector3.new(cD.X,cp.
-Position.Y,cD.Z)+cC.Unit*8 cq:MoveTo(cE)end end end end return true end local
-function cp()local cq=bf.Data if not cq then a0(aK(
-'\065\103\117\097\114\100\097\110\100\111\032\100\097\100\111\115\032\114\101\112\108\105\099\097\100\111\115\046\046\046','\087\097\105\116\105\110\103\032\102\111\114\032\114\101\112\108\105\099\097\116\101\100\032\100\097\116\097\046\046\046'))return end bG
-=workspace:FindFirstChild('\069\110\101\109\105\101\115')local cr=bG and bG:GetChildren()or{}local cs
-={}local ct=aF.nextBoss(bt,cq.Gates or{})local cu=aP.Character local cv=cu and
-cu:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')local cw=cu and cu:FindFirstChildOfClass(
-'\072\117\109\097\110\111\105\100')local cx=aP:GetAttribute('\068\117\110\103\101\111\110\082\117\110')~=nil if bi or a1.abilities or(
-cx and a1.dungeonFarm and a1.dungeonAbilities)then pcall(bj,cx and a1.
-dungeonFarm and a1.dungeonAbilities or(not cx and a1.abilities))end if co(cv,cw,
-cq)then return end if cf(cv,cw,cq)then return end local cy=a8.Power.Level(cq.
-Power or 0)local cz if a1.farmMode=='\065\117\116\111'and a1.farm then for cA,cB in ipairs(
-bt)do if not cB.gate and cB.level<=cy then cz=cB end end end local cA=(a1.
-farmMode=='\078\080\067'or a1.farmMode=='\077\105\120\101\100')and b3(os.clock())or cz and b3(os.clock()
-,cz.id)local cB,cC,cD,cE=nil,false,false,math.huge local cF={}for cG,cH in
+Position cC=Vector3.new(cC.X,0,cC.Z)if cC.Magnitude>0 and os.clock()-cg.lastMove
+>=0.8 then local cD=tostring(cs)..'\058'..tostring(ct)if cg.moveRoom~=cD then cg.
+moveRoom=cD cg.crossing=0 end local cE=cA.CanCollide==false local cF=cE and cA.
+Position or cB.Position local cG=cE and((cg.crossing or 0)%2)*8 or 8 local cH=
+Vector3.new(cF.X,cB.Position.Y,cF.Z)+cC.Unit*cG cg.lastMove=os.clock()if cE then
+cg.crossing=(cg.crossing or 0)+1 end if(cp.Position-cH).Magnitude>2 then cq:
+Move(Vector3.zero)cp.AssemblyLinearVelocity=Vector3.zero cp.
+AssemblyAngularVelocity=Vector3.zero cp.CFrame=CFrame.lookAt(cH,cH+cC.Unit)end
+end end end end return true end local function cp()local cq=bf.Data if not cq
+then a0(aK('\065\103\117\097\114\100\097\110\100\111\032\100\097\100\111\115\032\114\101\112\108\105\099\097\100\111\115\046\046\046','\087\097\105\116\105\110\103\032\102\111\114\032\114\101\112\108\105\099\097\116\101\100\032\100\097\116\097\046\046\046'))
+return end bG=workspace:FindFirstChild('\069\110\101\109\105\101\115')local cr=bG and bG:GetChildren(
+)or{}local cs={}local ct=aF.nextBoss(bt,cq.Gates or{})local cu=aP.Character
+local cv=cu and cu:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')local cw=cu and cu:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cx=aP:GetAttribute('\068\117\110\103\101\111\110\082\117\110')~=nil if
+bi or a1.abilities or(cx and a1.dungeonFarm and a1.dungeonAbilities)then pcall(
+bj,cx and a1.dungeonFarm and a1.dungeonAbilities or(not cx and a1.abilities))end
+if co(cv,cw,cq)then return end if cf(cv,cw,cq)then return end local cy=a8.Power.
+Level(cq.Power or 0)local cz if a1.farmMode=='\065\117\116\111'and a1.farm then for cA,cB in
+ipairs(bt)do if not cB.gate and cB.level<=cy then cz=cB end end end local cA=(a1
+.farmMode=='\078\080\067'or a1.farmMode=='\077\105\120\101\100')and b3(os.clock())or cz and b3(os.clock(
+),cz.id)local cB,cC,cD,cE=nil,false,false,math.huge local cF={}for cG,cH in
 ipairs(cr)do bL(cH)local cI=cH:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cJ=cH:
 FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if cI and cI.Health>0 and cJ and cH:
 GetAttribute('\068\117\110\103\101\111\110')==nil then local cK=cH:GetAttribute('\080\097\100\073\100')if cK then cF

@@ -1,5 +1,5 @@
 -- Luau
--- AnonHub protected distribution 0.39.0
+-- AnonHub protected distribution 0.39.1
 local a={}function a.manualEligible(b,c,d,e,f)if b=='\077\105\120\101\100'then return(c and d==
 e)or(not c and d==f)end if b=='\066\111\115\115'then return c and d==e end return b=='\078\080\067'
 and not c and d==f end function a.protected(b,c,d)local e=b.Cards and b.Cards[c]
@@ -479,41 +479,47 @@ FindFirstChild('\068\117\110\103\101\111\110\077\097\112\115')local be=bd and bd
 a7)..'\095\070\108\111\111\114'..tostring(a8))if be then local bf=be:FindFirstChild('\069\120\105\116\068\111\111\114')
 local bg=be:FindFirstChild('\069\110\116\114\121')if bf and bf:IsA('\066\097\115\101\080\097\114\116')and bg and bg:
 IsA('\066\097\115\101\080\097\114\116')then local bh=bf.Position-bg.Position bh=Vector3.new(bh.X,0,bh.Z)
-if bh.Magnitude>0 then local bi=bf.CanCollide==false and bf.Position or bg.
-Position local bj=Vector3.new(bi.X,a4.Position.Y,bi.Z)+bh.Unit*8 a5:MoveTo(bj)
-end end end end return true end local function a4()local a5=L.Data if not a5
-then w(f('\065\103\117\097\114\100\097\110\100\111\032\100\097\100\111\115\032\114\101\112\108\105\099\097\100\111\115\046\046\046','\087\097\105\116\105\110\103\032\102\111\114\032\114\101\112\108\105\099\097\116\101\100\032\100\097\116\097\046\046\046'))
-return end al=workspace:FindFirstChild('\069\110\101\109\105\101\115')local a6=al and al:GetChildren(
-)or{}local a7={}local a8=a.nextBoss(W,a5.Gates or{})local a9=k.Character local
-ba=a9 and a9:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')local bb=a9 and a9:
-FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local bc=k:GetAttribute('\068\117\110\103\101\111\110\082\117\110')~=nil if O
-or x.abilities or(bc and x.dungeonFarm and x.dungeonAbilities)then pcall(P,bc
-and x.dungeonFarm and x.dungeonAbilities or(not bc and x.abilities))end if a3(ba
-,bb,a5)then return end if aV(ba,bb,a5)then return end local bd=E.Power.Level(a5.
-Power or 0)local be if x.farmMode=='\065\117\116\111'and x.farm then for bf,bg in ipairs(W)
-do if not bg.gate and bg.level<=bd then be=bg end end end local bf=(x.farmMode==
-'\078\080\067'or x.farmMode=='\077\105\120\101\100')and aJ(os.clock())or be and aJ(os.clock(),be.id)
-local bg,bh,bi,bj=nil,false,false,math.huge local bk={}for bl,bm in ipairs(a6)do
-aq(bm)local bn=bm:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local bo=bm:FindFirstChild(
-'\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if bn and bn.Health>0 and bo and bm:GetAttribute('\068\117\110\103\101\111\110')==
-nil then local bp=bm:GetAttribute('\080\097\100\073\100')if bp then bk[bp]=true end if ba then
-local bq=bm:GetAttribute('\066\111\115\115')==true local br=bm:GetAttribute('\076\101\118\101\108')or 1
-local bs=x.boost or br<=bd if x.farmMode~='\065\117\116\111'then bs=a.manualEligible(x.
-farmMode,bq,bp,x.bossId,x.npcId)or(not bq and(x.farmMode=='\078\080\067'or x.farmMode==
-'\077\105\120\101\100')and a.sameArea(Y[bp],Y[x.npcId]))elseif x.progress and bq then bs=bs and
-a8 and bp==a8.id end if bs and(x.farm or(x.boss and(bq or x.farmMode=='\077\105\120\101\100')))
-then local bt=(ba.Position-bo.Position).Magnitude local bu=os.clock()-(ap[bm]or-
-10)<1 if bu then bt-=2000000 end if bf and not bq and bp~=bf.id then bt+=1000000
-end if(x.boss or x.farmMode=='\077\105\120\101\100')and bq then bt=bt-1000000000 end if bt<bj
-then bj=bt bg=bo bh=bq bi=bu end end end end end for bl,bm in ipairs(W)do if bm.
-gate then local bn=bk[bm.id]and f('\086\073\086\079','\065\076\073\086\069')or(an[bm.id]and(math.ceil(math.
-max(0,an[bm.id]-os.clock()))..f('\115\032\101\115\116\105\109\097\100\111\115','\115\032\101\115\116\105\109\097\116\101\100'))or f(
-'\110\u{e3}\111\032\111\098\115\101\114\118\097\100\111','\110\111\116\032\111\098\115\101\114\118\101\100'))a7[#a7+1]=a.displayName(bm.enemy)..'\058\032'..bn
-end end u.Text=table.concat(a7,'\032\124\032')local bl=(x.farmMode=='\066\111\115\115'or x.farmMode==
-'\077\105\120\101\100'and bk[x.bossId])and Y[x.bossId]or(x.farmMode=='\078\080\067'or x.farmMode==
-'\077\105\120\101\100')and Y[x.npcId]or a8 local bm=x.farmMode=='\077\105\120\101\100'and'\078\080\067\115\032\043\032\066\111\115\115'or x.
-farmMode _.Text=bm..'\032\u{b7}\032'..(bl and a.displayName(bl.name)or f('\083\101\109\032\097\108\118\111',
-'\078\111\032\116\097\114\103\101\116'))..'\032\u{b7}\032'..(bg and f('\065\108\118\111\032\101\110\099\111\110\116\114\097\100\111','\084\097\114\103\101\116\032\102\111\117\110\100')or f(
+if bh.Magnitude>0 and os.clock()-aW.lastMove>=0.8 then local bi=tostring(a7)..
+'\058'..tostring(a8)if aW.moveRoom~=bi then aW.moveRoom=bi aW.crossing=0 end local
+bj=bf.CanCollide==false local bk=bj and bf.Position or bg.Position local bl=bj
+and((aW.crossing or 0)%2)*8 or 8 local bm=Vector3.new(bk.X,bg.Position.Y,bk.Z)+
+bh.Unit*bl aW.lastMove=os.clock()if bj then aW.crossing=(aW.crossing or 0)+1 end
+if(a4.Position-bm).Magnitude>2 then a5:Move(Vector3.zero)a4.
+AssemblyLinearVelocity=Vector3.zero a4.AssemblyAngularVelocity=Vector3.zero a4.
+CFrame=CFrame.lookAt(bm,bm+bh.Unit)end end end end end return true end local
+function a4()local a5=L.Data if not a5 then w(f('\065\103\117\097\114\100\097\110\100\111\032\100\097\100\111\115\032\114\101\112\108\105\099\097\100\111\115\046\046\046'
+,'\087\097\105\116\105\110\103\032\102\111\114\032\114\101\112\108\105\099\097\116\101\100\032\100\097\116\097\046\046\046'))return end al=workspace:FindFirstChild(
+'\069\110\101\109\105\101\115')local a6=al and al:GetChildren()or{}local a7={}local a8=a.nextBoss(W,
+a5.Gates or{})local a9=k.Character local ba=a9 and a9:FindFirstChild(
+'\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')local bb=a9 and a9:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local bc=
+k:GetAttribute('\068\117\110\103\101\111\110\082\117\110')~=nil if O or x.abilities or(bc and x.dungeonFarm
+and x.dungeonAbilities)then pcall(P,bc and x.dungeonFarm and x.dungeonAbilities
+or(not bc and x.abilities))end if a3(ba,bb,a5)then return end if aV(ba,bb,a5)
+then return end local bd=E.Power.Level(a5.Power or 0)local be if x.farmMode==
+'\065\117\116\111'and x.farm then for bf,bg in ipairs(W)do if not bg.gate and bg.level<=bd
+then be=bg end end end local bf=(x.farmMode=='\078\080\067'or x.farmMode=='\077\105\120\101\100')and aJ(
+os.clock())or be and aJ(os.clock(),be.id)local bg,bh,bi,bj=nil,false,false,math.
+huge local bk={}for bl,bm in ipairs(a6)do aq(bm)local bn=bm:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local bo=bm:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')
+if bn and bn.Health>0 and bo and bm:GetAttribute('\068\117\110\103\101\111\110')==nil then local bp=
+bm:GetAttribute('\080\097\100\073\100')if bp then bk[bp]=true end if ba then local bq=bm:
+GetAttribute('\066\111\115\115')==true local br=bm:GetAttribute('\076\101\118\101\108')or 1 local bs=x.
+boost or br<=bd if x.farmMode~='\065\117\116\111'then bs=a.manualEligible(x.farmMode,bq,bp,x
+.bossId,x.npcId)or(not bq and(x.farmMode=='\078\080\067'or x.farmMode=='\077\105\120\101\100')and a.
+sameArea(Y[bp],Y[x.npcId]))elseif x.progress and bq then bs=bs and a8 and bp==a8
+.id end if bs and(x.farm or(x.boss and(bq or x.farmMode=='\077\105\120\101\100')))then local bt
+=(ba.Position-bo.Position).Magnitude local bu=os.clock()-(ap[bm]or-10)<1 if bu
+then bt-=2000000 end if bf and not bq and bp~=bf.id then bt+=1000000 end if(x.
+boss or x.farmMode=='\077\105\120\101\100')and bq then bt=bt-1000000000 end if bt<bj then bj=bt
+bg=bo bh=bq bi=bu end end end end end for bl,bm in ipairs(W)do if bm.gate then
+local bn=bk[bm.id]and f('\086\073\086\079','\065\076\073\086\069')or(an[bm.id]and(math.ceil(math.max(0,an[
+bm.id]-os.clock()))..f('\115\032\101\115\116\105\109\097\100\111\115','\115\032\101\115\116\105\109\097\116\101\100'))or f('\110\u{e3}\111\032\111\098\115\101\114\118\097\100\111',
+'\110\111\116\032\111\098\115\101\114\118\101\100'))a7[#a7+1]=a.displayName(bm.enemy)..'\058\032'..bn end end u.Text=table
+.concat(a7,'\032\124\032')local bl=(x.farmMode=='\066\111\115\115'or x.farmMode=='\077\105\120\101\100'and bk[x.
+bossId])and Y[x.bossId]or(x.farmMode=='\078\080\067'or x.farmMode=='\077\105\120\101\100')and Y[x.npcId]
+or a8 local bm=x.farmMode=='\077\105\120\101\100'and'\078\080\067\115\032\043\032\066\111\115\115'or x.farmMode _.Text=bm..
+'\032\u{b7}\032'..(bl and a.displayName(bl.name)or f('\083\101\109\032\097\108\118\111','\078\111\032\116\097\114\103\101\116'))..
+'\032\u{b7}\032'..(bg and f('\065\108\118\111\032\101\110\099\111\110\116\114\097\100\111','\084\097\114\103\101\116\032\102\111\117\110\100')or f(
 '\065\103\117\097\114\100\097\110\100\111\032\115\112\097\119\110\047\115\116\114\101\097\109\105\110\103\032\111\117\032\108\105\098\101\114\097\099\097\111\032\100\097\032\097\114\101\097',
 '\087\097\105\116\105\110\103\032\102\111\114\032\115\112\097\119\110\047\115\116\114\101\097\109\105\110\103\032\111\114\032\097\114\101\097\032\117\110\108\111\099\107'))if not(ba and bb and bb.Health>0)
 or E.Opening.Playing then return end if x.farm or x.boss then if x.farmMode==
