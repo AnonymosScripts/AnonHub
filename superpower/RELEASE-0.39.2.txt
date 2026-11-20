@@ -1,0 +1,6 @@
+AnonHub 0.39.2
+Dungeon: removido teleporte para NPCs. Combate em ponto fixo no centro da sala com suspensão por AlignPosition, altura ajustável de 4 a 24 studs (padrão 8) e orientação para o alvo. Teleporte de chegada somente uma vez por sala; progressão por portas liberadas preservada. Limpeza ao parar, morrer, trocar de personagem ou sair.
+Ataques usam habilidades nativas; não implementa kill aura que ignore alcance ou validação do servidor. Reduza a altura se a habilidade não alcançar os inimigos.
+Testes locais: regressões 66, posição fixa entre alvos, folga do teto e limpeza de constraints aprovados. Sete arquivos ofuscados verificados. Ainda não testado no Delta.
+
+Dungeon: stationary hover combat replaces NPC teleporting. Configurable height; floor transitions remain teleport-based. Native ability range still applies.

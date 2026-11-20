@@ -1,6 +1,6 @@
 -- Luau
--- AnonHub protected distribution 0.39.1
-local a={}a['\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097']=function(...)local b='\048\046\051\057\046\049'local c=...
+-- AnonHub protected distribution 0.39.2
+local a={}a['\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097']=function(...)local b='\048\046\051\057\046\050'local c=...
 assert(type(c)=='\116\097\098\108\101'and c.access,'\065\098\114\097\032\112\101\108\111\032\108\111\097\100\101\114\032\097\117\116\101\110\116\105\099\097\100\111')local d=game:
 GetService('\080\108\097\121\101\114\115')local e=game:GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local f=game:
 GetService('\072\116\116\112\083\101\114\118\105\099\101')local g=game:GetService('\084\119\101\101\110\083\101\114\118\105\099\101')local h=d.
@@ -315,49 +315,49 @@ upgrades=false,abilities=false,boost=false,guard=false,stun=false,multiplier=
 npcId=1,rarities={Common=true,Uncommon=true,Rare=true}}a2.dungeonFarm=false a2.
 dungeonEnter=false a2.dungeonRepeat=false a2.dungeonAbilities=false a2.
 dungeonSpeed=false a2.potionBuy=false a2.dungeonBuy=false a2.cosmeticBuy=false
-a2.cosmeticEquip=false a2.trinketEquip=false a2.exitFloor=10 a2.walkSpeed=30 a2.
-repeatDelay=15 a2.cashReserve=0 a2.tokenReserve=0 a2.buyLimit=25 a2.potionStock=
-3 a2.potionTier=4 a2.dungeonStock=1 a2.trinketStat='\068\097\109\097\103\101'a2.upgradeKinds={Cash
-=true,Health=true,Carry=true,Crit=true,Cooldown=true,Streak=true}a2.potionKinds=
-{}a2.dungeonItems={}a2.cosmeticKinds={Aura=true,Trail=true}if aI==2 then a2.
-rarities={Cosmic=true,Ancient=true,Cursed=true}end local a3={'\101\120\105\116\070\108\111\111\114',
-'\119\097\108\107\083\112\101\101\100','\114\101\112\101\097\116\068\101\108\097\121','\099\097\115\104\082\101\115\101\114\118\101','\116\111\107\101\110\082\101\115\101\114\118\101','\098\117\121\076\105\109\105\116','\112\111\116\105\111\110\083\116\111\099\107',
-'\112\111\116\105\111\110\084\105\101\114','\100\117\110\103\101\111\110\083\116\111\099\107','\116\114\105\110\107\101\116\083\116\097\116','\117\112\103\114\097\100\101\075\105\110\100\115','\112\111\116\105\111\110\075\105\110\100\115',
-'\100\117\110\103\101\111\110\073\116\101\109\115','\099\111\115\109\101\116\105\099\075\105\110\100\115'}local a4={exitFloor={0,1000},walkSpeed={16,100},
-repeatDelay={5,300},cashReserve={0,1e100},tokenReserve={0,1e12},buyLimit={1,1000
-},potionStock={1,100},potionTier={1,5},dungeonStock={1,100}}local a5=
-'\065\110\111\110\072\117\098\095\083\117\112\101\114\112\111\119\101\114\095'..aQ.UserId..(aI==2 and'\095\087\111\114\108\100\050'or'')..'\046\106\115\111\110'if type(
-readfile)=='\102\117\110\099\116\105\111\110'then local a6,a7=pcall(function()return aO:JSONDecode(
-readfile(a5))end)if a6 and type(a7)=='\116\097\098\108\101'then for a8,a9 in ipairs(a3)do local
-ba=a7[a9]if a4[a9]then a2[a9]=aG.number(ba,a4[a9][1],a4[a9][2],a9~='\099\097\115\104\082\101\115\101\114\118\101'
-)or a2[a9]elseif type(a2[a9])=='\116\097\098\108\101'and type(ba)=='\116\097\098\108\101'then local bb={}for
-bc,bd in pairs(ba)do if type(bc)=='\115\116\114\105\110\103'and#bc<120 and type(bd)=='\098\111\111\108\101\097\110'then
-bb[bc]=bd end end a2[a9]=bb elseif a9=='\116\114\105\110\107\101\116\083\116\097\116'and table.find({'\068\097\109\097\103\101',
-'\072\101\097\108\116\104','\080\111\119\101\114','\067\097\115\104','\076\117\099\107','\067\111\111\108\100\111\119\110'},ba)then a2[a9]=ba end end if type(a7.
-protected)=='\115\116\114\105\110\103'then a2.protected=a7.protected:sub(1,2000)end if type(a7.
-multiplier)=='\110\117\109\098\101\114'and a7.multiplier==a7.multiplier then a2.multiplier=math.
-clamp(a7.multiplier,1,1e12)end if type(a7.reserve)=='\110\117\109\098\101\114'and a7.reserve==a7.
-reserve then a2.reserve=math.clamp(math.floor(a7.reserve),1,1000)end if table.
-find({'\065\117\116\111','\066\111\115\115','\078\080\067','\077\105\120\101\100'},a7.farmMode)then a2.farmMode=a7.farmMode end
-if type(a7.bossId)=='\110\117\109\098\101\114'then a2.bossId=a7.bossId end if type(a7.npcId)==
-'\110\117\109\098\101\114'then a2.npcId=a7.npcId end if type(a7.rarities)=='\116\097\098\108\101'then a2.rarities
-=a7.rarities end if table.find({'\067\097\115\104','\076\117\099\107','\080\111\119\101\114','\083\112\101\101\100','\066\111\115\115'},a7.branch)
-then a2.branch=a7.branch end end end local function a6()if type(writefile)==
-'\102\117\110\099\116\105\111\110'then local a7={protected=a2.protected,multiplier=a2.multiplier,reserve
-=a2.reserve,branch=a2.branch,farmMode=a2.farmMode,bossId=a2.bossId,npcId=a2.
-npcId,rarities=a2.rarities}for a8,a9 in ipairs(a3)do a7[a9]=a2[a9]end pcall(
-writefile,a5,aO:JSONEncode(a7))end end local function a7(a8,a9)aS[#aS+1]=a8:
-Connect(a9)end local function a8(a9)local ba=aM for bb in a9:gmatch('\091\094\047\093\043')do
-ba=ba:FindFirstChild(bb)assert(ba,'\077\105\115\115\105\110\103\032\109\111\100\117\108\101\058\032'..a9)end local bb,bc,bd=
-false,false,nil local be=task.spawn(function()bc,bd=pcall(require,ba)bb=true end
-)local bf=os.clock()+12 while aR and not bb and os.clock()<bf do task.wait(0.05)
-end if not bb then pcall(task.cancel,be)error(aL('\084\101\109\112\111\032\108\105\109\105\116\101\032\097\111\032\099\097\114\114\101\103\097\114\058\032',
-'\076\111\097\100\105\110\103\032\116\105\109\101\100\032\111\117\116\058\032')..a9)end if not bc then error(tostring(bd))end return bd
-end local a9={}local ba={State='\067\108\105\101\110\116\047\067\111\114\101\047\080\108\097\121\101\114\083\116\097\116\101',Cards=
-'\083\104\097\114\101\100\047\067\111\110\102\105\103\047\067\097\114\100\067\111\110\102\105\103',Stats='\083\104\097\114\101\100\047\082\117\108\101\115\047\067\097\114\100\083\116\097\116\115',Base=
-'\083\104\097\114\101\100\047\067\111\110\102\105\103\047\066\097\115\101\067\111\110\102\105\103',Shrine='\083\104\097\114\101\100\047\082\117\108\101\115\047\083\104\114\105\110\101',Progress=
-'\083\104\097\114\101\100\047\082\117\108\101\115\047\080\114\111\103\114\101\115\115\105\111\110',Big='\083\104\097\114\101\100\047\085\116\105\108\047\066\105\103',Packs=
-'\083\104\097\114\101\100\047\067\111\110\102\105\103\047\080\097\099\107\067\111\110\102\105\103',Opening='\067\108\105\101\110\116\047\085\073\047\080\097\099\107\115\047\080\097\099\107\079\112\101\110\105\110\103',Registry=
+a2.cosmeticEquip=false a2.trinketEquip=false a2.hoverHeight=8 a2.exitFloor=10 a2
+.walkSpeed=30 a2.repeatDelay=15 a2.cashReserve=0 a2.tokenReserve=0 a2.buyLimit=
+25 a2.potionStock=3 a2.potionTier=4 a2.dungeonStock=1 a2.trinketStat='\068\097\109\097\103\101'a2.
+upgradeKinds={Cash=true,Health=true,Carry=true,Crit=true,Cooldown=true,Streak=
+true}a2.potionKinds={}a2.dungeonItems={}a2.cosmeticKinds={Aura=true,Trail=true}
+if aI==2 then a2.rarities={Cosmic=true,Ancient=true,Cursed=true}end local a3={
+'\104\111\118\101\114\072\101\105\103\104\116','\101\120\105\116\070\108\111\111\114','\119\097\108\107\083\112\101\101\100','\114\101\112\101\097\116\068\101\108\097\121','\099\097\115\104\082\101\115\101\114\118\101','\116\111\107\101\110\082\101\115\101\114\118\101'
+,'\098\117\121\076\105\109\105\116','\112\111\116\105\111\110\083\116\111\099\107','\112\111\116\105\111\110\084\105\101\114','\100\117\110\103\101\111\110\083\116\111\099\107','\116\114\105\110\107\101\116\083\116\097\116',
+'\117\112\103\114\097\100\101\075\105\110\100\115','\112\111\116\105\111\110\075\105\110\100\115','\100\117\110\103\101\111\110\073\116\101\109\115','\099\111\115\109\101\116\105\099\075\105\110\100\115'}local a4={
+hoverHeight={4,24},exitFloor={0,1000},walkSpeed={16,100},repeatDelay={5,300},
+cashReserve={0,1e100},tokenReserve={0,1e12},buyLimit={1,1000},potionStock={1,100
+},potionTier={1,5},dungeonStock={1,100}}local a5='\065\110\111\110\072\117\098\095\083\117\112\101\114\112\111\119\101\114\095'..aQ.
+UserId..(aI==2 and'\095\087\111\114\108\100\050'or'')..'\046\106\115\111\110'if type(readfile)=='\102\117\110\099\116\105\111\110'then local
+a6,a7=pcall(function()return aO:JSONDecode(readfile(a5))end)if a6 and type(a7)==
+'\116\097\098\108\101'then for a8,a9 in ipairs(a3)do local ba=a7[a9]if a4[a9]then a2[a9]=aG.
+number(ba,a4[a9][1],a4[a9][2],a9~='\099\097\115\104\082\101\115\101\114\118\101')or a2[a9]elseif type(a2[a9])==
+'\116\097\098\108\101'and type(ba)=='\116\097\098\108\101'then local bb={}for bc,bd in pairs(ba)do if type(bc)
+=='\115\116\114\105\110\103'and#bc<120 and type(bd)=='\098\111\111\108\101\097\110'then bb[bc]=bd end end a2[a9]=bb
+elseif a9=='\116\114\105\110\107\101\116\083\116\097\116'and table.find({'\068\097\109\097\103\101','\072\101\097\108\116\104','\080\111\119\101\114','\067\097\115\104','\076\117\099\107',
+'\067\111\111\108\100\111\119\110'},ba)then a2[a9]=ba end end if type(a7.protected)=='\115\116\114\105\110\103'then a2.
+protected=a7.protected:sub(1,2000)end if type(a7.multiplier)=='\110\117\109\098\101\114'and a7.
+multiplier==a7.multiplier then a2.multiplier=math.clamp(a7.multiplier,1,1e12)end
+if type(a7.reserve)=='\110\117\109\098\101\114'and a7.reserve==a7.reserve then a2.reserve=math.
+clamp(math.floor(a7.reserve),1,1000)end if table.find({'\065\117\116\111','\066\111\115\115','\078\080\067',
+'\077\105\120\101\100'},a7.farmMode)then a2.farmMode=a7.farmMode end if type(a7.bossId)==
+'\110\117\109\098\101\114'then a2.bossId=a7.bossId end if type(a7.npcId)=='\110\117\109\098\101\114'then a2.npcId=a7
+.npcId end if type(a7.rarities)=='\116\097\098\108\101'then a2.rarities=a7.rarities end if
+table.find({'\067\097\115\104','\076\117\099\107','\080\111\119\101\114','\083\112\101\101\100','\066\111\115\115'},a7.branch)then a2.branch=a7.
+branch end end end local function a6()if type(writefile)=='\102\117\110\099\116\105\111\110'then local
+a7={protected=a2.protected,multiplier=a2.multiplier,reserve=a2.reserve,branch=a2
+.branch,farmMode=a2.farmMode,bossId=a2.bossId,npcId=a2.npcId,rarities=a2.
+rarities}for a8,a9 in ipairs(a3)do a7[a9]=a2[a9]end pcall(writefile,a5,aO:
+JSONEncode(a7))end end local function a7(a8,a9)aS[#aS+1]=a8:Connect(a9)end local
+function a8(a9)local ba=aM for bb in a9:gmatch('\091\094\047\093\043')do ba=ba:FindFirstChild(
+bb)assert(ba,'\077\105\115\115\105\110\103\032\109\111\100\117\108\101\058\032'..a9)end local bb,bc,bd=false,false,nil local be=
+task.spawn(function()bc,bd=pcall(require,ba)bb=true end)local bf=os.clock()+12
+while aR and not bb and os.clock()<bf do task.wait(0.05)end if not bb then
+pcall(task.cancel,be)error(aL('\084\101\109\112\111\032\108\105\109\105\116\101\032\097\111\032\099\097\114\114\101\103\097\114\058\032','\076\111\097\100\105\110\103\032\116\105\109\101\100\032\111\117\116\058\032'
+)..a9)end if not bc then error(tostring(bd))end return bd end local a9={}local
+ba={State='\067\108\105\101\110\116\047\067\111\114\101\047\080\108\097\121\101\114\083\116\097\116\101',Cards='\083\104\097\114\101\100\047\067\111\110\102\105\103\047\067\097\114\100\067\111\110\102\105\103',Stats=
+'\083\104\097\114\101\100\047\082\117\108\101\115\047\067\097\114\100\083\116\097\116\115',Base='\083\104\097\114\101\100\047\067\111\110\102\105\103\047\066\097\115\101\067\111\110\102\105\103',Shrine=
+'\083\104\097\114\101\100\047\082\117\108\101\115\047\083\104\114\105\110\101',Progress='\083\104\097\114\101\100\047\082\117\108\101\115\047\080\114\111\103\114\101\115\115\105\111\110',Big='\083\104\097\114\101\100\047\085\116\105\108\047\066\105\103',
+Packs='\083\104\097\114\101\100\047\067\111\110\102\105\103\047\080\097\099\107\067\111\110\102\105\103',Opening='\067\108\105\101\110\116\047\085\073\047\080\097\099\107\115\047\080\097\099\107\079\112\101\110\105\110\103',Registry=
 '\067\108\105\101\110\116\047\067\111\114\101\047\076\111\099\097\108\069\110\101\109\121\082\101\103\105\115\116\114\121',Shields='\083\104\097\114\101\100\047\067\111\109\098\097\116\047\083\104\105\101\108\100\115',Ability=
 '\083\104\097\114\101\100\047\067\111\110\102\105\103\047\065\098\105\108\105\116\121\067\111\110\102\105\103',Settings='\067\108\105\101\110\116\047\067\111\110\116\114\111\108\108\101\114\115\047\083\101\116\116\105\110\103\115\067\111\110\116\114\111\108\108\101\114',
 Power='\083\104\097\114\101\100\047\067\111\110\102\105\103\047\080\111\119\101\114\067\111\110\102\105\103'}local bb,bc=0,0 for bd in pairs(ba)do bc+=1
@@ -502,14 +502,20 @@ bB[1].id or 0 end bz('\066\111\115\115','\098\111\115\115\073\100',bA)bz(aL('\u{
 '\069\110\116\114\097\114\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101\032\110\111\032\112\111\114\116\097\108','\065\117\116\111\109\097\116\105\099\097\108\108\121\032\101\110\116\101\114\032\116\104\101\032\112\111\114\116\097\108')bp(
 '\100\117\110\103\101\111\110\082\101\112\101\097\116','\082\101\112\101\116\105\114\032\097\112\u{f3}\115\032\115\097\105\114','\082\101\112\101\097\116\032\097\102\116\101\114\032\101\120\105\116')bp(
 '\100\117\110\103\101\111\110\065\098\105\108\105\116\105\101\115','\072\097\098\105\108\105\100\097\100\101\115\032\097\117\116\111\109\u{e1}\116\105\099\097\115\032\110\097\032\068\117\110\103\101\111\110',
-'\065\117\116\111\032\097\098\105\108\105\116\105\101\115\032\105\110\032\068\117\110\103\101\111\110')bp('\100\117\110\103\101\111\110\083\112\101\101\100','\087\097\108\107\032\083\112\101\101\100\032\110\097\032\068\117\110\103\101\111\110',
-'\068\117\110\103\101\111\110\032\087\097\108\107\032\083\112\101\101\100')bz(aL('\083\097\105\114\032\110\111\032\099\104\101\099\107\112\111\105\110\116','\069\120\105\116\032\097\116\032\099\104\101\099\107\112\111\105\110\116'),
-'\101\120\105\116\070\108\111\111\114',{{id=5,text='\053'},{id=10,text='\049\048'},{id=15,text='\049\053'},{id=20,text=
-'\050\048'},{id=25,text='\050\053'},{id=50,text='\053\048'},{id=0,text=aL(
-'\067\111\110\116\105\110\117\097\114\032\115\101\109\032\115\097\u{ed}\100\097\032\097\117\116\111\109\u{e1}\116\105\099\097','\067\111\110\116\105\110\117\101\032\119\105\116\104\111\117\116\032\097\117\116\111\109\097\116\105\099\032\101\120\105\116')}})
-br('\119\097\108\107\083\112\101\101\100',aL('\086\101\108\111\099\105\100\097\100\101\032\110\097\032\068\117\110\103\101\111\110\032\040\049\054\u{2013}\049\048\048\041',
-'\068\117\110\103\101\111\110\032\115\112\101\101\100\032\040\049\054\u{2013}\049\048\048\041'),function(bD)return aG.number(bD,16,100)end)br(
-'\114\101\112\101\097\116\068\101\108\097\121',aL('\073\110\116\101\114\118\097\108\111\032\101\110\116\114\101\032\112\097\114\116\105\100\097\115\032\040\053\u{2013}\051\048\048\032\115\041',
+'\065\117\116\111\032\097\098\105\108\105\116\105\101\115\032\105\110\032\068\117\110\103\101\111\110')aY(aL(
+'\067\111\109\098\097\116\101\032\112\097\114\097\100\111\032\110\111\032\097\108\116\111\032\100\097\032\115\097\108\097\046\032\078\u{e3}\111\032\116\101\108\101\112\111\114\116\097\032\097\116\u{e9}\032\078\080\067\115\046\032\065\115\032\104\097\098\105\108\105\100\097\100\101\115\032\109\097\110\116\u{ea}\109\032\111\032\097\108\099\097\110\099\101\032\110\097\116\105\118\111\032\100\111\032\106\111\103\111\046'
+,
+"\083\116\097\116\105\111\110\097\114\121\032\099\111\109\098\097\116\032\097\098\111\118\101\032\116\104\101\032\114\111\111\109\046\032\078\101\118\101\114\032\116\101\108\101\112\111\114\116\115\032\116\111\032\078\080\067\115\046\032\065\098\105\108\105\116\105\101\115\032\114\101\116\097\105\110\032\116\104\101\105\114\032\110\097\116\105\118\101\032\103\097\109\101\032\114\097\110\103\101\046"
+),64)br('\104\111\118\101\114\072\101\105\103\104\116',aL('\065\108\116\117\114\097\032\097\099\105\109\097\032\100\097\032\101\110\116\114\097\100\097\032\040\052\u{2013}\050\052\032\115\116\117\100\115\041',
+'\072\101\105\103\104\116\032\097\098\111\118\101\032\101\110\116\114\121\032\040\052\u{2013}\050\052\032\115\116\117\100\115\041'),function(bD)return aG.number(bD,4,24)
+end)bp('\100\117\110\103\101\111\110\083\112\101\101\100','\087\097\108\107\032\083\112\101\101\100\032\110\097\032\068\117\110\103\101\111\110','\068\117\110\103\101\111\110\032\087\097\108\107\032\083\112\101\101\100')bz(aL(
+'\083\097\105\114\032\110\111\032\099\104\101\099\107\112\111\105\110\116','\069\120\105\116\032\097\116\032\099\104\101\099\107\112\111\105\110\116'),'\101\120\105\116\070\108\111\111\114',{{id=5,text='\053'},{id=10,
+text='\049\048'},{id=15,text='\049\053'},{id=20,text='\050\048'},{id=25,text='\050\053'},{id=50,text=
+'\053\048'},{id=0,text=aL('\067\111\110\116\105\110\117\097\114\032\115\101\109\032\115\097\u{ed}\100\097\032\097\117\116\111\109\u{e1}\116\105\099\097',
+'\067\111\110\116\105\110\117\101\032\119\105\116\104\111\117\116\032\097\117\116\111\109\097\116\105\099\032\101\120\105\116')}})br('\119\097\108\107\083\112\101\101\100',aL(
+'\086\101\108\111\099\105\100\097\100\101\032\110\097\032\068\117\110\103\101\111\110\032\040\049\054\u{2013}\049\048\048\041','\068\117\110\103\101\111\110\032\115\112\101\101\100\032\040\049\054\u{2013}\049\048\048\041'),
+function(bD)return aG.number(bD,16,100)end)br('\114\101\112\101\097\116\068\101\108\097\121',aL(
+'\073\110\116\101\114\118\097\108\111\032\101\110\116\114\101\032\112\097\114\116\105\100\097\115\032\040\053\u{2013}\051\048\048\032\115\041',
 '\068\101\108\097\121\032\098\101\116\119\101\101\110\032\114\117\110\115\032\040\053\u{2013}\051\048\048\032\115\041'),function(bD)return aG.number(bD,5,300)end
 )local bD=aY(aL(
 '\065\103\117\097\114\100\097\110\100\111\032\112\097\114\116\105\100\097\046\032\084\111\100\097\115\032\097\115\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115\032\099\111\109\101\u{e7}\097\109\032\100\101\115\108\105\103\097\100\097\115\046',
@@ -707,144 +713,163 @@ Parent then return end if type(fireproximityprompt)=='\102\117\110\099\116\105\1
 fireproximityprompt,co)else co:InputHoldBegin()task.wait(co.HoldDuration+0.1)if
 co.Parent then co:InputHoldEnd()end end end)return true end local ch={run=nil,
 checkpoint=0,portal=nil,banked=0,runs=0,nextEntry=0,nextExit=0,lastMove=0}local
-ci,cj,ck local function cl()if ci and ci.Parent and ci.WalkSpeed==ck then ci.
-WalkSpeed=cj end ci=nil cj=nil ck=nil end local cm=aV aV=function()cl()cm()end
-local cn=bh:FindFirstChild('\068\117\110\103\101\111\110')if cn and cn:IsA('\082\101\109\111\116\101\069\118\101\110\116')then a7(cn.
-OnClientEvent,function(co,cp,cq)if co=='\083\116\097\114\116'then ch.run=cp ch.checkpoint=0 ch.
-portal=nil ch.nextExit=0 elseif co=='\080\111\114\116\097\108'and typeof(cp)=='\086\101\099\116\111\114\051'then ch.
-portal=cp elseif co=='\080\111\114\116\097\108\071\111\110\101'then ch.portal=nil elseif co=='\067\104\101\099\107\112\111\105\110\116'then
-ch.checkpoint=tonumber(cp)or 0 ch.banked=tonumber(cq)or 0 elseif co=='\069\110\100'and
-type(cp)=='\116\097\098\108\101'then ch.runs+=1 ch.run=nil ch.portal=nil ch.banked=tonumber(cp.
-Banked)or 0 ch.nextEntry=os.clock()+a2.repeatDelay if not a2.dungeonRepeat then
-a2.dungeonEnter=false for cr,cs in ipairs(bo)do cs()end end a1(aL(
-'\068\117\110\103\101\111\110\032\099\111\110\099\108\117\u{ed}\100\097\058\032\097\110\100\097\114\032','\068\117\110\103\101\111\110\032\102\105\110\105\115\104\101\100\058\032\102\108\111\111\114\032')..tostring(cp.Floor)
+ci,cj,ck local cl local function cm()if not cl then return end for cn,co in
+ipairs({cl.position,cl.orientation,cl.attachment})do co:Destroy()end if cl.
+humanoid.Parent then cl.humanoid.AutoRotate=cl.autoRotate end cl=nil end local
+function cn(co,cp,cq,cr)local cs=co:FindFirstChild('\069\110\116\114\121')local ct=co:
+FindFirstChild('\066\111\117\110\100\115')if not cs or not cs:IsA('\066\097\115\101\080\097\114\116')or not ct or not ct:
+IsA('\066\097\115\101\080\097\114\116')then return end if cl and(cl.room~=co or cl.root~=cp)then cm()end
+local cu=cs.Position.Y+a2.hoverHeight cu=math.min(cu,ct.Position.Y+ct.Size.Y/2-6
+)local cv=Vector3.new(ct.Position.X,cu,ct.Position.Z)if not cl then local cw=
+Instance.new('\065\116\116\097\099\104\109\101\110\116')cw.Name='\065\110\111\110\072\117\098\068\117\110\103\101\111\110\072\111\118\101\114'cw.Parent=cp local cx=
+Instance.new('\065\108\105\103\110\080\111\115\105\116\105\111\110')cx.Mode=Enum.PositionAlignmentMode.OneAttachment cx
+.Attachment0=cw cx.ApplyAtCenterOfMass=true cx.MaxForce=1000000 cx.MaxVelocity=
+40 cx.Responsiveness=25 cx.Position=cv cx.Parent=cp local cy=Instance.new(
+'\065\108\105\103\110\079\114\105\101\110\116\097\116\105\111\110')cy.Mode=Enum.OrientationAlignmentMode.OneAttachment cy.
+Attachment0=cw cy.MaxTorque=1000000 cy.Responsiveness=20 cy.Parent=cp cl={room=
+co,root=cp,humanoid=cq,autoRotate=cq.AutoRotate,attachment=cw,position=cx,
+orientation=cy}cq.AutoRotate=false cq:Move(Vector3.zero)cp.
+AssemblyLinearVelocity=Vector3.zero cp.AssemblyAngularVelocity=Vector3.zero cp.
+CFrame=CFrame.new(cv)end cl.position.Position=cv if cr then local cw=Vector3.
+new(cr.Position.X-cv.X,0,cr.Position.Z-cv.Z)if cw.Magnitude>0.1 then cl.
+orientation.CFrame=CFrame.lookAt(Vector3.zero,cw)end end end local function co()
+if ci and ci.Parent and ci.WalkSpeed==ck then ci.WalkSpeed=cj end ci=nil cj=nil
+ck=nil end local cp=aV aV=function()cm()co()cp()end local cq=bh:FindFirstChild(
+'\068\117\110\103\101\111\110')if cq and cq:IsA('\082\101\109\111\116\101\069\118\101\110\116')then a7(cq.OnClientEvent,function(cr,cs
+,ct)if cr=='\083\116\097\114\116'then ch.run=cs ch.checkpoint=0 ch.portal=nil ch.nextExit=0
+elseif cr=='\080\111\114\116\097\108'and typeof(cs)=='\086\101\099\116\111\114\051'then ch.portal=cs elseif cr==
+'\080\111\114\116\097\108\071\111\110\101'then ch.portal=nil elseif cr=='\067\104\101\099\107\112\111\105\110\116'then ch.checkpoint=
+tonumber(cs)or 0 ch.banked=tonumber(ct)or 0 elseif cr=='\069\110\100'and type(cs)==
+'\116\097\098\108\101'then cm()ch.runs+=1 ch.run=nil ch.portal=nil ch.banked=tonumber(cs.Banked
+)or 0 ch.nextEntry=os.clock()+a2.repeatDelay if not a2.dungeonRepeat then a2.
+dungeonEnter=false for cu,cv in ipairs(bo)do cv()end end a1(aL(
+'\068\117\110\103\101\111\110\032\099\111\110\099\108\117\u{ed}\100\097\058\032\097\110\100\097\114\032','\068\117\110\103\101\111\110\032\102\105\110\105\115\104\101\100\058\032\102\108\111\111\114\032')..tostring(cs.Floor)
 ..'\032\u{b7}\032'..ch.banked..aL('\032\116\111\107\101\110\115\032\u{b7}\032\112\101\114\100\105\100\111\115\058\032','\032\116\111\107\101\110\115\032\u{b7}\032\108\111\115\116\058\032')
-..tostring(cp.Lost))end end)end local function co(cp,cq,cr)if not cr or not cq
+..tostring(cs.Lost))end end)end local function cr(cs,ct,cu)if not cu or not ct
 or os.clock()-bZ<0.6 or aP:GetFocusedTextBox()then return end bZ=os.clock()local
-cs=a9.Ability.Loadout(cp)if#cs>0 then bY=(bY-1)%#cs+1 local ct=a9.Ability.Keys[
-bY]if ct then local cu=game:GetService('\086\105\114\116\117\097\108\073\110\112\117\116\077\097\110\097\103\101\114')cu:SendKeyEvent(
-true,ct,false,game)cu:SendKeyEvent(false,ct,false,game)end bY+=1 end end local
-function cp(cq,cr,cs)local ct=aQ:GetAttribute('\068\117\110\103\101\111\110\082\117\110')bT=false local cu=
-tonumber(aQ:GetAttribute('\068\117\110\103\101\111\110\070\108\111\111\114'))or 0 local cv=tonumber(aQ:GetAttribute(
-'\068\117\110\103\101\111\110\069\110\101\109\105\101\115'))or 0 bD.Text=aL('\065\110\100\097\114\058\032','\070\108\111\111\114\058\032')..cu..aL(
-'\032\u{b7}\032\073\110\105\109\105\103\111\115\058\032','\032\u{b7}\032\069\110\101\109\105\101\115\058\032')..cv..aL('\n\084\111\107\101\110\115\032\112\101\110\100\101\110\116\101\115\058\032',
+cv=a9.Ability.Loadout(cs)if#cv>0 then bY=(bY-1)%#cv+1 local cw=a9.Ability.Keys[
+bY]if cw then local cx=game:GetService('\086\105\114\116\117\097\108\073\110\112\117\116\077\097\110\097\103\101\114')cx:SendKeyEvent(
+true,cw,false,game)cx:SendKeyEvent(false,cw,false,game)end bY+=1 end end local
+function cs(ct,cu,cv)local cw=aQ:GetAttribute('\068\117\110\103\101\111\110\082\117\110')bT=false local cx=
+tonumber(aQ:GetAttribute('\068\117\110\103\101\111\110\070\108\111\111\114'))or 0 local cy=tonumber(aQ:GetAttribute(
+'\068\117\110\103\101\111\110\069\110\101\109\105\101\115'))or 0 bD.Text=aL('\065\110\100\097\114\058\032','\070\108\111\111\114\058\032')..cx..aL(
+'\032\u{b7}\032\073\110\105\109\105\103\111\115\058\032','\032\u{b7}\032\069\110\101\109\105\101\115\058\032')..cy..aL('\n\084\111\107\101\110\115\032\112\101\110\100\101\110\116\101\115\058\032',
 '\n\085\110\098\097\110\107\101\100\032\116\111\107\101\110\115\058\032')..tostring(aQ:GetAttribute('\068\117\110\103\101\111\110\085\110\098\097\110\107\101\100')or 0)..aL(
-'\032\u{b7}\032\083\097\108\100\111\058\032','\032\u{b7}\032\066\097\108\097\110\099\101\058\032')..tostring(cs.DungeonTokens or 0)..aL(
+'\032\u{b7}\032\083\097\108\100\111\058\032','\032\u{b7}\032\066\097\108\097\110\099\101\058\032')..tostring(cv.DungeonTokens or 0)..aL(
 '\n\067\104\101\099\107\112\111\105\110\116\058\032','\n\067\104\101\099\107\112\111\105\110\116\058\032')..ch.checkpoint..aL('\032\u{b7}\032\080\097\114\116\105\100\097\115\058\032',
-'\032\u{b7}\032\082\117\110\115\058\032')..ch.runs if ct==nil then cl()if a2.dungeonEnter and a2.
-dungeonFarm and os.clock()>=ch.nextEntry and cq and cr and cr.Health>0 then bT=
-true if bN or a9.Opening.Playing then return true end local cw=workspace:
-FindFirstChild('\068\117\110\103\101\111\110\080\111\114\116\097\108')if cw and cw:IsA('\077\111\100\101\108')then local cx=cw:
-GetPivot()+Vector3.new(0,3,0)if(cq.Position-cx.Position).Magnitude>4 then cq.
-CFrame=cx end local cy=cw:GetAttribute('\083\116\097\114\116\115\065\116')bD.Text=aL(
-'\078\097\032\102\105\108\097\032\100\097\032\068\117\110\103\101\111\110','\073\110\032\068\117\110\103\101\111\110\032\113\117\101\117\101')..(type(cy)=='\110\117\109\098\101\114'and('\032\u{b7}\032'..
-math.max(0,math.ceil(cy-workspace:GetServerTimeNow()))..'\115')or'')return true end
-end return false end if a2.dungeonSpeed and cr then if ci~=cr then cl()ci=cr cj=
-cr.WalkSpeed end ck=a2.walkSpeed cr.WalkSpeed=ck else cl()end if not a2.
-dungeonFarm or not cq or not cr or cr.Health<=0 or aQ:GetAttribute('\068\111\119\110\101\100')==
-true then return true end if aG.shouldExit(a2.exitFloor,ch.checkpoint,ch.portal
-~=nil)then cq.CFrame=CFrame.new(ch.portal+Vector3.new(0,3,0))if cn and os.clock(
-)>=ch.nextExit then ch.nextExit=os.clock()+3 cn:FireServer('\069\120\105\116')end return
-true end local cw=workspace:FindFirstChild('\069\110\101\109\105\101\115')local cx,cy=nil,math.huge
-for cz,cA in ipairs(cw and cw:GetChildren()or{})do local cB=cA:
-FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cC=cA:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')
-if aG.dungeonEnemy(ct,cA:GetAttribute('\068\117\110\103\101\111\110'),cB and cB.Health or 0,cA:
-GetAttribute('\065\108\108\121'))and cC then local cD=(cq.Position-cC.Position).Magnitude-(
-cA:GetAttribute('\066\111\115\115')==true and 1000000 or 0)if cD<cy then cy=cD cx=cC end end
-end if cx then local cz=cq.Position-cx.Position if cz.Magnitude>9 and os.clock()
--ch.lastMove>0.3 then ch.lastMove=os.clock()local cA=cz.Magnitude>0 and cz.Unit*
-6 or Vector3.new(0,0,6)cq.CFrame=CFrame.lookAt(cx.Position+cA,cx.Position)end
-co(cs,cx,a2.dungeonAbilities)elseif aQ:GetAttribute('\068\117\110\103\101\111\110\070\105\103\104\116')~=true and cv
-==0 then local cz=workspace:FindFirstChild('\068\117\110\103\101\111\110\077\097\112\115')local cA=cz and cz:
-FindFirstChild('\082\117\110'..tostring(ct)..'\095\070\108\111\111\114'..tostring(cu))if cA then local cB=
-cA:FindFirstChild('\069\120\105\116\068\111\111\114')local cC=cA:FindFirstChild('\069\110\116\114\121')if cB and cB:
-IsA('\066\097\115\101\080\097\114\116')and cC and cC:IsA('\066\097\115\101\080\097\114\116')then local cD=cB.Position-cC.
-Position cD=Vector3.new(cD.X,0,cD.Z)if cD.Magnitude>0 and os.clock()-ch.lastMove
->=0.8 then local cE=tostring(ct)..'\058'..tostring(cu)if ch.moveRoom~=cE then ch.
-moveRoom=cE ch.crossing=0 end local cF=cB.CanCollide==false local cG=cF and cB.
-Position or cC.Position local cH=cF and((ch.crossing or 0)%2)*8 or 8 local cI=
-Vector3.new(cG.X,cC.Position.Y,cG.Z)+cD.Unit*cH ch.lastMove=os.clock()if cF then
-ch.crossing=(ch.crossing or 0)+1 end if(cq.Position-cI).Magnitude>2 then cr:
-Move(Vector3.zero)cq.AssemblyLinearVelocity=Vector3.zero cq.
-AssemblyAngularVelocity=Vector3.zero cq.CFrame=CFrame.lookAt(cI,cI+cD.Unit)end
-end end end end return true end local function cq()local cr=bg.Data if not cr
-then a1(aL('\065\103\117\097\114\100\097\110\100\111\032\100\097\100\111\115\032\114\101\112\108\105\099\097\100\111\115\046\046\046','\087\097\105\116\105\110\103\032\102\111\114\032\114\101\112\108\105\099\097\116\101\100\032\100\097\116\097\046\046\046'))
-return end bH=workspace:FindFirstChild('\069\110\101\109\105\101\115')local cs=bH and bH:GetChildren(
-)or{}local ct={}local cu=aG.nextBoss(bu,cr.Gates or{})local cv=aQ.Character
-local cw=cv and cv:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')local cx=cv and cv:
-FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cy=aQ:GetAttribute('\068\117\110\103\101\111\110\082\117\110')~=nil if
-bj or a2.abilities or(cy and a2.dungeonFarm and a2.dungeonAbilities)then pcall(
-bk,cy and a2.dungeonFarm and a2.dungeonAbilities or(not cy and a2.abilities))end
-if cp(cw,cx,cr)then return end if cg(cw,cx,cr)then return end local cz=a9.Power.
-Level(cr.Power or 0)local cA if a2.farmMode=='\065\117\116\111'and a2.farm then for cB,cC in
-ipairs(bu)do if not cC.gate and cC.level<=cz then cA=cC end end end local cB=(a2
-.farmMode=='\078\080\067'or a2.farmMode=='\077\105\120\101\100')and b4(os.clock())or cA and b4(os.clock(
-),cA.id)local cC,cD,cE,cF=nil,false,false,math.huge local cG={}for cH,cI in
-ipairs(cs)do bM(cI)local cJ=cI:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cK=cI:
-FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if cJ and cJ.Health>0 and cK and cI:
-GetAttribute('\068\117\110\103\101\111\110')==nil then local cL=cI:GetAttribute('\080\097\100\073\100')if cL then cG
-[cL]=true end if cw then local cM=cI:GetAttribute('\066\111\115\115')==true local cN=cI:
-GetAttribute('\076\101\118\101\108')or 1 local cO=a2.boost or cN<=cz if a2.farmMode~='\065\117\116\111'then
-cO=aG.manualEligible(a2.farmMode,cM,cL,a2.bossId,a2.npcId)or(not cM and(a2.
-farmMode=='\078\080\067'or a2.farmMode=='\077\105\120\101\100')and aG.sameArea(bw[cL],bw[a2.npcId]))
-elseif a2.progress and cM then cO=cO and cu and cL==cu.id end if cO and(a2.farm
-or(a2.boss and(cM or a2.farmMode=='\077\105\120\101\100')))then local cP=(cw.Position-cK.
-Position).Magnitude local cQ=os.clock()-(bL[cI]or-10)<1 if cQ then cP-=2000000
-end if cB and not cM and cL~=cB.id then cP+=1000000 end if(a2.boss or a2.
-farmMode=='\077\105\120\101\100')and cM then cP=cP-1000000000 end if cP<cF then cF=cP cC=cK cD=
-cM cE=cQ end end end end end for cH,cI in ipairs(bu)do if cI.gate then local cJ=
-cG[cI.id]and aL('\086\073\086\079','\065\076\073\086\069')or(bJ[cI.id]and(math.ceil(math.max(0,bJ[cI.id]-os
+'\032\u{b7}\032\082\117\110\115\058\032')..ch.runs if cw==nil then cm()co()if a2.dungeonEnter and a2.
+dungeonFarm and os.clock()>=ch.nextEntry and ct and cu and cu.Health>0 then bT=
+true if bN or a9.Opening.Playing then return true end local cz=workspace:
+FindFirstChild('\068\117\110\103\101\111\110\080\111\114\116\097\108')if cz and cz:IsA('\077\111\100\101\108')then local cA=cz:
+GetPivot()+Vector3.new(0,3,0)if(ct.Position-cA.Position).Magnitude>4 then ct.
+CFrame=cA end local cB=cz:GetAttribute('\083\116\097\114\116\115\065\116')bD.Text=aL(
+'\078\097\032\102\105\108\097\032\100\097\032\068\117\110\103\101\111\110','\073\110\032\068\117\110\103\101\111\110\032\113\117\101\117\101')..(type(cB)=='\110\117\109\098\101\114'and('\032\u{b7}\032'..
+math.max(0,math.ceil(cB-workspace:GetServerTimeNow()))..'\115')or'')return true end
+end return false end if a2.dungeonSpeed and cu then if ci~=cu then co()ci=cu cj=
+cu.WalkSpeed end ck=a2.walkSpeed cu.WalkSpeed=ck else co()end if not a2.
+dungeonFarm or not ct or not cu or cu.Health<=0 or aQ:GetAttribute('\068\111\119\110\101\100')==
+true then cm()return true end if aG.shouldExit(a2.exitFloor,ch.checkpoint,ch.
+portal~=nil)then cm()ct.CFrame=CFrame.new(ch.portal+Vector3.new(0,3,0))if cq and
+os.clock()>=ch.nextExit then ch.nextExit=os.clock()+3 cq:FireServer('\069\120\105\116')end
+return true end local cz=workspace:FindFirstChild('\069\110\101\109\105\101\115')local cA,cB=nil,math
+.huge for cC,cD in ipairs(cz and cz:GetChildren()or{})do local cE=cD:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cF=cD:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')
+if aG.dungeonEnemy(cw,cD:GetAttribute('\068\117\110\103\101\111\110'),cE and cE.Health or 0,cD:
+GetAttribute('\065\108\108\121'))and cF then local cG=(ct.Position-cF.Position).Magnitude-(
+cD:GetAttribute('\066\111\115\115')==true and 1000000 or 0)if cG<cB then cB=cG cA=cF end end
+end local cC=workspace:FindFirstChild('\068\117\110\103\101\111\110\077\097\112\115')local cD=cC and cC:
+FindFirstChild('\082\117\110'..tostring(cw)..'\095\070\108\111\111\114'..tostring(cx))if cl and(cl.room~=cD
+or cl.root~=ct)then cm()end if cA then if cD then cn(cD,ct,cu,cA)end cr(cv,cA,a2
+.dungeonAbilities)elseif aQ:GetAttribute('\068\117\110\103\101\111\110\070\105\103\104\116')~=true and cy==0 then if
+cD then local cE=cD:FindFirstChild('\069\120\105\116\068\111\111\114')local cF=cD:FindFirstChild('\069\110\116\114\121'
+)if cE and cE:IsA('\066\097\115\101\080\097\114\116')and cF and cF:IsA('\066\097\115\101\080\097\114\116')then local cG=cE.
+Position-cF.Position cG=Vector3.new(cG.X,0,cG.Z)if cG.Magnitude>0 and os.clock()
+-ch.lastMove>=0.8 then local cH=tostring(cw)..'\058'..tostring(cx)if ch.moveRoom~=
+cH then ch.moveRoom=cH ch.crossing=0 end local cI=cE.CanCollide==false if not cI
+and cl then return true end cm()local cJ=cI and cE.Position or cF.Position local
+cK=cI and((ch.crossing or 0)%2)*8 or 8 local cL=Vector3.new(cJ.X,cF.Position.Y,
+cJ.Z)+cG.Unit*cK ch.lastMove=os.clock()if cI then ch.crossing=(ch.crossing or 0)
++1 end if(ct.Position-cL).Magnitude>2 then cu:Move(Vector3.zero)ct.
+AssemblyLinearVelocity=Vector3.zero ct.AssemblyAngularVelocity=Vector3.zero ct.
+CFrame=CFrame.lookAt(cL,cL+cG.Unit)end end end end end return true end local
+function ct()local cu=bg.Data if not cu then a1(aL(
+'\065\103\117\097\114\100\097\110\100\111\032\100\097\100\111\115\032\114\101\112\108\105\099\097\100\111\115\046\046\046','\087\097\105\116\105\110\103\032\102\111\114\032\114\101\112\108\105\099\097\116\101\100\032\100\097\116\097\046\046\046'))return end bH
+=workspace:FindFirstChild('\069\110\101\109\105\101\115')local cv=bH and bH:GetChildren()or{}local cw
+={}local cx=aG.nextBoss(bu,cu.Gates or{})local cy=aQ.Character local cz=cy and
+cy:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')local cA=cy and cy:FindFirstChildOfClass(
+'\072\117\109\097\110\111\105\100')local cB=aQ:GetAttribute('\068\117\110\103\101\111\110\082\117\110')~=nil if bj or a2.abilities or(
+cB and a2.dungeonFarm and a2.dungeonAbilities)then pcall(bk,cB and a2.
+dungeonFarm and a2.dungeonAbilities or(not cB and a2.abilities))end if cs(cz,cA,
+cu)then return end if cg(cz,cA,cu)then return end local cC=a9.Power.Level(cu.
+Power or 0)local cD if a2.farmMode=='\065\117\116\111'and a2.farm then for cE,cF in ipairs(
+bu)do if not cF.gate and cF.level<=cC then cD=cF end end end local cE=(a2.
+farmMode=='\078\080\067'or a2.farmMode=='\077\105\120\101\100')and b4(os.clock())or cD and b4(os.clock()
+,cD.id)local cF,cG,cH,cI=nil,false,false,math.huge local cJ={}for cK,cL in
+ipairs(cv)do bM(cL)local cM=cL:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cN=cL:
+FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if cM and cM.Health>0 and cN and cL:
+GetAttribute('\068\117\110\103\101\111\110')==nil then local cO=cL:GetAttribute('\080\097\100\073\100')if cO then cJ
+[cO]=true end if cz then local cP=cL:GetAttribute('\066\111\115\115')==true local cQ=cL:
+GetAttribute('\076\101\118\101\108')or 1 local cR=a2.boost or cQ<=cC if a2.farmMode~='\065\117\116\111'then
+cR=aG.manualEligible(a2.farmMode,cP,cO,a2.bossId,a2.npcId)or(not cP and(a2.
+farmMode=='\078\080\067'or a2.farmMode=='\077\105\120\101\100')and aG.sameArea(bw[cO],bw[a2.npcId]))
+elseif a2.progress and cP then cR=cR and cx and cO==cx.id end if cR and(a2.farm
+or(a2.boss and(cP or a2.farmMode=='\077\105\120\101\100')))then local cS=(cz.Position-cN.
+Position).Magnitude local cT=os.clock()-(bL[cL]or-10)<1 if cT then cS-=2000000
+end if cE and not cP and cO~=cE.id then cS+=1000000 end if(a2.boss or a2.
+farmMode=='\077\105\120\101\100')and cP then cS=cS-1000000000 end if cS<cI then cI=cS cF=cN cG=
+cP cH=cT end end end end end for cK,cL in ipairs(bu)do if cL.gate then local cM=
+cJ[cL.id]and aL('\086\073\086\079','\065\076\073\086\069')or(bJ[cL.id]and(math.ceil(math.max(0,bJ[cL.id]-os
 .clock()))..aL('\115\032\101\115\116\105\109\097\100\111\115','\115\032\101\115\116\105\109\097\116\101\100'))or aL('\110\u{e3}\111\032\111\098\115\101\114\118\097\100\111',
-'\110\111\116\032\111\098\115\101\114\118\101\100'))ct[#ct+1]=aG.displayName(cI.enemy)..'\058\032'..cJ end end a_.Text=
-table.concat(ct,'\032\124\032')local cH=(a2.farmMode=='\066\111\115\115'or a2.farmMode=='\077\105\120\101\100'and cG
+'\110\111\116\032\111\098\115\101\114\118\101\100'))cw[#cw+1]=aG.displayName(cL.enemy)..'\058\032'..cM end end a_.Text=
+table.concat(cw,'\032\124\032')local cK=(a2.farmMode=='\066\111\115\115'or a2.farmMode=='\077\105\120\101\100'and cJ
 [a2.bossId])and bw[a2.bossId]or(a2.farmMode=='\078\080\067'or a2.farmMode=='\077\105\120\101\100')and bw
-[a2.npcId]or cu local cI=a2.farmMode=='\077\105\120\101\100'and'\078\080\067\115\032\043\032\066\111\115\115'or a2.farmMode by.
-Text=cI..'\032\u{b7}\032'..(cH and aG.displayName(cH.name)or aL('\083\101\109\032\097\108\118\111','\078\111\032\116\097\114\103\101\116'
-))..'\032\u{b7}\032'..(cC and aL('\065\108\118\111\032\101\110\099\111\110\116\114\097\100\111','\084\097\114\103\101\116\032\102\111\117\110\100')or aL(
+[a2.npcId]or cx local cL=a2.farmMode=='\077\105\120\101\100'and'\078\080\067\115\032\043\032\066\111\115\115'or a2.farmMode by.
+Text=cL..'\032\u{b7}\032'..(cK and aG.displayName(cK.name)or aL('\083\101\109\032\097\108\118\111','\078\111\032\116\097\114\103\101\116'
+))..'\032\u{b7}\032'..(cF and aL('\065\108\118\111\032\101\110\099\111\110\116\114\097\100\111','\084\097\114\103\101\116\032\102\111\117\110\100')or aL(
 '\065\103\117\097\114\100\097\110\100\111\032\115\112\097\119\110\047\115\116\114\101\097\109\105\110\103\032\111\117\032\108\105\098\101\114\097\099\097\111\032\100\097\032\097\114\101\097',
-'\087\097\105\116\105\110\103\032\102\111\114\032\115\112\097\119\110\047\115\116\114\101\097\109\105\110\103\032\111\114\032\097\114\101\097\032\117\110\108\111\099\107'))if not(cw and cx and cx.Health>0)
+'\087\097\105\116\105\110\103\032\102\111\114\032\115\112\097\119\110\047\115\116\114\101\097\109\105\110\103\032\111\114\032\097\114\101\097\032\117\110\108\111\099\107'))if not(cz and cA and cA.Health>0)
 or a9.Opening.Playing then return end if a2.farm or a2.boss then if a2.farmMode
-=='\077\105\120\101\100'and not cG[a2.bossId]then local cJ=bw[a2.bossId]local cK=os.clock()if
-cJ and typeof(cJ.cf)=='\067\070\114\097\109\101'and cK>=b_ and cK>=(bJ[a2.bossId]or 0)then b_=cK+
-20 b0=cK+2 cw.CFrame=cJ.cf+Vector3.new(0,4,0)end if cK<b0 then by.Text=aL(
-'\086\101\114\105\102\105\099\097\110\100\111\032\115\112\097\119\110\032\100\111\032\098\111\115\115\046\046\046','\067\104\101\099\107\105\110\103\032\098\111\115\115\032\115\112\097\119\110\046\046\046')return end end if cB and
-not cD and not cE and not cG[cB.id]and not(a2.farmMode=='\077\105\120\101\100'and cG[a2.bossId]
-)and typeof(cB.cf)=='\067\070\114\097\109\101'then local cJ=cB.cf+Vector3.new(0,4,0)if(cw.Position
--cJ.Position).Magnitude>15 then cw.CFrame=cJ end return end if cC then local cJ=
-cw.Position-cC.Position if cJ.Magnitude>10 then local cK=cC.Position+(cJ.
-Magnitude>0 and cJ.Unit or Vector3.new(0,0,1))*7 cw.CFrame=CFrame.lookAt(cK,cC.
-Position)end else local cJ=a2.farmMode=='\066\111\115\115'and bw[a2.bossId]or(a2.farmMode==
-'\078\080\067'or a2.farmMode=='\077\105\120\101\100')and bw[a2.npcId]or a2.progress and cu if cB then cJ
-=cB end if cJ and typeof(cJ.cf)=='\067\070\114\097\109\101'and(a2.farmMode~='\065\117\116\111'or a2.boost or
-cJ.level<=cz)then local cK=cJ.cf.Position+Vector3.new(0,4,0)if(cw.Position-cK).
-Magnitude>15 then cw.CFrame=CFrame.new(cK)end end end end if a2.abilities and cC
-and os.clock()-bZ>0.6 and not aP:GetFocusedTextBox()then bZ=os.clock()local cJ=
-a9.Ability.Loadout(cr)if#cJ>0 then bY=(bY-1)%#cJ+1 local cK=a9.Ability.Keys[bY]
-if cK then local cL=game:GetService('\086\105\114\116\117\097\108\073\110\112\117\116\077\097\110\097\103\101\114')cL:SendKeyEvent(true,
-cK,false,game)cL:SendKeyEvent(false,cK,false,game)end bY=bY+1 end end end local
-cr,cs,ct=false,false,-1 bK=function()if not aR or cr then return end cr=true
-task.delay(math.max(0,0.05-(os.clock()-ct)),function()cr=false if not aR then
-return end if cs then bK()return end cs=true ct=os.clock()local cu,cv=pcall(cq)
-cs=false if not cu then a1(cv)end end)end local cu,cv local function cw(cx)if cu
-==cx then return end if cv then cv:Disconnect()end cu=cx if not cx then return
-end cv=cx.DescendantAdded:Connect(function(cy)local cz=cy while cz and cz.Parent
-~=cx do cz=cz.Parent end if cz and(cy==cz or cy.Name=='\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116'or cy:
-IsA('\072\117\109\097\110\111\105\100'))and cz:IsA('\077\111\100\101\108')and cz:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')and
-cz:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')then bL[cz]=os.clock()bK()end end)aS[#aS+1]=
-cv end cw(bH)a7(workspace.ChildAdded,function(cx)if cx.Name=='\069\110\101\109\105\101\115'then cw(cx
+=='\077\105\120\101\100'and not cJ[a2.bossId]then local cM=bw[a2.bossId]local cN=os.clock()if
+cM and typeof(cM.cf)=='\067\070\114\097\109\101'and cN>=b_ and cN>=(bJ[a2.bossId]or 0)then b_=cN+
+20 b0=cN+2 cz.CFrame=cM.cf+Vector3.new(0,4,0)end if cN<b0 then by.Text=aL(
+'\086\101\114\105\102\105\099\097\110\100\111\032\115\112\097\119\110\032\100\111\032\098\111\115\115\046\046\046','\067\104\101\099\107\105\110\103\032\098\111\115\115\032\115\112\097\119\110\046\046\046')return end end if cE and
+not cG and not cH and not cJ[cE.id]and not(a2.farmMode=='\077\105\120\101\100'and cJ[a2.bossId]
+)and typeof(cE.cf)=='\067\070\114\097\109\101'then local cM=cE.cf+Vector3.new(0,4,0)if(cz.Position
+-cM.Position).Magnitude>15 then cz.CFrame=cM end return end if cF then local cM=
+cz.Position-cF.Position if cM.Magnitude>10 then local cN=cF.Position+(cM.
+Magnitude>0 and cM.Unit or Vector3.new(0,0,1))*7 cz.CFrame=CFrame.lookAt(cN,cF.
+Position)end else local cM=a2.farmMode=='\066\111\115\115'and bw[a2.bossId]or(a2.farmMode==
+'\078\080\067'or a2.farmMode=='\077\105\120\101\100')and bw[a2.npcId]or a2.progress and cx if cE then cM
+=cE end if cM and typeof(cM.cf)=='\067\070\114\097\109\101'and(a2.farmMode~='\065\117\116\111'or a2.boost or
+cM.level<=cC)then local cN=cM.cf.Position+Vector3.new(0,4,0)if(cz.Position-cN).
+Magnitude>15 then cz.CFrame=CFrame.new(cN)end end end end if a2.abilities and cF
+and os.clock()-bZ>0.6 and not aP:GetFocusedTextBox()then bZ=os.clock()local cM=
+a9.Ability.Loadout(cu)if#cM>0 then bY=(bY-1)%#cM+1 local cN=a9.Ability.Keys[bY]
+if cN then local cO=game:GetService('\086\105\114\116\117\097\108\073\110\112\117\116\077\097\110\097\103\101\114')cO:SendKeyEvent(true,
+cN,false,game)cO:SendKeyEvent(false,cN,false,game)end bY=bY+1 end end end local
+cu,cv,cw=false,false,-1 bK=function()if not aR or cu then return end cu=true
+task.delay(math.max(0,0.05-(os.clock()-cw)),function()cu=false if not aR then
+return end if cv then bK()return end cv=true cw=os.clock()local cx,cy=pcall(ct)
+cv=false if not cx then a1(cy)end end)end local cx,cy local function cz(cA)if cx
+==cA then return end if cy then cy:Disconnect()end cx=cA if not cA then return
+end cy=cA.DescendantAdded:Connect(function(cB)local cC=cB while cC and cC.Parent
+~=cA do cC=cC.Parent end if cC and(cB==cC or cB.Name=='\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116'or cB:
+IsA('\072\117\109\097\110\111\105\100'))and cC:IsA('\077\111\100\101\108')and cC:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')and
+cC:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')then bL[cC]=os.clock()bK()end end)aS[#aS+1]=
+cy end cz(bH)a7(workspace.ChildAdded,function(cA)if cA.Name=='\069\110\101\109\105\101\115'then cz(cA
 )bK()end end)task.spawn(function()while aR do bK()task.wait(0.15)end end)aX=aX+1
-local cx=aJ.button(aK,aL('\080\097\114\097\114\032\116\111\100\097\115\032\097\115\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115',
-'\083\116\111\112\032\097\108\108\032\097\117\116\111\109\097\116\105\111\110'),aX)a7(cx.Activated,function()for cy,cz in pairs(a2)do if
-type(cz)=='\098\111\111\108\101\097\110'then a2[cy]=false end end pcall(aV)bj=false local cy=aQ.
-Character local cz=cy and cy:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cA=cy and cy
-:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if cz and cA then cz:MoveTo(cA.Position)end
-for cB,cC in ipairs(bo)do cC()end a1(aL('\065\117\116\111\109\097\u{e7}\u{f5}\101\115\032\112\097\114\097\100\097\115\046',
-'\065\117\116\111\109\097\116\105\111\110\032\115\116\111\112\112\101\100\046'))end)aX=aX+1 local cy=aJ.button(aK,aL(
-'\069\120\112\111\114\116\097\114\032\100\105\097\103\110\u{f3}\115\116\105\099\111\032\100\101\032\116\101\115\116\101','\069\120\112\111\114\116\032\116\101\115\116\032\100\105\097\103\110\111\115\116\105\099\115'),aX)a7(cy.
-Activated,function()if type(writefile)=='\102\117\110\099\116\105\111\110'then local cz=
-'\065\110\111\110\072\117\098\095\083\117\112\101\114\112\111\119\101\114\095\084\101\115\116\095'..os.time()..'\046\106\115\111\110'local cA,cB=pcall(writefile,cz,aO:
+local cA=aJ.button(aK,aL('\080\097\114\097\114\032\116\111\100\097\115\032\097\115\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115',
+'\083\116\111\112\032\097\108\108\032\097\117\116\111\109\097\116\105\111\110'),aX)a7(cA.Activated,function()for cB,cC in pairs(a2)do if
+type(cC)=='\098\111\111\108\101\097\110'then a2[cB]=false end end pcall(aV)bj=false local cB=aQ.
+Character local cC=cB and cB:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cD=cB and cB
+:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if cC and cD then cC:MoveTo(cD.Position)end
+for cE,cF in ipairs(bo)do cF()end a1(aL('\065\117\116\111\109\097\u{e7}\u{f5}\101\115\032\112\097\114\097\100\097\115\046',
+'\065\117\116\111\109\097\116\105\111\110\032\115\116\111\112\112\101\100\046'))end)aX=aX+1 local cB=aJ.button(aK,aL(
+'\069\120\112\111\114\116\097\114\032\100\105\097\103\110\u{f3}\115\116\105\099\111\032\100\101\032\116\101\115\116\101','\069\120\112\111\114\116\032\116\101\115\116\032\100\105\097\103\110\111\115\116\105\099\115'),aX)a7(cB.
+Activated,function()if type(writefile)=='\102\117\110\099\116\105\111\110'then local cC=
+'\065\110\111\110\072\117\098\095\083\117\112\101\114\112\111\119\101\114\095\084\101\115\116\095'..os.time()..'\046\106\115\111\110'local cD,cE=pcall(writefile,cC,aO:
 JSONEncode({placeId=game.PlaceId,version=game.PlaceVersion,log=a0,config=a2,
-patches=bm,pending=bN}))a1(cA and cz or tostring(cB))end end)a1(aL(
+patches=bm,pending=bN}))a1(cD and cC or tostring(cE))end end)a1(aL(
 '\080\114\111\110\116\111\032\112\097\114\097\032\116\101\115\116\101\046\032\065\117\116\111\109\097\u{e7}\u{f5}\101\115\032\100\101\115\108\105\103\097\100\097\115\046',
 '\082\101\097\100\121\032\102\111\114\032\116\101\115\116\105\110\103\046\032\065\117\116\111\109\097\116\105\111\110\032\105\115\032\111\102\102\046'))return aW end end)()local aH,aI,aJ=
 false,nil,false local aK=task.spawn(function()aH,aI=pcall(aG,{ui=P,page=O('\070\097\114\109'
@@ -3575,561 +3600,562 @@ function cL(cM)if cM==cq then return end local cN=false if type(bq.Equip)==
 '\102\117\110\099\116\105\111\110'then local cO=cC(bq,'\069\113\117\105\112',cM)local cP,cQ=cC(bq,'\071\101\116\069\113\117\105\112\112\101\100\084\111\111\108')cN=
 cO and(not cP or cQ==cM)end local cO=aU:FindFirstChild('\072\111\116\098\097\114')local cP={
 PotatoSucker='\080\048\084\052\084\048\045\051\048\048\048',Shovel='\083\104\111\118\101\108',Dynamite='\068\121\110\097\109\105\116\101',Hand='\072\097\110\100'}local
-cQ=nil for d,e in ipairs((aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}).Tools or{})do if e
-.Id==cM then cQ=e.Icon end end if cO and not cN then for d,e in ipairs(cO:
-GetDescendants())do local f=e.Name==cM or e:GetAttribute('\084\111\111\108\073\100')==cM if e:IsA(
-'\071\117\105\066\117\116\116\111\110')and not f then for g,h in ipairs(e:GetDescendants())do if h:IsA(
-'\084\101\120\116\076\097\098\101\108')and h.Text==cP[cM]or cQ and(h:IsA('\073\109\097\103\101\076\097\098\101\108')or h:IsA(
-'\073\109\097\103\101\066\117\116\116\111\110'))and h.Image==cQ then f=true break end end end if e:IsA(
-'\071\117\105\066\117\116\116\111\110')and f then cN=aL.activate(e,true)if cN then break end end end end if
-not cN and aX.matches('\084\111\111\108\069\113\117\105\112',{'\083\116\114\105\110\103'})then cN=aX.fire('\084\111\111\108\069\113\117\105\112',cM)end
-if cN then cq=cM end end local function cM()cJ()cL('\072\097\110\100')end local function cN(
-)if os.clock()<bb then return be end bb=os.clock()+0.3 local cO=cD()be=cO and(cO
-.SuckerOverheated==true or cO.PotatoSuckerOverheated==true)or aS:GetAttribute(
-'\083\117\099\107\101\114\079\118\101\114\104\101\097\116\101\100')==true if os.clock()>=b then bc={}b=os.clock()+5 for cP,cQ in
-ipairs(aU:GetChildren())do if cQ.Name~='\065\110\111\110\121\109\111\117\115\080\111\116\097\116\111\072\117\098'then for d,e in
-ipairs(cQ:GetDescendants())do if e:IsA('\084\101\120\116\076\097\098\101\108')or e:IsA('\084\101\120\116\066\117\116\116\111\110')then
-table.insert(bc,e)end end end end end if not be then for cP,cQ in ipairs(bc)do
-if cQ.Parent and aL.visible(cQ)then local d=string.upper(cQ.Text)if d:find(
-'\079\086\069\082\072\069\065\084',1,true)or d:find('\083\085\080\069\082\065\081\085\069\067',1,true)then be=true break end end end
-end return be end local function cO()local cP=cD()local cQ=aH.opAutoFinish and
-'\065\117\116\111'or aH.collectTool if cQ=='\065\117\116\111'and cP and aO.owns(cP,'\080\111\116\097\116\111\083\117\099\107\101\114')then
-cQ='\080\111\116\097\116\111\083\117\099\107\101\114'end if cQ=='\065\117\116\111'and aH.clearPileFirst and b5 and cP and aO.
-owns(cP,'\083\104\111\118\101\108')then cQ='\083\104\111\118\101\108'end if cQ=='\065\117\116\111'then cQ=cP and aO.owns(cP,
-'\080\111\116\097\116\111\083\117\099\107\101\114')and'\080\111\116\097\116\111\083\117\099\107\101\114'or cP and aO.owns(cP,'\083\104\111\118\101\108')and'\083\104\111\118\101\108'or
-'\072\097\110\100'end if cQ=='\080\111\116\097\116\111\083\117\099\107\101\114'and(cN()or os.clock()<a8)then cQ=cP and aO.owns(
-cP,'\083\104\111\118\101\108')and'\083\104\111\118\101\108'or'\072\097\110\100'end if cQ~='\072\097\110\100'and not(cP and aO.owns(cP,cQ))
-then cQ='\072\097\110\100'end cL(cQ)a7=not aH.opAutoFinish and not aH.auraCollect and cQ==
-'\080\111\116\097\116\111\083\117\099\107\101\114'and aH.rarity=='\065\110\121'and aG.effective(aH,'\097\117\116\111\070\097\114\109')cC(bp,
-'\083\101\116\085\115\101\072\101\108\100',a7)end local function cP()local cQ={}local d=cB(aV,{'\077\097\112',
-'\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115'})for e=1,4 do local f=d and d:FindFirstChild('\080\101\101\108\105\110\103\084\097\098\108\101'..e
-)if f and(aH.tableChoice=='\078\101\097\114\101\115\116'or aH.tableChoice==f.Name)then local g=cB(f,{
-'\084\097\098\101\108\084\111\112','\080\101\101\108\080\114\111\109\112\116','\080\101\101\108'})if g and g:IsA('\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116')then table.
-insert(cQ,g)end end end local e=aI.actor()if e then table.sort(cQ,function(f,g)
-local h,i=aI.promptPosition(f),aI.promptPosition(g)return(h and(h-e.Position).
-Magnitude or math.huge)<(i and(i-e.Position).Magnitude or math.huge)end)end
-return cQ end local function cQ()local d=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115',
-'\080\111\116\097\116\111\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097'})return d and tonumber(d:GetAttribute('\080\111\116\097\116\111\067\111\117\110\116'))
-or 0 end local function d(e)local f=cP()for g,h in ipairs(f)do if h.Enabled and
-os.clock()>=(bk[h]or 0)then return h end end if e and cQ()>0 then for g,h in
-ipairs(f)do if os.clock()>=(bk[h]or 0)then return h end end end return nil end
-local function e(f,g)local h=cB(aV,{'\077\097\112','\083\116\111\114\101\073\116\101\109\115',f,g})return h and cB(h,{
-'\080\114\105\099\101','\080\114\111\109\112\116\065\116\116\097\099\104\109\101\110\116','\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116'})end local function f(g,h,i,j)if os
-.clock()<(a4[h]or 0)then return nil end local k=e(g,h)if not k or not k.Enabled
-or string.upper(k.ActionText)~='\066\085\089'then return nil end local l=aL.cash(k.
-ObjectText)if not l then return nil end return{id=h,category=g,group=i,rank=j,
-prompt=k,price=l,name=h}end local function g(h,i)if type(h)~='\116\097\098\108\101'then return
-false end if h[i]==true then return true end for j,k in pairs(h)do if k==i or j
-==i and k~=false and k~=nil then return true end end return false end local
-function h(i)local j=1 local k=aS:GetAttribute('\067\117\116\084\111\111\108\073\100')local l,m=cC(bu,
-'\071\101\116\066\101\115\116\084\111\111\108',i)if l then k=type(m)=='\116\097\098\108\101'and m.Id or m end for n,o in ipairs(
-bu.Tools or{})do local p,q=cC(bu,'\079\119\110\115\084\111\111\108',i,o.Id)if o.Id==k or g(i.CutTools,o.
-Id)or p and q==true then j=math.max(j,n)end end return j end local function i(j,
-k,l,m,n)local o=aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}if type(o.GetUpgradeCost)==
-'\102\117\110\099\116\105\111\110'then local p,q=pcall(o.GetUpgradeCost,j,k,l)if p and type(q)=='\110\117\109\098\101\114'
-and q>0 then return q end end local p=aF['\077\111\100\117\108\101\115\046\082\101\115\111\117\114\099\101\115\046\080\114\105\099\101\115']or{}local q,
-r=cC(p,'\071\101\116',aS)if q then local s=aO.profilePrice(r,k,l,m)if s then return s end
-end if n and n.Parent then return aL.cash(aL.texts(n))end return nil end local
-function j(k,l,m)local n={}bf={}local o=aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}for p,
-q in ipairs({'\083\104\111\118\101\108','\068\121\110\097\109\105\116\101','\080\111\116\097\116\111\083\117\099\107\101\114','\072\097\110\100','\065\117\116\111\080\101\101\108\101\114','\072\097\110\100\080\101\101\108\101\114'
-,'\068\114\111\110\101','\066\111\100\121'})do for r,s in ipairs(aO.allowed[q]or{})do if aO.canUpgrade(k,q,
-s,aH)and(s~='\076\117\099\107'or aO.luckAllowed(o,k))then local t=aO.level(o,k,q,s)local u=
-aO.definition(o,q,s)local v=u~=nil local w=v and aO.maximum(o,u)or nil local x,y
-=cC(bs,'\071\101\116\085\112\103\114\097\100\101\066\117\116\116\111\110',q,s)if not x or typeof(y)~='\073\110\115\116\097\110\099\101'or not y:IsA(
-'\071\117\105\066\117\116\116\111\110')then y=nil end local z=i(k,q,s,t,y)bf[q..'\047'..s]={level=t,maximum=w,
-price=z,reason=t==nil and'\108\101\118\101\108\032\117\110\097\118\097\105\108\097\098\108\101'or w==nil and'\109\097\120\105\109\117\109\032\117\110\097\118\097\105\108\097\098\108\101'or
-t>=w and'\109\097\120\105\109\117\109\032\114\101\097\099\104\101\100'or z==nil and'\112\114\105\099\101\032\117\110\097\118\097\105\108\097\098\108\101'or not a6.allowed(q..
-'\047'..s,t)and'\114\101\102\117\115\101\100\032\119\105\116\104\111\117\116\032\112\114\111\103\114\101\115\115'or'\101\108\105\103\105\098\108\101'}local A=y and y:
-FindFirstChild('\077\097\120\101\100')if t~=nil and w~=nil and a6.allowed(q..'\047'..s,t)and t<aO.
-limit(q,s,h(k),#(bu.Tools or{}),aH.worthEarlyLimit,aH.nativeWalkUpgrade)and not(
-w and t>=w)and(y or aX.matches('\084\111\111\108\085\112\103\114\097\100\101\080\117\114\099\104\097\115\101',{'\083\116\114\105\110\103','\083\116\114\105\110\103'}))then
-local B=q..'\047'..s if os.clock()>=(a4[B]or 0)and type(z)=='\110\117\109\098\101\114'and(m or aG.
-purchaseReady(aH,l,z,t,a5[B]))then table.insert(n,{group='\117\112\103\114\097\100\101',name=B,tool=q
-,upgrade=s,button=y,price=z,level=t,rank=s=='\080\111\116\097\116\111\087\111\114\116\104'and(t<aH.
-worthEarlyLimit and-300 or-80)or q=='\068\121\110\097\109\105\116\101'and-200+aO.rank(q,s)or q=='\083\104\111\118\101\108'
-and-150 or q=='\068\114\111\110\101'and-175 or s=='\076\117\099\107'and-50 or aO.rank(q,s)})end end end end
-end table.sort(n,function(p,q)return p.rank<q.rank end)return n end local
-function k(l,m,n)if not aH.buyMachines then return nil end local o=aF[
-'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}if not aO.maxed(o,l,'\068\121\110\097\109\105\116\101')then return nil
-end for p,q in ipairs({{'\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\072\097\110\100\080\101\101\108\101\114','\072\097\115\072\097\110\100\080\101\101\108\101\114'},{
-'\065\117\116\111\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\065\117\116\111\080\101\101\108\101\114','\072\097\115\065\117\116\111\080\101\101\108\101\114'}})do if l[q[3] ]~=true then
-local r=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115',q[1]})local s=r and r:FindFirstChild(
-'\080\114\105\099\101')local t=s and cB(s,{'\080\114\111\109\112\116\065\116\116\097\099\104\109\101\110\116','\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116'})local u=t and(
-aL.cash(t.ObjectText)or aL.cash(aL.texts(s)))if t and string.upper(t.ActionText)
-=='\066\085\089'and u and(n or aG.affordable(aH,m,u,'\067\097\115\104'))then return{id=q[2],name=q[2]
-,group='\109\097\099\104\105\110\101',unlock=q[3],prompt=t,price=u,rank=-75}end end end return nil
-end local function l()if not aH.fixMenuBlur or cH()then return end local m,n=cC(
-bs,'\073\115\079\112\101\110')local o,p=cC(br,'\073\115\079\112\101\110')if not m or not o then return end for q,r
-in ipairs({aE.Lighting,aV.CurrentCamera})do if r then for s,t in ipairs(r:
-GetChildren())do if t:IsA('\066\108\117\114\069\102\102\101\099\116')and t.Size>0 then t.Size=0 end end end
-end end local function m()local n=cE()local o=cD()if not n or not o then return
-nil end local p=aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}bg=nil bh=false if aH.
-opAutoFinish and aO.opBulkReady(p,o)and bX.mountainEmpty~=true then bl=nil
+cQ=nil for cR,cS in ipairs((aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}).Tools or{})do if
+cS.Id==cM then cQ=cS.Icon end end if cO and not cN then for cR,cS in ipairs(cO:
+GetDescendants())do local cT=cS.Name==cM or cS:GetAttribute('\084\111\111\108\073\100')==cM if cS:
+IsA('\071\117\105\066\117\116\116\111\110')and not cT then for d,e in ipairs(cS:GetDescendants())do if e:
+IsA('\084\101\120\116\076\097\098\101\108')and e.Text==cP[cM]or cQ and(e:IsA('\073\109\097\103\101\076\097\098\101\108')or e:IsA(
+'\073\109\097\103\101\066\117\116\116\111\110'))and e.Image==cQ then cT=true break end end end if cS:IsA(
+'\071\117\105\066\117\116\116\111\110')and cT then cN=aL.activate(cS,true)if cN then break end end end end
+if not cN and aX.matches('\084\111\111\108\069\113\117\105\112',{'\083\116\114\105\110\103'})then cN=aX.fire('\084\111\111\108\069\113\117\105\112',cM)
+end if cN then cq=cM end end local function cM()cJ()cL('\072\097\110\100')end local function
+cN()if os.clock()<bb then return be end bb=os.clock()+0.3 local cO=cD()be=cO and
+(cO.SuckerOverheated==true or cO.PotatoSuckerOverheated==true)or aS:
+GetAttribute('\083\117\099\107\101\114\079\118\101\114\104\101\097\116\101\100')==true if os.clock()>=b then bc={}b=os.clock()+5
+for cP,cQ in ipairs(aU:GetChildren())do if cQ.Name~='\065\110\111\110\121\109\111\117\115\080\111\116\097\116\111\072\117\098'then for
+cR,cS in ipairs(cQ:GetDescendants())do if cS:IsA('\084\101\120\116\076\097\098\101\108')or cS:IsA(
+'\084\101\120\116\066\117\116\116\111\110')then table.insert(bc,cS)end end end end end if not be then for cP,
+cQ in ipairs(bc)do if cQ.Parent and aL.visible(cQ)then local cR=string.upper(cQ.
+Text)if cR:find('\079\086\069\082\072\069\065\084',1,true)or cR:find('\083\085\080\069\082\065\081\085\069\067',1,true)then be=true
+break end end end end return be end local function cO()local cP=cD()local cQ=aH.
+opAutoFinish and'\065\117\116\111'or aH.collectTool if cQ=='\065\117\116\111'and cP and aO.owns(cP,
+'\080\111\116\097\116\111\083\117\099\107\101\114')then cQ='\080\111\116\097\116\111\083\117\099\107\101\114'end if cQ=='\065\117\116\111'and aH.clearPileFirst and
+b5 and cP and aO.owns(cP,'\083\104\111\118\101\108')then cQ='\083\104\111\118\101\108'end if cQ=='\065\117\116\111'then cQ=cP
+and aO.owns(cP,'\080\111\116\097\116\111\083\117\099\107\101\114')and'\080\111\116\097\116\111\083\117\099\107\101\114'or cP and aO.owns(cP,'\083\104\111\118\101\108')and
+'\083\104\111\118\101\108'or'\072\097\110\100'end if cQ=='\080\111\116\097\116\111\083\117\099\107\101\114'and(cN()or os.clock()<a8)then cQ=cP and
+aO.owns(cP,'\083\104\111\118\101\108')and'\083\104\111\118\101\108'or'\072\097\110\100'end if cQ~='\072\097\110\100'and not(cP and aO.owns(
+cP,cQ))then cQ='\072\097\110\100'end cL(cQ)a7=not aH.opAutoFinish and not aH.auraCollect and
+cQ=='\080\111\116\097\116\111\083\117\099\107\101\114'and aH.rarity=='\065\110\121'and aG.effective(aH,'\097\117\116\111\070\097\114\109')cC(bp,
+'\083\101\116\085\115\101\072\101\108\100',a7)end local function cP()local cQ={}local cR=cB(aV,{'\077\097\112',
+'\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115'})for cS=1,4 do local cT=cR and cR:FindFirstChild(
+'\080\101\101\108\105\110\103\084\097\098\108\101'..cS)if cT and(aH.tableChoice=='\078\101\097\114\101\115\116'or aH.tableChoice==cT.Name
+)then local d=cB(cT,{'\084\097\098\101\108\084\111\112','\080\101\101\108\080\114\111\109\112\116','\080\101\101\108'})if d and d:IsA(
+'\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116')then table.insert(cQ,d)end end end local cS=aI.actor()if cS
+then table.sort(cQ,function(cT,d)local e,f=aI.promptPosition(cT),aI.
+promptPosition(d)return(e and(e-cS.Position).Magnitude or math.huge)<(f and(f-cS
+.Position).Magnitude or math.huge)end)end return cQ end local function cQ()local
+cR=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115','\080\111\116\097\116\111\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097'})return cR and
+tonumber(cR:GetAttribute('\080\111\116\097\116\111\067\111\117\110\116'))or 0 end local function cR(cS)local cT=
+cP()for d,e in ipairs(cT)do if e.Enabled and os.clock()>=(bk[e]or 0)then return
+e end end if cS and cQ()>0 then for d,e in ipairs(cT)do if os.clock()>=(bk[e]or
+0)then return e end end end return nil end local function cS(cT,d)local e=cB(aV,
+{'\077\097\112','\083\116\111\114\101\073\116\101\109\115',cT,d})return e and cB(e,{'\080\114\105\099\101','\080\114\111\109\112\116\065\116\116\097\099\104\109\101\110\116',
+'\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116'})end local function cT(d,e,f,g)if os.clock()<(a4[e]or 0)then
+return nil end local h=cS(d,e)if not h or not h.Enabled or string.upper(h.
+ActionText)~='\066\085\089'then return nil end local i=aL.cash(h.ObjectText)if not i then
+return nil end return{id=e,category=d,group=f,rank=g,prompt=h,price=i,name=e}end
+local function d(e,f)if type(e)~='\116\097\098\108\101'then return false end if e[f]==true then
+return true end for g,h in pairs(e)do if h==f or g==f and h~=false and h~=nil
+then return true end end return false end local function e(f)local g=1 local h=
+aS:GetAttribute('\067\117\116\084\111\111\108\073\100')local i,j=cC(bu,'\071\101\116\066\101\115\116\084\111\111\108',f)if i then h=type(j)
+=='\116\097\098\108\101'and j.Id or j end for k,l in ipairs(bu.Tools or{})do local m,n=cC(bu,
+'\079\119\110\115\084\111\111\108',f,l.Id)if l.Id==h or d(f.CutTools,l.Id)or m and n==true then g=math.
+max(g,k)end end return g end local function f(g,h,i,j,k)local l=aF[
+'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}if type(l.GetUpgradeCost)=='\102\117\110\099\116\105\111\110'then local m
+,n=pcall(l.GetUpgradeCost,g,h,i)if m and type(n)=='\110\117\109\098\101\114'and n>0 then return n
+end end local m=aF['\077\111\100\117\108\101\115\046\082\101\115\111\117\114\099\101\115\046\080\114\105\099\101\115']or{}local n,o=cC(m,'\071\101\116',aS)if n
+then local p=aO.profilePrice(o,h,i,j)if p then return p end end if k and k.
+Parent then return aL.cash(aL.texts(k))end return nil end local function g(h,i,j
+)local k={}bf={}local l=aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}for m,n in ipairs({
+'\083\104\111\118\101\108','\068\121\110\097\109\105\116\101','\080\111\116\097\116\111\083\117\099\107\101\114','\072\097\110\100','\065\117\116\111\080\101\101\108\101\114','\072\097\110\100\080\101\101\108\101\114','\068\114\111\110\101',
+'\066\111\100\121'})do for o,p in ipairs(aO.allowed[n]or{})do if aO.canUpgrade(h,n,p,aH)and(
+p~='\076\117\099\107'or aO.luckAllowed(l,h))then local q=aO.level(l,h,n,p)local r=aO.
+definition(l,n,p)local s=r~=nil local t=s and aO.maximum(l,r)or nil local u,v=
+cC(bs,'\071\101\116\085\112\103\114\097\100\101\066\117\116\116\111\110',n,p)if not u or typeof(v)~='\073\110\115\116\097\110\099\101'or not v:IsA(
+'\071\117\105\066\117\116\116\111\110')then v=nil end local w=f(h,n,p,q,v)bf[n..'\047'..p]={level=q,maximum=t,
+price=w,reason=q==nil and'\108\101\118\101\108\032\117\110\097\118\097\105\108\097\098\108\101'or t==nil and'\109\097\120\105\109\117\109\032\117\110\097\118\097\105\108\097\098\108\101'or
+q>=t and'\109\097\120\105\109\117\109\032\114\101\097\099\104\101\100'or w==nil and'\112\114\105\099\101\032\117\110\097\118\097\105\108\097\098\108\101'or not a6.allowed(n..
+'\047'..p,q)and'\114\101\102\117\115\101\100\032\119\105\116\104\111\117\116\032\112\114\111\103\114\101\115\115'or'\101\108\105\103\105\098\108\101'}local x=v and v:
+FindFirstChild('\077\097\120\101\100')if q~=nil and t~=nil and a6.allowed(n..'\047'..p,q)and q<aO.
+limit(n,p,e(h),#(bu.Tools or{}),aH.worthEarlyLimit,aH.nativeWalkUpgrade)and not(
+t and q>=t)and(v or aX.matches('\084\111\111\108\085\112\103\114\097\100\101\080\117\114\099\104\097\115\101',{'\083\116\114\105\110\103','\083\116\114\105\110\103'}))then
+local y=n..'\047'..p if os.clock()>=(a4[y]or 0)and type(w)=='\110\117\109\098\101\114'and(j or aG.
+purchaseReady(aH,i,w,q,a5[y]))then table.insert(k,{group='\117\112\103\114\097\100\101',name=y,tool=n
+,upgrade=p,button=v,price=w,level=q,rank=p=='\080\111\116\097\116\111\087\111\114\116\104'and(q<aH.
+worthEarlyLimit and-300 or-80)or n=='\068\121\110\097\109\105\116\101'and-200+aO.rank(n,p)or n=='\083\104\111\118\101\108'
+and-150 or n=='\068\114\111\110\101'and-175 or p=='\076\117\099\107'and-50 or aO.rank(n,p)})end end end end
+end table.sort(k,function(m,n)return m.rank<n.rank end)return k end local
+function h(i,j,k)if not aH.buyMachines then return nil end local l=aF[
+'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}if not aO.maxed(l,i,'\068\121\110\097\109\105\116\101')then return nil
+end for m,n in ipairs({{'\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\072\097\110\100\080\101\101\108\101\114','\072\097\115\072\097\110\100\080\101\101\108\101\114'},{
+'\065\117\116\111\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\065\117\116\111\080\101\101\108\101\114','\072\097\115\065\117\116\111\080\101\101\108\101\114'}})do if i[n[3] ]~=true then
+local o=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115',n[1]})local p=o and o:FindFirstChild(
+'\080\114\105\099\101')local q=p and cB(p,{'\080\114\111\109\112\116\065\116\116\097\099\104\109\101\110\116','\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116'})local r=q and(
+aL.cash(q.ObjectText)or aL.cash(aL.texts(p)))if q and string.upper(q.ActionText)
+=='\066\085\089'and r and(k or aG.affordable(aH,j,r,'\067\097\115\104'))then return{id=n[2],name=n[2]
+,group='\109\097\099\104\105\110\101',unlock=n[3],prompt=q,price=r,rank=-75}end end end return nil
+end local function i()if not aH.fixMenuBlur or cH()then return end local j,k=cC(
+bs,'\073\115\079\112\101\110')local l,m=cC(br,'\073\115\079\112\101\110')if not j or not l then return end for n,o
+in ipairs({aE.Lighting,aV.CurrentCamera})do if o then for p,q in ipairs(o:
+GetChildren())do if q:IsA('\066\108\117\114\069\102\102\101\099\116')and q.Size>0 then q.Size=0 end end end
+end end local function j()local k=cE()local l=cD()if not k or not l then return
+nil end local m=aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}bg=nil bh=false if aH.
+opAutoFinish and aO.opBulkReady(m,l)and bX.mountainEmpty~=true then bl=nil
 return nil end if not aH.opAutoFinish and not aH.teamFunding and aH.
-clearPileFirst and aO.maxed(p,o,'\068\121\110\097\109\105\116\101')then local q=k(o,n,true)if not q and
-o.HasAutoPeeler and aG.effective(aH,'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115')then for r,s in ipairs(j(o
-,n,true))do if s.tool=='\065\117\116\111\080\101\101\108\101\114'then q=s break end end end if not q and not
-aO.owns(o,'\080\111\116\097\116\111\083\117\099\107\101\114')then q=f('\084\111\111\108\115','\080\048\084\052\084\048\045\051\048\048\048','\099\111\108\108\101\099\116',1)end if not q
-and not aO.owns(o,'\083\104\111\118\101\108')then q=f('\084\111\111\108\115','\083\104\111\118\101\108','\099\111\108\108\101\099\116',40)end if not q
-and aO.owns(o,'\080\111\116\097\116\111\083\117\099\107\101\114')and aG.effective(aH,'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115')then for r,s
-in ipairs(j(o,n,true))do if s.tool=='\080\111\116\097\116\111\083\117\099\107\101\114'and(not q or s.upgrade==
-'\080\105\099\107\065\109\111\117\110\116')then q=s end end end if not q and aG.effective(aH,'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115'
-)then for r,s in ipairs(j(o,n,true))do if s.tool=='\083\104\111\118\101\108'or s.tool=='\068\121\110\097\109\105\116\101'
-or s.tool=='\065\117\116\111\080\101\101\108\101\114'or s.tool=='\080\111\116\097\116\111\083\117\099\107\101\114'or s.tool=='\068\114\111\110\101'or s.tool==
-'\066\111\100\121'and s.upgrade=='\076\117\099\107'then q=s break end end end bg=q bl=q if q then local
-r=a5[q.name]local s=aG.affordable(aH,n,q.price,'\067\097\115\104')and(not r or r.level~=q.
-level or n>=r.cash)bh=not s if s then return q end end return nil end local q={}
-if aG.effective(aH,'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115')then local r=j(o,n,true)local s=bf[
-'\066\111\100\121\047\080\111\116\097\116\111\087\111\114\116\104']if s and(s.level==nil or s.maximum==nil or s.level<s.maximum
-and s.price==nil)then bl={name='\066\111\100\121\047\080\111\116\097\116\111\087\111\114\116\104\058\032'..s.reason}return nil end for
-t,u in ipairs(r)do local v=a5[u.name]if not v or v.level~=u.level or n>=v.cash
-then table.insert(q,u)end end end if aG.effective(aH,'\097\117\116\111\066\117\121\084\111\111\108\115')or aY and aH
-.buyAfterSell then local r=h(o)if not aH.teamFunding then for s,t in ipairs(bu.
-Tools or{})do if s>r then local u=f('\075\110\105\118\101\115',t.Id,'\099\117\116',10)if u then u.tier=s
-table.insert(q,u)end end end end if aG.effective(aH,'\097\117\116\111\070\097\114\109')then for s,t in
-ipairs({'\068\121\110\097\109\105\116\101','\083\104\111\118\101\108','\080\048\084\052\084\048\045\051\048\048\048'})do local u=t=='\080\048\084\052\084\048\045\051\048\048\048'and
-'\080\111\116\097\116\111\083\117\099\107\101\114'or t if not aO.owns(o,u)then local v=f('\084\111\111\108\115',t,'\099\111\108\108\101\099\116',20)if v
-then table.insert(q,v)end end end end end local r,s=cF()if aH.opAutoFinish then
-local t=k(o,n,true)if t then table.insert(q,t)end end if aG.effective(aH,
-'\097\117\116\111\066\117\121\083\116\111\114\097\103\101')and not aH.infiniteBag and s~=math.huge and type(o.CarryLevel)
-=='\110\117\109\098\101\114'then local t=bv.Levels and bv.Levels[o.CarryLevel+1]if type(t)==
-'\116\097\098\108\101'and t.ItemName then local u=f('\083\116\111\114\097\103\101',t.ItemName,'\115\116\111\114\097\103\101',90)if u then
-u.capacity=t.Capacity table.insert(q,u)end end end local t=aH.opAutoFinish and
-bX.mountainEmpty==true and aO.opBulkReady(p,o)local u,v=aO.selectPurchase(aG,aH,
-n,q,t)bl=u if v then return u end return nil end local function n()local o=cB(aV
-,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115','\083\101\108\108\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097'})local p=o and o:
-GetAttribute('\080\111\116\097\116\111\067\111\117\110\116')return type(p)=='\110\117\109\098\101\114'and p>=0 and p or nil end
-local function o()if os.clock()<bm then return bX end bm=os.clock()+0.12 cg.
+clearPileFirst and aO.maxed(m,l,'\068\121\110\097\109\105\116\101')then local n=h(l,k,true)if not n and
+l.HasAutoPeeler and aG.effective(aH,'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115')then for o,p in ipairs(g(l
+,k,true))do if p.tool=='\065\117\116\111\080\101\101\108\101\114'then n=p break end end end if not n and not
+aO.owns(l,'\080\111\116\097\116\111\083\117\099\107\101\114')then n=cT('\084\111\111\108\115','\080\048\084\052\084\048\045\051\048\048\048','\099\111\108\108\101\099\116',1)end if not
+n and not aO.owns(l,'\083\104\111\118\101\108')then n=cT('\084\111\111\108\115','\083\104\111\118\101\108','\099\111\108\108\101\099\116',40)end if not
+n and aO.owns(l,'\080\111\116\097\116\111\083\117\099\107\101\114')and aG.effective(aH,'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115')then for o,
+p in ipairs(g(l,k,true))do if p.tool=='\080\111\116\097\116\111\083\117\099\107\101\114'and(not n or p.upgrade==
+'\080\105\099\107\065\109\111\117\110\116')then n=p end end end if not n and aG.effective(aH,'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115'
+)then for o,p in ipairs(g(l,k,true))do if p.tool=='\083\104\111\118\101\108'or p.tool=='\068\121\110\097\109\105\116\101'
+or p.tool=='\065\117\116\111\080\101\101\108\101\114'or p.tool=='\080\111\116\097\116\111\083\117\099\107\101\114'or p.tool=='\068\114\111\110\101'or p.tool==
+'\066\111\100\121'and p.upgrade=='\076\117\099\107'then n=p break end end end bg=n bl=n if n then local
+o=a5[n.name]local p=aG.affordable(aH,k,n.price,'\067\097\115\104')and(not o or o.level~=n.
+level or k>=o.cash)bh=not p if p then return n end end return nil end local n={}
+if aG.effective(aH,'\097\117\116\111\066\117\121\085\112\103\114\097\100\101\115')then local o=g(l,k,true)local p=bf[
+'\066\111\100\121\047\080\111\116\097\116\111\087\111\114\116\104']if p and(p.level==nil or p.maximum==nil or p.level<p.maximum
+and p.price==nil)then bl={name='\066\111\100\121\047\080\111\116\097\116\111\087\111\114\116\104\058\032'..p.reason}return nil end for
+q,r in ipairs(o)do local s=a5[r.name]if not s or s.level~=r.level or k>=s.cash
+then table.insert(n,r)end end end if aG.effective(aH,'\097\117\116\111\066\117\121\084\111\111\108\115')or aY and aH
+.buyAfterSell then local o=e(l)if not aH.teamFunding then for p,q in ipairs(bu.
+Tools or{})do if p>o then local r=cT('\075\110\105\118\101\115',q.Id,'\099\117\116',10)if r then r.tier=p
+table.insert(n,r)end end end end if aG.effective(aH,'\097\117\116\111\070\097\114\109')then for p,q in
+ipairs({'\068\121\110\097\109\105\116\101','\083\104\111\118\101\108','\080\048\084\052\084\048\045\051\048\048\048'})do local r=q=='\080\048\084\052\084\048\045\051\048\048\048'and
+'\080\111\116\097\116\111\083\117\099\107\101\114'or q if not aO.owns(l,r)then local s=cT('\084\111\111\108\115',q,'\099\111\108\108\101\099\116',20)if
+s then table.insert(n,s)end end end end end local o,p=cF()if aH.opAutoFinish
+then local q=h(l,k,true)if q then table.insert(n,q)end end if aG.effective(aH,
+'\097\117\116\111\066\117\121\083\116\111\114\097\103\101')and not aH.infiniteBag and p~=math.huge and type(l.CarryLevel)
+=='\110\117\109\098\101\114'then local q=bv.Levels and bv.Levels[l.CarryLevel+1]if type(q)==
+'\116\097\098\108\101'and q.ItemName then local r=cT('\083\116\111\114\097\103\101',q.ItemName,'\115\116\111\114\097\103\101',90)if r
+then r.capacity=q.Capacity table.insert(n,r)end end end local q=aH.opAutoFinish
+and bX.mountainEmpty==true and aO.opBulkReady(m,l)local r,s=aO.selectPurchase(aG
+,aH,k,n,q)bl=r if s then return r end return nil end local function k()local l=
+cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115','\083\101\108\108\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097'})local m=l and l:
+GetAttribute('\080\111\116\097\116\111\067\111\117\110\116')return type(m)=='\110\117\109\098\101\114'and m>=0 and m or nil end
+local function l()if os.clock()<bm then return bX end bm=os.clock()+0.12 cg.
 apply(aH.fastDelivery and not ch,aH.placementDelay)if bi and os.clock()>=bi.
 deadline then bi=nil bj=math.min(12,math.max(0.5,bj*1.75))a2=os.clock()+bj end
-local p,q=cF()local r,s=cj.observe(os.clock(),p)bU.collected+=r if s and cq==
-'\080\111\116\097\116\111\083\117\099\107\101\114'then a8=os.clock()+2 end local t,u,v=aJ.heat()bI=aG.coolingLatch(
-bI,t,aH,cG())local w=cE()if os.clock()>=bP then bO=m()bP=os.clock()+0.7 bQ=w end
-local x=os.clock()>=bK and bO or nil local y=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115',
-'\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\114\097\110\107\080\114\111\109\112\116\080\097\114\116','\067\114\097\110\107'})bX={cash=w,carried=p,capacity=q,heat
-=t,flowing=u,heatSource=v,needCooling=bI and not u,cutting=cH(),tableReady=d(
+local m,n=cF()local o,p=cj.observe(os.clock(),m)bU.collected+=o if p and cq==
+'\080\111\116\097\116\111\083\117\099\107\101\114'then a8=os.clock()+2 end local q,r,s=aJ.heat()bI=aG.coolingLatch(
+bI,q,aH,cG())local t=cE()if os.clock()>=bP then bO=j()bP=os.clock()+0.7 bQ=t end
+local u=os.clock()>=bK and bO or nil local v=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115',
+'\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\114\097\110\107\080\114\111\109\112\116\080\097\114\116','\067\114\097\110\107'})bX={cash=t,carried=m,capacity=n,heat
+=q,flowing=r,heatSource=s,needCooling=bI and not r,cutting=cH(),tableReady=cR(
 true)~=nil,retryAt=bY,deliveryPending=bZ~=nil,hasCandidate=cA(bC)or bF<=#bE and
 os.clock()<bG,noCandidate=bH,candidatePumpkin=bC~=nil and bC.pumpkin==true,
-purchase=x,canBuy=x~=nil,buyRetryAt=bK,coolingRetryAt=bJ}bX.crankReady=y~=nil
-and y.Enabled bX.stock=n()if bX.stock and cw and bX.stock>cw then cx+=bX.stock-
+purchase=u,canBuy=u~=nil,buyRetryAt=bK,coolingRetryAt=bJ}bX.crankReady=v~=nil
+and v.Enabled bX.stock=k()if bX.stock and cw and bX.stock>cw then cx+=bX.stock-
 cw end cw=bX.stock if os.clock()-cv>=1 then cy=cx/(os.clock()-cv)cx=0 cv=os.
-clock()end bX.cutRate=cy local z,A=cC(bp,'\071\101\116\082\101\109\111\118\101\100\070\114\097\099\116\105\111\110')bX.mountainEmpty=z
-and type(A)=='\110\117\109\098\101\114'and A>=1 bX.sellReady=aO.sellReady(aH,bX.stock,{cutting=bX.
-cutting,crate=cQ(),carried=p,exhausted=bH or bX.mountainEmpty})if not aH.
-opAutoFinish and bl and bl.price and w and w<bl.price+aH.reserveCash and bX.
+clock()end bX.cutRate=cy local w,x=cC(bp,'\071\101\116\082\101\109\111\118\101\100\070\114\097\099\116\105\111\110')bX.mountainEmpty=w
+and type(x)=='\110\117\109\098\101\114'and x>=1 bX.sellReady=aO.sellReady(aH,bX.stock,{cutting=bX.
+cutting,crate=cQ(),carried=m,exhausted=bH or bX.mountainEmpty})if not aH.
+opAutoFinish and bl and bl.price and t and t<bl.price+aH.reserveCash and bX.
 stock and bX.stock>=math.min(50,aH.sellThreshold)then bX.sellReady=true end bX.
 sellRetryAt=a1 bX.afterSale=aY bX.returnToTable=aY and a_~=nil bX.
-postSaleWeaponBought=aZ bX.goal=bl local B=cD()if os.clock()>=b3 then local C=aF
-['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}b5=aO.maxed(C,B,'\068\121\110\097\109\105\116\101')b4=aO.maxed(C,B,
-'\083\104\111\118\101\108')and b5 b6=aO.productionReady(C,B)b7=aO.opBulkReady(C,B)b3=os.clock()+1
-end local C=aO.clearReady(aH,aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{},B)bX.focusClear=
-aG.effective(aH,'\097\117\116\111\070\097\114\109')and(aH.clearPileFirst or aH.opAutoFinish)and C and z
-and type(A)=='\110\117\109\098\101\114'and A<1 local D=aO.fundingPlan(aG,aH,w,bl,cQ(),bX.stock,q,
-aH.opAutoFinish and b7 or b6)bX.opFunding=D if D.needed and D.cut then bX.
-focusClear=false end if D.sell then bX.sellReady=true end bX.bulkOnly=aH.
+postSaleWeaponBought=aZ bX.goal=bl local y=cD()if os.clock()>=b3 then local z=aF
+['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}b5=aO.maxed(z,y,'\068\121\110\097\109\105\116\101')b4=aO.maxed(z,y,
+'\083\104\111\118\101\108')and b5 b6=aO.productionReady(z,y)b7=aO.opBulkReady(z,y)b3=os.clock()+1
+end local z=aO.clearReady(aH,aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{},y)bX.focusClear=
+aG.effective(aH,'\097\117\116\111\070\097\114\109')and(aH.clearPileFirst or aH.opAutoFinish)and z and w
+and type(x)=='\110\117\109\098\101\114'and x<1 local A=aO.fundingPlan(aG,aH,t,bl,cQ(),bX.stock,n,
+aH.opAutoFinish and b7 or b6)bX.opFunding=A if A.needed and A.cut then bX.
+focusClear=false end if A.sell then bX.sellReady=true end bX.bulkOnly=aH.
 opAutoFinish and b7 and bX.focusClear bX.postClearUnload=aH.opAutoFinish and b7
-and bX.mountainEmpty and p and p>0 if bX.bulkOnly then if not b8 then b8=os.
+and bX.mountainEmpty and m and m>0 if bX.bulkOnly then if not b8 then b8=os.
 clock()b9.entered+=1 b9.completed=false aM(
 "\083\117\103\097\100\111\114\032\077\065\088\058\032\105\110\105\099\105\097\110\100\111\032\099\111\108\101\116\097\032\099\111\110\116\105\110\117\097\032\097\116\101\032\101\115\118\097\122\105\097\114\032\097\032\109\111\110\116\097\110\104\097\046")end b9.
 seconds=os.clock()-b8 elseif b8 then b9.seconds=os.clock()-b8 b9.completed=bX.
 mountainEmpty b8=nil if b9.completed then aM(
 '\077\111\110\116\097\110\104\097\032\118\097\122\105\097\058\032\114\101\116\111\109\097\110\100\111\032\101\110\116\114\101\103\097\032\101\032\099\111\114\116\101\032\112\097\114\097\032\097\032\099\104\097\118\101\046')end end if aH.
-opAutoFinish and z and type(A)=='\110\117\109\098\101\114'and A==A and A>=0 and A<=1 then if not c
-then c={time=os.clock(),fraction=A}end bX.pileProgress={source=
-'\110\097\116\105\118\101\032\071\101\116\082\101\109\111\118\101\100\070\114\097\099\116\105\111\110',removed_fraction=A,delta_fraction=math.max(0,A-c.
+opAutoFinish and w and type(x)=='\110\117\109\098\101\114'and x==x and x>=0 and x<=1 then if not c
+then c={time=os.clock(),fraction=x}end bX.pileProgress={source=
+'\110\097\116\105\118\101\032\071\101\116\082\101\109\111\118\101\100\070\114\097\099\116\105\111\110',removed_fraction=x,delta_fraction=math.max(0,x-c.
 fraction),elapsed=os.clock()-c.time}end bX.phase=b5 and(bg and'\101\113\117\105\112\109\101\110\116\058\032'..bg.
-name or'\099\108\101\097\114\032\112\105\108\101')or'\102\117\110\100\032\100\121\110\097\109\105\116\101'if aH.opAutoFinish then bX.phase=D.needed
+name or'\099\108\101\097\114\032\112\105\108\101')or'\102\117\110\100\032\100\121\110\097\109\105\116\101'if aH.opAutoFinish then bX.phase=A.needed
 and'\079\080\058\032\114\101\110\100\097\032\112\097\114\097\032'..tostring(bl and bl.name)or b7 and bX.focusClear and
 '\079\080\058\032\099\111\108\101\116\097\032\099\111\110\116\105\110\117\097\032\047\032\115\117\103\097\100\111\114\032\077\065\088'or bX.focusClear and'\079\080\058\032\108\105\109\112\101\122\097\032\101\032\109\101\108\104\111\114\105\097\115'
 or bX.mountainEmpty and'\079\080\058\032\099\111\114\116\097\114\032\101\115\116\111\113\117\101\032\101\032\098\117\115\099\097\114\032\099\104\097\118\101'or
 '\079\080\058\032\112\114\101\112\097\114\097\114\032\101\113\117\105\112\097\109\101\110\116\111\115'end bX.productionReady=b6 bX.deliveryGoal=bX.
-focusClear and aG.productionGoal(aH,q,cQ())or nil if D.needed and not D.cut then
-bX.deliveryGoal=D.deliveryGoal end bX.opBurst=cj.stats local E=aH.opAutoFinish
+focusClear and aG.productionGoal(aH,n,cQ())or nil if A.needed and not A.cut then
+bX.deliveryGoal=A.deliveryGoal end bX.opBurst=cj.stats local B=aH.opAutoFinish
 and aH.opKeyShortcut and aJ.keyTarget and aJ.keyTarget()or nil bX.keyProbeReady=
-E~=nil and B and B.HasKey~=true and p and q and p<q and os.clock()>=ca and cc.
-allowed(E,bX.mountainEmpty,os.clock())if bX.focusClear and os.clock()<ce and q==
-math.huge then bX.deliveryGoal=math.huge end local F=B and#(bu.Tools or{})>1 and
-h(B)>=#bu.Tools local G=math.max(0,aH.cutBuffer-cQ())bX.needBuffer=false bX.
-bufferDeliveryGoal=bX.needBuffer and math.min(G,aG.deliveryGoal(aH,q)or G)or nil
-if os.clock()>=cf then cf=os.clock()+1 l()end bX.drone=B and B.HasDrone==true
-local H=B and B.RunStartTime or 0 if b2~=H then b2=H b0=false b1=false a6.reset(
+B~=nil and y and y.HasKey~=true and m and n and m<n and os.clock()>=ca and cc.
+allowed(B,bX.mountainEmpty,os.clock())if bX.focusClear and os.clock()<ce and n==
+math.huge then bX.deliveryGoal=math.huge end local C=y and#(bu.Tools or{})>1 and
+e(y)>=#bu.Tools local D=math.max(0,aH.cutBuffer-cQ())bX.needBuffer=false bX.
+bufferDeliveryGoal=bX.needBuffer and math.min(D,aG.deliveryGoal(aH,n)or D)or nil
+if os.clock()>=cf then cf=os.clock()+1 i()end bX.drone=y and y.HasDrone==true
+local E=y and y.RunStartTime or 0 if b2~=E then b2=E b0=false b1=false a6.reset(
 )end bX.droneReady=aH.autoBuyDrone and b0 and not bX.drone and aG.effective(aH,
 '\097\117\116\111\070\097\114\109')bX.askDrone=not bX.bulkOnly and aH.autoBuyDrone and not b1 and not bX
-.drone and aG.effective(aH,'\097\117\116\111\070\097\114\109')bX.dynamiteReady=B and aO.owns(B,
+.drone and aG.effective(aH,'\097\117\116\111\070\097\114\109')bX.dynamiteReady=y and aO.owns(y,
 '\068\121\110\097\109\105\116\101')and os.clock()>=a2 and not bi and aX.matches('\068\121\110\097\109\105\116\101\084\104\114\111\119',{
 '\078\117\109\098\101\114\085\051\050'})and cA(bC)if bX.dynamiteReady then cd.remaining,cd.interval,cd.
-source=aO.pickTiming(aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{},bq,bp,B,'\068\121\110\097\109\105\116\101')bX.
+source=aO.pickTiming(aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{},bq,bp,y,'\068\121\110\097\109\105\116\101')bX.
 dynamiteReady=cd.remaining<=0 end bX.canStageCut=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115',
-'\080\111\116\097\116\111\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097','\080\108\097\099\101\080\114\111\109\112\116'})~=nil return bX end local function p(q
-,r)local s=aV:FindFirstChild('\080\111\116\097\116\111\080\105\108\101')if not s then return nil end local t=
-RaycastParams.new()t.FilterType=Enum.RaycastFilterType.Include t.
-FilterDescendantsInstances={s}local u=0 while bF<=#bE and os.clock()<bG do if
-not q()then return nil end local v=bE[bF]bF+=1 local w=v.part and bz[v.part]or
-cu[v.slot]or 0 if cA(v)and os.clock()>=w and(not r or v.pumpkin)then if v.part
-then v.slot=aJ.slot(v.part)end local x=aJ.exposed and aJ.exposed(v.part,v.slot)
-local y=x==nil and v.part and aV:Raycast(v.part.Position+Vector3.new(0,25,0),
-Vector3.new(0,-25.5,0),t)if v.slot and(v.logical or x==true or y and y.Instance
-==v.part)then bC=v bH=false bm=0 return v end end u+=1 if u%24==0 then aE.
-RunService.Heartbeat:Wait()end end return nil end local function q(r)bm=0 local
-s=aG.batchCollect(aH)local t=s or b6 and aH.throughputMode and aH.rarity=='\065\110\121'
-local u,v=aJ.prepare(r)if not u then return nil,v end local w,x=cF()local y=w~=
-nil and x~=nil and w>=x and not aG.effective(aH,'\097\117\116\111\068\121\110\097\109\105\116\101')if bB~=aJ.stats.
+'\080\111\116\097\116\111\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097','\080\108\097\099\101\080\114\111\109\112\116'})~=nil return bX end local function m(n
+,o)local p=aV:FindFirstChild('\080\111\116\097\116\111\080\105\108\101')if not p then return nil end local q=
+RaycastParams.new()q.FilterType=Enum.RaycastFilterType.Include q.
+FilterDescendantsInstances={p}local r=0 while bF<=#bE and os.clock()<bG do if
+not n()then return nil end local s=bE[bF]bF+=1 local t=s.part and bz[s.part]or
+cu[s.slot]or 0 if cA(s)and os.clock()>=t and(not o or s.pumpkin)then if s.part
+then s.slot=aJ.slot(s.part)end local u=aJ.exposed and aJ.exposed(s.part,s.slot)
+local v=u==nil and s.part and aV:Raycast(s.part.Position+Vector3.new(0,25,0),
+Vector3.new(0,-25.5,0),q)if s.slot and(s.logical or u==true or v and v.Instance
+==s.part)then bC=s bH=false bm=0 return s end end r+=1 if r%24==0 then aE.
+RunService.Heartbeat:Wait()end end return nil end local function n(o)bm=0 local
+p=aG.batchCollect(aH)local q=p or b6 and aH.throughputMode and aH.rarity=='\065\110\121'
+local r,s=aJ.prepare(o)if not r then return nil,s end local t,u=cF()local v=t~=
+nil and u~=nil and t>=u and not aG.effective(aH,'\097\117\116\111\068\121\110\097\109\105\116\101')if bB~=aJ.stats.
 generation then bB=aJ.stats.generation bA=setmetatable({},{__mode='\107'})bC=nil bE
 ={}bF=1 bG=0 end if cA(bC)and os.clock()>=(bC.part and bz[bC.part]or cu[bC.slot]
-or 0)and(not y or bC.pumpkin)then return bC end if os.clock()<bG then local z=p(
-r,y)if z then return z end end if os.clock()<bD then return nil end bC=nil bD=os
-.clock()+0.4 local z=aI.actor()if not z then return nil end local A=aV:
-FindFirstChild('\080\111\116\097\116\111\080\105\108\101')if not A then return nil end local B=A:GetChildren()
-local C=aQ.new(256)local D=false local E=0 if bB~=aJ.stats.generation then bB=aJ
-.stats.generation bA=setmetatable({},{__mode='\107'})end for F,G in ipairs(B)do if
-not r()then return nil end if G:IsA('\066\097\115\101\080\097\114\116')and G.Transparency<0.99 and os.
-clock()>=(bz[G]or 0)then local H=(G.Position-z.Position).Magnitude if H<=aH.
-maxDistance then local I=G.Name=='\080\117\109\112\107\105\110'local J,K,L local M=not s if M then
-local N=bA[G]if N and aJ.slot(G)==N.slot then J,I,K,L=N.kind,N.pumpkin,N.slot,N.
-gem else if E<8 or aJ.stats.kind~='\117\110\114\101\115\111\108\118\101\100'then E+=1 K=aJ.slot(G)if K then J,
-I,L=aJ.kind(G,K)end end if J then bA[G]={kind=J,pumpkin=I,slot=K,gem=L}end end
-if not J and not I then D=true end end if(aT=='\103\101\109'and L or aG.acceptVariant(aH,
-J,I,L))and(not y or I)then local N=({Normal=1,Golden=3,Diamond=6,Rainbow=10,Key=
-1,Charred=0.5})[J]or 1 local O=not aH.opAutoFinish and aH.selection=='\082\097\110\100\111\109'and
-math.random()*1000 or H if aH.keyPriority and J=='\075\101\121'then O-=10000000000 end if
-aH.pumpkinPriority and I then O-=1000000000 end if L and(aT=='\103\101\109'or not t and
-aH.gemPriority and aH.collectGems)then O-=1000000 end if not t and aH.
-priorityValue and aH.rarity=='\065\110\121'then O-=N*10000 end C.add({part=G,kind=J,
-pumpkin=I,gem=L,slot=K,distance=H,worth=N,score=O})end end end if F%700==0 then
-aE.RunService.Heartbeat:Wait()end end if not t and(aT=='\103\101\109'or aH.
+or 0)and(not v or bC.pumpkin)then return bC end if os.clock()<bG then local w=m(
+o,v)if w then return w end end if os.clock()<bD then return nil end bC=nil bD=os
+.clock()+0.4 local w=aI.actor()if not w then return nil end local x=aV:
+FindFirstChild('\080\111\116\097\116\111\080\105\108\101')if not x then return nil end local y=x:GetChildren()
+local z=aQ.new(256)local A=false local B=0 if bB~=aJ.stats.generation then bB=aJ
+.stats.generation bA=setmetatable({},{__mode='\107'})end for C,D in ipairs(y)do if
+not o()then return nil end if D:IsA('\066\097\115\101\080\097\114\116')and D.Transparency<0.99 and os.
+clock()>=(bz[D]or 0)then local E=(D.Position-w.Position).Magnitude if E<=aH.
+maxDistance then local F=D.Name=='\080\117\109\112\107\105\110'local G,H,I local J=not p if J then
+local K=bA[D]if K and aJ.slot(D)==K.slot then G,F,H,I=K.kind,K.pumpkin,K.slot,K.
+gem else if B<8 or aJ.stats.kind~='\117\110\114\101\115\111\108\118\101\100'then B+=1 H=aJ.slot(D)if H then G,
+F,I=aJ.kind(D,H)end end if G then bA[D]={kind=G,pumpkin=F,slot=H,gem=I}end end
+if not G and not F then A=true end end if(aT=='\103\101\109'and I or aG.acceptVariant(aH,
+G,F,I))and(not v or F)then local K=({Normal=1,Golden=3,Diamond=6,Rainbow=10,Key=
+1,Charred=0.5})[G]or 1 local L=not aH.opAutoFinish and aH.selection=='\082\097\110\100\111\109'and
+math.random()*1000 or E if aH.keyPriority and G=='\075\101\121'then L-=10000000000 end if
+aH.pumpkinPriority and F then L-=1000000000 end if I and(aT=='\103\101\109'or not q and
+aH.gemPriority and aH.collectGems)then L-=1000000 end if not q and aH.
+priorityValue and aH.rarity=='\065\110\121'then L-=K*10000 end z.add({part=D,kind=G,
+pumpkin=F,gem=I,slot=H,distance=E,worth=K,score=L})end end end if C%700==0 then
+aE.RunService.Heartbeat:Wait()end end if not q and(aT=='\103\101\109'or aH.
 logicalSpecials and(aH.collectPumpkins or aH.collectGems))then if os.clock()>=cs
-then cr=aJ.specialTargets(r)cs=os.clock()+20 end local F={}for G,H in ipairs(C.
-values())do if H.slot then F[H.slot]=true end end for G,H in ipairs(cr)do if not
-r()then return nil end if os.clock()>=ct and not F[H.slot]and os.clock()>=(cu[H.
-slot]or 0)and aJ.live(H.slot)and(aT=='\103\101\109'and H.gem or aG.acceptVariant(aH,H.
-kind,H.pumpkin,H.gem))and(not y or H.pumpkin)then local I=(H.position-z.Position
-).Magnitude if I<=aH.maxDistance then H.score=I-(H.pumpkin and aH.
-pumpkinPriority and 1000000000 or H.gem and(aH.gemPriority or aT=='\103\101\109')and
-1000000 or 0)C.add(H)end end end end local F=C.values()bE,bF,bG=F,1,os.clock()+5
-bC=p(r,y)bH=bC==nil if not bC and D and aH.rarity~='\065\110\121'then return nil,
+then cr=aJ.specialTargets(o)cs=os.clock()+20 end local C={}for D,E in ipairs(z.
+values())do if E.slot then C[E.slot]=true end end for D,E in ipairs(cr)do if not
+o()then return nil end if os.clock()>=ct and not C[E.slot]and os.clock()>=(cu[E.
+slot]or 0)and aJ.live(E.slot)and(aT=='\103\101\109'and E.gem or aG.acceptVariant(aH,E.
+kind,E.pumpkin,E.gem))and(not v or E.pumpkin)then local F=(E.position-w.Position
+).Magnitude if F<=aH.maxDistance then E.score=F-(E.pumpkin and aH.
+pumpkinPriority and 1000000000 or E.gem and(aH.gemPriority or aT=='\103\101\109')and
+1000000 or 0)z.add(E)end end end end local C=z.values()bE,bF,bG=C,1,os.clock()+5
+bC=m(o,v)bH=bC==nil if not bC and A and aH.rarity~='\065\110\121'then return nil,
 "\082\097\114\105\100\097\100\101\032\105\110\100\105\115\112\111\110\105\118\101\108\058\032\111\032\099\108\105\101\110\116\101\032\110\097\111\032\101\120\112\111\115\032\117\109\032\118\105\110\099\117\108\111\032\118\101\114\105\102\105\099\097\118\101\108\032\101\110\116\114\101\032\112\101\099\097\044\032\105\110\100\105\099\101\032\101\032\101\115\116\097\100\111\046"
-end return bC end local function r(s,t)local u=aI.actor()if not u or not cA(s)
-then return false,'\097\108\118\111\032\105\110\100\105\115\112\111\110\105\118\101\108'end local v=cz(s)if(u.Position-v).Magnitude
+end return bC end local function o(p,q)local r=aI.actor()if not r or not cA(p)
+then return false,'\097\108\118\111\032\105\110\100\105\115\112\111\110\105\118\101\108'end local s=cz(p)if(r.Position-s).Magnitude
 <=math.min(18,aH.auraRadius)then return true end if aH.movement=='\084\101\108\101\112\111\114\116'then
-return aI.goTo(v+Vector3.new(0,3.5,0),t,true)end local w=u.Position-v local x=
-Vector3.new(w.X,0,w.Z)local y=v+(x.Magnitude>0.1 and x.Unit or Vector3.new(0,0,1
-))*5 local z=RaycastParams.new()z.FilterType=Enum.RaycastFilterType.Exclude z.
-FilterDescendantsInstances={aS.Character,aV:FindFirstChild('\080\111\116\097\116\111\080\105\108\101')}local A
-=aV:Raycast(y+Vector3.new(0,12,0),Vector3.new(0,-120,0),z)if not A then return
-false,'\115\101\109\032\112\105\115\111\032\112\114\111\120\105\109\111\032\100\097\032\098\097\116\097\116\097'end local B,C=aI.goTo(A.Position,t)u=aI.actor(
-)if not B then return false,C end return u~=nil and cA(s)and(u.Position-v).
-Magnitude<=18,'\097\108\118\111\032\102\111\114\097\032\100\111\032\097\108\099\097\110\099\101'end local s local function t(u)local v=aJ.
-keyTarget and aJ.keyTarget()if not v then return true end ca=os.clock()+10 bm=0
+return aI.goTo(s+Vector3.new(0,3.5,0),q,true)end local t=r.Position-s local u=
+Vector3.new(t.X,0,t.Z)local v=s+(u.Magnitude>0.1 and u.Unit or Vector3.new(0,0,1
+))*5 local w=RaycastParams.new()w.FilterType=Enum.RaycastFilterType.Exclude w.
+FilterDescendantsInstances={aS.Character,aV:FindFirstChild('\080\111\116\097\116\111\080\105\108\101')}local x
+=aV:Raycast(v+Vector3.new(0,12,0),Vector3.new(0,-120,0),w)if not x then return
+false,'\115\101\109\032\112\105\115\111\032\112\114\111\120\105\109\111\032\100\097\032\098\097\116\097\116\097'end local y,z=aI.goTo(x.Position,q)r=aI.actor(
+)if not y then return false,z end return r~=nil and cA(p)and(r.Position-s).
+Magnitude<=18,'\097\108\118\111\032\102\111\114\097\032\100\111\032\097\108\099\097\110\099\101'end local p local function q(r)local s=aJ.
+keyTarget and aJ.keyTarget()if not s then return true end ca=os.clock()+10 bm=0
 if not aX.matches('\080\111\116\097\116\111\080\105\099\107',{'\078\117\109\098\101\114\085\051\050'})or not aX.matches('\084\111\111\108\083\119\105\110\103',{})
-then return true end cM()local w,x=r(v,u)if not w then cb.last_result=tostring(x
-)return false,x end local y=aJ.keyTarget()if not u()or not y or y.slot~=v.slot
-then return true end if not cc.begin(y,bX.mountainEmpty,os.clock())then return
-true end ca=0 cb.attempts+=1 cb.id=v.slot cb.source=v.source local z=aX.fire(
-'\084\111\111\108\083\119\105\110\103')local A,B=false,'\070\101\114\114\097\109\101\110\116\097\032\100\101\032\099\111\108\101\116\097\032\105\110\100\105\115\112\111\110\105\118\101\108\046'if z then A,B=aX
-.fire('\080\111\116\097\116\111\080\105\099\107',v.slot)end if not A then cb.last_result='\108\111\099\097\108\032\115\101\110\100\032\102\097\105\108\101\100'
-return false,B end local C=cK(function()local C=cD()return C and C.HasKey==true
-end,0.8,u)cb.confirmed=C==true cb.last_result=C and
+then return true end cM()local t,u=o(s,r)if not t then cb.last_result=tostring(u
+)return false,u end local v=aJ.keyTarget()if not r()or not v or v.slot~=s.slot
+then return true end if not cc.begin(v,bX.mountainEmpty,os.clock())then return
+true end ca=0 cb.attempts+=1 cb.id=s.slot cb.source=s.source local w=aX.fire(
+'\084\111\111\108\083\119\105\110\103')local x,y=false,'\070\101\114\114\097\109\101\110\116\097\032\100\101\032\099\111\108\101\116\097\032\105\110\100\105\115\112\111\110\105\118\101\108\046'if w then x,y=aX
+.fire('\080\111\116\097\116\111\080\105\099\107',s.slot)end if not x then cb.last_result='\108\111\099\097\108\032\115\101\110\100\032\102\097\105\108\101\100'
+return false,y end local z=cK(function()local z=cD()return z and z.HasKey==true
+end,0.8,r)cb.confirmed=z==true cb.last_result=z and
 '\072\097\115\075\101\121\032\099\111\110\102\105\114\109\101\100\032\098\121\032\112\108\097\121\101\114\032\115\116\097\116\101'or
-'\110\111\032\072\097\115\075\101\121\032\099\111\110\102\105\114\109\097\116\105\111\110\059\032\110\111\114\109\097\108\032\112\114\111\103\114\101\115\115\105\111\110\032\099\111\110\116\105\110\117\101\115'bm=0 bC=nil if C then aM(
+'\110\111\032\072\097\115\075\101\121\032\099\111\110\102\105\114\109\097\116\105\111\110\059\032\110\111\114\109\097\108\032\112\114\111\103\114\101\115\115\105\111\110\032\099\111\110\116\105\110\117\101\115'bm=0 bC=nil if z then aM(
 '\065\116\097\108\104\111\032\100\097\032\099\104\097\118\101\032\099\111\110\102\105\114\109\097\100\111\032\112\101\108\111\032\101\115\116\097\100\111\032\100\111\032\106\111\103\111\046')else aM(
 "\084\101\115\116\101\032\100\097\032\099\104\097\118\101\058\032\111\032\115\101\114\118\105\100\111\114\032\110\097\111\032\099\111\110\102\105\114\109\111\117\032\097\032\099\111\108\101\116\097\032\097\110\116\101\099\105\112\097\100\097\046")end return
-true end local function u(v)local w=aG.batchCollect(aH)if w and(cj.stats.pending
->0 or os.clock()<bL)then return true end if cH()then cJ()end local x,y=q(v)if
-not x then if y then aM(y,'\101\114\114\111\114')end return true end cO()local z=nil if w then
-local A A,z=aO.pickTiming(aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{},bq,bp,cD(),cq or
-'\072\097\110\100')if A>0 then bL=os.clock()+math.min(A,0.25)return true end end local A,B=
-cF()local C,D=bS,bT if not A or not B or A>=B and not x.pumpkin then return
-false,'\098\111\108\115\097\032\099\104\101\105\097\032\111\117\032\099\097\112\097\099\105\100\097\100\101\032\100\101\115\099\111\110\104\101\099\105\100\097'end local E=aJ.stats.identity
-local F=aJ.stats.native_map or E and math.max(E.confirmed_geometry or 0,E.
-confirmed_permuted or 0)>=3 if w and F and bR and not x.logical and not x.
-pumpkin then local G=aH.teamFunding and aG.effective(aH,'\097\117\116\111\068\101\108\105\118\101\114')and aG.
-deliveryGoal(aH,B)local H=G or B local I=cj.budget(os.clock(),A,H)if I==0 then
-return true end local J,K=r(x,v)if not J then bC=nil return false,K end if v()
-and aG.effective(aH,'\097\117\116\111\068\121\110\097\109\105\116\101')and not bi and os.clock()>=a2 then s(v)end
-local L=aI.actor()local M=aV:FindFirstChild('\080\111\116\097\116\111\080\105\108\101')if not L or not M then
-return true end local N=RaycastParams.new()N.FilterType=Enum.RaycastFilterType.
-Include N.FilterDescendantsInstances={M}local O={}local function P(Q)if not cA(Q
-)or Q.pumpkin or not Q.part or(Q.part.Position-L.Position).Magnitude>math.min(18
-,aH.auraRadius)then return end local R=aJ.slot(Q.part)local S=aJ.exposed and aJ.
-exposed(Q.part,R)local T=S==nil and aV:Raycast(Q.part.Position+Vector3.new(0,25,
-0),Vector3.new(0,-25.5,0),N)if S~=true and(not T or T.Instance~=Q.part)then
-return end if not cj.available(R,os.clock())or table.find(O,R)then return end
-table.insert(O,R)end P(x)local Q=0 while#O<I and bF<=#bE and Q<64 do local R=bE[
-bF]if cA(R)and(cz(R)-L.Position).Magnitude>math.min(18,aH.auraRadius)then break
-end bF+=1 Q+=1 P(R)end bC=nil bm=0 if not v()or#O==0 then return true end if not
+true end local function r(s)local t=aG.batchCollect(aH)if t and(cj.stats.pending
+>0 or os.clock()<bL)then return true end if cH()then cJ()end local u,v=n(s)if
+not u then if v then aM(v,'\101\114\114\111\114')end return true end cO()local w=nil if t then
+local x x,w=aO.pickTiming(aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{},bq,bp,cD(),cq or
+'\072\097\110\100')if x>0 then bL=os.clock()+math.min(x,0.25)return true end end local x,y=
+cF()local z,A=bS,bT if not x or not y or x>=y and not u.pumpkin then return
+false,'\098\111\108\115\097\032\099\104\101\105\097\032\111\117\032\099\097\112\097\099\105\100\097\100\101\032\100\101\115\099\111\110\104\101\099\105\100\097'end local B=aJ.stats.identity
+local C=aJ.stats.native_map or B and math.max(B.confirmed_geometry or 0,B.
+confirmed_permuted or 0)>=3 if t and C and bR and not u.logical and not u.
+pumpkin then local D=aH.teamFunding and aG.effective(aH,'\097\117\116\111\068\101\108\105\118\101\114')and aG.
+deliveryGoal(aH,y)local E=D or y local F=cj.budget(os.clock(),x,E)if F==0 then
+return true end local G,H=o(u,s)if not G then bC=nil return false,H end if s()
+and aG.effective(aH,'\097\117\116\111\068\121\110\097\109\105\116\101')and not bi and os.clock()>=a2 then p(s)end
+local I=aI.actor()local J=aV:FindFirstChild('\080\111\116\097\116\111\080\105\108\101')if not I or not J then
+return true end local K=RaycastParams.new()K.FilterType=Enum.RaycastFilterType.
+Include K.FilterDescendantsInstances={J}local L={}local function M(N)if not cA(N
+)or N.pumpkin or not N.part or(N.part.Position-I.Position).Magnitude>math.min(18
+,aH.auraRadius)then return end local O=aJ.slot(N.part)local P=aJ.exposed and aJ.
+exposed(N.part,O)local Q=P==nil and aV:Raycast(N.part.Position+Vector3.new(0,25,
+0),Vector3.new(0,-25.5,0),K)if P~=true and(not Q or Q.Instance~=N.part)then
+return end if not cj.available(O,os.clock())or table.find(L,O)then return end
+table.insert(L,O)end M(u)local N=0 while#L<F and bF<=#bE and N<64 do local O=bE[
+bF]if cA(O)and(cz(O)-I.Position).Magnitude>math.min(18,aH.auraRadius)then break
+end bF+=1 N+=1 M(O)end bC=nil bm=0 if not s()or#L==0 then return true end if not
 aX.matches('\080\111\116\097\116\111\080\105\099\107',{'\078\117\109\098\101\114\085\051\050'})or not aX.matches('\084\111\111\108\083\119\105\110\103',{})then
 return false,'\080\114\111\116\111\099\111\108\111\032\100\101\032\099\111\108\101\116\097\032\079\080\032\105\110\100\105\115\112\111\110\105\118\101\108\046'end if not cj.begin(os.clock(
-),A,O)then return true end bL=os.clock()+math.max(0.08,z or 0.08)if aX.matches(
-'\084\111\111\108\085\115\105\110\103',{'\066\111\111\108\101\097\110'})then aX.fire('\084\111\111\108\085\115\105\110\103',true)end for R,S in ipairs(O)do
-if not v()then cj.cancel()return false,'\099\097\110\099\101\108\097\100\111'end local T=aX.fire(
-'\084\111\111\108\083\119\105\110\103')local U=T and aX.fire('\080\111\116\097\116\111\080\105\099\107',S)if not U then cj.cancel()return
+),x,L)then return true end bL=os.clock()+math.max(0.08,w or 0.08)if aX.matches(
+'\084\111\111\108\085\115\105\110\103',{'\066\111\111\108\101\097\110'})then aX.fire('\084\111\111\108\085\115\105\110\103',true)end for O,P in ipairs(L)do
+if not s()then cj.cancel()return false,'\099\097\110\099\101\108\097\100\111'end local Q=aX.fire(
+'\084\111\111\108\083\119\105\110\103')local R=Q and aX.fire('\080\111\116\097\116\111\080\105\099\107',P)if not R then cj.cancel()return
 false,'\080\101\100\105\100\111\032\079\080\032\114\101\099\117\115\097\100\111\032\112\101\108\111\032\112\114\111\116\111\099\111\108\111\032\108\111\099\097\108\046'end end return true end local
-function G()local H=cF()return H~=nil and H>A or x.pumpkin and bS>C or x.gem and
-bT>D end if os.clock()<bL then return true end local H,I=r(x,v)if not H then if
-x.part then bz[x.part]=os.clock()+5 else cu[x.slot]=os.clock()+30 end bC=nil bD=
-0 return false,I end if not v()then return false,'\099\097\110\099\101\108\097\100\111'end x.slot=x.part
-and aJ.slot(x.part)or x.slot x.geometry=x.part and aJ.physicalSlot(x.part)or nil
-if x.slot then x.kind,x.pumpkin,x.gem=aJ.kind(x.part,x.slot)if not(aT=='\103\101\109'and
-x.gem or aG.acceptVariant(aH,x.kind,x.pumpkin,x.gem))then bC=nil return true end
-end if x.logical then ct=os.clock()+5 end local J=false if x.slot and type(aW.
+function D()local E=cF()return E~=nil and E>x or u.pumpkin and bS>z or u.gem and
+bT>A end if os.clock()<bL then return true end local E,F=o(u,s)if not E then if
+u.part then bz[u.part]=os.clock()+5 else cu[u.slot]=os.clock()+30 end bC=nil bD=
+0 return false,F end if not s()then return false,'\099\097\110\099\101\108\097\100\111'end u.slot=u.part
+and aJ.slot(u.part)or u.slot u.geometry=u.part and aJ.physicalSlot(u.part)or nil
+if u.slot then u.kind,u.pumpkin,u.gem=aJ.kind(u.part,u.slot)if not(aT=='\103\101\109'and
+u.gem or aG.acceptVariant(aH,u.kind,u.pumpkin,u.gem))then bC=nil return true end
+end if u.logical then ct=os.clock()+5 end local G=false if u.slot and type(aW.
 PotatoPick)=='\116\097\098\108\101'and type(aW.PotatoPick.Fire)=='\102\117\110\099\116\105\111\110'and type(aW.
-ToolSwing)=='\116\097\098\108\101'and type(aW.ToolSwing.Fire)=='\102\117\110\099\116\105\111\110'then local K={x}local
-L=aI.actor()local M=aG.pickLimit(aH,A,B,x.pumpkin)if bX.deliveryGoal and bX.
-deliveryGoal<math.huge then M=math.min(M,math.max(1,bX.deliveryGoal-A))end if bX
-.needBuffer then M=math.min(M,math.max(1,(bX.bufferDeliveryGoal or 1)-A))end
-local N=aJ.stats.identity if not N or math.max(N.confirmed_geometry or 0,N.
-confirmed_permuted or 0)<3 then M=1 end while#K<M and bF<=#bE and L do local O=
-bE[bF]if not cA(O)then bF+=1 elseif O.pumpkin or O.logical or(cz(O)-L.Position).
-Magnitude>math.min(18,aH.auraRadius)then break else O.slot=O.part and aJ.slot(O.
-part)or O.slot if not O.slot then break end bF+=1 table.insert(K,O)end end local
-O,P=pcall(function()if aX.matches('\084\111\111\108\085\115\105\110\103',{'\066\111\111\108\101\097\110'})then aX.fire(
-'\084\111\111\108\085\115\105\110\103',true)end for O,P in ipairs(K)do if not v()then break end aW.
-ToolSwing:Fire()aW.PotatoPick:Fire(P.slot)end end)if not O then aM(
-'\067\111\108\101\116\097\032\100\105\114\101\116\097\032\105\110\100\105\115\112\111\110\105\118\101\108\059\032\117\115\097\110\100\111\032\101\110\116\114\097\100\097\032\110\097\116\105\118\097\058\032'..tostring(P),'\101\114\114\111\114')end J
-=O end if not J then return false,
+ToolSwing)=='\116\097\098\108\101'and type(aW.ToolSwing.Fire)=='\102\117\110\099\116\105\111\110'then local H={u}local
+I=aI.actor()local J=aG.pickLimit(aH,x,y,u.pumpkin)if bX.deliveryGoal and bX.
+deliveryGoal<math.huge then J=math.min(J,math.max(1,bX.deliveryGoal-x))end if bX
+.needBuffer then J=math.min(J,math.max(1,(bX.bufferDeliveryGoal or 1)-x))end
+local K=aJ.stats.identity if not K or math.max(K.confirmed_geometry or 0,K.
+confirmed_permuted or 0)<3 then J=1 end while#H<J and bF<=#bE and I do local L=
+bE[bF]if not cA(L)then bF+=1 elseif L.pumpkin or L.logical or(cz(L)-I.Position).
+Magnitude>math.min(18,aH.auraRadius)then break else L.slot=L.part and aJ.slot(L.
+part)or L.slot if not L.slot then break end bF+=1 table.insert(H,L)end end local
+L,M=pcall(function()if aX.matches('\084\111\111\108\085\115\105\110\103',{'\066\111\111\108\101\097\110'})then aX.fire(
+'\084\111\111\108\085\115\105\110\103',true)end for L,M in ipairs(H)do if not s()then break end aW.
+ToolSwing:Fire()aW.PotatoPick:Fire(M.slot)end end)if not L then aM(
+'\067\111\108\101\116\097\032\100\105\114\101\116\097\032\105\110\100\105\115\112\111\110\105\118\101\108\059\032\117\115\097\110\100\111\032\101\110\116\114\097\100\097\032\110\097\116\105\118\097\058\032'..tostring(M),'\101\114\114\111\114')end G
+=L end if not G then return false,
 "\073\110\100\105\099\101\032\100\097\032\098\097\116\097\116\097\032\110\097\111\032\099\111\110\102\105\114\109\097\100\111\059\032\102\105\108\116\114\111\032\101\115\112\101\099\105\102\105\099\111\032\109\097\110\116\105\100\111\032\101\109\032\101\115\112\101\114\097\046"end
-local K,L=cK(G,aH.speedMode=='\084\117\114\098\111'and math.min(0.65,aH.actionTimeout)or aH.
-actionTimeout,v)if not K and v()and x.part and aJ.alternate then local M=aJ.
-alternate(x.part,x.slot)if M then local N,O,P=aJ.kind(x.part,M)if aG.
-acceptVariant(aH,N,O,P)then local Q=aX.fire('\080\111\116\097\116\111\080\105\099\107',M)if Q then K,L=cK(G,
-0.4,v)if K then x.slot=M end end end end end local M=cF()if K then a9=0 if x.
-part and not a7 then aJ.confirm(x.part,x.slot,x.geometry)end bU.collected+=math.
-max(0,(M or A)-A)bN=math.max(0.04,bN*0.9)else if cq=='\080\111\116\097\116\111\083\117\099\107\101\114'then a9+=1 if
-a9>=2 then a8=os.clock()+2 a9=0 end end if x.part then bz[x.part]=os.clock()+3
-else cu[x.slot]=os.clock()+30 end bN=math.min(0.6,math.max(0.08,bN*1.3))end bm=0
-local N=aH.speedMode=='\084\117\114\098\111'and bN or aG.tickInterval(aH)local O=cD()if O and
-aH.speedMode~='\084\117\114\098\111'then local P,Q=cC(bp,'\071\101\116\080\105\099\107\067\111\111\108\100\111\119\110',cq or'\072\097\110\100')if P and
-type(Q)=='\110\117\109\098\101\114'and Q>0 and Q<3 then N=math.max(N,Q)end end bL=os.clock()+N bC=
-nil return K,L end local function v(w)local x=cF()if not x or x<=0 then bZ=nil
-bm=0 return true end if not bZ then cM()local y=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115'})
-local z local A=aG.progress(aH)and(bX.focusClear and b6 and'\065\117\116\111'or'\067\114\097\116\101')or aH
-.deliveryTarget if A=='\084\097\098\108\101'then z=d(true)elseif A=='\077\097\110\117\097\108'then z=y and cB(y,{
-'\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\117\098\101\046\048\051\051','\076\111\097\100'})elseif A=='\065\117\116\111'then z=y and cB(y,{
-'\065\117\116\111\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\117\098\101\046\048\052\050','\076\111\097\100'})else local B=cD()local C=y and cB(y,{
+local H,I=cK(D,aH.speedMode=='\084\117\114\098\111'and math.min(0.65,aH.actionTimeout)or aH.
+actionTimeout,s)if not H and s()and u.part and aJ.alternate then local J=aJ.
+alternate(u.part,u.slot)if J then local K,L,M=aJ.kind(u.part,J)if aG.
+acceptVariant(aH,K,L,M)then local N=aX.fire('\080\111\116\097\116\111\080\105\099\107',J)if N then H,I=cK(D,
+0.4,s)if H then u.slot=J end end end end end local J=cF()if H then a9=0 if u.
+part and not a7 then aJ.confirm(u.part,u.slot,u.geometry)end bU.collected+=math.
+max(0,(J or x)-x)bN=math.max(0.04,bN*0.9)else if cq=='\080\111\116\097\116\111\083\117\099\107\101\114'then a9+=1 if
+a9>=2 then a8=os.clock()+2 a9=0 end end if u.part then bz[u.part]=os.clock()+3
+else cu[u.slot]=os.clock()+30 end bN=math.min(0.6,math.max(0.08,bN*1.3))end bm=0
+local K=aH.speedMode=='\084\117\114\098\111'and bN or aG.tickInterval(aH)local L=cD()if L and
+aH.speedMode~='\084\117\114\098\111'then local M,N=cC(bp,'\071\101\116\080\105\099\107\067\111\111\108\100\111\119\110',cq or'\072\097\110\100')if M and
+type(N)=='\110\117\109\098\101\114'and N>0 and N<3 then K=math.max(K,N)end end bL=os.clock()+K bC=
+nil return H,I end local function s(t)local u=cF()if not u or u<=0 then bZ=nil
+bm=0 return true end if not bZ then cM()local v=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115'})
+local w local x=aG.progress(aH)and(bX.focusClear and b6 and'\065\117\116\111'or'\067\114\097\116\101')or aH
+.deliveryTarget if x=='\084\097\098\108\101'then w=cR(true)elseif x=='\077\097\110\117\097\108'then w=v and cB(v,
+{'\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\117\098\101\046\048\051\051','\076\111\097\100'})elseif x=='\065\117\116\111'then w=v and cB(v,{
+'\065\117\116\111\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\117\098\101\046\048\052\050','\076\111\097\100'})else local y=cD()local z=v and cB(v,{
 '\065\117\116\111\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\117\098\101\046\048\052\050','\076\111\097\100'})if aH.buyMachines and(bX.mountainEmpty
-or bX.focusClear)and b6 and B and B.HasAutoPeeler and C and C.Enabled then z=C
-else z=y and cB(y,{'\080\111\116\097\116\111\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097','\080\108\097\099\101\080\114\111\109\112\116'})end end if not z
-then return false,'\068\101\115\116\105\110\111\032\115\101\108\101\099\105\111\110\097\100\111\032\105\110\100\105\115\112\111\110\105\118\101\108\046'end if A=='\065\117\116\111'and not z.
+or bX.focusClear)and b6 and y and y.HasAutoPeeler and z and z.Enabled then w=z
+else w=v and cB(v,{'\080\111\116\097\116\111\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097','\080\108\097\099\101\080\114\111\109\112\116'})end end if not w
+then return false,'\068\101\115\116\105\110\111\032\115\101\108\101\099\105\111\110\097\100\111\032\105\110\100\105\115\112\111\110\105\118\101\108\046'end if x=='\065\117\116\111'and not w.
 Enabled then ce=os.clock()+3 bm=0 if select(2,cF())==math.huge then return true,
-'\065\117\116\111\109\097\116\105\099\111\032\111\099\117\112\097\100\111\059\032\099\111\110\116\105\110\117\097\110\100\111\032\099\111\108\101\116\097\046'end z=y and cB(y,{'\080\111\116\097\116\111\067\114\097\116\101',
-'\080\111\116\097\116\111\065\114\101\097','\080\108\097\099\101\080\114\111\109\112\116'})end local B,C=aI.trigger(z,w)if not B then return
-false,C end bZ={prompt=z,last=x,remaining=x,progressAt=os.clock(),began=os.
-clock(),total=0}end local y=bZ local z=os.clock()+math.max(4,math.min(8,aH.
-actionTimeout))repeat if not w()then return false,'\099\097\110\099\101\108\097\100\111'end local A=cF()if
-A and A<y.last then local B=y.last-A bU.delivered+=B y.total+=B y.progressAt=os.
-clock()bm=0 end if A then y.last=A y.remaining=A end if A==0 then aM(
-'\069\110\116\114\101\103\097\032\099\111\110\099\108\117\105\100\097\058\032'..tostring(y.total)..'\032\098\097\116\097\116\097\115\046')bZ=nil bm=0 bC=nil return
-true end if os.clock()-y.progressAt>2 then local B=y.prompt if B and B.Parent
-and B.Enabled then local C,D=aI.trigger(B,w)if not C then return false,D end y.
-progressAt=os.clock()elseif y.total>0 and os.clock()-y.progressAt>1 then bZ=nil
+'\065\117\116\111\109\097\116\105\099\111\032\111\099\117\112\097\100\111\059\032\099\111\110\116\105\110\117\097\110\100\111\032\099\111\108\101\116\097\046'end w=v and cB(v,{'\080\111\116\097\116\111\067\114\097\116\101',
+'\080\111\116\097\116\111\065\114\101\097','\080\108\097\099\101\080\114\111\109\112\116'})end local y,z=aI.trigger(w,t)if not y then return
+false,z end bZ={prompt=w,last=u,remaining=u,progressAt=os.clock(),began=os.
+clock(),total=0}end local v=bZ local w=os.clock()+math.max(4,math.min(8,aH.
+actionTimeout))repeat if not t()then return false,'\099\097\110\099\101\108\097\100\111'end local x=cF()if
+x and x<v.last then local y=v.last-x bU.delivered+=y v.total+=y v.progressAt=os.
+clock()bm=0 end if x then v.last=x v.remaining=x end if x==0 then aM(
+'\069\110\116\114\101\103\097\032\099\111\110\099\108\117\105\100\097\058\032'..tostring(v.total)..'\032\098\097\116\097\116\097\115\046')bZ=nil bm=0 bC=nil return
+true end if os.clock()-v.progressAt>2 then local y=v.prompt if y and y.Parent
+and y.Enabled then local z,A=aI.trigger(y,t)if not z then return false,A end v.
+progressAt=os.clock()elseif v.total>0 and os.clock()-v.progressAt>1 then bZ=nil
 ce=os.clock()+3 bm=0 return true,'\067\097\114\103\097\032\112\097\114\099\105\097\108\032\099\111\110\102\105\114\109\097\100\097\059\032\114\101\116\111\109\097\110\100\111\032\099\111\108\101\116\097\046'
-elseif os.clock()-y.progressAt>math.max(8,aH.actionTimeout)then bZ=nil bm=0
+elseif os.clock()-v.progressAt>math.max(8,aH.actionTimeout)then bZ=nil bm=0
 return false,'\069\110\116\114\101\103\097\032\112\097\114\111\117\032\115\101\109\032\112\114\111\103\114\101\115\115\111\059\032\100\101\115\116\105\110\111\032\115\101\114\097\032\114\101\097\118\097\108\105\097\100\111\046'end end aE.
-RunService.Heartbeat:Wait()until os.clock()>=z return true,
-'\069\110\116\114\101\103\097\032\101\109\032\097\110\100\097\109\101\110\116\111\046'end local function w(x)if not cH()then return true end
-local y,z=cC(bo,'\071\101\116\080\111\116\097\116\111')local A=cD()local B=A and bu.Tools and bu.Tools[h(A)
-]or nil co=true local C,D=bW.tick(true,z,cE(),B)if not C then cJ()table.clear(bk
-)bY.enterCut=os.clock()+1 bm=0 end if not x()then return false,'\099\097\110\099\101\108\097\100\111'end
-return C,D end local function x(y)cM()local z=d(true)if not z then return false,
-'\078\101\110\104\117\109\097\032\109\101\115\097\032\108\105\098\101\114\097\100\097\032\099\111\109\032\098\097\116\097\116\097\115\046'end b_={}for A,B in ipairs(aU:GetChildren())
-do if B:IsA('\083\099\114\101\101\110\071\117\105')and B.Name~='\065\110\111\110\121\109\111\117\115\080\111\116\097\116\111\072\117\098'then b_[B]=B.Enabled for
-C,D in ipairs(B:GetChildren())do if D:IsA('\071\117\105\079\098\106\101\099\116')then b_[D]=D.Visible end
-end end end aI.aim(z,aH.aimTable)local A,B=aI.trigger(z,y)if not A then aI.
-clearAim()bk[z]=os.clock()+3 bm=0 return false,B end local C=aH.opAutoFinish and
-aH.opFastPrompts and z.HoldDuration==0 local D,E=cK(cH,math.min(C and 1.25 or 3,
-aH.actionTimeout),y)if not D and y()and z.Enabled then local F=aI.trigger(z,y,{
-method='\104\111\108\100'})if F then D,E=cK(cH,math.min(2,aH.actionTimeout),y)end elseif not
-D and C and y()then D,E=cK(cH,0.75,y)end aI.clearAim()if D then a0=z co=true
-else bk[z]=os.clock()+3 bm=0 end return D,E end local function y(z)bJ=os.clock()
-+2 local A=aI.actor()local B=A and A.Position cM()local C=cB(aV,{'\077\097\112','\087\097\116\101\114',
-'\087\097\116\101\114\084\101\114\109\105\110\097\108','\051','\066\117\116\116\111\110','\087\097\116\101\114\080\114\111\109\112\116'})if not C then return false,
-'\087\097\116\101\114\080\114\111\109\112\116\032\110\097\111\032\101\110\099\111\110\116\114\097\100\111\046'end local D=aJ.heat()local E=C.HoldDuration aI.aim(
-C,aH.aimCooling)local F,G=false,nil local H={{method='\104\111\108\100',holdSeconds=aH.
+RunService.Heartbeat:Wait()until os.clock()>=w return true,
+'\069\110\116\114\101\103\097\032\101\109\032\097\110\100\097\109\101\110\116\111\046'end local function t(u)if not cH()then return true end
+local v,w=cC(bo,'\071\101\116\080\111\116\097\116\111')local x=cD()local y=x and bu.Tools and bu.Tools[e(x)
+]or nil co=true local z,A=bW.tick(true,w,cE(),y)if not z then cJ()table.clear(bk
+)bY.enterCut=os.clock()+1 bm=0 end if not u()then return false,'\099\097\110\099\101\108\097\100\111'end
+return z,A end local function u(v)cM()local w=cR(true)if not w then return false
+,'\078\101\110\104\117\109\097\032\109\101\115\097\032\108\105\098\101\114\097\100\097\032\099\111\109\032\098\097\116\097\116\097\115\046'end b_={}for x,y in ipairs(aU:GetChildren()
+)do if y:IsA('\083\099\114\101\101\110\071\117\105')and y.Name~='\065\110\111\110\121\109\111\117\115\080\111\116\097\116\111\072\117\098'then b_[y]=y.Enabled
+for z,A in ipairs(y:GetChildren())do if A:IsA('\071\117\105\079\098\106\101\099\116')then b_[A]=A.Visible
+end end end end aI.aim(w,aH.aimTable)local x,y=aI.trigger(w,v)if not x then aI.
+clearAim()bk[w]=os.clock()+3 bm=0 return false,y end local z=aH.opAutoFinish and
+aH.opFastPrompts and w.HoldDuration==0 local A,B=cK(cH,math.min(z and 1.25 or 3,
+aH.actionTimeout),v)if not A and v()and w.Enabled then local C=aI.trigger(w,v,{
+method='\104\111\108\100'})if C then A,B=cK(cH,math.min(2,aH.actionTimeout),v)end elseif not
+A and z and v()then A,B=cK(cH,0.75,v)end aI.clearAim()if A then a0=w co=true
+else bk[w]=os.clock()+3 bm=0 end return A,B end local function v(w)bJ=os.clock()
++2 local x=aI.actor()local y=x and x.Position cM()local z=cB(aV,{'\077\097\112','\087\097\116\101\114',
+'\087\097\116\101\114\084\101\114\109\105\110\097\108','\051','\066\117\116\116\111\110','\087\097\116\101\114\080\114\111\109\112\116'})if not z then return false,
+'\087\097\116\101\114\080\114\111\109\112\116\032\110\097\111\032\101\110\099\111\110\116\114\097\100\111\046'end local A=aJ.heat()local B=z.HoldDuration aI.aim(
+z,aH.aimCooling)local C,D=false,nil local E={{method='\104\111\108\100',holdSeconds=aH.
 coolHoldSeconds},{method='\110\097\116\105\118\101'}}if aH.coolHoldFallback and aH.coolHoldSeconds
-<E then table.insert(H,{method='\104\111\108\100',holdSeconds=E})end for I,J in ipairs(H)do
-local K,L=aI.trigger(C,z,J)if not K then G=L else F,G=cK(function()local M,N=aJ.
-heat()return N or M and(M<=aH.heatStop or D and M<D-1)end,I==1 and 1 or 2,z)end
-if F or not z()then break end end aI.clearAim()bm=0 if F then bU.cooled+=1 aM(
+<B then table.insert(E,{method='\104\111\108\100',holdSeconds=B})end for F,G in ipairs(E)do
+local H,I=aI.trigger(z,w,G)if not H then D=I else C,D=cK(function()local J,K=aJ.
+heat()return K or J and(J<=aH.heatStop or A and J<A-1)end,F==1 and 1 or 2,w)end
+if C or not w()then break end end aI.clearAim()bm=0 if C then bU.cooled+=1 aM(
 '\086\097\108\118\117\108\097\032\099\111\110\102\105\114\109\097\100\097\058\032\097\103\117\097\032\102\108\117\105\110\100\111\032\111\117\032\099\097\108\111\114\032\100\105\109\105\110\117\105\110\100\111\046')bJ=os.clock()+aH.
-coolingRetry if aH.returnAfterCooling and B and z()then aI.goTo(B,z,true)end end
-return F,G end local function z(A)cJ()local B=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115',
-'\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\114\097\110\107\080\114\111\109\112\116\080\097\114\116','\067\114\097\110\107'})if not B or not B.Enabled then
-return false,'\067\111\114\116\097\100\111\114\032\109\097\110\117\097\108\032\105\110\100\105\115\112\111\110\105\118\101\108\046'end local C=B.ObjectText local D,E=
-aI.trigger(B,A)if not D then return false,E end return cK(function()return not B
-.Parent or not B.Enabled or B.ObjectText~=C end,aH.actionTimeout,A)end local
-function A(B,C)local D=C or m()if not D then return true end local E=cD()local F
-=cE()local G=E and h(E)local H=E and E.CarryLevel local I=aF[
-'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}local J=D.group=='\117\112\103\114\097\100\101'and aO.level(I,E,D.tool
-,D.upgrade)or nil local K=aI.actor()K=K and K.Position local L=cH()local
-function M()local N=cD()if not N then return false end if D.group=='\109\097\099\104\105\110\101'then
-return N[D.unlock]==true end if D.group=='\117\112\103\114\097\100\101'then local O=aO.level(I,N,D.
-tool,D.upgrade)return O~=nil and J~=nil and O>J end if D.group=='\099\117\116'and G and
-h(N)>G then return true end if D.group=='\115\116\111\114\097\103\101'and H and N.CarryLevel>H then
-return true end if D.group=='\099\111\108\108\101\099\116'and aO.owns(N,D.id=='\080\048\084\052\084\048\045\051\048\048\048'and
-'\080\111\116\097\116\111\083\117\099\107\101\114'or D.id)then return true end local O=cE()return O and F and O<F-
-0.001 end local function N(O,P,Q)if D.group=='\117\112\103\114\097\100\101'then if by then by()by=nil
-end else cC(br,'\067\108\111\115\101')end if O and not Q then bU.purchases+=1 if#bV<100 then
-table.insert(bV,{name=D.name,group=D.group})end if aY and D.group=='\099\117\116'then aZ=
-true end aM('\067\111\109\112\114\097\032\099\111\110\102\105\114\109\097\100\097\058\032'..D.name..'\046')end if D.group=='\117\112\103\114\097\100\101'and not
-Q then a6.result(D.name,J,O)end if D.group=='\117\112\103\114\097\100\101'and not O then a5[D.name]={
-cash=math.max((F or 0)*1.5,(F or 0)+math.max(0.1,(D.price or 0)*0.5)),level=J}
-elseif O and not Q then a5[D.name]=nil end l()a4[D.name]=O and not Q and 0 or os
-.clock()+20 bK=os.clock()+(O and 0.15 or 1)bO=nil bP=0 bm=0 if L and K and B()
-and D.group~='\117\112\103\114\097\100\101'and not aY then aI.goTo(K,B,true)end return O,P end if D.
-group=='\117\112\103\114\097\100\101'then local O=aO.definition(I,D.tool,D.upgrade)local P=O~=nil
-local Q=P and aO.maximum(I,O)if Q==nil or J==nil or J>=Q or not a6.allowed(D.
-name,J)then return N(true,'\077\101\108\104\111\114\105\097\032\099\111\110\099\108\117\105\100\097\032\111\117\032\098\108\111\113\117\101\097\100\097\032\112\097\114\097\032\114\101\097\118\097\108\105\097\099\097\111\046',
-true)end if J==nil then return N(true,'\078\105\118\101\108\032\100\101\032\109\101\108\104\111\114\105\097\032\105\110\100\105\115\112\111\110\105\118\101\108\046',true)end
-local R,S=cC(bs,'\071\101\116\085\112\103\114\097\100\101\066\117\116\116\111\110',D.tool,D.upgrade)if R and typeof(S)==
-'\073\110\115\116\097\110\099\101'and S:IsA('\071\117\105\066\117\116\116\111\110')then D.button=S end D.price=i(cD(),D.tool,D.
-upgrade,J,D.button)or D.price if not B()then return N(false,'\099\097\110\099\101\108\097\100\111')end if
-not D.price or not aG.affordable(aH,cE(),D.price,'\067\097\115\104')then return N(true,
-'\065\103\117\097\114\100\097\110\100\111\032\115\097\108\100\111\032\112\097\114\097\032'..D.name,true)end local T,U if aX.matches(
-'\084\111\111\108\085\112\103\114\097\100\101\080\117\114\099\104\097\115\101',{'\083\116\114\105\110\103','\083\116\114\105\110\103'})then T,U=aX.fire('\084\111\111\108\085\112\103\114\097\100\101\080\117\114\099\104\097\115\101'
-,D.tool,D.upgrade)elseif D.button then T,U=aL.activate(D.button,true)else return
-N(true,'\066\111\116\097\111\032\100\101\032\109\101\108\104\111\114\105\097\032\097\105\110\100\097\032\105\110\100\105\115\112\111\110\105\118\101\108\046',true)end if not T then return N(
-false,U)end local V,W=cK(M,math.min(3,aH.actionTimeout),B)return N(V,W)end if
-not aG.affordable(aH,F,D.price,'\067\097\115\104')then return N(true,'\065\103\117\097\114\100\097\110\100\111\032\115\097\108\100\111\046',
-true)end cM()local O,P=aI.trigger(D.prompt,B)if not O then return N(false,P)end
-local Q,R local S,T=cK(function()if M()then return true end Q,R=aL.buyButton(D.
-price)return Q~=nil end,2,B)if M()then return N(true)end if aX.matches(
-'\083\116\111\114\101\080\117\114\099\104\097\115\101',{'\073\110\115\116\097\110\099\101','\083\116\114\105\110\103'})then local U=D.prompt:
-FindFirstAncestorOfClass('\077\111\100\101\108')if U then local V=aX.fire('\083\116\111\114\101\080\117\114\099\104\097\115\101',U,
-'\066\117\121')if V then local W=cK(M,1.5,B)if W then return N(true)end end end end if
-not S then return N(false,R or T)end if not aG.affordable(aH,cE(),D.price,'\067\097\115\104'
-)then return N(true,'\083\097\108\100\111\032\097\108\116\101\114\097\100\111\046',true)end local U,V=aL.activate(Q)if not U
-then return N(false,V)end local W,X=cK(M,math.min(3,aH.actionTimeout),B)return
-N(W,X)end local function B(C,D,E)if not table.find(aO.allowed[C]or{},D)then
-return false,'\077\101\108\104\111\114\105\097\032\100\101\115\099\111\110\104\101\099\105\100\097\046'end local F=cD()if not aO.owns(F,C)then
-return false,'\070\101\114\114\097\109\101\110\116\097\032\097\105\110\100\097\032\110\097\111\032\097\100\113\117\105\114\105\100\097\046'end local G=aF[
-'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}local H=aO.level(G,F,C,D)local I=aO.maximum(G,aO.
-definition(G,C,D))if H==nil or I==nil then return false,
-'\079\032\106\111\103\111\032\097\105\110\100\097\032\110\097\111\032\105\110\102\111\114\109\111\117\032\111\032\110\105\118\101\108\032\100\097\032\109\101\108\104\111\114\105\097\046'end if H>=I then return false,
-'\077\101\108\104\111\114\105\097\032\106\097\032\101\115\116\097\032\110\111\032\109\097\120\105\109\111\046'end local J,K=cC(bs,'\071\101\116\085\112\103\114\097\100\101\066\117\116\116\111\110',C,D)if not J
-or typeof(K)~='\073\110\115\116\097\110\099\101'or not K:IsA('\071\117\105\066\117\116\116\111\110')then K=nil end local L=i(F,C,D,
-H,K)if not L then return false,'\079\032\106\111\103\111\032\097\105\110\100\097\032\110\097\111\032\105\110\102\111\114\109\111\117\032\111\032\112\114\101\099\111\046'end if not aG
-.affordable(aH,cE(),L,'\067\097\115\104')then return false,
-'\083\097\108\100\111\032\111\117\032\108\105\109\105\116\101\032\100\101\032\099\111\109\112\114\097\032\105\110\115\117\102\105\099\105\101\110\116\101\046'end return A(E,{group='\117\112\103\114\097\100\101',name=C
-..'\047'..D,tool=C,upgrade=D,button=K,price=L,level=H})end local function C(D)local
-E=n()if not E or E<=0 then return true end local F=aI.actor()a_=aH.
-returnAfterSell and F and F.Position or nil cM()local G=cB(aV,{'\077\097\112',
-'\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115','\083\101\108\108\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097','\083\101\108\108\080\114\111\109\112\116'})a1=os.clock()+3 local H
-,I=aI.trigger(G,D)if not H then return false,I end local function J()local K=n()
-return K~=nil and K<E end local K=aH.opAutoFinish and aH.opFastPrompts and G.
-HoldDuration==0 local L,M=cK(J,math.min(K and 1.25 or 4,aH.actionTimeout),D)if
-not L and K and D()then if G.Parent and G.Enabled and not J()then aI.trigger(G,D
-,{method='\104\111\108\100'})end L,M=cK(J,math.min(1.75,aH.actionTimeout),D)end if L then bU
-.sales+=1 bU.sold+=math.max(0,E-(n()or E))aY=true aZ=false bO=nil bP=0 bm=0 aM(
-'\086\101\110\100\097\032\099\111\110\102\105\114\109\097\100\097\058\032'..tostring(E-(n()or E))..'\032\098\097\116\097\116\097\115\046')end return L,M end
-local function D(E)local F=a_ aY=false a_=nil aZ=false bm=0 if not F or bX.
-focusClear or bX.needBuffer then return true end local G,H=aI.goTo(F,E,true)if
-not G then return false,H end if aG.effective(aH,'\097\117\116\111\067\117\116')and d(true)then
-return x(E)end return true end s=function(E)local F=cD()if not aO.owns(F,
+coolingRetry if aH.returnAfterCooling and y and w()then aI.goTo(y,w,true)end end
+return C,D end local function w(x)cJ()local y=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115',
+'\080\101\101\108\105\110\103\077\097\099\104\105\110\101','\067\114\097\110\107\080\114\111\109\112\116\080\097\114\116','\067\114\097\110\107'})if not y or not y.Enabled then
+return false,'\067\111\114\116\097\100\111\114\032\109\097\110\117\097\108\032\105\110\100\105\115\112\111\110\105\118\101\108\046'end local z=y.ObjectText local A,B=
+aI.trigger(y,x)if not A then return false,B end return cK(function()return not y
+.Parent or not y.Enabled or y.ObjectText~=z end,aH.actionTimeout,x)end local
+function x(y,z)local A=z or j()if not A then return true end local B=cD()local C
+=cE()local D=B and e(B)local E=B and B.CarryLevel local F=aF[
+'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}local G=A.group=='\117\112\103\114\097\100\101'and aO.level(F,B,A.tool
+,A.upgrade)or nil local H=aI.actor()H=H and H.Position local I=cH()local
+function J()local K=cD()if not K then return false end if A.group=='\109\097\099\104\105\110\101'then
+return K[A.unlock]==true end if A.group=='\117\112\103\114\097\100\101'then local L=aO.level(F,K,A.
+tool,A.upgrade)return L~=nil and G~=nil and L>G end if A.group=='\099\117\116'and D and
+e(K)>D then return true end if A.group=='\115\116\111\114\097\103\101'and E and K.CarryLevel>E then
+return true end if A.group=='\099\111\108\108\101\099\116'and aO.owns(K,A.id=='\080\048\084\052\084\048\045\051\048\048\048'and
+'\080\111\116\097\116\111\083\117\099\107\101\114'or A.id)then return true end local L=cE()return L and C and L<C-
+0.001 end local function K(L,M,N)if A.group=='\117\112\103\114\097\100\101'then if by then by()by=nil
+end else cC(br,'\067\108\111\115\101')end if L and not N then bU.purchases+=1 if#bV<100 then
+table.insert(bV,{name=A.name,group=A.group})end if aY and A.group=='\099\117\116'then aZ=
+true end aM('\067\111\109\112\114\097\032\099\111\110\102\105\114\109\097\100\097\058\032'..A.name..'\046')end if A.group=='\117\112\103\114\097\100\101'and not
+N then a6.result(A.name,G,L)end if A.group=='\117\112\103\114\097\100\101'and not L then a5[A.name]={
+cash=math.max((C or 0)*1.5,(C or 0)+math.max(0.1,(A.price or 0)*0.5)),level=G}
+elseif L and not N then a5[A.name]=nil end i()a4[A.name]=L and not N and 0 or os
+.clock()+20 bK=os.clock()+(L and 0.15 or 1)bO=nil bP=0 bm=0 if I and H and y()
+and A.group~='\117\112\103\114\097\100\101'and not aY then aI.goTo(H,y,true)end return L,M end if A.
+group=='\117\112\103\114\097\100\101'then local L=aO.definition(F,A.tool,A.upgrade)local M=L~=nil
+local N=M and aO.maximum(F,L)if N==nil or G==nil or G>=N or not a6.allowed(A.
+name,G)then return K(true,'\077\101\108\104\111\114\105\097\032\099\111\110\099\108\117\105\100\097\032\111\117\032\098\108\111\113\117\101\097\100\097\032\112\097\114\097\032\114\101\097\118\097\108\105\097\099\097\111\046',
+true)end if G==nil then return K(true,'\078\105\118\101\108\032\100\101\032\109\101\108\104\111\114\105\097\032\105\110\100\105\115\112\111\110\105\118\101\108\046',true)end
+local O,P=cC(bs,'\071\101\116\085\112\103\114\097\100\101\066\117\116\116\111\110',A.tool,A.upgrade)if O and typeof(P)==
+'\073\110\115\116\097\110\099\101'and P:IsA('\071\117\105\066\117\116\116\111\110')then A.button=P end A.price=f(cD(),A.tool,A.
+upgrade,G,A.button)or A.price if not y()then return K(false,'\099\097\110\099\101\108\097\100\111')end if
+not A.price or not aG.affordable(aH,cE(),A.price,'\067\097\115\104')then return K(true,
+'\065\103\117\097\114\100\097\110\100\111\032\115\097\108\100\111\032\112\097\114\097\032'..A.name,true)end local Q,R if aX.matches(
+'\084\111\111\108\085\112\103\114\097\100\101\080\117\114\099\104\097\115\101',{'\083\116\114\105\110\103','\083\116\114\105\110\103'})then Q,R=aX.fire('\084\111\111\108\085\112\103\114\097\100\101\080\117\114\099\104\097\115\101'
+,A.tool,A.upgrade)elseif A.button then Q,R=aL.activate(A.button,true)else return
+K(true,'\066\111\116\097\111\032\100\101\032\109\101\108\104\111\114\105\097\032\097\105\110\100\097\032\105\110\100\105\115\112\111\110\105\118\101\108\046',true)end if not Q then return K(
+false,R)end local S,T=cK(J,math.min(3,aH.actionTimeout),y)return K(S,T)end if
+not aG.affordable(aH,C,A.price,'\067\097\115\104')then return K(true,'\065\103\117\097\114\100\097\110\100\111\032\115\097\108\100\111\046',
+true)end cM()local L,M=aI.trigger(A.prompt,y)if not L then return K(false,M)end
+local N,O local P,Q=cK(function()if J()then return true end N,O=aL.buyButton(A.
+price)return N~=nil end,2,y)if J()then return K(true)end if aX.matches(
+'\083\116\111\114\101\080\117\114\099\104\097\115\101',{'\073\110\115\116\097\110\099\101','\083\116\114\105\110\103'})then local R=A.prompt:
+FindFirstAncestorOfClass('\077\111\100\101\108')if R then local S=aX.fire('\083\116\111\114\101\080\117\114\099\104\097\115\101',R,
+'\066\117\121')if S then local T=cK(J,1.5,y)if T then return K(true)end end end end if
+not P then return K(false,O or Q)end if not aG.affordable(aH,cE(),A.price,'\067\097\115\104'
+)then return K(true,'\083\097\108\100\111\032\097\108\116\101\114\097\100\111\046',true)end local R,S=aL.activate(N)if not R
+then return K(false,S)end local T,U=cK(J,math.min(3,aH.actionTimeout),y)return
+K(T,U)end local function y(z,A,B)if not table.find(aO.allowed[z]or{},A)then
+return false,'\077\101\108\104\111\114\105\097\032\100\101\115\099\111\110\104\101\099\105\100\097\046'end local C=cD()if not aO.owns(C,z)then
+return false,'\070\101\114\114\097\109\101\110\116\097\032\097\105\110\100\097\032\110\097\111\032\097\100\113\117\105\114\105\100\097\046'end local D=aF[
+'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}local E=aO.level(D,C,z,A)local F=aO.maximum(D,aO.
+definition(D,z,A))if E==nil or F==nil then return false,
+'\079\032\106\111\103\111\032\097\105\110\100\097\032\110\097\111\032\105\110\102\111\114\109\111\117\032\111\032\110\105\118\101\108\032\100\097\032\109\101\108\104\111\114\105\097\046'end if E>=F then return false,
+'\077\101\108\104\111\114\105\097\032\106\097\032\101\115\116\097\032\110\111\032\109\097\120\105\109\111\046'end local G,H=cC(bs,'\071\101\116\085\112\103\114\097\100\101\066\117\116\116\111\110',z,A)if not G
+or typeof(H)~='\073\110\115\116\097\110\099\101'or not H:IsA('\071\117\105\066\117\116\116\111\110')then H=nil end local I=f(C,z,A,
+E,H)if not I then return false,'\079\032\106\111\103\111\032\097\105\110\100\097\032\110\097\111\032\105\110\102\111\114\109\111\117\032\111\032\112\114\101\099\111\046'end if not aG
+.affordable(aH,cE(),I,'\067\097\115\104')then return false,
+'\083\097\108\100\111\032\111\117\032\108\105\109\105\116\101\032\100\101\032\099\111\109\112\114\097\032\105\110\115\117\102\105\099\105\101\110\116\101\046'end return x(B,{group='\117\112\103\114\097\100\101',name=z
+..'\047'..A,tool=z,upgrade=A,button=H,price=I,level=E})end local function z(A)local
+B=k()if not B or B<=0 then return true end local C=aI.actor()a_=aH.
+returnAfterSell and C and C.Position or nil cM()local D=cB(aV,{'\077\097\112',
+'\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115','\083\101\108\108\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097','\083\101\108\108\080\114\111\109\112\116'})a1=os.clock()+3 local E
+,F=aI.trigger(D,A)if not E then return false,F end local function G()local H=k()
+return H~=nil and H<B end local H=aH.opAutoFinish and aH.opFastPrompts and D.
+HoldDuration==0 local I,J=cK(G,math.min(H and 1.25 or 4,aH.actionTimeout),A)if
+not I and H and A()then if D.Parent and D.Enabled and not G()then aI.trigger(D,A
+,{method='\104\111\108\100'})end I,J=cK(G,math.min(1.75,aH.actionTimeout),A)end if I then bU
+.sales+=1 bU.sold+=math.max(0,B-(k()or B))aY=true aZ=false bO=nil bP=0 bm=0 aM(
+'\086\101\110\100\097\032\099\111\110\102\105\114\109\097\100\097\058\032'..tostring(B-(k()or B))..'\032\098\097\116\097\116\097\115\046')end return I,J end
+local function A(B)local C=a_ aY=false a_=nil aZ=false bm=0 if not C or bX.
+focusClear or bX.needBuffer then return true end local D,E=aI.goTo(C,B,true)if
+not D then return false,E end if aG.effective(aH,'\097\117\116\111\067\117\116')and cR(true)then
+return u(B)end return true end p=function(B)local C=cD()if not aO.owns(C,
 '\068\121\110\097\109\105\116\101')or not cA(bC)then return true end if not aX.matches('\068\121\110\097\109\105\116\101\084\104\114\111\119',{
-'\078\117\109\098\101\114\085\051\050'})then return true end local G,H,I=aO.pickTiming(aF[
-'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{},bq,bp,F,'\068\121\110\097\109\105\116\101')cd={remaining=G,interval=H,
-source=I}if G>0 then a2=os.clock()+G return true end local J=aI.actor()if not J
-then return false,'\112\101\114\115\111\110\097\103\101\109\032\105\110\100\105\115\112\111\110\105\118\101\108'end local K=cz(bC)if(J.Position-K).
-Magnitude>18 then local L,M=r(bC,E)if not L then return false,M end end local L=
-aX.matches('\084\111\111\108\069\113\117\105\112',{'\083\116\114\105\110\103'})if L then cL('\068\121\110\097\109\105\116\101')end cC(bp,'\083\101\116\085\115\101\072\101\108\100'
-,false)local M=a3 local N,O=aX.fire('\068\121\110\097\109\105\116\101\084\104\114\111\119',bC.slot)local P=aH.
+'\078\117\109\098\101\114\085\051\050'})then return true end local D,E,F=aO.pickTiming(aF[
+'\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{},bq,bp,C,'\068\121\110\097\109\105\116\101')cd={remaining=D,interval=E,
+source=F}if D>0 then a2=os.clock()+D return true end local G=aI.actor()if not G
+then return false,'\112\101\114\115\111\110\097\103\101\109\032\105\110\100\105\115\112\111\110\105\118\101\108'end local H=cz(bC)if(G.Position-H).
+Magnitude>18 then local I,J=o(bC,B)if not I then return false,J end end local I=
+aX.matches('\084\111\111\108\069\113\117\105\112',{'\083\116\114\105\110\103'})if I then cL('\068\121\110\097\109\105\116\101')end cC(bp,'\083\101\116\085\115\101\072\101\108\100'
+,false)local J=a3 local K,L=aX.fire('\068\121\110\097\109\105\116\101\084\104\114\111\119',bC.slot)local M=aH.
 opAutoFinish and 0.1 or math.max(aH.dynamiteInterval,aH.dynamiteAggressive and
-0.1 or 1)a2=os.clock()+math.max(P,H or 0)if N then bi={serial=M,deadline=os.
-clock()+0.8}end if L then local Q=aO.owns(F,'\080\111\116\097\116\111\083\117\099\107\101\114')and'\080\111\116\097\116\111\083\117\099\107\101\114'or
-aO.owns(F,'\083\104\111\118\101\108')and'\083\104\111\118\101\108'or'\072\097\110\100'cL(Q)end cO()if L and aO.owns(F,
+0.1 or 1)a2=os.clock()+math.max(M,E or 0)if K then bi={serial=J,deadline=os.
+clock()+0.8}end if I then local N=aO.owns(C,'\080\111\116\097\116\111\083\117\099\107\101\114')and'\080\111\116\097\116\111\083\117\099\107\101\114'or
+aO.owns(C,'\083\104\111\118\101\108')and'\083\104\111\118\101\108'or'\072\097\110\100'cL(N)end cO()if I and aO.owns(C,
 '\080\111\116\097\116\111\083\117\099\107\101\114')and aX.matches('\084\111\111\108\085\115\105\110\103',{'\066\111\111\108\101\097\110'})then aX.fire('\084\111\111\108\085\115\105\110\103',
-true)end return N,O end if bo.PotatoCut and type(bo.PotatoCut.Connect)==
-'\102\117\110\099\116\105\111\110'then local E,F=pcall(bo.PotatoCut.Connect,bo.PotatoCut,function()bU.
-cuts+=1 end)if E then table.insert(bw,F)end end for E,F in ipairs({{
+true)end return K,L end if bo.PotatoCut and type(bo.PotatoCut.Connect)==
+'\102\117\110\099\116\105\111\110'then local B,C=pcall(bo.PotatoCut.Connect,bo.PotatoCut,function()bU.
+cuts+=1 end)if B then table.insert(bw,C)end end for B,C in ipairs({{
 '\080\101\101\108\105\110\103\083\116\097\114\116\101\100','\115\116\097\114\116'},{'\080\101\101\108\105\110\103\078\101\120\116\080\111\116\097\116\111','\110\101\120\116'},{'\080\101\101\108\105\110\103\083\116\111\112\112\101\100','\115\116\111\112'}
-})do local G=aW[F[1] ]local H=G and G.OnClientEvent if type(H)=='\116\097\098\108\101'and type(
-H.Connect)=='\102\117\110\099\116\105\111\110'then local I=F[2]local J,K=pcall(H.Connect,H,function()bW.
-event(I)end)if J then table.insert(bw,K)end end end local E=aW.
-PotatoPumpkinCollected and aW.PotatoPumpkinCollected.OnClientEvent if type(E)==
-'\116\097\098\108\101'and type(E.Connect)=='\102\117\110\099\116\105\111\110'then local F,G=pcall(E.Connect,E,function(
-F)if typeof(F)=='\073\110\115\116\097\110\099\101'and F:IsA('\080\108\097\121\101\114')and F~=aS then return end bS+=1 bU.
-pumpkins+=1 end)if F then table.insert(bw,G)end end local function F(G,H)local I
-=aW[G]local J=I and I.OnClientEvent if type(J)=='\116\097\098\108\101'and type(J.Connect)==
-'\102\117\110\099\116\105\111\110'then local K,L=pcall(J.Connect,J,function(K)if typeof(K)=='\073\110\115\116\097\110\099\101'
-and K:IsA('\080\108\097\121\101\114')and K~=aS then return end H()end)if K then table.insert(bw,L)
-end end end F('\080\111\116\097\116\111\068\105\097\109\111\110\100\067\111\108\108\101\099\116\101\100',function()bT+=1 bU.gems+=1 end)F(
+})do local D=aW[C[1] ]local E=D and D.OnClientEvent if type(E)=='\116\097\098\108\101'and type(
+E.Connect)=='\102\117\110\099\116\105\111\110'then local F=C[2]local G,H=pcall(E.Connect,E,function()bW.
+event(F)end)if G then table.insert(bw,H)end end end local B=aW.
+PotatoPumpkinCollected and aW.PotatoPumpkinCollected.OnClientEvent if type(B)==
+'\116\097\098\108\101'and type(B.Connect)=='\102\117\110\099\116\105\111\110'then local C,D=pcall(B.Connect,B,function(
+C)if typeof(C)=='\073\110\115\116\097\110\099\101'and C:IsA('\080\108\097\121\101\114')and C~=aS then return end bS+=1 bU.
+pumpkins+=1 end)if C then table.insert(bw,D)end end local function C(D,E)local F
+=aW[D]local G=F and F.OnClientEvent if type(G)=='\116\097\098\108\101'and type(G.Connect)==
+'\102\117\110\099\116\105\111\110'then local H,I=pcall(G.Connect,G,function(H)if typeof(H)=='\073\110\115\116\097\110\099\101'
+and H:IsA('\080\108\097\121\101\114')and H~=aS then return end E()end)if H then table.insert(bw,I)
+end end end C('\080\111\116\097\116\111\068\105\097\109\111\110\100\067\111\108\108\101\099\116\101\100',function()bT+=1 bU.gems+=1 end)C(
 '\068\121\110\097\109\105\116\101\084\104\114\111\119\110',function()a3+=1 if bi then bU.throws+=1 bi=nil bj=math.max(0.1,
-bj*0.8)end end)local function G(H)local I=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115',
-'\080\111\116\097\116\111\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097','\080\108\097\099\101\080\114\111\109\112\116'})local J=cF()if not J or J<=0 then
-return true end local K,L=aI.trigger(I,H)if not K then return false,L end return
-cK(function()local M=cF()return M and M<J end,aH.actionTimeout,H)end local
-function H()cj.cancel()bm=0 bC=nil bD=0 bE={}bF=1 bG=0 bH=false bO=nil bP=0 bA=
-setmetatable({},{__mode='\107'})cr={}cs=0 cq=nil end local function I(J,K)bY[J]=os.
-clock()+(J=='\099\111\108\108\101\099\116'and math.min(0.6,0.1*(K or 1))or math.min(12,0.5*2^math.
-min(K or 1,4)))bm=0 if J=='\099\111\108\108\101\099\116'or J=='\100\121\110\097\109\105\116\101'then bC=nil bD=0 end if J==
-'\101\110\116\101\114\067\117\116'or J=='\099\117\116'or J=='\114\101\116\117\114\110\084\097\098\108\101'then cJ()end if J=='\100\101\108\105\118\101\114'or J==
+bj*0.8)end end)local function D(E)local F=cB(aV,{'\077\097\112','\080\101\101\108\105\110\103\077\097\099\104\105\110\101\115',
+'\080\111\116\097\116\111\067\114\097\116\101','\080\111\116\097\116\111\065\114\101\097','\080\108\097\099\101\080\114\111\109\112\116'})local G=cF()if not G or G<=0 then
+return true end local H,I=aI.trigger(F,E)if not H then return false,I end return
+cK(function()local J=cF()return J and J<G end,aH.actionTimeout,E)end local
+function E()cj.cancel()bm=0 bC=nil bD=0 bE={}bF=1 bG=0 bH=false bO=nil bP=0 bA=
+setmetatable({},{__mode='\107'})cr={}cs=0 cq=nil end local function F(G,H)bY[G]=os.
+clock()+(G=='\099\111\108\108\101\099\116'and math.min(0.6,0.1*(H or 1))or math.min(12,0.5*2^math.
+min(H or 1,4)))bm=0 if G=='\099\111\108\108\101\099\116'or G=='\100\121\110\097\109\105\116\101'then bC=nil bD=0 end if G==
+'\101\110\116\101\114\067\117\116'or G=='\099\117\116'or G=='\114\101\116\117\114\110\084\097\098\108\101'then cJ()end if G=='\100\101\108\105\118\101\114'or G==
 '\115\116\097\103\101\067\117\116'then if not bZ or bZ.total==0 then ch=true cg.apply(false,aH.
-placementDelay)end local L=cF()if not L or L<=0 then bZ=nil end end if J=='\098\117\121'
-then bO=nil bP=0 end end local function J(K)if not b0 or not aH.autoBuyDrone
-then return true end local L=cD()if L and L.HasDrone then return true end cM()
-local M=cB(aV,{'\077\097\112','\083\116\111\114\101\073\116\101\109\115','\082\111\098\117\120','\068\114\111\110\101','\080\114\105\099\101','\080\114\111\109\112\116\065\116\116\097\099\104\109\101\110\116',
-'\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116'})if not M then return false,'\076\111\106\097\032\100\111\032\100\114\111\110\101\032\105\110\100\105\115\112\111\110\105\118\101\108\046'end
-local N,O=aI.trigger(M,K)if not N then return false,O end local P=nil cK(
-function()local Q=aU:FindFirstChild('\083\116\111\114\101\086\105\101\119')if not Q then return false end
-for R,S in ipairs(Q:GetDescendants())do if S:IsA('\071\117\105\066\117\116\116\111\110')and aL.visible(S)
-and S.Active then local T=string.upper(aL.texts(S.Parent or S))local U=T:find(
-'\071\069\077',1,true)or T:find('\068\073\065\077\079\078\068',1,true)or T:find('\u{1f48e}',1,true)local V=
-string.upper(aL.texts(S)..'\032'..S.Name)local W=V:find('\066\085\089',1,true)or V:find(
-'\080\085\082\067\072\065\083\069',1,true)or V:find('\067\079\077\080\082\065\082',1,true)if W and U and not T:find('\082\079\066\085\088',1
-,true)and not T:find('\082\036',1,true)and aG.parseAmount(T)==80 then P=S return true
-end end end return false end,2,K)local Q=false if P and K()then local R=aL.
-activate(P)if R then Q=cK(function()local S=cD()return S and S.HasDrone==true
-end,3,K)end end cC(br,'\067\108\111\115\101')bY.drone=os.clock()+30 if Q then b0=false bU.
+placementDelay)end local I=cF()if not I or I<=0 then bZ=nil end end if G=='\098\117\121'
+then bO=nil bP=0 end end local function G(H)if not b0 or not aH.autoBuyDrone
+then return true end local I=cD()if I and I.HasDrone then return true end cM()
+local J=cB(aV,{'\077\097\112','\083\116\111\114\101\073\116\101\109\115','\082\111\098\117\120','\068\114\111\110\101','\080\114\105\099\101','\080\114\111\109\112\116\065\116\116\097\099\104\109\101\110\116',
+'\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116'})if not J then return false,'\076\111\106\097\032\100\111\032\100\114\111\110\101\032\105\110\100\105\115\112\111\110\105\118\101\108\046'end
+local K,L=aI.trigger(J,H)if not K then return false,L end local M=nil cK(
+function()local N=aU:FindFirstChild('\083\116\111\114\101\086\105\101\119')if not N then return false end
+for O,P in ipairs(N:GetDescendants())do if P:IsA('\071\117\105\066\117\116\116\111\110')and aL.visible(P)
+and P.Active then local Q=string.upper(aL.texts(P.Parent or P))local R=Q:find(
+'\071\069\077',1,true)or Q:find('\068\073\065\077\079\078\068',1,true)or Q:find('\u{1f48e}',1,true)local S=
+string.upper(aL.texts(P)..'\032'..P.Name)local T=S:find('\066\085\089',1,true)or S:find(
+'\080\085\082\067\072\065\083\069',1,true)or S:find('\067\079\077\080\082\065\082',1,true)if T and R and not Q:find('\082\079\066\085\088',1
+,true)and not Q:find('\082\036',1,true)and aG.parseAmount(Q)==80 then M=P return true
+end end end return false end,2,H)local N=false if M and H()then local O=aL.
+activate(M)if O then N=cK(function()local P=cD()return P and P.HasDrone==true
+end,3,H)end end cC(br,'\067\108\111\115\101')bY.drone=os.clock()+30 if N then b0=false bU.
 purchases+=1 aM('\068\114\111\110\101\032\097\100\113\117\105\114\105\100\111\059\032\109\101\108\104\111\114\105\097\115\032\100\101\032\100\114\111\110\101\032\108\105\098\101\114\097\100\097\115\046')return true end
 return false,
 "\067\111\109\112\114\097\032\100\111\032\100\114\111\110\101\032\110\097\111\032\099\111\110\102\105\114\109\097\100\097\058\032\101\120\105\103\101\032\111\102\101\114\116\097\032\118\105\115\105\118\101\108\032\100\101\032\056\048\032\103\101\109\097\115\032\101\032\115\097\108\100\111\032\115\117\102\105\099\105\101\110\116\101\046"
-end local function K()cM()aI.stop()cC(br,'\067\108\111\115\101')cC(bs,'\083\101\116\079\112\101\110',false)for L,M
-in ipairs({'\067\097\115\104','\066\097\103','\072\111\116\098\097\114','\084\111\111\108\072\111\116\098\097\114'})do local N=aU:FindFirstChild(M)if
-N and N:IsA('\083\099\114\101\101\110\071\117\105')then N.Enabled=true end end l()table.clear(bY)table.
-clear(bk)H()end local function L(M,N,O)local P={}for Q,R in ipairs(aO.allowed[O]
-)do P[R]={level=aO.level(M,N,O,R),maximum=aO.maximum(M,aO.definition(M,O,R))}end
-return P end return{recordAction=function(M,N,O)local P=ci[M]or{calls=0,seconds=
-0,failures=0,max=0}P.calls+=1 P.seconds+=N P.max=math.max(P.max,N)if not O then
-P.failures+=1 end ci[M]=P end,dashboard=function()if os.clock()<ck then return
-cl end ck=os.clock()+1 local M,N=cC(bs,'\073\115\079\112\101\110')if M and N and not cm then cm=os
-.clock()cn.opens+=1 elseif M and not N and cm then cn.closed_seconds+=os.clock()
--cm cm=nil end local O=cD()local P=aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}local Q,R={
-},{}local S={{'\068\121\110\097\109\105\116\101','\068\073\078\065\077\073\084\069'},{'\083\104\111\118\101\108','\080\065'},{'\065\117\116\111\080\101\101\108\101\114','\065\085\084\079\077\065\084\073\067\079'}
+end local function H()cM()aI.stop()cC(br,'\067\108\111\115\101')cC(bs,'\083\101\116\079\112\101\110',false)for I,J
+in ipairs({'\067\097\115\104','\066\097\103','\072\111\116\098\097\114','\084\111\111\108\072\111\116\098\097\114'})do local K=aU:FindFirstChild(J)if
+K and K:IsA('\083\099\114\101\101\110\071\117\105')then K.Enabled=true end end i()table.clear(bY)table.
+clear(bk)E()end local function I(J,K,L)local M={}for N,O in ipairs(aO.allowed[L]
+)do M[O]={level=aO.level(J,K,L,O),maximum=aO.maximum(J,aO.definition(J,L,O))}end
+return M end return{recordAction=function(J,K,L)local M=ci[J]or{calls=0,seconds=
+0,failures=0,max=0}M.calls+=1 M.seconds+=K M.max=math.max(M.max,K)if not L then
+M.failures+=1 end ci[J]=M end,dashboard=function()if os.clock()<ck then return
+cl end ck=os.clock()+1 local J,K=cC(bs,'\073\115\079\112\101\110')if J and K and not cm then cm=os
+.clock()cn.opens+=1 elseif J and not K and cm then cn.closed_seconds+=os.clock()
+-cm cm=nil end local L=cD()local M=aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}local N,O={
+},{}local P={{'\068\121\110\097\109\105\116\101','\068\073\078\065\077\073\084\069'},{'\083\104\111\118\101\108','\080\065'},{'\065\117\116\111\080\101\101\108\101\114','\065\085\084\079\077\065\084\073\067\079'}
 ,{'\080\111\116\097\116\111\083\117\099\107\101\114','\080\048\084\052\084\048\045\051\048\048\048'},{'\066\111\100\121','\071\069\082\065\076'},{'\072\097\110\100','\077\065\079'},{'\068\114\111\110\101','\068\082\079\078\069'
-}}for T,U in ipairs(S)do local V=U[1]local W=aO.owns(O,V)local X,Y=0,0 local Z=
-nil for _,cR in ipairs(P.Tools or{})do if cR.Id==V then Z=cR.Icon end end if W
-then local cR=L(P,O,V)for _,cS in ipairs(aO.allowed[V])do local cT=cR[cS]X+=cT.
-level or 0 Y+=cT.maximum or 0 local cU=bf[V..'\047'..cS]table.insert(R,{tool=U[2],
-toolId=V,id=cS,level=cT.level,maximum=cT.maximum,icon=Z,price=cU and cU.price})
-end end table.insert(Q,{id=V,title=U[2],owned=W,current=X,total=Y,icon=Z})end cl
-={tools=Q,details=R,production=aH.opAutoFinish and b7 or b6,phase=bX.phase,cash=
-cE(),gemLuck=aO.level(P,O,'\066\111\100\121','\076\117\099\107')or 0,op=aH.opAutoFinish,progress=aH.
+}}for Q,R in ipairs(P)do local S=R[1]local T=aO.owns(L,S)local U,V=0,0 local W=
+nil for X,Y in ipairs(M.Tools or{})do if Y.Id==S then W=Y.Icon end end if T then
+local X=I(M,L,S)for Y,Z in ipairs(aO.allowed[S])do local _=X[Z]U+=_.level or 0 V
++=_.maximum or 0 local cU=bf[S..'\047'..Z]table.insert(O,{tool=R[2],toolId=S,id=Z,
+level=_.level,maximum=_.maximum,icon=W,price=cU and cU.price})end end table.
+insert(N,{id=S,title=R[2],owned=T,current=U,total=V,icon=W})end cl={tools=N,
+details=O,production=aH.opAutoFinish and b7 or b6,phase=bX.phase,cash=cE(),
+gemLuck=aO.level(M,L,'\066\111\100\121','\076\117\099\107')or 0,op=aH.opAutoFinish,progress=aH.
 autoProgress}return cl end,droneAsked=function()b1=true end,droneConfirm=
-function(cR)b0=cR==true bm=0 end,snapshot=o,findCandidate=q,release=cI,cancelCut
-=cJ,reset=H,recover=I,restoreGame=K,counts=bU,purchases=bV,manualUpgrade=B,
-questMode=function(cR)if cR==aT then return end aT=cR bC=nil bE={}bF=1 bD=0 bm=0
-end,actions={keyProbe=t,drone=J,collect=u,deliver=v,cut=w,enterCut=x,cool=y,buy=
-A,crank=z,stageCut=G,sell=C,returnTable=D,dynamite=s},stop=function()cJ()aI.
+function(cU)b0=cU==true bm=0 end,snapshot=l,findCandidate=n,release=cI,cancelCut
+=cJ,reset=E,recover=F,restoreGame=H,counts=bU,purchases=bV,manualUpgrade=y,
+questMode=function(cU)if cU==aT then return end aT=cU bC=nil bE={}bF=1 bD=0 bm=0
+end,actions={keyProbe=q,drone=G,collect=r,deliver=s,cut=t,enterCut=u,cool=v,buy=
+x,crank=w,stageCut=D,sell=z,returnTable=A,dynamite=p},stop=function()cJ()aI.
 stop()if by then by()by=nil end if bx then cC(bs,'\083\101\116\079\112\101\110',false)bx=false end
-end,defer=function(cR,cS)if cR=='\098\117\121'then bK=os.clock()+cS end if cR=='\099\111\111\108'then
-bJ=os.clock()+cS end if cR=='\101\115\099\097\112\101'then bY.escape=os.clock()+cS end end,close=
+end,defer=function(cU,J)if cU=='\098\117\121'then bK=os.clock()+J end if cU=='\099\111\111\108'then
+bJ=os.clock()+J end if cU=='\101\115\099\097\112\101'then bY.escape=os.clock()+J end end,close=
 function()cp=true cg.close()cJ()aI.close()aJ.close()if by then by()by=nil end
-for cR,cS in ipairs(bw)do cS:Disconnect()end end,diagnostic=function()local cR=
-o()local cS={}local cT=cD()local cU=aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}for M in
-pairs(aO.allowed)do if aO.owns(cT,M)then for N,O in pairs(L(cU,cT,M))do cS[M..
-'\047'..N]=O end end end return{place_id=game.PlaceId,place_version=game.
-PlaceVersion,bindings=aJ.stats,pile_progress=cR.pileProgress,op_funding=cR.
-opFunding,op_bulk=b9,dynamite_timing=cd,key_shortcut={results=cb,guard=cc.
-records},upgrade_audit=bf,upgrade_levels=cS,native_upgrade_menu={opens=cn.opens,
-seconds_open=cn.closed_seconds+(cm and os.clock()-cm or 0)},state={cash=cR.cash,
-stock=cR.stock,goal=cR.goal and cR.goal.name,carried=cR.carried,capacity=cR.
-capacity==math.huge and'\105\110\102\105\110\105\116\101'or cR.capacity,heat=cR.heat,heat_source=cR.
-heatSource,cutting=cR.cutting,production_ready=b6,sucker_overheated=be,
-sucker_retry_at=a8,inventory_source=bR and'\114\101\112\108\105\099\097\116\101\100\032\080\111\116\097\116\111\101\115'or'\085\073',phase=cR.
-phase,upgrade_guard=a6.records,water_flowing=cR.flowing,cut_units_per_second=cR.
-cutRate,delivery_pending=bZ~=nil,equipped_request=cq},counts=bU,op_burst=cj.
-stats,cut_engine=bW.stats,placement_timing=cg.stats,action_timings=ci,prompts=aI
-.stats,retry_at=bY,schemas={using=aX.schema('\084\111\111\108\085\115\105\110\103'),upgrade=aX.schema(
+for cU,J in ipairs(bw)do J:Disconnect()end end,diagnostic=function()local cU=l()
+local J={}local K=cD()local L=aF['\083\104\097\114\101\100\046\084\111\111\108\085\112\103\114\097\100\101\083\104\097\114\101\100']or{}for M in pairs(
+aO.allowed)do if aO.owns(K,M)then for N,O in pairs(I(L,K,M))do J[M..'\047'..N]=O
+end end end return{place_id=game.PlaceId,place_version=game.PlaceVersion,
+bindings=aJ.stats,pile_progress=cU.pileProgress,op_funding=cU.opFunding,op_bulk=
+b9,dynamite_timing=cd,key_shortcut={results=cb,guard=cc.records},upgrade_audit=
+bf,upgrade_levels=J,native_upgrade_menu={opens=cn.opens,seconds_open=cn.
+closed_seconds+(cm and os.clock()-cm or 0)},state={cash=cU.cash,stock=cU.stock,
+goal=cU.goal and cU.goal.name,carried=cU.carried,capacity=cU.capacity==math.huge
+and'\105\110\102\105\110\105\116\101'or cU.capacity,heat=cU.heat,heat_source=cU.heatSource,cutting=cU.
+cutting,production_ready=b6,sucker_overheated=be,sucker_retry_at=a8,
+inventory_source=bR and'\114\101\112\108\105\099\097\116\101\100\032\080\111\116\097\116\111\101\115'or'\085\073',phase=cU.phase,upgrade_guard=
+a6.records,water_flowing=cU.flowing,cut_units_per_second=cU.cutRate,
+delivery_pending=bZ~=nil,equipped_request=cq},counts=bU,op_burst=cj.stats,
+cut_engine=bW.stats,placement_timing=cg.stats,action_timings=ci,prompts=aI.stats
+,retry_at=bY,schemas={using=aX.schema('\084\111\111\108\085\115\105\110\103'),upgrade=aX.schema(
 '\084\111\111\108\085\112\103\114\097\100\101\080\117\114\099\104\097\115\101'),throw=aX.schema('\068\121\110\097\109\105\116\101\084\104\114\111\119'),equip=aX.schema(
 '\084\111\111\108\069\113\117\105\112')},buttons=aL.diagnostic()}end}end return aD end)()local aE='\048\046\051\055\046\054'
 local function aF()local aG=aE local aH=116701845804918 local aI=10767408330
@@ -5473,12 +5499,12 @@ or bH)aE.Text=bI warn('\091\065\110\111\110\072\117\098\032'..aa..'\093\032'..bI
 '\089\111\117\114\032\112\097\110\101\108\032\105\115\032\114\101\097\100\121')bc=true if bf()then bg:Destroy()else task.spawn(function()
 while al and bg.Parent and not bf()do task.wait(0.05)end if al and bg.Parent
 then bg:Destroy()end end)end pcall(ab.ready)if bD then task.defer(function()bC(
-bD,2)end)end end local aa='\048\046\051\057\046\049'local ab={[10772968523]={name=
+bD,2)end)end end local aa='\048\046\051\057\046\050'local ab={[10772968523]={name=
 '\073\109\112\111\115\115\105\098\108\101\032\072\105\108\108\032\067\108\105\109\098',version='\048\046\051\056\046\049\051',world='\049',online=true,place=
 100981917200669,path='\104\105\108\108\099\108\105\109\098\047\109\097\105\110\046\108\117\097',cache='\065\110\111\110\072\117\098\095\072\105\108\108\095\048\051\056\049\051\046\108\117\097',theme=
-'\097\109\101\116\104\121\115\116'},[10770228857]={name='\083\116\101\097\108\032\097\032\083\117\112\101\114\112\111\119\101\114',version='\048\046\051\057\046\049',world=
+'\097\109\101\116\104\121\115\116'},[10770228857]={name='\083\116\101\097\108\032\097\032\083\117\112\101\114\112\111\119\101\114',version='\048\046\051\057\046\050',world=
 '\049\032\047\032\050',online=true,place=74183246285569,places={[74183246285569]=true,[
-82739382053686]=true},path='\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097',cache='\065\110\111\110\072\117\098\095\083\080\095\048\051\057\048\049\046\108\117\097',
+82739382053686]=true},path='\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097',cache='\065\110\111\110\072\117\098\095\083\080\095\048\051\057\048\050\046\108\117\097',
 theme='\099\097\114\098\111\110'},[10767408330]={name='\080\101\101\108\032\084\072\069\032\080\111\116\097\116\111',chapter='\050',version=
 '\048\046\051\055\046\054',place=116701845804918,path='\112\111\116\097\116\111\047\099\104\097\112\116\101\114\050\046\108\117\097',cache=
 '\069\118\111\108\118\121\095\067\104\097\112\116\101\114\050\095\077\097\105\110\046\108\117\097\117'}}local ac={name='\085\110\105\118\101\114\115\097\108',version='\048\046\051\055\046\056',path=
