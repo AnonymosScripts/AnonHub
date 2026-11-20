@@ -1,0 +1,47 @@
+AnonHub 0.39.0 — Steal a Superpower, Mundos 1 e 2
+
+O loader continua sendo loader.lua, com a autenticação Panda existente.
+O arquivo superpower/test.lua do pacote é uma cópia autossuficiente do loader protegido para teste local no Delta; pede a mesma key.
+Após publicar o commit na branch main, o link público habitual passa a usar esta versão.
+
+NOVO
+- Reconhecimento do Mundo 2 (82739382053686), preservando Mundo 1.
+- Seis abas: Farm, Dungeon, Cartas, Melhorias, Combate e Ajustes.
+- Abas roláveis no celular e na lateral em telas maiores.
+- Configurações de alvos separadas por mundo; seleção de áreas com todos os pontos de NPCs.
+- Dungeon: seleção dos inimigos da partida atual, prioridade aos bosses, avanço por portas abertas, entrada automática e repetição opcional.
+- Saída no checkpoint 5/10/15/20/25/50 ou continuação sem saída automática.
+- Painel de andar, inimigos, tokens pendentes, saldo e partidas concluídas.
+- Walk Speed configurável na Dungeon entre 16 e 100, com restauração ao sair/desligar.
+- Auto Upgrade com seleção de melhorias e reserva de dinheiro.
+- Auto comprar poções com seleção de tipo, nível máximo e estoque desejado.
+- Loja da Dungeon: seleção individual de itens, estoque desejado e reserva de tokens.
+- Limite compartilhado de compras automáticas por sessão, padrão 25, configurável até 1000.
+- Compra/equipamento automático de aura e trilha; compras limitadas ao mundo atual e sem produtos Robux.
+- Medalhões: seleção do atributo, escolha do maior bônus disponível e preenchimento de espaços vazios nas cartas equipadas. Medalhões existentes são preservados.
+- Renascimento, cartas, fusão, sacrifício e árvore mantidos. Compras e reorganização aguardam saída da Dungeon.
+- Interface em português e inglês; preferências salvas, automações desligadas ao iniciar.
+
+COMO TESTAR
+1. Execute superpower/test.lua no Delta e complete a autenticação.
+2. Dungeon: ative Auto Dungeon, Habilidades automáticas e Entrada automática. Selecione checkpoint 5 para o primeiro teste.
+3. Ative Repetir apenas se desejar novas partidas. Configure Walk Speed separadamente.
+4. Melhorias: selecione os itens/tipos antes de ativar as compras. Verifique reservas, estoque e limite por sessão.
+5. Se algo falhar, use Ajustes > Exportar diagnóstico de teste e envie o JSON.
+
+LIMITES CONFIRMADOS
+O multiplicador antigo continua limitado a inimigos com atributo Local. Os inimigos de Dungeon coletados não possuem esse atributo; não foi implementado um multiplicador de dano validado para eles.
+Proteção e anti-stun existentes atuam no cliente. Não bloqueiam dano processado pelo servidor e não garantem imunidade na Dungeon.
+Walk Speed e teleporte dependem do comportamento do jogo/servidor. Não foram testados ao vivo no Delta nesta entrega.
+Ofuscação dificulta leitura casual; não é criptografia nem torna código do cliente inacessível.
+
+VALIDAÇÃO
+34 verificações de Mundo 2: seleção de partida, checkpoints, limites, reservas, estoque, compras, upgrades e preservação de medalhões.
+32 verificações de regressão: seleção de alvos, proteção de cartas, multiplicador local e restauração de patches.
+Autenticação comparada com a versão anterior sem alterações.
+Os sete arquivos protegidos passaram na comparação de instruções e tabelas de strings do compilador Luau.
+
+ENGLISH
+World 1/2 routing, dedicated Dungeon controls, checkpoint exit/repeat, Dungeon speed, configurable cash upgrades, potion purchases and token shop purchases, cosmetic automation and empty-slot trinket equipment.
+All automation starts off. Configure purchase selections, stock targets, currency reserves and the per-session limit before enabling purchases.
+Client damage amplification only applies to Local enemies; Dungeon server damage amplification and server immunity are not implemented. Live Delta testing remains required.

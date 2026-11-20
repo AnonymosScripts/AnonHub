@@ -1,5 +1,5 @@
 -- Luau
--- AnonHub protected distribution 0.38.14
+-- AnonHub protected distribution 0.39.0
 -- local BOOT_VERSION="0.38.13"
 local a='\048\046\051\056\046\049\051'local b=...assert(type(b)=='\116\097\098\108\101'and b.access,
 '\065\098\114\097\032\112\101\108\111\032\108\111\097\100\101\114\032\097\117\116\101\110\116\105\099\097\100\111')local c=game:GetService('\080\108\097\121\101\114\115')local d=game:
