@@ -1,0 +1,8 @@
+AnonHub 0.39.4
+
+Mundo 1: não cria aba Dungeon, loja de tokens ou controles de medalhões. Não carrega DungeonConfig nem conecta eventos ou inicializa o controlador Dungeon. As abas são Farm, Cartas, Melhorias, Combate e Ajustes.
+Mundo 2: mantém aba e automações Dungeon, compras com tokens e medalhões.
+Carregamento do loader e do painel informa Mundo 1/2 (World 1/2 em inglês), inclusive na capa. Cache atualizado para 0.39.4.
+Validação: construção simulada dos controles nos dois mundos e idiomas, ausência de runtime Dungeon no Mundo 1, 66 regressões e equivalência dos sete arquivos ofuscados aprovadas. Ainda não validado dentro do Delta.
+
+World 1 no longer initializes Dungeon UI, token/trinket controls or Dungeon runtime. World 2 retains them. Both loading screens display the detected world.
