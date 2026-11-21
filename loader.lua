@@ -1,6 +1,6 @@
 -- Luau
--- AnonHub protected distribution 0.39.2
-local a={}a['\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097']=function(...)local b='\048\046\051\057\046\050'local c=...
+-- AnonHub protected distribution 0.39.3
+local a={}a['\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097']=function(...)local b='\048\046\051\057\046\051'local c=...
 assert(type(c)=='\116\097\098\108\101'and c.access,'\065\098\114\097\032\112\101\108\111\032\108\111\097\100\101\114\032\097\117\116\101\110\116\105\099\097\100\111')local d=game:
 GetService('\080\108\097\121\101\114\115')local e=game:GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local f=game:
 GetService('\072\116\116\112\083\101\114\118\105\099\101')local g=game:GetService('\084\119\101\101\110\083\101\114\118\105\099\101')local h=d.
@@ -292,80 +292,87 @@ abs(aL)==math.huge then return nil end aL=math.clamp(aL,aI,aJ)return aK and math
 .floor(aL)or aL end function aG.tokenAffordable(aH,aI,aJ)return type(aI)==
 '\110\117\109\098\101\114'and aI>=0 and(tonumber(aH)or 0)>=aI+aJ end function aG.dungeonEnemy(aH,
 aI,aJ,aK)return aH~=nil and aI==aH and aJ>0 and aK~=true end function aG.
-shouldExit(aH,aI,aJ)return aH>0 and aI>=aH and aJ end return function(aH)assert(
-(game.PlaceId==74183246285569 or game.PlaceId==82739382053686)and game.GameId==
-10770228857,'\087\114\111\110\103\032\103\097\109\101')local aI=game.PlaceId==82739382053686 and 2 or 1 local
-aJ,aK,aL=aH.ui,aH.page,aH.T local aM=game:GetService('\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')local
-aN=game:GetService('\080\108\097\121\101\114\115')local aO=game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local aP=
-game:GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local aQ=aN.LocalPlayer local aR=true local
-aS,aT,aU={},{},{}local aV local function aW()aR=false for aX,aY in ipairs(aS)do
-aY:Disconnect()end for aX,aY in pairs(aU)do for aZ,a_ in ipairs(aY)do a_:
-Disconnect()end end table.clear(aU)for aX=#aT,1,-1 do local aY=aT[aX]if aY.
-object[aY.key]==aY.replacement then aY.object[aY.key]=aY.original end end if aV
-then pcall(aV)end end aH.attach(aW)local aX=0 local function aY(aZ,a_)aX=aX+1
-local a0=aJ.label(aK,'\084\101\120\116\076\097\098\101\108',aZ,a_ or 42,aX)a0.TextSize=12 a0.TextWrapped=
-true return a0 end local aZ=aY(aL('\067\097\114\114\101\103\097\110\100\111\032\105\110\116\101\114\102\097\099\101\115\032\100\111\032\106\111\103\111\046\046\046',
-'\076\111\097\100\105\110\103\032\103\097\109\101\032\105\110\116\101\114\102\097\099\101\115\046\046\046'),62)aZ.LayoutOrder=800 local a_=aY('',110)a_.
-LayoutOrder=801 local a0={}local function a1(a2)a0[#a0+1]=os.date('\037\072\058\037\077\058\037\083')..
-'\032'..tostring(a2)if#a0>30 then table.remove(a0,1)end aZ.Text=tostring(a2)end
-local a2={rebirth=false,returnFull=false,farm=false,progress=false,boss=false,
-open=false,equip=false,place=false,fuse=false,sacrifice=false,tree=false,
-upgrades=false,abilities=false,boost=false,guard=false,stun=false,multiplier=
-1e12,reserve=1,maxRank=3,protected='',branch='\080\111\119\101\114',farmMode='\065\117\116\111',bossId=2,
-npcId=1,rarities={Common=true,Uncommon=true,Rare=true}}a2.dungeonFarm=false a2.
-dungeonEnter=false a2.dungeonRepeat=false a2.dungeonAbilities=false a2.
-dungeonSpeed=false a2.potionBuy=false a2.dungeonBuy=false a2.cosmeticBuy=false
-a2.cosmeticEquip=false a2.trinketEquip=false a2.hoverHeight=8 a2.exitFloor=10 a2
-.walkSpeed=30 a2.repeatDelay=15 a2.cashReserve=0 a2.tokenReserve=0 a2.buyLimit=
-25 a2.potionStock=3 a2.potionTier=4 a2.dungeonStock=1 a2.trinketStat='\068\097\109\097\103\101'a2.
-upgradeKinds={Cash=true,Health=true,Carry=true,Crit=true,Cooldown=true,Streak=
-true}a2.potionKinds={}a2.dungeonItems={}a2.cosmeticKinds={Aura=true,Trail=true}
-if aI==2 then a2.rarities={Cosmic=true,Ancient=true,Cursed=true}end local a3={
-'\104\111\118\101\114\072\101\105\103\104\116','\101\120\105\116\070\108\111\111\114','\119\097\108\107\083\112\101\101\100','\114\101\112\101\097\116\068\101\108\097\121','\099\097\115\104\082\101\115\101\114\118\101','\116\111\107\101\110\082\101\115\101\114\118\101'
-,'\098\117\121\076\105\109\105\116','\112\111\116\105\111\110\083\116\111\099\107','\112\111\116\105\111\110\084\105\101\114','\100\117\110\103\101\111\110\083\116\111\099\107','\116\114\105\110\107\101\116\083\116\097\116',
-'\117\112\103\114\097\100\101\075\105\110\100\115','\112\111\116\105\111\110\075\105\110\100\115','\100\117\110\103\101\111\110\073\116\101\109\115','\099\111\115\109\101\116\105\099\075\105\110\100\115'}local a4={
-hoverHeight={4,24},exitFloor={0,1000},walkSpeed={16,100},repeatDelay={5,300},
-cashReserve={0,1e100},tokenReserve={0,1e12},buyLimit={1,1000},potionStock={1,100
-},potionTier={1,5},dungeonStock={1,100}}local a5='\065\110\111\110\072\117\098\095\083\117\112\101\114\112\111\119\101\114\095'..aQ.
-UserId..(aI==2 and'\095\087\111\114\108\100\050'or'')..'\046\106\115\111\110'if type(readfile)=='\102\117\110\099\116\105\111\110'then local
-a6,a7=pcall(function()return aO:JSONDecode(readfile(a5))end)if a6 and type(a7)==
-'\116\097\098\108\101'then for a8,a9 in ipairs(a3)do local ba=a7[a9]if a4[a9]then a2[a9]=aG.
-number(ba,a4[a9][1],a4[a9][2],a9~='\099\097\115\104\082\101\115\101\114\118\101')or a2[a9]elseif type(a2[a9])==
-'\116\097\098\108\101'and type(ba)=='\116\097\098\108\101'then local bb={}for bc,bd in pairs(ba)do if type(bc)
-=='\115\116\114\105\110\103'and#bc<120 and type(bd)=='\098\111\111\108\101\097\110'then bb[bc]=bd end end a2[a9]=bb
-elseif a9=='\116\114\105\110\107\101\116\083\116\097\116'and table.find({'\068\097\109\097\103\101','\072\101\097\108\116\104','\080\111\119\101\114','\067\097\115\104','\076\117\099\107',
-'\067\111\111\108\100\111\119\110'},ba)then a2[a9]=ba end end if type(a7.protected)=='\115\116\114\105\110\103'then a2.
-protected=a7.protected:sub(1,2000)end if type(a7.multiplier)=='\110\117\109\098\101\114'and a7.
-multiplier==a7.multiplier then a2.multiplier=math.clamp(a7.multiplier,1,1e12)end
-if type(a7.reserve)=='\110\117\109\098\101\114'and a7.reserve==a7.reserve then a2.reserve=math.
-clamp(math.floor(a7.reserve),1,1000)end if table.find({'\065\117\116\111','\066\111\115\115','\078\080\067',
-'\077\105\120\101\100'},a7.farmMode)then a2.farmMode=a7.farmMode end if type(a7.bossId)==
-'\110\117\109\098\101\114'then a2.bossId=a7.bossId end if type(a7.npcId)=='\110\117\109\098\101\114'then a2.npcId=a7
-.npcId end if type(a7.rarities)=='\116\097\098\108\101'then a2.rarities=a7.rarities end if
-table.find({'\067\097\115\104','\076\117\099\107','\080\111\119\101\114','\083\112\101\101\100','\066\111\115\115'},a7.branch)then a2.branch=a7.
-branch end end end local function a6()if type(writefile)=='\102\117\110\099\116\105\111\110'then local
-a7={protected=a2.protected,multiplier=a2.multiplier,reserve=a2.reserve,branch=a2
-.branch,farmMode=a2.farmMode,bossId=a2.bossId,npcId=a2.npcId,rarities=a2.
-rarities}for a8,a9 in ipairs(a3)do a7[a9]=a2[a9]end pcall(writefile,a5,aO:
-JSONEncode(a7))end end local function a7(a8,a9)aS[#aS+1]=a8:Connect(a9)end local
-function a8(a9)local ba=aM for bb in a9:gmatch('\091\094\047\093\043')do ba=ba:FindFirstChild(
-bb)assert(ba,'\077\105\115\115\105\110\103\032\109\111\100\117\108\101\058\032'..a9)end local bb,bc,bd=false,false,nil local be=
-task.spawn(function()bc,bd=pcall(require,ba)bb=true end)local bf=os.clock()+12
-while aR and not bb and os.clock()<bf do task.wait(0.05)end if not bb then
-pcall(task.cancel,be)error(aL('\084\101\109\112\111\032\108\105\109\105\116\101\032\097\111\032\099\097\114\114\101\103\097\114\058\032','\076\111\097\100\105\110\103\032\116\105\109\101\100\032\111\117\116\058\032'
-)..a9)end if not bc then error(tostring(bd))end return bd end local a9={}local
-ba={State='\067\108\105\101\110\116\047\067\111\114\101\047\080\108\097\121\101\114\083\116\097\116\101',Cards='\083\104\097\114\101\100\047\067\111\110\102\105\103\047\067\097\114\100\067\111\110\102\105\103',Stats=
-'\083\104\097\114\101\100\047\082\117\108\101\115\047\067\097\114\100\083\116\097\116\115',Base='\083\104\097\114\101\100\047\067\111\110\102\105\103\047\066\097\115\101\067\111\110\102\105\103',Shrine=
-'\083\104\097\114\101\100\047\082\117\108\101\115\047\083\104\114\105\110\101',Progress='\083\104\097\114\101\100\047\082\117\108\101\115\047\080\114\111\103\114\101\115\115\105\111\110',Big='\083\104\097\114\101\100\047\085\116\105\108\047\066\105\103',
-Packs='\083\104\097\114\101\100\047\067\111\110\102\105\103\047\080\097\099\107\067\111\110\102\105\103',Opening='\067\108\105\101\110\116\047\085\073\047\080\097\099\107\115\047\080\097\099\107\079\112\101\110\105\110\103',Registry=
+shouldExit(aH,aI,aJ)return aH>0 and aI>=aH and aJ end function aG.world(aH,aI)if
+aI~=10770228857 then return nil end return({[74183246285569]=1,[82739382053686]=
+2})[aH]end function aG.multiplier(aH,aI)local aJ=aG.number(aH,1,1e18)if not aJ
+then return 1e15 end if aI~=2 and aJ==1e12 then return 1e15 end return aJ end
+return function(aH)local aI=aG.world(game.PlaceId,game.GameId)assert(aI,
+'\085\110\115\117\112\112\111\114\116\101\100\032\083\117\112\101\114\112\111\119\101\114\032\119\111\114\108\100')local aJ,aK,aL=aH.ui,aH.page,aH.T local aM=game:
+GetService('\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')local aN=game:GetService('\080\108\097\121\101\114\115')local aO=game:
+GetService('\072\116\116\112\083\101\114\118\105\099\101')local aP=game:GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local aQ=aN
+.LocalPlayer local aR=true local aS,aT,aU={},{},{}local aV local function aW()aR
+=false for aX,aY in ipairs(aS)do aY:Disconnect()end for aX,aY in pairs(aU)do for
+aZ,a_ in ipairs(aY)do a_:Disconnect()end end table.clear(aU)for aX=#aT,1,-1 do
+local aY=aT[aX]if aY.object[aY.key]==aY.replacement then aY.object[aY.key]=aY.
+original end end if aV then pcall(aV)end end aH.attach(aW)local aX=0 local
+function aY(aZ,a_)aX=aX+1 local a0=aJ.label(aK,'\084\101\120\116\076\097\098\101\108',aZ,a_ or 42,aX)a0.
+TextSize=12 a0.TextWrapped=true return a0 end local aZ=aY(aL(
+'\067\097\114\114\101\103\097\110\100\111\032\105\110\116\101\114\102\097\099\101\115\032\100\111\032\106\111\103\111\046\046\046','\076\111\097\100\105\110\103\032\103\097\109\101\032\105\110\116\101\114\102\097\099\101\115\046\046\046'),62)aZ.
+LayoutOrder=800 local a_=aY('',110)a_.LayoutOrder=801 local a0={}local function
+a1(a2)a0[#a0+1]=os.date('\037\072\058\037\077\058\037\083')..'\032'..tostring(a2)if#a0>30 then table.
+remove(a0,1)end aZ.Text=tostring(a2)end local a2={rebirth=false,returnFull=false
+,farm=false,progress=false,boss=false,open=false,equip=false,place=false,fuse=
+false,sacrifice=false,tree=false,upgrades=false,abilities=false,boost=false,
+guard=false,stun=false,multiplier=1e15,reserve=1,maxRank=3,protected='',branch=
+'\080\111\119\101\114',farmMode='\065\117\116\111',bossId=2,npcId=1,rarities={Common=true,Uncommon=true,
+Rare=true}}a2.dungeonFarm=false a2.dungeonEnter=false a2.dungeonRepeat=false a2.
+dungeonAbilities=false a2.dungeonSpeed=false a2.potionBuy=false a2.dungeonBuy=
+false a2.cosmeticBuy=false a2.cosmeticEquip=false a2.trinketEquip=false a2.
+hoverHeight=8 a2.exitFloor=10 a2.walkSpeed=30 a2.repeatDelay=15 a2.cashReserve=0
+a2.tokenReserve=0 a2.buyLimit=25 a2.potionStock=3 a2.potionTier=4 a2.
+dungeonStock=1 a2.trinketStat='\068\097\109\097\103\101'a2.upgradeKinds={Cash=true,Health=true,
+Carry=true,Crit=true,Cooldown=true,Streak=true}a2.potionKinds={}a2.dungeonItems=
+{}a2.cosmeticKinds={Aura=true,Trail=true}if aI==2 then a2.rarities={Cosmic=true,
+Ancient=true,Cursed=true}end local a3={'\104\111\118\101\114\072\101\105\103\104\116','\101\120\105\116\070\108\111\111\114','\119\097\108\107\083\112\101\101\100',
+'\114\101\112\101\097\116\068\101\108\097\121','\099\097\115\104\082\101\115\101\114\118\101','\116\111\107\101\110\082\101\115\101\114\118\101','\098\117\121\076\105\109\105\116','\112\111\116\105\111\110\083\116\111\099\107','\112\111\116\105\111\110\084\105\101\114'
+,'\100\117\110\103\101\111\110\083\116\111\099\107','\116\114\105\110\107\101\116\083\116\097\116','\117\112\103\114\097\100\101\075\105\110\100\115','\112\111\116\105\111\110\075\105\110\100\115','\100\117\110\103\101\111\110\073\116\101\109\115',
+'\099\111\115\109\101\116\105\099\075\105\110\100\115'}local a4={hoverHeight={4,24},exitFloor={0,1000},walkSpeed={16,
+100},repeatDelay={5,300},cashReserve={0,1e100},tokenReserve={0,1e12},buyLimit={1
+,1000},potionStock={1,100},potionTier={1,5},dungeonStock={1,100}}local a5=
+'\065\110\111\110\072\117\098\095\083\117\112\101\114\112\111\119\101\114\095'..aQ.UserId..(aI==2 and'\095\087\111\114\108\100\050'or'')..'\046\106\115\111\110'if type(
+readfile)=='\102\117\110\099\116\105\111\110'then local a6,a7=pcall(function()return aO:JSONDecode(
+readfile(a5))end)if a6 and type(a7)=='\116\097\098\108\101'then for a8,a9 in ipairs(a3)do local
+ba=a7[a9]if a4[a9]then a2[a9]=aG.number(ba,a4[a9][1],a4[a9][2],a9~='\099\097\115\104\082\101\115\101\114\118\101'
+)or a2[a9]elseif type(a2[a9])=='\116\097\098\108\101'and type(ba)=='\116\097\098\108\101'then local bb={}for
+bc,bd in pairs(ba)do if type(bc)=='\115\116\114\105\110\103'and#bc<120 and type(bd)=='\098\111\111\108\101\097\110'then
+bb[bc]=bd end end a2[a9]=bb elseif a9=='\116\114\105\110\107\101\116\083\116\097\116'and table.find({'\068\097\109\097\103\101',
+'\072\101\097\108\116\104','\080\111\119\101\114','\067\097\115\104','\076\117\099\107','\067\111\111\108\100\111\119\110'},ba)then a2[a9]=ba end end if type(a7.
+protected)=='\115\116\114\105\110\103'then a2.protected=a7.protected:sub(1,2000)end a2.multiplier=
+aG.multiplier(a7.multiplier,a7.multiplierVersion)if type(a7.reserve)=='\110\117\109\098\101\114'
+and a7.reserve==a7.reserve then a2.reserve=math.clamp(math.floor(a7.reserve),1,
+1000)end if table.find({'\065\117\116\111','\066\111\115\115','\078\080\067','\077\105\120\101\100'},a7.farmMode)then a2.
+farmMode=a7.farmMode end if type(a7.bossId)=='\110\117\109\098\101\114'then a2.bossId=a7.bossId
+end if type(a7.npcId)=='\110\117\109\098\101\114'then a2.npcId=a7.npcId end if type(a7.rarities)==
+'\116\097\098\108\101'then a2.rarities=a7.rarities end if table.find({'\067\097\115\104','\076\117\099\107','\080\111\119\101\114',
+'\083\112\101\101\100','\066\111\115\115'},a7.branch)then a2.branch=a7.branch end end end local function a6
+()if type(writefile)=='\102\117\110\099\116\105\111\110'then local a7={world=aI,multiplierVersion=2,
+protected=a2.protected,multiplier=a2.multiplier,reserve=a2.reserve,branch=a2.
+branch,farmMode=a2.farmMode,bossId=a2.bossId,npcId=a2.npcId,rarities=a2.rarities
+}for a8,a9 in ipairs(a3)do a7[a9]=a2[a9]end pcall(writefile,a5,aO:JSONEncode(a7)
+)end end local function a7(a8,a9)aS[#aS+1]=a8:Connect(a9)end local function a8(
+a9)local ba=aM for bb in a9:gmatch('\091\094\047\093\043')do ba=ba:FindFirstChild(bb)assert(ba,
+'\077\105\115\115\105\110\103\032\109\111\100\117\108\101\058\032'..a9)end local bb,bc,bd=false,false,nil local be=task.spawn(
+function()bc,bd=pcall(require,ba)bb=true end)local bf=os.clock()+12 while aR and
+not bb and os.clock()<bf do task.wait(0.05)end if not bb then pcall(task.cancel,
+be)error(aL('\084\101\109\112\111\032\108\105\109\105\116\101\032\097\111\032\099\097\114\114\101\103\097\114\058\032','\076\111\097\100\105\110\103\032\116\105\109\101\100\032\111\117\116\058\032')..a9)end if not
+bc then error(tostring(bd))end return bd end local a9={}local ba={Place=
+'\083\104\097\114\101\100\047\067\111\110\102\105\103\047\080\108\097\099\101\067\111\110\102\105\103',State='\067\108\105\101\110\116\047\067\111\114\101\047\080\108\097\121\101\114\083\116\097\116\101',Cards=
+'\083\104\097\114\101\100\047\067\111\110\102\105\103\047\067\097\114\100\067\111\110\102\105\103',Stats='\083\104\097\114\101\100\047\082\117\108\101\115\047\067\097\114\100\083\116\097\116\115',Base=
+'\083\104\097\114\101\100\047\067\111\110\102\105\103\047\066\097\115\101\067\111\110\102\105\103',Shrine='\083\104\097\114\101\100\047\082\117\108\101\115\047\083\104\114\105\110\101',Progress=
+'\083\104\097\114\101\100\047\082\117\108\101\115\047\080\114\111\103\114\101\115\115\105\111\110',Big='\083\104\097\114\101\100\047\085\116\105\108\047\066\105\103',Packs=
+'\083\104\097\114\101\100\047\067\111\110\102\105\103\047\080\097\099\107\067\111\110\102\105\103',Opening='\067\108\105\101\110\116\047\085\073\047\080\097\099\107\115\047\080\097\099\107\079\112\101\110\105\110\103',Registry=
 '\067\108\105\101\110\116\047\067\111\114\101\047\076\111\099\097\108\069\110\101\109\121\082\101\103\105\115\116\114\121',Shields='\083\104\097\114\101\100\047\067\111\109\098\097\116\047\083\104\105\101\108\100\115',Ability=
 '\083\104\097\114\101\100\047\067\111\110\102\105\103\047\065\098\105\108\105\116\121\067\111\110\102\105\103',Settings='\067\108\105\101\110\116\047\067\111\110\116\114\111\108\108\101\114\115\047\083\101\116\116\105\110\103\115\067\111\110\116\114\111\108\108\101\114',
 Power='\083\104\097\114\101\100\047\067\111\110\102\105\103\047\080\111\119\101\114\067\111\110\102\105\103'}local bb,bc=0,0 for bd in pairs(ba)do bc+=1
 end local bd,be=pcall(function()for bd,be in pairs(ba)do if aH.progress then aH.
 progress(0.18+0.46*bb/bc,'\067\097\114\114\101\103\097\110\100\111\032\102\117\110\u{e7}\u{f5}\101\115\032\100\111\032\106\111\103\111\u{2026}\032\040'..bb..
 '\047'..bc..'\041','\076\111\097\100\105\110\103\032\103\097\109\101\032\102\101\097\116\117\114\101\115\u{2026}\032\040'..bb..'\047'..bc..'\041')end a9[bd]=a8(
-be)bb+=1 end end)if not bd then error(be)end if aH.progress then aH.progress(0.7
-,'\080\114\101\112\097\114\097\110\100\111\032\099\111\110\116\114\111\108\101\115\032\101\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115\u{2026}',
+be)bb+=1 end end)if not bd then error(be)end assert(a9.Place.World==aI,aL(
+'\077\117\110\100\111\032\100\105\118\101\114\103\101\110\116\101\058\032\114\101\105\110\105\099\105\101\032\111\032\108\111\097\100\101\114\032\097\112\u{f3}\115\032\116\114\111\099\097\114\032\100\101\032\109\117\110\100\111\046',
+'\087\111\114\108\100\032\109\105\115\109\097\116\099\104\058\032\114\101\115\116\097\114\116\032\116\104\101\032\108\111\097\100\101\114\032\097\102\116\101\114\032\115\119\105\116\099\104\105\110\103\032\119\111\114\108\100\115\046'))aY(aL(
+'\077\117\110\100\111\032\100\101\116\101\099\116\097\100\111\058\032','\068\101\116\101\099\116\101\100\032\119\111\114\108\100\058\032')..aI..'\032\u{b7}\032\080\108\097\099\101\073\100\032'..game.PlaceId,36
+)if aH.progress then aH.progress(0.7,
+'\080\114\101\112\097\114\097\110\100\111\032\099\111\110\116\114\111\108\101\115\032\101\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115\u{2026}',
 '\080\114\101\112\097\114\105\110\103\032\099\111\110\116\114\111\108\115\032\097\110\100\032\097\117\116\111\109\097\116\105\111\110\u{2026}')end local bf={}for bg,bh in pairs({
 Dungeon='\083\104\097\114\101\100\047\067\111\110\102\105\103\047\068\117\110\103\101\111\110\067\111\110\102\105\103',Cosmetics='\083\104\097\114\101\100\047\067\111\110\102\105\103\047\067\111\115\109\101\116\105\099\067\111\110\102\105\103',
 Trinkets='\083\104\097\114\101\100\047\067\111\110\102\105\103\047\084\114\105\110\107\101\116\067\111\110\102\105\103'})do local bi,bj=pcall(a8,bh)if bi then a9
@@ -435,13 +442,14 @@ aY(aL(
 function br(bs,bt,bu)aY(bt,28)aX=aX+1 local bv=aJ.label(aK,'\084\101\120\116\066\111\120',tostring(a2
 [bs]),38,aX)bv.TextEditable=true bv.ClearTextOnFocus=false a7(bv.FocusLost,
 function()local bw=bu(bv.Text)if bw~=nil then a2[bs]=bw a6()end bv.Text=
-tostring(a2[bs])end)end br('\109\117\108\116\105\112\108\105\101\114',aL('\077\117\108\116\105\112\108\105\099\097\100\111\114\032\040\049\032\097\116\101\032\049\048\048\048\048\048\048\048\048\048\048\048\048\041'
-,'\077\117\108\116\105\112\108\105\101\114\032\040\049\032\116\111\032\049\048\048\048\048\048\048\048\048\048\048\048\048\041'),function(bs)local bt=tonumber(bs)if bt and
-bt==bt and bt<math.huge then return math.clamp(bt,1,1e12)end end)br('\114\101\115\101\114\118\101',
-aL('\067\111\112\105\097\115\032\114\101\115\101\114\118\097\100\097\115\032\112\111\114\032\099\097\114\116\097','\082\101\115\101\114\118\101\100\032\099\111\112\105\101\115\032\112\101\114\032\099\097\114\100'),function(bs)local
-bt=tonumber(bs)if bt and bt==bt and bt<math.huge then return math.clamp(math.
-floor(bt),1,1000)end end)br('\112\114\111\116\101\099\116\101\100',aL(
-'\073\068\115\032\100\101\032\099\097\114\116\097\115\032\112\114\111\116\101\103\105\100\097\115\044\032\115\101\112\097\114\097\100\111\115\032\112\111\114\032\118\105\114\103\117\108\097',
+tostring(a2[bs])end)end br('\109\117\108\116\105\112\108\105\101\114',aL(
+'\077\117\108\116\105\112\108\105\099\097\100\111\114\032\108\111\099\097\108\058\032\112\097\100\114\u{e3}\111\032\049\032\113\117\097\100\114\105\108\104\u{e3}\111\032\040\049\101\049\053\041\044\032\109\u{e1}\120\105\109\111\032\049\101\049\056',
+"\076\111\099\097\108\032\109\117\108\116\105\112\108\105\101\114\058\032\100\101\102\097\117\108\116\032\049\032\113\117\097\100\114\105\108\108\105\111\110\032\040\049\101\049\053\041\044\032\109\097\120\105\109\117\109\032\049\101\049\056"),function(bs)
+local bt=tonumber(bs)if bt and bt==bt and bt<math.huge then return math.clamp(bt
+,1,1e18)end end)br('\114\101\115\101\114\118\101',aL('\067\111\112\105\097\115\032\114\101\115\101\114\118\097\100\097\115\032\112\111\114\032\099\097\114\116\097',
+'\082\101\115\101\114\118\101\100\032\099\111\112\105\101\115\032\112\101\114\032\099\097\114\100'),function(bs)local bt=tonumber(bs)if bt and bt==bt
+and bt<math.huge then return math.clamp(math.floor(bt),1,1000)end end)br(
+'\112\114\111\116\101\099\116\101\100',aL('\073\068\115\032\100\101\032\099\097\114\116\097\115\032\112\114\111\116\101\103\105\100\097\115\044\032\115\101\112\097\114\097\100\111\115\032\112\111\114\032\118\105\114\103\117\108\097',
 '\080\114\111\116\101\099\116\101\100\032\099\097\114\100\032\073\068\115\044\032\099\111\109\109\097\032\115\101\112\097\114\097\116\101\100'),function(bs)return bs:sub(1,2000)end)aY(
 aL('\082\097\114\105\100\097\100\101\115\032\112\101\114\109\105\116\105\100\097\115\032\110\111\032\115\097\099\114\105\102\u{ed}\099\105\111',
 '\065\108\108\111\119\101\100\032\115\097\099\114\105\102\105\099\101\032\114\097\114\105\116\105\101\115\032\040\105\110\100\105\118\105\100\117\097\108\032\115\101\108\101\099\116\105\111\110\041'),42)local bs={Common='\067\111\109\117\109'
@@ -5499,12 +5507,12 @@ or bH)aE.Text=bI warn('\091\065\110\111\110\072\117\098\032'..aa..'\093\032'..bI
 '\089\111\117\114\032\112\097\110\101\108\032\105\115\032\114\101\097\100\121')bc=true if bf()then bg:Destroy()else task.spawn(function()
 while al and bg.Parent and not bf()do task.wait(0.05)end if al and bg.Parent
 then bg:Destroy()end end)end pcall(ab.ready)if bD then task.defer(function()bC(
-bD,2)end)end end local aa='\048\046\051\057\046\050'local ab={[10772968523]={name=
+bD,2)end)end end local aa='\048\046\051\057\046\051'local ab={[10772968523]={name=
 '\073\109\112\111\115\115\105\098\108\101\032\072\105\108\108\032\067\108\105\109\098',version='\048\046\051\056\046\049\051',world='\049',online=true,place=
 100981917200669,path='\104\105\108\108\099\108\105\109\098\047\109\097\105\110\046\108\117\097',cache='\065\110\111\110\072\117\098\095\072\105\108\108\095\048\051\056\049\051\046\108\117\097',theme=
-'\097\109\101\116\104\121\115\116'},[10770228857]={name='\083\116\101\097\108\032\097\032\083\117\112\101\114\112\111\119\101\114',version='\048\046\051\057\046\050',world=
+'\097\109\101\116\104\121\115\116'},[10770228857]={name='\083\116\101\097\108\032\097\032\083\117\112\101\114\112\111\119\101\114',version='\048\046\051\057\046\051',world=
 '\049\032\047\032\050',online=true,place=74183246285569,places={[74183246285569]=true,[
-82739382053686]=true},path='\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097',cache='\065\110\111\110\072\117\098\095\083\080\095\048\051\057\048\050\046\108\117\097',
+82739382053686]=true},path='\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097',cache='\065\110\111\110\072\117\098\095\083\080\095\048\051\057\048\051\046\108\117\097',
 theme='\099\097\114\098\111\110'},[10767408330]={name='\080\101\101\108\032\084\072\069\032\080\111\116\097\116\111',chapter='\050',version=
 '\048\046\051\055\046\054',place=116701845804918,path='\112\111\116\097\116\111\047\099\104\097\112\116\101\114\050\046\108\117\097',cache=
 '\069\118\111\108\118\121\095\067\104\097\112\116\101\114\050\095\077\097\105\110\046\108\117\097\117'}}local ac={name='\085\110\105\118\101\114\115\097\108',version='\048\046\051\055\046\056',path=
@@ -5753,36 +5761,40 @@ aW then pcall(aW.disconnect)aW=nil end if aV then aV()end end local function a_(
 disconnect)end return nil,'\067\076\079\083\069\068'end aW=a0 return a0,a1 end local a0=ao.
 language local function a1(a2,a3)return a0=='\112\116'and a2 or a3 end local a2=ab[
 game.GameId]if a2 and a2.place~=game.PlaceId and not(a2.places and a2.places[
-game.PlaceId])then a2=nil end local a3=a2 or ac local a4=type(ao.universal)==
-'\116\097\098\108\101'and ao.universal or{}local a5=a2 and(a2.theme or'\112\101\101\108')or(a4.theme~=
-'\112\101\101\108'and a4.theme or'\099\097\114\098\111\110')local a6=aO(a5)local a7,a8,a9,b,bb,bc=a6.panel,a6.
-label,a6.button,a6.make,a6.gameCard,a6.color local be,bf={},{}local function bg(
-bh)return string.format('\114\098\120\116\104\117\109\098\058\047\047\116\121\112\101\061\071\097\109\101\084\104\117\109\098\110\097\105\108\038\105\100\061\037\100\038\119\061\052\056\048\038\104\061\050\055\048',bh)end
-local bh={name=a2 and a2.name or a1('\069\120\112\101\114\105\u{ea}\110\099\105\097','\069\120\112\101\114\105\101\110\099\101')..'\032\u{b7}\032'
-..game.PlaceId,icon=string.format('\114\098\120\116\104\117\109\098\058\047\047\116\121\112\101\061\071\097\109\101\073\099\111\110\038\105\100\061\037\100\038\119\061\049\053\048\038\104\061\049\053\048',
-game.GameId),cover=bg(game.PlaceId),watch=function(bh)table.insert(be,bh)end,
-watchCover=function(bh)table.insert(bf,bh)end}if not a2 then task.spawn(function
-()local bi,bj,bk=pcall(function()local bi=
-'\104\116\116\112\115\058\047\047\103\097\109\101\115\046\114\111\098\108\111\120\046\099\111\109\047\118\049\047\103\097\109\101\115\063\117\110\105\118\101\114\115\101\073\100\115\061'..game.GameId local bj=al:
-JSONDecode(game:HttpGet(bi)).data[1]return bj.name,bj.rootPlaceId end)if not bi
-or type(bj)~='\115\116\114\105\110\103'or bj==''then bi,bj=pcall(function()return game:GetService(
-'\077\097\114\107\101\116\112\108\097\099\101\083\101\114\118\105\099\101'):GetProductInfoAsync(game.PlaceId,Enum.InfoType.Asset).Name
-end)end if aY()and bi and type(bj)=='\115\116\114\105\110\103'and bj~=''then bh.name=bj for bl,bm
-in ipairs(be)do bm(bh.name)end end if aY()and type(bk)=='\110\117\109\098\101\114'and bk>0 and bk
-~=game.PlaceId then bh.cover=bg(bk)for bl,bm in ipairs(bf)do bm(bh.cover)end end
-end)end local function bi(bj,bk)aZ()local bl aU,bl=a7(500,nil,not a2)local bm=aU
-local bn=os.clock()local bo=false local bp=false bm.DisplayOrder=10031 local bq=
-a2 and a1('\077\u{d3}\068\085\076\079\032\068\079\032\074\079\071\079','\071\065\077\069\032\077\079\068\085\076\069')or a1('\070\069\082\082\065\077\069\078\084\065\083\032\085\078\073\086\069\082\083\065\073\083',
-'\085\078\073\086\069\082\083\065\076\032\084\079\079\076\083')local br=b('\070\114\097\109\101',{Name='\076\111\097\100\105\110\103\067\111\118\101\114',Size=UDim2.new(1,0,0,
-165),LayoutOrder=1,BackgroundColor3=bc.tile,BorderSizePixel=0,ClipsDescendants=
-true},bl)b('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,12)},br)b('\085\073\083\116\114\111\107\101',{Color=bc.
-accent,Thickness=2,Transparency=0.15},br)local bs=b('\073\109\097\103\101\076\097\098\101\108',{Size=UDim2.
-fromScale(1,1),BackgroundTransparency=1,Image=bh.cover,ScaleType=Enum.ScaleType.
-Crop},br)b('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,12)},bs)local bt=a8(br,
-'\084\101\120\116\076\097\098\101\108',bh.name,28,0)bt.Position,bt.Size=UDim2.new(0,0,1,-32),UDim2.new(1,0,
-0,32)bt.BackgroundTransparency=0.2 bt.BackgroundColor3=bc.dark bt.Font=Enum.Font
-.GothamBold bt.ZIndex=3 bh.watch(function(bu)if bt.Parent then bt.Text=bu end
-end)bh.watchCover(function(bu)if bs.Parent then bs.Image=bu end end)local bu=b(
+game.PlaceId])then a2=nil end if a2 and game.GameId==10770228857 then local a3=(
+{[74183246285569]=1,[82739382053686]=2})[game.PlaceId]if a3 then a2=table.clone(
+a2)a2.world=tostring(a3)a2.place=game.PlaceId a2.cache='\065\110\111\110\072\117\098\095\083\080\095\048\051\057\048\051\095\087'..a3
+..'\046\108\117\097'a2.name=a2.name..a1('\032\u{b7}\032\077\117\110\100\111\032','\032\u{b7}\032\087\111\114\108\100\032')..a3 else a2=nil
+end end local a3=a2 or ac local a4=type(ao.universal)=='\116\097\098\108\101'and ao.universal
+or{}local a5=a2 and(a2.theme or'\112\101\101\108')or(a4.theme~='\112\101\101\108'and a4.theme or'\099\097\114\098\111\110'
+)local a6=aO(a5)local a7,a8,a9,b,bb,bc=a6.panel,a6.label,a6.button,a6.make,a6.
+gameCard,a6.color local be,bf={},{}local function bg(bh)return string.format(
+'\114\098\120\116\104\117\109\098\058\047\047\116\121\112\101\061\071\097\109\101\084\104\117\109\098\110\097\105\108\038\105\100\061\037\100\038\119\061\052\056\048\038\104\061\050\055\048',bh)end local bh={name=a2 and
+a2.name or a1('\069\120\112\101\114\105\u{ea}\110\099\105\097','\069\120\112\101\114\105\101\110\099\101')..'\032\u{b7}\032'..game.PlaceId,icon=
+string.format('\114\098\120\116\104\117\109\098\058\047\047\116\121\112\101\061\071\097\109\101\073\099\111\110\038\105\100\061\037\100\038\119\061\049\053\048\038\104\061\049\053\048',game.GameId),cover=
+bg(game.PlaceId),watch=function(bh)table.insert(be,bh)end,watchCover=function(bh
+)table.insert(bf,bh)end}if not a2 then task.spawn(function()local bi,bj,bk=
+pcall(function()local bi='\104\116\116\112\115\058\047\047\103\097\109\101\115\046\114\111\098\108\111\120\046\099\111\109\047\118\049\047\103\097\109\101\115\063\117\110\105\118\101\114\115\101\073\100\115\061'..game.
+GameId local bj=al:JSONDecode(game:HttpGet(bi)).data[1]return bj.name,bj.
+rootPlaceId end)if not bi or type(bj)~='\115\116\114\105\110\103'or bj==''then bi,bj=pcall(
+function()return game:GetService('\077\097\114\107\101\116\112\108\097\099\101\083\101\114\118\105\099\101'):GetProductInfoAsync(game.
+PlaceId,Enum.InfoType.Asset).Name end)end if aY()and bi and type(bj)=='\115\116\114\105\110\103'
+and bj~=''then bh.name=bj for bl,bm in ipairs(be)do bm(bh.name)end end if aY()
+and type(bk)=='\110\117\109\098\101\114'and bk>0 and bk~=game.PlaceId then bh.cover=bg(bk)for bl,
+bm in ipairs(bf)do bm(bh.cover)end end end)end local function bi(bj,bk)aZ()local
+bl aU,bl=a7(500,nil,not a2)local bm=aU local bn=os.clock()local bo=false local
+bp=false bm.DisplayOrder=10031 local bq=a2 and a1('\077\u{d3}\068\085\076\079\032\068\079\032\074\079\071\079',
+'\071\065\077\069\032\077\079\068\085\076\069')or a1('\070\069\082\082\065\077\069\078\084\065\083\032\085\078\073\086\069\082\083\065\073\083','\085\078\073\086\069\082\083\065\076\032\084\079\079\076\083')local br=b(
+'\070\114\097\109\101',{Name='\076\111\097\100\105\110\103\067\111\118\101\114',Size=UDim2.new(1,0,0,165),LayoutOrder=1,
+BackgroundColor3=bc.tile,BorderSizePixel=0,ClipsDescendants=true},bl)b(
+'\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,12)},br)b('\085\073\083\116\114\111\107\101',{Color=bc.accent,
+Thickness=2,Transparency=0.15},br)local bs=b('\073\109\097\103\101\076\097\098\101\108',{Size=UDim2.fromScale(
+1,1),BackgroundTransparency=1,Image=bh.cover,ScaleType=Enum.ScaleType.Crop},br)
+b('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,12)},bs)local bt=a8(br,'\084\101\120\116\076\097\098\101\108',bh.name
+,28,0)bt.Position,bt.Size=UDim2.new(0,0,1,-32),UDim2.new(1,0,0,32)bt.
+BackgroundTransparency=0.2 bt.BackgroundColor3=bc.dark bt.Font=Enum.Font.
+GothamBold bt.ZIndex=3 bh.watch(function(bu)if bt.Parent then bt.Text=bu end end
+)bh.watchCover(function(bu)if bs.Parent then bs.Image=bu end end)local bu=b(
 '\070\114\097\109\101',{Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(1,1,1),
 BorderSizePixel=0,ZIndex=4,Active=false},br)b('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(
 0,12)},bu)local bv=b('\085\073\071\114\097\100\105\101\110\116',{Rotation=20,Offset=Vector2.new(-1,0),

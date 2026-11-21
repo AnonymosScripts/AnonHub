@@ -1,0 +1,8 @@
+AnonHub 0.39.3
+
+Identifica Mundo 1 (74183246285569) e Mundo 2 (82739382053686) pelo PlaceId e universo. Loader seleciona o perfil e cache do mundo; módulo confirma PlaceConfig.World antes das automações. Lugares não suportados continuam no Universal.
+Multiplicador local padrão 1e15 (1 quadrilhão), máximo configurável 1e18. O antigo padrão salvo 1e12 é migrado, preservando valores personalizados e preferências versionadas. Continua desligado ao carregar e limitado a NPCs Local; não amplia dano de servidor na Dungeon.
+
+World-specific routing, cache and runtime configuration verification. Default local multiplier 1e15, cap 1e18. Dungeon server damage is not modified.
+
+Validação: 12 testes de identificação/migração/limites, 34 de Mundo 2 e regressões de combate com 1e15 passaram. Autenticação preservada e sete arquivos ofuscados verificados. Não testado ao vivo no Delta.
