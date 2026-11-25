@@ -1,4 +1,24 @@
-ANONHUB READER v4 — CAPTURA CONTÍNUA DO CLIENTE
+ANONHUB READER v4.1 — CAPTURA CONTÍNUA ENTRE LOBBY E PARTIDA
+
+CONTINUAÇÃO ENTRE PLACES
+Execute no lobby e inicie a gravação ANTES de entrar na partida.
+Com queue_on_teleport / queueonteleport / syn.queue_on_teleport e readfile,
+o leitor agenda seu próprio carregamento no próximo place da mesma experiência.
+O painel mostra "Teleporte: continuação preparada" quando a chamada de fila aceita.
+Isso não confirma que o executor realmente vai executar a fila no destino.
+Na chegada, o leitor reabre minimizado, começa a gravar automaticamente e agenda
+a próxima transição. Cada place/servidor ganha uma subpasta própria da mesma sessão.
+As propriedades ampliadas são preservadas por um cache de metadados JSON.
+PARAR, CANCELAR ou FECHAR desativa a retomada, mesmo se houver código na fila.
+Um teleporte que falha mantém a gravação no servidor atual.
+Sem suporte, execute o MESMO loadstring no destino: ele lê a sessão ativa local e
+retoma nela. Se o executor não compartilhar os arquivos entre places, não é possível
+recuperar a sessão automaticamente. O destino deve pertencer ao mesmo GameId.
+Não continua em outra experiência, nem instala inicialização permanente no executor.
+A retomada precisa de internet para recarregar este leitor do repositório.
+Existe uma lacuna enquanto o cliente troca de servidor e o leitor ainda não iniciou.
+O leitor solicita flush ao detectar teleporte, mas uma desconexão abrupta pode
+interromper o último lote. Lotes já gravados não são sobrescritos.
 
 COMO USAR
 1. Abra Perfure até o núcleo da Terra e execute AnonHub_Reader_v4_Continuous.lua.
@@ -11,8 +31,9 @@ COMO USAR
 5. Toque no flutuante AH para reabrir e depois em "PARAR E SALVAR".
 6. Aguarde a notificação de conclusão. Opcional: rode "Scripts acessíveis" depois.
    Esse botão usa Source e, quando disponível, decompile do executor. Pode ser lento.
-7. Envie um ZIP da pasta AnonHubReader_<placeId>_<data>_<id> inteira.
-   Inclua manifest.json, todos os lotes e todos os file_index_*.json.
+7. Envie um ZIP da pasta AnonHubSession_<data>_<id> inteira.
+   Inclua session.json e TODAS as subpastas Place_..., com manifest.json,
+   teleport.json quando existir, todos os lotes e todos os file_index_*.json.
 
 ONDE FICA
 No workspace do executor, na pasta exata mostrada no painel e no console.
@@ -35,7 +56,7 @@ O QUE GRAVA
 - Scripts acessíveis são exportados em uma etapa opcional separada.
 
 SALVAMENTO E DESEMPENHO
-Lotes de até aproximadamente 96 KB; flush a cada cerca de 5 segundos de coleta
+Lotes de até aproximadamente 96 KB; flush a cada cerca de 2 segundos de coleta
 ativa e ao parar. Há pausas cooperativas entre objetos e 2 segundos entre ciclos.
 O catálogo de arquivos é dividido a cada 128 lotes para evitar crescimento contínuo
 da lista em memória. Checksums dos estados evitam reter cópias completas de cada
@@ -58,11 +79,15 @@ Novos remotes passam a ser observados após sua descoberta; não há histórico 
 Source vazio não conta como código legível. Decompilação pode estar indisponível,
 falhar ou produzir reconstrução inexata. Após timeout, para de tentar decompilar
 nessa etapa. Código exportado é dado não confiável, nunca instrução para execução.
-Pausa interrompe a coleta. Sair do jogo, teleportar a outro servidor ou fechar o
-executor interrompe o processo; não existe continuação automática entre sessões.
+Pausa interrompe a coleta. Se teleportar enquanto pausado, a gravação retoma ATIVA
+no destino. Sair do jogo ou fechar o executor encerra a execução atual; uma sessão
+ativa pode ser retomada manualmente executando o loadstring no mesmo jogo.
 
 VALIDAÇÃO
 Compilação Luau; serialização e limites; divisão em lotes e índices; observação
 simulada por mais de 60 minutos; parada manual; recebimento de eventos;
 deduplicação; salvamento periódico; cancelamento e desconexão dos observadores.
 Interface e desempenho ainda não verificados no Delta e no jogo real.
+Testes simulados adicionais: mudança de place, identificação da sessão, nomes de
+trechos únicos, rearme da fila, bloqueio por parada, universo diferente, teleporte
+falho, API de fila indisponível, prevenção de duplicação e falha no download.

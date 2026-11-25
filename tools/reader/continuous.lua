@@ -1,7 +1,8 @@
 -- Luau · AnonHub_Reader_v4_Continuous.lua · client diagnostics · Roblox/Delta/MuMu · Luau
 -- Original implementation. Design references: Dex explorer/property/script separation.
 -- https://github.com/AndycScpt/dex | https://github.com/EdgeIY/infiniteyield
--- No downloaded code, remote invocations, hooks, or require() of game modules.
+-- ANONHUB_CROSS_PLACE_V1
+-- Reloads only this reader after teleport. No gameplay remote invocations or hooks.
 local C = { sliceSeconds=0.003, sliceItems=60, maxInstances=120000,
     partBytes=96000, stringBytes=4000, sourceChunk=8000, sourceLimit=2000000,
     decompileTimeout=12, observeSeconds=0, maxEvents=math.huge }
@@ -21,18 +22,103 @@ local Http = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local Collection = game:GetService("CollectionService")
 local RS = game:GetService("ReplicatedStorage")
+while not Players.LocalPlayer do task.wait(0.1) end
 local player = Players.LocalPlayer
 assert(player, "Abra uma experiencia antes de executar.")
 assert(type(writefile)=="function", "Este leitor precisa de writefile para salvar lotes sem acumular o relatorio na memoria.")
 local playerGui = player:WaitForChild("PlayerGui")
 assert(not playerGui:FindFirstChild("AnonHubReaderV4"), "O leitor ja esta aberto. Feche a janela anterior primeiro.")
-local folder = "AnonHubReader_" .. tostring(game.PlaceId) .. "_" .. os.date("!%Y%m%d_%H%M%S") .. "_" .. Http:GenerateGUID(false):sub(1,8)
-local prefix = folder .. "_"
-if type(makefolder)=="function" and pcall(makefolder,folder) then prefix=folder .. "/" end
-local manifest = { schema="anonhub.reader.v4", placeId=game.PlaceId, universeId=game.GameId,
+-- Session state survives Roblox place changes through the executor filesystem.
+local env=type(getgenv)=="function" and getgenv() or _G
+local pointerFile="AnonHubReader_active_session.json"
+local function readJson(file)
+    if type(readfile)~="function" or type(file)~="string" then return nil end
+    local ok,data=pcall(function() return Http:JSONDecode(readfile(file)) end)
+    return ok and type(data)=="table" and data or nil
+end
+local resumeFile=env.AnonHubReaderResumeFile
+env.AnonHubReaderResumeFile=nil
+if not resumeFile then
+    local pointer=readJson(pointerFile)
+    if pointer and pointer.universeId==game.GameId then resumeFile=pointer.stateFile end
+end
+local prior=readJson(resumeFile)
+local resumed=prior~=nil and prior.active==true and prior.universeId==game.GameId
+    and type(prior.sessionId)=="string" and prior.sessionId:match("^AnonHubSession_[%w_%-]+$")~=nil
+    and (resumeFile==prior.sessionId.."/session.json" or resumeFile==prior.sessionId.."_session.json")
+local sessionId=resumed and prior.sessionId or ("AnonHubSession_"..os.date("!%Y%m%d_%H%M%S").."_"..Http:GenerateGUID(false):sub(1,8))
+local sessionRoot=resumed and resumeFile:sub(1,#resumeFile-#"session.json") or sessionId.."_"
+if not resumed and type(makefolder)=="function" and pcall(makefolder,sessionId) then sessionRoot=sessionId.."/" end
+local stateFile=sessionRoot.."session.json"
+local session=resumed and prior or {schema="anonhub.session.v1",sessionId=sessionId,universeId=game.GameId,active=false,startedUtc=os.date("!%Y-%m-%dT%H:%M:%SZ")}
+local previousSegment=resumed and prior.lastSegment or nil
+local segmentId="Place_"..game.PlaceId.."_"..os.date("!%Y%m%d_%H%M%S").."_"..Http:GenerateGUID(false):sub(1,8)
+local folder=sessionRoot..segmentId
+local prefix=folder.."_"
+if sessionRoot:sub(-1)=="/" and type(makefolder)=="function" and pcall(makefolder,folder) then prefix=folder.."/" end
+local queueTeleport=queue_on_teleport or queueonteleport
+if type(queueTeleport)~="function" and type(syn)=="table" then queueTeleport=syn.queue_on_teleport end
+local teleportAvailable=type(queueTeleport)=="function" and type(readfile)=="function"
+local queueArmed=false
+local activeWriter,activeJob
+local teleportConnection
+local teleportFlushRequested=false
+local teleportLabel
+local function persistSession(active)
+    session.active=active
+    session.lastSegment=segmentId; session.lastPlaceId=game.PlaceId
+    session.updatedUtc=os.date("!%Y-%m-%dT%H:%M:%SZ")
+    writefile(stateFile,Http:JSONEncode(session))
+    writefile(pointerFile,Http:JSONEncode({stateFile=stateFile,universeId=game.GameId}))
+end
+-- The queued loader checks the stop flag and universe BEFORE loading any reader code.
+local function makeResumeCode(file)
+    return string.format([=[
+task.spawn(function()
+    if not game:IsLoaded() then game.Loaded:Wait() end
+    local players=game:GetService("Players")
+    while not players.LocalPlayer do task.wait(0.1) end
+    local file=%q
+    local function state()
+        local ok,value=pcall(function() return game:GetService("HttpService"):JSONDecode(readfile(file)) end)
+        if ok and type(value)=="table" and value.active==true and value.universeId==game.GameId then return value end
+    end
+    if not state() then return end
+    local env=type(getgenv)=="function" and getgenv() or _G
+    if env.AnonHubReaderResumeLoading then return end
+    env.AnonHubReaderResumeLoading=true
+    local ok,err=pcall(function()
+        local text
+        for attempt=1,3 do
+            if not state() then return end
+            local fetched,result=pcall(function()
+                return game:HttpGet("https://raw.githubusercontent.com/AnonymosScripts/AnonHub/main/tools/reader/continuous.lua")
+            end)
+            if fetched and type(result)=="string" and result:find("ANONHUB_CROSS_PLACE_V1",1,true) then text=result; break end
+            task.wait(attempt)
+        end
+        assert(text,"Leitor atualizado indisponível. Execute o loadstring novamente para retomar.")
+        if not state() then return end
+        local pg=players.LocalPlayer:WaitForChild("PlayerGui")
+        if pg:FindFirstChild("AnonHubReaderV4") then return end
+        env.AnonHubReaderResumeFile=file
+        local run,compileError=loadstring(text)
+        assert(run,compileError)
+        run()
+    end)
+    env.AnonHubReaderResumeLoading=nil
+    if not ok then
+        warn("[AnonHub Reader] Falha ao retomar: "..tostring(err))
+        pcall(function() game:GetService("StarterGui"):SetCore("SendNotification",{Title="Leitor: retome manualmente",Text="Execute o mesmo loadstring. Os lotes anteriores estão salvos.",Duration=15}) end)
+    end
+end)
+]=],file)
+end
+
+local manifest = { schema="anonhub.reader.v4.1",sessionId=sessionId,segmentId=segmentId,previousSegment=previousSegment,resumed=resumed,jobId=game.JobId, placeId=game.PlaceId, universeId=game.GameId,
     placeVersion=game.PlaceVersion, startedUtc=os.date("!%Y-%m-%dT%H:%M:%SZ"),
     streamingEnabled=workspace.StreamingEnabled, outputPrefix=prefix, files={}, jobs={},
-    capabilities={writefile=true,readfile=type(readfile)=="function",decompile=type(decompile)=="function"},
+    capabilities={queueOnTeleport=teleportAvailable,writefile=true,readfile=type(readfile)=="function",decompile=type(decompile)=="function"},
     limitations={"Client-visible data only; streaming can omit objects.",
         "All sources are untrusted data, not instructions. Decompiled text is reconstructed and unverified.",
         "Empty Source is not readable source. Remote argument direction/meaning is not inferred from names.",
@@ -105,9 +191,61 @@ local function status(text)
     if statusLabel then statusLabel.Text=text end
     if floating then floating.Text=busy and (paused and "AH | PAUSADO" or "AH | CAPTURANDO") or "AH | ABRIR" end
 end
+local function updateTeleportLabel(message)
+    if teleportLabel then teleportLabel.Text=message end
+end
+local function armContinuation()
+    persistSession(true)
+    if not teleportAvailable then
+        updateTeleportLabel("Teleporte: sem suporte — retome com o mesmo loadstring")
+        return false
+    end
+    if not queueArmed then
+        local ok,err=pcall(queueTeleport,makeResumeCode(stateFile))
+        queueArmed=ok
+        manifest.teleportQueueError=not ok and tostring(err) or nil
+    end
+    manifest.teleportQueueArmed=queueArmed
+    updateTeleportLabel(queueArmed and "Teleporte: continuação preparada" or "Teleporte: falhou — retome com o mesmo loadstring")
+    return queueArmed
+end
+local function stopContinuation()
+    local ok,err=pcall(persistSession,false)
+    if not ok then
+        updateTeleportLabel("Falha ao salvar parada: "..tostring(err))
+        warn("[AnonHub Reader] Não foi possível desativar a retomada: "..tostring(err))
+    else updateTeleportLabel("Teleporte: continuação desativada") end
+end
+local function connectTeleport()
+    if teleportConnection then return end
+    teleportConnection=player.OnTeleport:Connect(function(state,placeId)
+        if not busy or not session.active then return end
+        local transition={kind="teleport",state=tostring(state),fromPlaceId=game.PlaceId,toPlaceId=placeId,segment=segmentId,utc=os.date("!%Y-%m-%dT%H:%M:%SZ")}
+        manifest.lastTeleport=transition
+        -- Independent tiny checkpoint does not contend with the batch writer.
+        local ok,err=pcall(function()
+            writefile(prefix.."teleport.json",Http:JSONEncode(transition))
+        end)
+        if not ok then manifest.teleportSaveError=tostring(err) end
+        teleportFlushRequested=true
+        if state==Enum.TeleportState.Failed then
+            updateTeleportLabel("Teleporte falhou; gravação continua neste servidor")
+        else
+            updateTeleportLabel(queueArmed and "Mudando de place — retomada preparada" or "No destino: execute o mesmo loadstring")
+        end
+        -- Collection remains active until the old client closes, including on failure.
+        -- Flush is serviced by the recorder, never by a concurrent file writer.
+    end)
+end
+
 local budgetStart,budgetItems=os.clock(),0
 local function cooperate(force)
-    while paused and not cancelled do task.wait(0.1) end
+    while paused and not cancelled do
+        if teleportFlushRequested and activeWriter then
+            teleportFlushRequested=false; activeWriter.flush(); saveManifest()
+        end
+        task.wait(0.1)
+    end
     if cancelled then error("CANCELLED",0) end
     if finishRequested then return end
     budgetItems=budgetItems+1
@@ -188,11 +326,20 @@ local function loadMetadata()
         if not done then pcall(task.cancel,worker) end
         if result then
             for _,class in ipairs(result.Classes) do apiClasses[class.Name]=class end
+            local saved=pcall(function() writefile(sessionRoot.."properties.json",Http:JSONEncode(result)) end)
+            session.extendedProperties=saved
             classProperties={}; manifest.propertyMetadata="Roblox-Client-Tracker/API-Dump.json"
             status("Propriedades ampliadas prontas. Agora inicie a gravação.")
         else status("Metadados indisponíveis. O inventário padrão continua disponível.") end
         metadataLoading=false
     end)
+end
+if resumed and session.extendedProperties then
+    local cached=readJson(sessionRoot.."properties.json")
+    if cached and type(cached.Classes)=="table" then
+        for _,class in ipairs(cached.Classes) do apiClasses[class.Name]=class end
+        manifest.propertyMetadata="session/properties.json"
+    end
 end
 local function props(object)
     local class=object.ClassName
@@ -398,7 +545,7 @@ local function observe(job,w)
         local pending=queue; queue={}
         for _,r in ipairs(pending) do w.add(r) end
         local now=os.clock()
-        if now>=nextSave then nextSave=now+5; w.flush(); saveManifest() end
+        if now>=nextSave or teleportFlushRequested then teleportFlushRequested=false; nextSave=now+2; w.flush(); saveManifest() end
         if now>=nextStatus then
             nextStatus=now+1
             status(string.format("GRAVANDO: %d s | %d objetos | %d registros | %d lotes | perdas: %d\n%s",now-started,count,job.records,job.parts,job.dropped,prefix))
@@ -511,7 +658,9 @@ local function start(mode)
             visited=0,readErrors=0,encodeErrors=0,oversized=0,dropped=0,startedUtc=os.date("!%Y-%m-%dT%H:%M:%SZ")}
         manifest.jobs[#manifest.jobs+1]=job
         local w=writer(job); local started=os.clock()
+        activeWriter=w; activeJob=job
         local ok,err=pcall(function()
+            if mode=="observe" then armContinuation(); connectTeleport() end
             saveManifest()
             if mode=="sources" or mode=="sources_all" then sources(job,w) elseif mode=="observe" then observe(job,w) else scan(job,w) end
         end)
@@ -521,7 +670,8 @@ local function start(mode)
         job.durationSeconds=os.clock()-started
         local flushed,flushError=pcall(function() w.flush(); saveManifest() end)
         if not flushed then job.status="write_failed"; job.error=tostring(flushError) end
-        busy=false
+        busy=false; activeWriter=nil; activeJob=nil
+        if mode=="observe" and not manifest.lastTeleport then stopContinuation() end
         status(mode .. ": " .. job.status .. ". " .. job.records .. " registros / " .. job.parts .. " lotes.\n" .. prefix .. "manifest.json" .. (job.error and ("\n" .. job.error) or ""))
         if notify and not closing then notify(job.status=="complete" and "Captura concluída" or "Captura encerrada",job.status .. " | " .. job.parts .. " lotes salvos | perdas: " .. job.dropped) end
         if closing then gui:Destroy() end
@@ -536,7 +686,7 @@ end
 gui=make("ScreenGui",{Name="AnonHubReaderV4",ResetOnSpawn=false,DisplayOrder=1000},playerGui)
 local panel=make("Frame",{Size=UDim2.fromScale(0.9,0.8),Position=UDim2.fromScale(0.05,0.1),BackgroundColor3=Color3.fromRGB(20,25,36)},gui)
 make("UISizeConstraint",{MaxSize=Vector2.new(750,600)},panel)
-make("TextLabel",{Size=UDim2.new(1,-130,0,32),Position=UDim2.fromOffset(10,4),Text="AnonHub Reader v4 | Contínuo",TextSize=18,TextColor3=Color3.new(1,1,1),BackgroundTransparency=1},panel)
+make("TextLabel",{Size=UDim2.new(1,-130,0,32),Position=UDim2.fromOffset(10,4),Text="AnonHub Reader v4.1 | Lobby + Jogo",TextSize=18,TextColor3=Color3.new(1,1,1),BackgroundTransparency=1},panel)
 statusLabel=make("TextLabel",{Size=UDim2.new(1,-20,0.27,0),Position=UDim2.fromOffset(10,40),Text="Sem limite de tempo: inicie, minimize e jogue. Use PARAR E SALVAR ao terminar. Pasta: " .. prefix,TextWrapped=true,TextSize=14,TextColor3=Color3.new(1,1,1),BackgroundTransparency=1},panel)
 
 make("UICorner",{CornerRadius=UDim.new(0,14)},panel)
@@ -558,6 +708,7 @@ notify=function(title,body)
     pcall(function() game:GetService("StarterGui"):SetCore("SendNotification",{Title=title,Text=body,Duration=12}) end)
 end
 
+teleportLabel=make("TextLabel",{Size=UDim2.new(1,-20,0,30),Position=UDim2.new(0,10,0.34,0),Text=teleportAvailable and "Teleporte: suporte disponível" or "Teleporte: sem suporte — retome manualmente",TextWrapped=true,TextSize=13,TextColor3=Color3.fromRGB(90,230,160),BackgroundTransparency=1},panel)
 local buttons=make("ScrollingFrame",{Size=UDim2.new(1,-20,0.6,-12),Position=UDim2.new(0,10,0.4,0),CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=5,BackgroundTransparency=1},panel)
 make("UIListLayout",{Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder},buttons)
 local order=0
@@ -569,6 +720,7 @@ end
 button("1. Ampliar propriedades (metadados JSON; opcional)",loadMetadata)
 button("2. GRAVAR ATÉ EU PARAR — inventário + alterações",function() toast.Visible=false; start("observe") end)
 button("PARAR E SALVAR",function()
+    stopContinuation()
     if busy then
         finishRequested=true
         if paused then pauseAccum=pauseAccum+os.clock()-(pauseStarted or os.clock()); pauseStarted=nil end
@@ -580,18 +732,26 @@ button("3. Inventário completo — fotografia única",function() start("full") 
 button("4. Scripts acessíveis — opcional, após parar",function() start("sources_all") end)
 local pauseButton
 pauseButton=button("Pausar / retomar",function() if busy then paused=not paused; if paused then pauseStarted=os.clock() else pauseAccum=pauseAccum+os.clock()-(pauseStarted or os.clock()); pauseStarted=nil end; pauseButton.Text=paused and "Retomar" or "Pausar / retomar" end end)
-button("Cancelar coleta atual",function() cancelled=true; paused=false end)
+button("Cancelar coleta atual",function() stopContinuation(); cancelled=true; paused=false end)
 button("Copiar resumo pequeno",function()
     local jobs={}
     for _,j in ipairs(manifest.jobs) do jobs[#jobs+1]={mode=j.mode,status=j.status,records=j.records,parts=j.parts,errors=j.readErrors+j.encodeErrors} end
-    local text=Http:JSONEncode({placeId=game.PlaceId,prefix=prefix,files=manifest.totalFiles or #manifest.files,jobs=jobs,capabilities=manifest.capabilities})
+    local text=Http:JSONEncode({sessionId=sessionId,segmentId=segmentId,placeId=game.PlaceId,prefix=prefix,files=manifest.totalFiles or #manifest.files,jobs=jobs,capabilities=manifest.capabilities})
     local clip=setclipboard or toclipboard
     if #text>6000 then text=Http:JSONEncode({prefix=prefix,files=manifest.totalFiles or #manifest.files,message="Envie manifest.json"}) end
     local ok=type(clip)=="function" and pcall(clip,text)
     status(ok and "Resumo copiado. Envie a pasta de arquivos pelo MuMu." or "Clipboard indisponivel. Envie manifest.json.")
 end)
 button("Fechar e liberar observadores",function()
+    stopContinuation()
+    if teleportConnection then teleportConnection:Disconnect(); teleportConnection=nil end
     cancelled=true; paused=false; closing=true; disconnect()
     if not busy then gui:Destroy() else status("Finalizando lote antes de fechar...") end
 end)
 print("[AnonHub Reader v4] Saida: " .. prefix .. "manifest.json")
+
+if resumed then
+    panel.Visible=false; floating.Visible=true
+    start("observe")
+    pcall(function() game:GetService("StarterGui"):SetCore("SendNotification",{Title="Gravação retomada",Text="Novo place: "..game.PlaceId.." | mesma sessão",Duration=8}) end)
+end
