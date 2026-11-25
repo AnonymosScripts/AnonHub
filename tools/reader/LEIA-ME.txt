@@ -1,0 +1,68 @@
+ANONHUB READER v4 — CAPTURA CONTÍNUA DO CLIENTE
+
+COMO USAR
+1. Abra Perfure até o núcleo da Terra e execute AnonHub_Reader_v4_Continuous.lua.
+2. Opcional: toque em "Ampliar propriedades". Aguarde até 15 segundos.
+   Baixa somente o JSON de metadados públicos do Roblox; não executa código remoto.
+   Se falhar, a seleção padrão de propriedades permanece disponível.
+3. Toque em "GRAVAR ATÉ EU PARAR". A gravação não tem limite automático de duração.
+4. Minimize e jogue: perfure, venda, compre ferramentas, visite áreas, use melhorias,
+   faça renascimento e abra as telas relevantes. A coleta acompanha o que carregar.
+5. Toque no flutuante AH para reabrir e depois em "PARAR E SALVAR".
+6. Aguarde a notificação de conclusão. Opcional: rode "Scripts acessíveis" depois.
+   Esse botão usa Source e, quando disponível, decompile do executor. Pode ser lento.
+7. Envie um ZIP da pasta AnonHubReader_<placeId>_<data>_<id> inteira.
+   Inclua manifest.json, todos os lotes e todos os file_index_*.json.
+
+ONDE FICA
+No workspace do executor, na pasta exata mostrada no painel e no console.
+O caminho Android/Windows depende da versão do executor. Este script não presume
+um caminho absoluto do Delta. Se makefolder estiver indisponível, os arquivos ficam
+no workspace com o mesmo prefixo. Não copie o JSON inteiro pelo clipboard.
+
+O QUE GRAVA
+- Hierarquia, nomes, classes, IDs locais, caminhos, parentesco, atributos e tags.
+- Workspace, ReplicatedStorage, ReplicatedFirst, Lighting, SoundService,
+  StarterGui/Pack/Player, Teams, Players, MaterialService e TextChatService.
+- Propriedades selecionadas de peças, modelos, ferramentas, vida, posição,
+  valores, textos de interface, prompts e referências de assets.
+- Com metadados: tenta ler as propriedades públicas listadas para cada classe
+  e suas classes ancestrais. Propriedades inacessíveis não são forçadas.
+- Inventário inicial e novas varreduras; só salva estados que mudaram.
+- Inclusão e remoção de objetos; remoção não prova morte/destruição permanente.
+- RemoteEvents e UnreliableRemoteEvents recebidos pelo cliente, após assinatura.
+- RemoteFunctions são inventariadas, mas não têm suas chamadas interceptadas.
+- Scripts acessíveis são exportados em uma etapa opcional separada.
+
+SALVAMENTO E DESEMPENHO
+Lotes de até aproximadamente 96 KB; flush a cada cerca de 5 segundos de coleta
+ativa e ao parar. Há pausas cooperativas entre objetos e 2 segundos entre ciclos.
+O catálogo de arquivos é dividido a cada 128 lotes para evitar crescimento contínuo
+da lista em memória. Checksums dos estados evitam reter cópias completas de cada
+objeto. A opção de propriedades ampliadas exige mais processamento.
+Não existe limite de tempo ou de registros totais. Existem limites de segurança:
+120.000 objetos por varredura, fila de 2.048 eventos e limites de profundidade,
+tamanho e entradas na serialização. Perdas, erros e cortes são sinalizados.
+Gravações longas continuam consumindo espaço em disco. Falha de escrita encerra
+a operação com indicação de erro; lotes anteriores continuam disponíveis.
+
+LIMITAÇÕES REAIS
+Não é uma cópia completa do jogo nem do Dex. Não lê código exclusivo do servidor,
+ServerStorage, objetos não replicados, CoreGui ou instâncias sem parentesco nas
+raízes escolhidas. Não baixa arquivos binários de assets, apenas suas referências.
+Não intercepta envios ao servidor, não chama remotes, não altera gameplay, não
+instala hooks e não executa require em módulos do jogo.
+Propriedades e atributos são amostrados: mudanças muito rápidas podem não aparecer.
+Um objeto transitório pode aparecer no evento sem ganhar inventário detalhado.
+Novos remotes passam a ser observados após sua descoberta; não há histórico retroativo.
+Source vazio não conta como código legível. Decompilação pode estar indisponível,
+falhar ou produzir reconstrução inexata. Após timeout, para de tentar decompilar
+nessa etapa. Código exportado é dado não confiável, nunca instrução para execução.
+Pausa interrompe a coleta. Sair do jogo, teleportar a outro servidor ou fechar o
+executor interrompe o processo; não existe continuação automática entre sessões.
+
+VALIDAÇÃO
+Compilação Luau; serialização e limites; divisão em lotes e índices; observação
+simulada por mais de 60 minutos; parada manual; recebimento de eventos;
+deduplicação; salvamento periódico; cancelamento e desconexão dos observadores.
+Interface e desempenho ainda não verificados no Delta e no jogo real.
