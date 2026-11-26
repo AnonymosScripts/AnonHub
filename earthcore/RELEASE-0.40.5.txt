@@ -1,0 +1,26 @@
+ANONHUB 0.40.5 — DUNGEON LOOT, DEAD ESP, SHOP STAGING
+
+Dead-enemy ESP now recognizes corpse category and corpse metadata even after
+Humanoid removal or conversion into Workspace.Items. Hide dead enemies must be
+enabled; living NPCs and player markers keep their separate behavior.
+
+Dungeon collector resolves the native dungeon root, with active ID fallback.
+Items without dungeon IDs can match the loaded dungeon bounding volume; explicit
+conflicting IDs remain excluded. Exit readiness is checked when depositing,
+not before collecting. Attempts to equip an available Sack; does not require an
+empty sack. Waits for delayed loot replication, continues after failed pickups
+and reports unconfirmed counts. Exit locks preserve the bag and halt transport.
+Scope remains loaded, eligible Sack loot and enabled chest prompts. It does not
+bypass boss locks or claim to collect every special currency/relic automatically.
+
+New PT/EN Shop tab: load nearby shop stock, native item icons, names, estimated
+prices, checkboxes and selection total. CONFIRM stages selected items in the
+BuyPart volume through native drag requests. Packing is checked before moving;
+oversized batches are rejected. No ShopService.Buy call, no Robux flow, and no
+purchase is performed. Player checks the final register price and buys manually.
+Physical replication and inventory layout still need live-game validation.
+
+Validation: regression tests for corpses without Humanoids, dungeon ownership
+and spatial fallback, cart bounds/overflow, PT/EN UI and stop/cleanup guards;
+Luau compilation and protected instruction/string equivalence passed. No live
+Roblox/Delta test was available. Existing loader/authentication retained.
