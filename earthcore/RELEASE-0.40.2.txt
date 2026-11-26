@@ -1,0 +1,25 @@
+ANONHUB 0.40.2 — EARTH CORE
+
+Added native cutscene skip votes (one vote per scene/session; respects disabled
+skip and private runtime IDs). This requests a vote, not forced completion.
+Added Larry medal upgrades using configured priority IDs, reserve and session
+attempt cap. Requires the native Larry window and a nearby station. Affordability
+is checked against the native config before BuyUpgrade; no Robux fallback.
+Added explicit current-run RP lookup via RankedService:GetRankChange. Does not
+save gear or exit automatically.
+Separated arena/treasure entrance ESP categories and colors. FriendlyCompanion
+faction is excluded from aura target selection. Fuel Leeches are selected only
+when vulnerable and outside a dungeon.
+
+PT/EN, original authenticated loader, existing games and protected distribution
+retained. All automation starts off; emergency stop includes the new options.
+
+Progress limitation: avatar/drill position is not used as credited kilometers.
+Historical BestDepth, ore DepthMeters and LastResult are not current-run progress.
+No complete wall-aware autonomous drill driving or 100k/Core/RP farming loop is
+implemented in this release. New captures provide client contracts, not server
+implementation or proof of runtime behavior. No new recording is needed now.
+
+Validation: Luau compilation, protected/unprotected instruction and string-table
+equivalence, Earth Core logic/PT-EN UI/cleanup tests, Superpower World 1 and 2
+regression checks passed. Not tested inside Roblox/Delta.
