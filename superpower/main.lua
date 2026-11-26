@@ -1,5 +1,5 @@
 -- Luau
--- AnonHub protected distribution 0.40.3
+-- AnonHub protected distribution 0.40.4
 -- local BOOT_VERSION="0.39.4"
 local a='\048\046\051\057\046\052'local b=game.GameId==10770228857 and({[74183246285569]=1,[
 82739382053686]=2})[game.PlaceId]assert(b,'\085\110\115\117\112\112\111\114\116\101\100\032\083\117\112\101\114\112\111\119\101\114\032\119\111\114\108\100')local c

@@ -1,7 +1,7 @@
 -- Luau
--- AnonHub protected distribution 0.40.3
--- local BOOT_VERSION="0.40.3"
-local a='\048\046\052\048\046\051'local b=...assert(type(b)=='\116\097\098\108\101'and b.access,
+-- AnonHub protected distribution 0.40.4
+-- local BOOT_VERSION="0.40.4"
+local a='\048\046\052\048\046\052'local b=...assert(type(b)=='\116\097\098\108\101'and b.access,
 '\065\098\114\097\032\112\101\108\111\032\108\111\097\100\101\114\032\097\117\116\101\110\116\105\099\097\100\111')local c=game:GetService('\080\108\097\121\101\114\115')local d=game:
 GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local e=game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local f=game
 :GetService('\084\119\101\101\110\083\101\114\118\105\099\101')local g=c.LocalPlayer local h,i={},{}local j,k local
@@ -303,73 +303,90 @@ GetService('\082\117\110\083\101\114\118\105\099\101')local aO=game:GetService('
 game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local aQ=true local aR={}local aS={}local aT={}
 local aU={speed=24,flySpeed=40,reach=12,offset=5,maxDistance=1500,maxESP=60,
 espPriority='\068\117\110\103\101\111\110\115',oreFilter='\067\111\097\108\044\073\114\111\110\044\071\111\108\100\044\068\105\097\109\111\110\100\044\069\109\101\114\097\108\100\044\082\117\098\121',position=
-'\079\102\102',style='\079\117\116\108\105\110\101'}local aV={speed=false,noclip=false,fly=false,aura=false,
-oreAura=false}local aW={{'\109\111\098\115','\077\111\110\115\116\114\111\115','\069\110\101\109\105\101\115','\070\070\054\048\054\048'},{'\112\108\097\121\101\114\115',
-'\074\111\103\097\100\111\114\101\115','\080\108\097\121\101\114\115','\054\048\068\056\070\070'},{'\099\111\109\112\097\110\105\111\110\115','\067\111\109\112\097\110\104\101\105\114\111\115','\067\111\109\112\097\110\105\111\110\115',
-'\054\048\070\070\066\048'},{'\099\104\101\115\116\115','\066\097\u{fa}\115','\067\104\101\115\116\115','\070\070\068\048\054\048'},{'\109\105\109\105\099\115',
-'\077\u{ed}\109\105\099\111\115\032\105\100\101\110\116\105\102\105\099\097\100\111\115','\073\100\101\110\116\105\102\105\101\100\032\109\105\109\105\099\115','\070\070\053\048\068\048'},{'\105\116\101\109\115','\073\116\101\110\115',
-'\073\116\101\109\115','\070\070\070\070\070\070'},{'\115\099\114\097\112','\083\117\099\097\116\097\115','\083\099\114\097\112','\066\053\067\048\068\048'},{'\111\114\101\115','\077\105\110\u{e9}\114\105\111\115',
-'\079\114\101\115','\054\048\069\048\070\070'},{'\100\111\111\114\115','\069\110\116\114\097\100\097\115\032\100\101\032\068\117\110\103\101\111\110','\068\117\110\103\101\111\110\032\101\110\116\114\097\110\099\101\115','\066\048\056\048\070\070'},{
-'\097\114\101\110\097\115','\080\111\114\116\097\115\032\100\101\032\097\114\101\110\097','\065\114\101\110\097\032\100\111\111\114\115','\070\070\056\048\052\048'},{'\116\114\101\097\115\117\114\101\068\111\111\114\115',
-'\080\111\114\116\097\115\032\100\101\032\116\101\115\111\117\114\111','\084\114\101\097\115\117\114\101\032\100\111\111\114\115','\070\070\069\048\056\048'}}local aX={}for aY,aZ in ipairs(aW
-)do aX[aZ[1] ]={enabled=false,color=aZ[4]}end local aY=
-'\065\110\111\110\072\117\098\095\069\097\114\116\104\067\111\114\101\095\086\105\115\117\097\108\095'..aL.UserId..'\046\106\115\111\110'if type(readfile)=='\102\117\110\099\116\105\111\110'then
-pcall(function()local aZ=aP:JSONDecode(readfile(aY))for a_,a0 in pairs(aU)do if
-type(aZ.config[a_])==type(a0)then aU[a_]=aZ.config[a_]end end for a_,a0 in
-pairs(aX)do local a1=aZ.colors and aZ.colors[a_]if type(a1)=='\115\116\114\105\110\103'and a1:
-match('\094\037\120\037\120\037\120\037\120\037\120\037\120\036')then a0.color=a1 end end end)end local function aZ()if
-type(writefile)=='\102\117\110\099\116\105\111\110'then local a_={}for a0,a1 in pairs(aX)do a_[a0]=a1.
-color end pcall(writefile,aY,aP:JSONEncode({config=aU,colors=a_}))end end local
-function a_(a0,a1)aR[#aR+1]=a0:Connect(a1)end local function a0(a1,a2,a3)local
-a4=Instance.new(a1)for a5,a6 in pairs(a2)do a4[a5]=a6 end a4.Parent=a3 return a4
-end local function a1(a2)return Color3.fromRGB(tonumber(a2:sub(1,2),16),
-tonumber(a2:sub(3,4),16),tonumber(a2:sub(5,6),16))end local function a2(a3,a4,a5
-,a6,a7,a8)a8=a8 or aV local a9,ba=aJ.checkbox(a3,aK(a5,a6),a7)aS[a4]={paint=ba,
-table=a8}a_(a9.Activated,function()a8[a4]=not a8[a4]ba(a8[a4])end)end local
-function a3(a4,a5,a6,a7,a8,a9,ba)aU[a5]=math.clamp(tonumber(aU[a5])or a9,a9,ba)
-if aU[a5]~=aU[a5]then aU[a5]=a9 end aJ.label(a4,'\084\101\120\116\076\097\098\101\108',aK(a6,a7),30,a8)
-local bb=aJ.label(a4,'\084\101\120\116\066\111\120',tostring(aU[a5]),40,a8+1)a_(bb.FocusLost,function
-()local bc=tonumber(bb.Text)if bc and bc==bc and math.abs(bc)<math.huge then aU[
-a5]=math.clamp(bc,a9,ba)aZ()end bb.Text=tostring(aU[a5])end)end local a4=aH.
-section('\077\101\108\104\111\114\105\097\115')local a5={TeamHealth='\086\105\100\097\032\109\u{e1}\120\105\109\097',LifeSteal=
-'\082\111\117\098\111\032\100\101\032\118\105\100\097',DrillPower='\080\111\116\u{ea}\110\099\105\097\032\100\097\032\098\114\111\099\097',RPMOverclock='\082\080\077\032\100\097\032\098\114\111\099\097',
-SackStorage='\067\097\112\097\099\105\100\097\100\101\032\100\097\032\109\111\099\104\105\108\097',DriveSpeed='\086\101\108\111\099\105\100\097\100\101\032\100\097\032\098\114\111\099\097',FuelStorage
-='\067\097\112\097\099\105\100\097\100\101\032\100\101\032\099\111\109\098\117\115\116\u{ed}\118\101\108',DrillDefense='\068\097\110\111\032\100\101\032\099\111\110\116\097\116\111',PowerDrive=
-'\065\099\101\108\101\114\097\u{e7}\u{e3}\111',PowerSlam='\073\109\112\097\099\116\111\032\112\111\116\101\110\116\101',EngineOverdrive=
-'\083\111\098\114\101\099\097\114\103\097\032\100\111\032\109\111\116\111\114',MegaDrill='\077\101\103\097\032\098\114\111\099\097',TeamGunDamage='\068\097\110\111\032\100\101\032\097\114\109\097\115',
-TeamMeleeDamage='\068\097\110\111\032\099\111\114\112\111\032\097\032\099\111\114\112\111',TeamPickaxeDamage='\068\097\110\111\032\100\101\032\112\105\099\097\114\101\116\097',
-TeamExplosiveDamage='\068\097\110\111\032\101\120\112\108\111\115\105\118\111',PowerBurst='\069\120\112\108\111\115\u{e3}\111\032\100\101\032\112\111\116\u{ea}\110\099\105\097'
-,MountedGunner='\065\116\105\114\097\100\111\114\032\109\111\110\116\097\100\111',MoneyDrill='\077\111\101\100\097\115\032\112\111\114\032\112\097\114\101\100\101',UltraDrill=
-'\085\108\116\114\097\032\098\114\111\099\097',HealthRegen='\082\101\103\101\110\101\114\097\u{e7}\u{e3}\111',CartExtension=
-'\069\120\116\101\110\115\u{e3}\111\032\100\097\032\098\114\111\099\097'}local a6,a7={},{}for a8,a9 in ipairs(aF)do a7[a9.id]=a9
-end for a8 in aI.priority:gmatch('\091\094\044\093\043')do a8=a8:match('\094\037\115\042\040\046\045\041\037\115\042\036')if a7[a8]
-and not table.find(a6,a8)then a6[#a6+1]=a8 end end local a8={}for a9,ba in
-ipairs(a6)do a8[ba]=true end for a9,ba in ipairs(aF)do if not table.find(a6,ba.
-id)then a6[#a6+1]=ba.id end end local a9={}local function ba()local bb={}for bc,
-bd in ipairs(a6)do local be=a9[bd]if be then be.frame.LayoutOrder=100+bc be.
-caption.Text=bc..'\032\u{b7}\032'..aK(a5[bd]or a7[bd].name,a7[bd].name)be.paint(a8[bd]
-)end if a8[bd]then bb[#bb+1]=bd end end aI.setPriority(table.concat(bb,'\044'))end
-for bb,bc in ipairs(a6)do local bd=a7[bc]local be=a0('\070\114\097\109\101',{Size=UDim2.new(1,-
-8,0,58),BackgroundTransparency=1},a4)a0('\073\109\097\103\101\076\097\098\101\108',{Size=UDim2.fromOffset(36,
-36),Position=UDim2.fromOffset(0,10),Image=bd.icon,BackgroundTransparency=1},be)
-local bf,bg=aJ.checkbox(be,'',0)bf.Size=UDim2.new(1,-136,0,48)bf.Position=UDim2.
-fromOffset(42,4)local bh=bf:FindFirstChildWhichIsA('\084\101\120\116\076\097\098\101\108')a9[bc]={frame=be,
-paint=bg,caption=bh}a_(bf.Activated,function()a8[bc]=not a8[bc]ba()end)for bi,bj
-in ipairs({-1,1})do local bk=a0('\084\101\120\116\066\117\116\116\111\110',{Text=bj<0 and'\u{2191}'or
-'\u{2193}',Size=UDim2.fromOffset(36,44),Position=UDim2.new(1,-82+(bi-1)*40,0,6),
-BackgroundColor3=Color3.fromRGB(35,45,60),TextColor3=Color3.new(1,1,1),TextSize=
-20},be)a0('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,8)},bk)a_(bk.Activated,function()
-local bl=table.find(a6,bc)local bm=bl+bj if bm>=1 and bm<=#a6 then a6[bl],a6[bm]
-=a6[bm],a6[bl]ba()end end)end end ba()local bb=aH.section('\077\111\118\105\109\101\110\116\111')a2(bb,
-'\115\112\101\101\100','\086\101\108\111\099\105\100\097\100\101\032\112\101\114\115\111\110\097\108\105\122\097\100\097','\067\117\115\116\111\109\032\119\097\108\107\032\115\112\101\101\100',1)a3(bb,'\115\112\101\101\100',
-'\086\101\108\111\099\105\100\097\100\101\032\040\087\097\108\107\083\112\101\101\100\041','\087\097\108\107\083\112\101\101\100',2,8,100)a2(bb,'\110\111\099\108\105\112','\078\111\099\108\105\112','\078\111\099\108\105\112',5)
-a2(bb,'\102\108\121','\070\108\121\032\u{b7}\032\115\105\103\097\032\097\032\099\u{e2}\109\101\114\097\032\047\032\106\111\121\115\116\105\099\107',
+'\079\102\102',style='\079\117\116\108\105\110\101',textSize=12,distanceColor='\068\048\068\056\069\056',hideDead=true,
+hideAttached=true,combatDistance=22,gunRange=250,hitboxSize=8}local aV={speed=
+false,noclip=false,fly=false,aura=false,oreAura=false,autoMove=false,autoFire=
+false,silentAim=false,hitbox=false}local aW={{'\109\111\098\115','\077\111\110\115\116\114\111\115','\069\110\101\109\105\101\115',
+'\070\070\054\048\054\048'},{'\112\108\097\121\101\114\115','\074\111\103\097\100\111\114\101\115','\080\108\097\121\101\114\115','\054\048\068\056\070\070'},{'\099\111\109\112\097\110\105\111\110\115',
+'\067\111\109\112\097\110\104\101\105\114\111\115','\067\111\109\112\097\110\105\111\110\115','\054\048\070\070\066\048'},{'\099\104\101\115\116\115','\066\097\u{fa}\115','\067\104\101\115\116\115','\070\070\068\048\054\048'},{
+'\109\105\109\105\099\115','\077\u{ed}\109\105\099\111\115\032\105\100\101\110\116\105\102\105\099\097\100\111\115','\073\100\101\110\116\105\102\105\101\100\032\109\105\109\105\099\115','\070\070\053\048\068\048'},{'\105\116\101\109\115',
+'\073\116\101\110\115','\073\116\101\109\115','\070\070\070\070\070\070'},{'\115\099\114\097\112','\083\117\099\097\116\097\115','\083\099\114\097\112','\066\053\067\048\068\048'},{'\111\114\101\115',
+'\077\105\110\u{e9}\114\105\111\115','\079\114\101\115','\054\048\069\048\070\070'},{'\099\104\117\114\099\104','\073\103\114\101\106\097','\067\104\117\114\099\104','\070\070\070\048\065\048'},{'\100\111\111\114\115',
+'\069\110\116\114\097\100\097\115\032\100\101\032\068\117\110\103\101\111\110','\068\117\110\103\101\111\110\032\101\110\116\114\097\110\099\101\115','\066\048\056\048\070\070'},{'\097\114\101\110\097\115','\080\111\114\116\097\115\032\100\101\032\097\114\101\110\097',
+'\065\114\101\110\097\032\100\111\111\114\115','\070\070\056\048\052\048'},{'\116\114\101\097\115\117\114\101\068\111\111\114\115','\080\111\114\116\097\115\032\100\101\032\116\101\115\111\117\114\111','\084\114\101\097\115\117\114\101\032\100\111\111\114\115',
+'\070\070\069\048\056\048'}}local aX={}for aY,aZ in ipairs(aW)do aX[aZ[1] ]={enabled=false,color=
+aZ[4]}end local aY='\065\110\111\110\072\117\098\095\069\097\114\116\104\067\111\114\101\095\086\105\115\117\097\108\095'..aL.UserId..'\046\106\115\111\110'if type(
+readfile)=='\102\117\110\099\116\105\111\110'then pcall(function()local aZ=aP:JSONDecode(readfile(aY))
+for a_,a0 in pairs(aU)do if type(aZ.config[a_])==type(a0)then aU[a_]=aZ.config[
+a_]end end for a_,a0 in pairs(aX)do local a1=aZ.colors and aZ.colors[a_]if type(
+a1)=='\115\116\114\105\110\103'and a1:match('\094\037\120\037\120\037\120\037\120\037\120\037\120\036')then a0.color=a1 end end end)end
+local function aZ()if type(writefile)=='\102\117\110\099\116\105\111\110'then local a_={}for a0,a1 in
+pairs(aX)do a_[a0]=a1.color end pcall(writefile,aY,aP:JSONEncode({config=aU,
+colors=a_}))end end local function a_(a0,a1)aR[#aR+1]=a0:Connect(a1)end local
+function a0(a1,a2,a3)local a4=Instance.new(a1)for a5,a6 in pairs(a2)do a4[a5]=a6
+end a4.Parent=a3 return a4 end local function a1(a2)return Color3.fromRGB(
+tonumber(a2:sub(1,2),16),tonumber(a2:sub(3,4),16),tonumber(a2:sub(5,6),16))end
+local function a2(a3,a4,a5,a6,a7,a8)a8=a8 or aV local a9,ba=aJ.checkbox(a3,aK(a5
+,a6),a7)aS[a4]={paint=ba,table=a8}a_(a9.Activated,function()a8[a4]=not a8[a4]ba(
+a8[a4])end)end local function a3(a4,a5,a6,a7,a8,a9,ba)aU[a5]=math.clamp(
+tonumber(aU[a5])or a9,a9,ba)if aU[a5]~=aU[a5]then aU[a5]=a9 end aJ.label(a4,
+'\084\101\120\116\076\097\098\101\108',aK(a6,a7),30,a8)local bb=aJ.label(a4,'\084\101\120\116\066\111\120',tostring(aU[a5]),40,
+a8+1)a_(bb.FocusLost,function()local bc=tonumber(bb.Text)if bc and bc==bc and
+math.abs(bc)<math.huge then aU[a5]=math.clamp(bc,a9,ba)aZ()end bb.Text=tostring(
+aU[a5])end)end local a4=aH.section('\077\101\108\104\111\114\105\097\115')local a5={TeamHealth=
+'\086\105\100\097\032\109\u{e1}\120\105\109\097',LifeSteal='\082\111\117\098\111\032\100\101\032\118\105\100\097',DrillPower='\080\111\116\u{ea}\110\099\105\097\032\100\097\032\098\114\111\099\097'
+,RPMOverclock='\082\080\077\032\100\097\032\098\114\111\099\097',SackStorage='\067\097\112\097\099\105\100\097\100\101\032\100\097\032\109\111\099\104\105\108\097',DriveSpeed=
+'\086\101\108\111\099\105\100\097\100\101\032\100\097\032\098\114\111\099\097',FuelStorage='\067\097\112\097\099\105\100\097\100\101\032\100\101\032\099\111\109\098\117\115\116\u{ed}\118\101\108',DrillDefense=
+'\068\097\110\111\032\100\101\032\099\111\110\116\097\116\111',PowerDrive='\065\099\101\108\101\114\097\u{e7}\u{e3}\111',PowerSlam='\073\109\112\097\099\116\111\032\112\111\116\101\110\116\101',
+EngineOverdrive='\083\111\098\114\101\099\097\114\103\097\032\100\111\032\109\111\116\111\114',MegaDrill='\077\101\103\097\032\098\114\111\099\097',TeamGunDamage=
+'\068\097\110\111\032\100\101\032\097\114\109\097\115',TeamMeleeDamage='\068\097\110\111\032\099\111\114\112\111\032\097\032\099\111\114\112\111',TeamPickaxeDamage=
+'\068\097\110\111\032\100\101\032\112\105\099\097\114\101\116\097',TeamExplosiveDamage='\068\097\110\111\032\101\120\112\108\111\115\105\118\111',PowerBurst=
+'\069\120\112\108\111\115\u{e3}\111\032\100\101\032\112\111\116\u{ea}\110\099\105\097',MountedGunner='\065\116\105\114\097\100\111\114\032\109\111\110\116\097\100\111',MoneyDrill=
+'\077\111\101\100\097\115\032\112\111\114\032\112\097\114\101\100\101',UltraDrill='\085\108\116\114\097\032\098\114\111\099\097',HealthRegen='\082\101\103\101\110\101\114\097\u{e7}\u{e3}\111'
+,CartExtension='\069\120\116\101\110\115\u{e3}\111\032\100\097\032\098\114\111\099\097'}local a6,a7={},{}for a8,a9 in ipairs(aF)
+do a7[a9.id]=a9 end for a8 in aI.priority:gmatch('\091\094\044\093\043')do a8=a8:match(
+'\094\037\115\042\040\046\045\041\037\115\042\036')if a7[a8]and not table.find(a6,a8)then a6[#a6+1]=a8 end end local
+a8={}for a9,ba in ipairs(a6)do a8[ba]=true end for a9,ba in ipairs(aF)do if not
+table.find(a6,ba.id)then a6[#a6+1]=ba.id end end local a9={}local function ba()
+local bb={}for bc,bd in ipairs(a6)do local be=a9[bd]if be then be.frame.
+LayoutOrder=100+bc be.caption.Text=bc..'\032\u{b7}\032'..aK(a5[bd]or a7[bd].name,a7[bd
+].name)be.paint(a8[bd])end if a8[bd]then bb[#bb+1]=bd end end aI.setPriority(
+table.concat(bb,'\044'))end for bb,bc in ipairs(a6)do local bd=a7[bc]local be=a0(
+'\070\114\097\109\101',{Size=UDim2.new(1,-8,0,58),BackgroundTransparency=1},a4)a0('\073\109\097\103\101\076\097\098\101\108',
+{Size=UDim2.fromOffset(36,36),Position=UDim2.fromOffset(0,10),Image=bd.icon,
+BackgroundTransparency=1},be)local bf,bg=aJ.checkbox(be,'',0)bf.Size=UDim2.new(1
+,-136,0,48)bf.Position=UDim2.fromOffset(42,4)local bh=bf:FindFirstChildWhichIsA(
+'\084\101\120\116\076\097\098\101\108')a9[bc]={frame=be,paint=bg,caption=bh}a_(bf.Activated,function()a8[bc
+]=not a8[bc]ba()end)for bi,bj in ipairs({-1,1})do local bk=a0('\084\101\120\116\066\117\116\116\111\110',{Text
+=bj<0 and'\u{2191}'or'\u{2193}',Size=UDim2.fromOffset(36,44),Position=UDim2.new(
+1,-82+(bi-1)*40,0,6),BackgroundColor3=Color3.fromRGB(35,45,60),TextColor3=Color3
+.new(1,1,1),TextSize=20},be)a0('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,8)},bk)a_(bk.
+Activated,function()local bl=table.find(a6,bc)local bm=bl+bj if bm>=1 and bm<=#
+a6 then a6[bl],a6[bm]=a6[bm],a6[bl]ba()end end)end end ba()local bb=aH.section(
+'\077\111\118\105\109\101\110\116\111')a2(bb,'\115\112\101\101\100','\086\101\108\111\099\105\100\097\100\101\032\112\101\114\115\111\110\097\108\105\122\097\100\097','\067\117\115\116\111\109\032\119\097\108\107\032\115\112\101\101\100',1)a3(bb
+,'\115\112\101\101\100','\086\101\108\111\099\105\100\097\100\101\032\040\087\097\108\107\083\112\101\101\100\041','\087\097\108\107\083\112\101\101\100',2,8,100)a2(bb,'\110\111\099\108\105\112','\078\111\099\108\105\112',
+'\078\111\099\108\105\112',5)a2(bb,'\102\108\121','\070\108\121\032\u{b7}\032\115\105\103\097\032\097\032\099\u{e2}\109\101\114\097\032\047\032\106\111\121\115\116\105\099\107',
 '\070\108\121\032\u{b7}\032\099\097\109\101\114\097\032\047\032\106\111\121\115\116\105\099\107\032\100\105\114\101\099\116\105\111\110',6)a3(bb,'\102\108\121\083\112\101\101\100','\086\101\108\111\099\105\100\097\100\101\032\100\111\032\070\108\121',
 '\070\108\121\032\115\112\101\101\100',7,5,150)aJ.label(bb,'\084\101\120\116\076\097\098\101\108',aK(
 '\070\108\121\058\032\087\065\083\068\047\106\111\121\115\116\105\099\107\044\032\069\115\112\097\u{e7}\111\032\115\111\098\101\032\101\032\067\116\114\108\032\100\101\115\099\101\046\032\078\111\032\099\101\108\117\108\097\114\044\032\117\115\101\032\111\115\032\098\111\116\u{f5}\101\115\032\u{2191}\047\u{2193}\046'
 ,
 '\070\108\121\058\032\087\065\083\068\047\106\111\121\115\116\105\099\107\044\032\083\112\097\099\101\032\117\112\032\097\110\100\032\067\116\114\108\032\100\111\119\110\046\032\079\110\032\109\111\098\105\108\101\044\032\117\115\101\032\u{2191}\047\u{2193}\032\098\117\116\116\111\110\115\046'
-),56,10)local bc=aH.section('\067\111\109\098\097\116\101')a2(bc,'\097\117\114\097',
+),56,10)local bc=aH.section('\067\111\109\098\097\116\101')a2(bc,'\097\117\116\111\077\111\118\101',
+'\065\117\116\111\032\077\111\118\101\032\u{b7}\032\109\097\110\116\101\114\032\100\105\115\116\u{e2}\110\099\105\097\032\100\111\032\105\110\105\109\105\103\111',
+'\065\117\116\111\032\077\111\118\101\032\u{b7}\032\109\097\105\110\116\097\105\110\032\101\110\101\109\121\032\100\105\115\116\097\110\099\101',30)a3(bc,'\099\111\109\098\097\116\068\105\115\116\097\110\099\101',
+'\068\105\115\116\u{e2}\110\099\105\097\032\100\111\032\065\117\116\111\032\077\111\118\101\032\040\115\116\117\100\115\041','\065\117\116\111\032\077\111\118\101\032\100\105\115\116\097\110\099\101\032\040\115\116\117\100\115\041',31,5,40)aJ.
+label(bc,'\084\101\120\116\076\097\098\101\108',aK(
+'\077\111\118\101\045\115\101\032\101\032\117\115\097\032\111\032\097\116\097\113\117\101\032\101\113\117\105\112\097\100\111\046\032\050\050\032\115\116\117\100\115\032\u{e9}\032\097\032\100\105\115\116\u{e2}\110\099\105\097\032\105\110\105\099\105\097\108\059\032\110\u{e3}\111\032\103\097\114\097\110\116\101\032\105\110\118\117\108\110\101\114\097\098\105\108\105\100\097\100\101\046\032\078\u{e3}\111\032\109\111\118\101\032\101\110\113\117\097\110\116\111\032\112\105\108\111\116\097\046'
+,
+"\077\111\118\101\115\032\097\110\100\032\117\115\101\115\032\116\104\101\032\101\113\117\105\112\112\101\100\032\097\116\116\097\099\107\046\032\083\116\097\114\116\115\032\097\116\032\050\050\032\115\116\117\100\115\059\032\100\111\101\115\032\110\111\116\032\103\117\097\114\097\110\116\101\101\032\105\109\109\117\110\105\116\121\046\032\068\111\101\115\032\110\111\116\032\109\111\118\101\032\119\104\105\108\101\032\100\114\105\118\105\110\103\046"
+),66,33)a2(bc,'\097\117\116\111\070\105\114\101','\065\117\116\111\032\070\105\114\101\032\u{b7}\032\097\114\109\097\032\100\101\032\102\111\103\111\032\101\113\117\105\112\097\100\097',
+'\065\117\116\111\032\070\105\114\101\032\u{b7}\032\101\113\117\105\112\112\101\100\032\102\105\114\101\097\114\109',35)a2(bc,'\115\105\108\101\110\116\065\105\109',
+'\083\105\108\101\110\116\032\065\105\109\032\u{b7}\032\109\105\114\097\114\032\110\097\032\099\097\098\101\u{e7}\097\032\100\111\115\032\078\080\067\115',
+'\083\105\108\101\110\116\032\065\105\109\032\u{b7}\032\097\105\109\032\097\116\032\078\080\067\032\104\101\097\100\115',36)a3(bc,'\103\117\110\082\097\110\103\101',
+'\068\105\115\116\u{e2}\110\099\105\097\032\100\101\032\115\101\108\101\u{e7}\u{e3}\111\032\100\097\032\097\114\109\097','\071\117\110\032\116\097\114\103\101\116\032\115\101\108\101\099\116\105\111\110\032\100\105\115\116\097\110\099\101',37
+,10,1000)a2(bc,'\104\105\116\098\111\120','\072\105\116\098\111\120\032\108\111\099\097\108\032\097\109\112\108\105\097\100\111\032\u{b7}\032\099\097\105\120\097\032\116\114\097\110\115\112\097\114\101\110\116\101',
+'\076\097\114\103\101\114\032\108\111\099\097\108\032\104\105\116\098\111\120\032\u{b7}\032\116\114\097\110\115\112\097\114\101\110\116\032\098\111\120',40)a3(bc,'\104\105\116\098\111\120\083\105\122\101',
+'\084\097\109\097\110\104\111\032\100\111\032\104\105\116\098\111\120\032\108\111\099\097\108','\076\111\099\097\108\032\104\105\116\098\111\120\032\115\105\122\101',41,2,20)a2(bc,'\097\117\114\097',
 '\065\117\114\097\032\100\101\032\097\116\097\113\117\101\032\u{b7}\032\097\114\109\097\032\099\111\114\112\111\032\097\032\099\111\114\112\111\032\101\113\117\105\112\097\100\097',
 '\065\116\116\097\099\107\032\097\117\114\097\032\u{b7}\032\101\113\117\105\112\112\101\100\032\109\101\108\101\101\032\119\101\097\112\111\110',1)a2(bc,'\111\114\101\065\117\114\097',
 '\065\117\114\097\032\100\101\032\109\105\110\u{e9}\114\105\111\115\032\u{b7}\032\112\105\099\097\114\101\116\097\032\101\113\117\105\112\097\100\097',
@@ -428,45 +445,71 @@ sub(1,300)aZ()end)aJ.label(bf,'\084\101\120\116\076\097\098\101\108',aK(
 '\070\105\108\116\114\111\032\100\101\032\109\105\110\u{e9}\114\105\111\115\032\112\111\114\032\110\111\109\101\058\032\067\111\097\108\044\032\073\114\111\110\044\032\071\111\108\100\044\032\068\105\097\109\111\110\100\044\032\069\109\101\114\097\108\100\044\032\082\117\098\121\046\032\077\u{ed}\109\105\099\111\115\032\111\099\117\108\116\111\115\032\115\101\109\032\115\105\110\097\108\032\114\101\112\108\105\099\097\100\111\032\110\u{e3}\111\032\112\111\100\101\109\032\115\101\114\032\105\100\101\110\116\105\102\105\099\097\100\111\115\032\099\111\109\032\099\101\114\116\101\122\097\046'
 ,
 "\079\114\101\032\110\097\109\101\032\102\105\108\116\101\114\058\032\067\111\097\108\044\032\073\114\111\110\044\032\071\111\108\100\044\032\068\105\097\109\111\110\100\044\032\069\109\101\114\097\108\100\044\032\082\117\098\121\046\032\072\105\100\100\101\110\032\109\105\109\105\099\115\032\119\105\116\104\111\117\116\032\097\032\114\101\112\108\105\099\097\116\101\100\032\115\105\103\110\097\108\032\099\097\110\110\111\116\032\098\101\032\105\100\101\110\116\105\102\105\101\100\032\119\105\116\104\032\099\101\114\116\097\105\110\116\121\046"
-),78,27)local bw=bb:FindFirstAncestorOfClass('\083\099\114\101\101\110\071\117\105')local bx=a0('\070\114\097\109\101',{
-Size=UDim2.fromOffset(190,66),Position=UDim2.new(0.5,-95,1,-86),
-BackgroundTransparency=1,Visible=false},bw)local by=0 local bz=false local bA,bB
-=aJ.checkbox(bb,aK('\077\111\115\116\114\097\114\032\098\111\116\u{f5}\101\115\032\114\u{e1}\112\105\100\111\115\032\040\097\114\114\097\115\116\u{e1}\118\101\105\115\041',
-'\083\104\111\119\032\113\117\105\099\107\032\098\117\116\116\111\110\115\032\040\100\114\097\103\103\097\098\108\101\041'),80)a_(bA.Activated,function()bz=not bz bx.
-Visible=bz bB(bz)by=0 end)local bC=a0('\084\101\120\116\066\117\116\116\111\110',{Text=aK(
-'\u{22ee}\u{22ee}\032\065\114\114\097\115\116\101\032\111\115\032\097\116\097\108\104\111\115','\u{22ee}\u{22ee}\032\068\114\097\103\032\115\104\111\114\116\099\117\116\115'),Size=
-UDim2.new(1,0,0,24),BackgroundColor3=Color3.fromRGB(25,35,48),TextColor3=Color3.
-new(1,1,1),TextSize=12},bx)local bD,bE,bF a_(bC.InputBegan,function(bG)if bG.
-UserInputType==Enum.UserInputType.Touch or bG.UserInputType==Enum.UserInputType.
-MouseButton1 then bD=bG bE=bG.Position bF=bx.AbsolutePosition end end)a_(aM.
-InputChanged,function(bG)if not bD or not bx.Visible then return end if bG~=bD
-and bG.UserInputType~=Enum.UserInputType.MouseMovement then return end local bH=
-bG.Position-bE local bI=workspace.CurrentCamera local bJ=bI and bI.ViewportSize
-local bK,bL=bF.X+bH.X,bF.Y+bH.Y if bJ then bK=math.clamp(bK,0,math.max(0,bJ.X-
-190))bL=math.clamp(bL,0,math.max(0,bJ.Y-66))end bx.Position=UDim2.fromOffset(bK,
-bL)end)a_(aM.InputEnded,function(bG)if bG==bD then bD=nil end by=0 end)for bG,bH
-in ipairs({{'\u{2694}','\097\117\114\097'},{'\u{25c7}','\111\114\101\065\117\114\097'},{'\u{2191}','\117\112'},{
-'\u{2193}','\100\111\119\110'}})do local bI=a0('\084\101\120\116\066\117\116\116\111\110',{Text=bH[1],Size=UDim2.
-fromOffset(42,38),Position=UDim2.fromOffset((bG-1)*48,28),BackgroundColor3=
-Color3.fromRGB(25,35,48),TextColor3=Color3.new(1,1,1),TextSize=20},bx)a0(
-'\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,9)},bI)if bH[2]=='\117\112'or bH[2]=='\100\111\119\110'then
-a_(bI.InputBegan,function(bJ)if bJ.UserInputType==Enum.UserInputType.Touch or bJ
-.UserInputType==Enum.UserInputType.MouseButton1 then by=bH[2]=='\117\112'and 1 or-1
-end end)a_(bI.InputEnded,function()by=0 end)else a_(bI.Activated,function()aV[bH
-[2] ]=not aV[bH[2] ]aS[bH[2] ].paint(aV[bH[2] ])end)end end local function bG(bH
-)if bH:IsA('\066\097\115\101\080\097\114\116')then return bH end return bH:IsA('\077\111\100\101\108')and(bH.
-PrimaryPart or bH:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')or bH:
+),78,27)a2(bf,'\104\105\100\101\068\101\097\100','\079\099\117\108\116\097\114\032\105\110\105\109\105\103\111\115\032\109\111\114\116\111\115','\072\105\100\101\032\100\101\097\100\032\101\110\101\109\105\101\115',40,aU)a2(
+bf,'\104\105\100\101\065\116\116\097\099\104\101\100','\079\099\117\108\116\097\114\032\105\116\101\110\115\032\097\110\101\120\097\100\111\115\032\u{e0}\032\098\114\111\099\097',
+'\072\105\100\101\032\105\116\101\109\115\032\097\116\116\097\099\104\101\100\032\116\111\032\100\114\105\108\108',41,aU)aS.hideDead.paint(aU.hideDead)aS.
+hideAttached.paint(aU.hideAttached)a3(bf,'\116\101\120\116\083\105\122\101',
+'\084\097\109\097\110\104\111\032\100\111\115\032\110\111\109\101\115\032\101\032\100\105\115\116\u{e2}\110\099\105\097\115','\078\097\109\101\032\097\110\100\032\100\105\115\116\097\110\099\101\032\116\101\120\116\032\115\105\122\101',43,8,28)aJ.
+label(bf,'\084\101\120\116\076\097\098\101\108',aK('\067\111\114\032\100\097\032\100\105\115\116\u{e2}\110\099\105\097\032\040\072\069\088\041','\068\105\115\116\097\110\099\101\032\099\111\108\111\114\032\040\072\069\088\041'),30
+,46)if not aU.distanceColor:match('\094\037\120\037\120\037\120\037\120\037\120\037\120\036')then aU.distanceColor=
+'\068\048\068\056\069\056'end local bw=aJ.label(bf,'\084\101\120\116\066\111\120',aU.distanceColor,40,47)a_(bw.
+FocusLost,function()local bx=bw.Text:gsub('\035',''):upper()if bx:match(
+'\094\037\120\037\120\037\120\037\120\037\120\037\120\036')then aU.distanceColor=bx aZ()end bw.Text=aU.distanceColor end)
+local bx=bb:FindFirstAncestorOfClass('\083\099\114\101\101\110\071\117\105')local by=a0('\070\114\097\109\101',{Size=UDim2
+.fromScale(1,1),BackgroundTransparency=1},bx)local bz=0 local bA,bB,bC,bD local
+bE={{'\097\117\114\097','\065\116\097\113\117\101','\065\116\116\097\099\107'},{'\111\114\101\065\117\114\097','\080\105\099\097\114\101\116\097','\080\105\099\107\097\120\101'},{'\102\108\121','\086\111\097\114',
+'\070\108\121'},{'\110\111\099\108\105\112','\078\111\099\108\105\112','\078\111\099\108\105\112'},{'\115\112\101\101\100','\086\101\108\111\099\105\100\097\100\101','\083\112\101\101\100'},{'\097\117\116\111\077\111\118\101',
+'\065\117\116\111\032\077\111\118\101','\065\117\116\111\032\077\111\118\101'},{'\097\117\116\111\070\105\114\101','\065\117\116\111\032\070\105\114\101','\065\117\116\111\032\070\105\114\101'},{'\117\112','\083\117\098\105\114','\085\112'
+},{'\100\111\119\110','\068\101\115\099\101\114','\068\111\119\110'}}local bF={}for bG,bH in ipairs(bE)do local bI=bH[1]
+local bJ=a0('\070\114\097\109\101',{Size=UDim2.fromOffset(66,76),Position=UDim2.new(0,12+((bG-1
+)%4)*72,1,-90-math.floor((bG-1)/4)*82),BackgroundColor3=Color3.fromRGB(20,27,39)
+,Visible=false},by)a0('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,10)},bJ)a0('\085\073\083\116\114\111\107\101',
+{Color=Color3.fromRGB(105,165,220),Thickness=1.5,Transparency=0.2},bJ)local bK,
+bL=aJ.checkbox(bb,aK('\065\116\097\108\104\111\032\110\097\032\116\101\108\097\058\032','\083\099\114\101\101\110\032\115\104\111\114\116\099\117\116\058\032')..aK(bH[2],bH[3]),80
++bG)a_(bK.Activated,function()bJ.Visible=not bJ.Visible bL(bJ.Visible)if not bJ.
+Visible then bz=0 end end)local bM=a0('\084\101\120\116\066\117\116\116\111\110',{Text='\061',Size=UDim2.new(1,0,
+0,18),BackgroundTransparency=1,TextColor3=Color3.fromRGB(150,180,210),TextSize=
+14},bJ)local bN=a0('\084\101\120\116\066\117\116\116\111\110',{Text='',Size=UDim2.new(1,0,1,-18),Position=
+UDim2.fromOffset(0,18),BackgroundTransparency=1},bJ)local bO=a0('\070\114\097\109\101',{Size=
+UDim2.fromOffset(26,26),Position=UDim2.new(0.5,-13,0,2),BackgroundTransparency=1
+},bN)local function bP(bQ,bR,bS,bT)a0('\070\114\097\109\101',{Size=UDim2.fromOffset(bS,2),
+Position=UDim2.fromOffset(bQ,bR),Rotation=bT or 0,BorderSizePixel=0,
+BackgroundColor3=Color3.fromRGB(210,235,255)},bO)end if bI=='\117\112'or bI=='\100\111\119\110'or
+bI=='\102\108\121'then bP(12,5,2,90)bP(4,8,12,-40)bP(12,8,12,40)bP(7,20,12,0)if bI==
+'\100\111\119\110'then bO.Rotation=180 end elseif bI=='\111\114\101\065\117\114\097'then bP(4,12,23,-45)bP(1,5,23
+,15)elseif bI=='\097\117\114\097'then bP(2,12,26,-45)bP(2,12,26,45)else bP(2,12,24,0)bP(2,12
+,24,90)local bQ=a0('\070\114\097\109\101',{Size=UDim2.fromOffset(18,18),Position=UDim2.
+fromOffset(4,4),BackgroundTransparency=1},bO)a0('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.
+new(1,0)},bQ)a0('\085\073\083\116\114\111\107\101',{Thickness=2,Color=Color3.fromRGB(210,235,255)},bQ)
+end a0('\084\101\120\116\076\097\098\101\108',{Text=aK(bH[2],bH[3]),Size=UDim2.new(1,-4,0,20),Position=
+UDim2.fromOffset(2,32),BackgroundTransparency=1,TextSize=10,TextColor3=Color3.
+new(1,1,1),TextWrapped=true},bN)a_(bM.InputBegan,function(bQ)if bQ.UserInputType
+==Enum.UserInputType.Touch or bQ.UserInputType==Enum.UserInputType.MouseButton1
+then bA=bQ bB=bQ.Position bC=bJ.AbsolutePosition bD=bJ end end)if bI=='\117\112'or bI
+=='\100\111\119\110'then a_(bN.InputBegan,function(bQ)if bQ.UserInputType==Enum.
+UserInputType.Touch or bQ.UserInputType==Enum.UserInputType.MouseButton1 then bz
+=bI=='\117\112'and 1 or-1 end end)a_(bN.InputEnded,function()bz=0 end)else bF[bI]=bJ
+a_(bN.Activated,function()aV[bI]=not aV[bI]aS[bI].paint(aV[bI])end)end end a_(aM
+.InputChanged,function(bG)if not bA or not bD or not bD.Visible then return end
+if bG~=bA and bG.UserInputType~=Enum.UserInputType.MouseMovement then return end
+local bH=bG.Position-bB local bI=workspace.CurrentCamera local bJ=bI and bI.
+ViewportSize local bK,bL=bC.X+bH.X,bC.Y+bH.Y if bJ then bK=math.clamp(bK,0,math.
+max(0,bJ.X-66))bL=math.clamp(bL,0,math.max(0,bJ.Y-76))end bD.Position=UDim2.
+fromOffset(bK,bL)end)a_(aM.InputEnded,function(bG)if bG==bA then bA=nil bD=nil
+end bz=0 end)local function bG(bH)if bH:IsA('\066\097\115\101\080\097\114\116')then return bH end return
+bH:IsA('\077\111\100\101\108')and(bH.PrimaryPart or bH:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')or bH:
 FindFirstChildWhichIsA('\066\097\115\101\080\097\114\116',true))or nil end local bH=setmetatable({},{
 __mode='\107'})local function bI(bJ)if not(bJ:IsA('\077\111\100\101\108')or bJ:IsA('\066\097\115\101\080\097\114\116'))
 then return nil end local bK=tostring(bJ:GetAttribute('\082\101\097\108\078\097\109\101')or bJ.Name)if
-bJ.Parent and bJ.Parent.Name=='\078\112\099'then if bJ:GetAttribute('\078\112\099\070\097\099\116\105\111\110')==
-'\070\114\105\101\110\100\108\121\067\111\109\112\097\110\105\111\110'or bK:lower():find('\099\111\109\112\097\110\105\111\110',1,true)or bJ:GetAttribute(
-'\070\114\105\101\110\100\108\121')==true then return'\099\111\109\112\097\110\105\111\110\115'end if bK:lower():find('\109\105\109\105\099',1,true)
-or bJ:GetAttribute('\077\105\109\105\099\067\104\101\115\116\068\097\109\097\103\101\097\098\108\101')~=nil then return'\109\105\109\105\099\115'end return
-'\109\111\098\115'end if bJ:GetAttribute('\082\117\110\116\105\109\101\067\104\101\115\116\077\111\100\101\108')==true then return'\099\104\101\115\116\115'end
-if aO:HasTag(bJ,'\079\114\101')or type(bJ:GetAttribute('\083\101\115\115\105\111\110\079\114\101\084\121\112\101'))=='\115\116\114\105\110\103'then
-return'\111\114\101\115'end if aO:HasTag(bJ,'\068\117\110\103\101\111\110\065\114\101\110\097\068\111\111\114')then return'\097\114\101\110\097\115'end if aO:
-HasTag(bJ,'\068\117\110\103\101\111\110\084\114\101\097\115\117\114\101\068\111\111\114')then return'\116\114\101\097\115\117\114\101\068\111\111\114\115'end if aO:HasTag(bJ,
+bJ.Name=='\067\104\117\114\099\104'and bJ:IsA('\077\111\100\101\108')then return'\099\104\117\114\099\104'end if bJ.Parent and bJ.
+Parent.Name=='\078\112\099'then if bJ:GetAttribute('\078\112\099\070\097\099\116\105\111\110')=='\070\114\105\101\110\100\108\121\067\111\109\112\097\110\105\111\110'or
+bK:lower():find('\099\111\109\112\097\110\105\111\110',1,true)or bJ:GetAttribute('\070\114\105\101\110\100\108\121')==true then
+return'\099\111\109\112\097\110\105\111\110\115'end if bK:lower():find('\109\105\109\105\099',1,true)or bJ:GetAttribute(
+'\077\105\109\105\099\067\104\101\115\116\068\097\109\097\103\101\097\098\108\101')~=nil then return'\109\105\109\105\099\115'end return'\109\111\098\115'end if bJ:
+GetAttribute('\082\117\110\116\105\109\101\067\104\101\115\116\077\111\100\101\108')==true then return'\099\104\101\115\116\115'end if aO:HasTag(bJ,
+'\079\114\101')or type(bJ:GetAttribute('\083\101\115\115\105\111\110\079\114\101\084\121\112\101'))=='\115\116\114\105\110\103'then return'\111\114\101\115'end
+if aO:HasTag(bJ,'\068\117\110\103\101\111\110\065\114\101\110\097\068\111\111\114')then return'\097\114\101\110\097\115'end if aO:HasTag(bJ,
+'\068\117\110\103\101\111\110\084\114\101\097\115\117\114\101\068\111\111\114')then return'\116\114\101\097\115\117\114\101\068\111\111\114\115'end if aO:HasTag(bJ,
 '\068\117\110\103\101\111\110\068\111\111\114')then return'\100\111\111\114\115'end if bJ.Parent and bJ.Parent.Name=='\073\116\101\109\115'then
 return bK:lower():find('\115\099\114\097\112',1,true)and'\115\099\114\097\112'or'\105\116\101\109\115'end end local bJ=false
 local function bK()if bJ then return end bJ=true task.spawn(function()local bL={
@@ -481,360 +524,636 @@ bM(bQ)end end local bO,bP,bQ,bR,bS local bT=setmetatable({},{__mode='\107'})loca
 bU,bV local function bW()if bU then pcall(function()bU.Range=bV end)bU=nil end
 end local function bX()if bS then bS:Destroy()bS=nil end if bR then bR:Destroy()
 bR=nil end bQ=nil end local function bY()for bZ,b_ in pairs(bT)do if bZ.Parent
-then bZ.CanCollide=b_ end bT[bZ]=nil end end local function bZ()for b_ in pairs(
-aV)do aV[b_]=false aS[b_].paint(false)end bW()bX()bY()if bO and bO.Parent then
-bO.WalkSpeed=bP end bO=nil end a_(aN.Heartbeat,function()if not aQ then return
-end local b_,b0,b1=aI.actor()if bO and(bO~=b1 or not aV.speed)then if bO.Parent
-then bO.WalkSpeed=bP end bO=nil end if b1 and aV.speed then if bO~=b1 then bO=b1
-bP=b1.WalkSpeed end b1.WalkSpeed=aU.speed end if not b_ or not aV.noclip then
-bY()else for b2,b3 in ipairs(b_:GetDescendants())do if b3:IsA('\066\097\115\101\080\097\114\116')then if
-bT[b3]==nil then bT[b3]=b3.CanCollide end b3.CanCollide=false end end end if not
-b0 or not aV.fly then bX()else if bQ~=b0 then bX()bQ=b0 bR=a0('\065\116\116\097\099\104\109\101\110\116',{},b0
-)bS=a0('\076\105\110\101\097\114\086\101\108\111\099\105\116\121',{Attachment0=bR,MaxForce=1e7,RelativeTo=Enum.
-ActuatorRelativeTo.World},b0)end local b2=b1.MoveDirection local b3=workspace.
-CurrentCamera if b2.Magnitude>0.1 and b3 then b2=Vector3.new(b2.X,b3.CFrame.
-LookVector.Y*b2.Magnitude,b2.Z)end local b4=by if not aM:GetFocusedTextBox()then
-if aM:IsKeyDown(Enum.KeyCode.Space)then b4+=1 end if aM:IsKeyDown(Enum.KeyCode.
-LeftControl)then b4-=1 end end bS.VectorVelocity=(b2+Vector3.new(0,b4,0))*aU.
-flySpeed end end)local b_,b0,b1=0,0,0 task.spawn(function()while aQ do local b2,
-b3=pcall(function()local b2,b3=aI.actor()if not b3 then bW()bN()return end local
-b4=false for b5,b6 in pairs(aX)do if b6.enabled then b4=true end end if b4 and
-os.clock()-b_>30 then b_=os.clock()bK()end if b4 and os.clock()-b0>0.3 then b0=
-os.clock()local b5={}for b6,b7 in ipairs(game:GetService('\080\108\097\121\101\114\115'):GetPlayers()
-)do if b7~=aL and b7.Character then bH[b7.Character]='\112\108\097\121\101\114\115'end end for b6,b7
-in pairs(bH)do if not b6.Parent or not b6:IsDescendantOf(workspace)then bH[b6]=
-nil else b7=bI(b6)or b7 bH[b6]=b7 if aX[b7].enabled then local b8=bG(b6)local b9
-=true if b7=='\111\114\101\115'then local ca=tostring(b6:GetAttribute('\083\101\115\115\105\111\110\079\114\101\084\121\112\101')or b6
-.Name):lower()b9=false for cb in aU.oreFilter:gmatch('\091\094\044\093\043')do if ca:find(cb:
-match('\094\037\115\042\040\046\045\041\037\115\042\036'):lower(),1,true)then b9=true end end end if b8 and b9 then
-local ca=(b8.Position-b3.Position).Magnitude if ca<=aU.maxDistance then b5[#b5+1
-]={o=b6,kind=b7,anchor=b8,distance=ca}end end end end end table.sort(b5,function
-(b6,b7)local b8,b9=bk(b6.kind),bk(b7.kind)if b8~=b9 then return b8<b9 end return
-b6.distance<b7.distance end)local b6={}for b7=1,math.min(#b5,aU.maxESP)do local
-b8=b5[b7]local b9=b8.o b6[b9]=true if bL[b9]and bL[b9].style~=aU.style then bM(
-b9)end local ca=bL[b9]if not ca then ca={style=aU.style}bL[b9]=ca ca.billboard=
-a0('\066\105\108\108\098\111\097\114\100\071\117\105',{Adornee=b8.anchor,AlwaysOnTop=true,Size=UDim2.fromOffset(220,
-48),StudsOffset=Vector3.new(0,3,0)},bw)ca.text=a0('\084\101\120\116\076\097\098\101\108',{Size=UDim2.
-fromScale(1,1),BackgroundTransparency=1,TextSize=12,TextStrokeTransparency=0.3,
-Font=Enum.Font.GothamBold,TextWrapped=true},ca.billboard)if aU.style=='\066\111\120'then
-ca.visual=a0('\066\111\120\072\097\110\100\108\101\065\100\111\114\110\109\101\110\116',{Adornee=b8.anchor,AlwaysOnTop=true,ZIndex=5,
-Transparency=0.65},bw)else ca.visual=a0('\072\105\103\104\108\105\103\104\116',{Adornee=b9,DepthMode=Enum.
-HighlightDepthMode.AlwaysOnTop,FillTransparency=0.85},bw)end end local cb=a1(aX[
-b8.kind].color)local cc=b9:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cd=cc and cc.
-Health or b9:GetAttribute('\070\117\101\108\076\101\101\099\104\072\101\097\108\116\104')local ce=tostring(b9:GetAttribute(
-'\082\101\097\108\078\097\109\101')or b9.Name)ca.billboard.Adornee=b8.anchor ca.text.Text=string.format(
-'\037\115\037\115\032\u{b7}\032\037\100\032\115\116\117\100\115\037\115',(b8.kind=='\109\105\109\105\099\115'or ce:lower():find('\119\111\114\109',1,true))and
-'\u{26a0}\032'or'',ce,b8.distance,cd and string.format('\n\072\080\032\037\046\048\102',cd)or'')ca.text.
-TextColor3=cb if aU.style=='\066\111\120'then ca.visual.Color3=cb ca.visual.Adornee=b8.
-anchor if b9:IsA('\077\111\100\101\108')then local cf,cg=b9:GetBoundingBox()ca.visual.Size=cg
-ca.visual.CFrame=b8.anchor.CFrame:ToObjectSpace(cf)else ca.visual.Size=b9.Size
-end else ca.visual.FillColor=cb ca.visual.OutlineColor=cb end end local b7={}for
-b8 in pairs(bL)do if not b6[b8]then b7[#b7+1]=b8 end end for b8,b9 in ipairs(b7)
-do bM(b9)end elseif not b4 then bN()end local b5=aI.ctrl('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')local
-b6=b5 and b5.ActiveTool local b7=aV.aura or aV.oreAura if bU and(bU~=b6 or not
-b7)then bW()end local b8=aI.ctrl('\085\073\067\111\110\116\114\111\108\108\101\114')if b7 and b6 and b6.Tool and
-type(b6.Swing)=='\102\117\110\099\116\105\111\110'and not workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101')and not aM
-:GetFocusedTextBox()and not(b8 and b8.ActiveFrame and b8.ActiveFrame.Visible)
-then local b9=b6.Tool.Name:find('\080\105\099\107\097\120\101',1,true)~=nil if aV.aura or aV.oreAura
-and b9 then if type(b6.Range)=='\110\117\109\098\101\114'then if bU~=b6 then bU=b6 bV=b6.Range end
-b6.Range=aU.reach end local ca,cb=nil,aU.reach local cc=workspace:
-FindFirstChild('\078\112\099')if aV.aura then for cd,ce in ipairs(cc and cc:GetChildren()
-or{})do local cf=bI(ce)local cg=bG(ce)local ch=ce:FindFirstChildOfClass(
-'\072\117\109\097\110\111\105\100')local ci=ch and ch.Health or ce:GetAttribute('\070\117\101\108\076\101\101\099\104\072\101\097\108\116\104')or 0
-local cj=ce:GetAttribute('\083\101\115\115\105\111\110\070\117\101\108\076\101\101\099\104\073\100')~=nil local ck=not cj or(aL:
-GetAttribute('\073\110\068\117\110\103\101\111\110')~=true and ce:GetAttribute('\070\117\101\108\076\101\101\099\104\086\117\108\110\101\114\097\098\108\101')==true
-)if ck and(cf=='\109\111\098\115'or cf=='\109\105\109\105\099\115')and cg and ci>0 then local cl=(b3.Position-
-cg.Position).Magnitude if cl<cb then ca=cg cb=cl end end end end if ca and aU.
-position~='\079\102\102'and not aV.fly and os.clock()-b1>0.4 then b1=os.clock()local cd=
-aU.position=='\065\098\111\118\101'and Vector3.new(0,aU.offset,0)or-ca.CFrame.LookVector*aU.
-offset b2:PivotTo(CFrame.lookAt(ca.Position+cd,ca.Position,aU.position=='\065\098\111\118\101'
-and ca.CFrame.RightVector or Vector3.yAxis))end if ca or aV.oreAura and b9 then
-b6:Swing()end end end end)if not b2 then aI.say(aK('\067\111\110\116\114\111\108\101\115\032\097\118\097\110\u{e7}\097\100\111\115\058\032',
-'\065\100\118\097\110\099\101\100\032\099\111\110\116\114\111\108\115\058\032')..tostring(b3))end task.wait(0.15)end end)return{stop=bZ,
-cleanup=function()aQ=false bZ()for b2,b3 in ipairs(aR)do b3:Disconnect()end bN()
-bx:Destroy()end}end local aH={}function aH.role(aI,aJ)if aJ~=9796898051 then
-return nil end return({[101906032112547]='\108\111\098\098\121',[74507545904779]='\114\117\110'})[aI]end
-function aH.names(aI)local aJ={}for aK in tostring(aI):gmatch('\091\094\044\093\043')do aK=aK:
-match('\094\037\115\042\040\046\045\041\037\115\042\036')if aK~=''then aJ[#aJ+1]=aK end end return aJ end function
-aH.offer(aI,aJ,aK,aL)if type(aJ)~='\110\117\109\098\101\114'or aJ~=aJ then return nil end for aM,
-aN in ipairs(aL)do for aO,aP in ipairs(type(aI)=='\116\097\098\108\101'and aI or{})do if aP.
-UpgradeName==aN and aP.Type=='\067\111\105\110\115'and type(aP.Cost)=='\110\117\109\098\101\114'and aP.Cost>=0
-and aP.Cost<math.huge and aJ-aP.Cost>=aK then return aP end end end end function
-aH.selection(aI,aJ,aK)local aL={}local aM=math.clamp(math.floor(tonumber(aJ)or 0
-),0,100)for aN,aO in ipairs(aK)do for aP,aQ in ipairs(type(aI)=='\116\097\098\108\101'and aI or
-{})do if aQ.Name==aO and aQ.Id~=nil and not aL[aQ.Id]then local aR=math.min(aM,
-math.max(0,math.floor(tonumber(aQ.Count)or 0)))if aR>0 then aL[aQ.Id]=aR aM-=aR
-end end end end return aL end function aH.medalOffer(aI,aJ,aK,aL)if type(aJ)~=
-'\116\097\098\108\101'or type(aJ.Medals)~='\110\117\109\098\101\114'or aJ.Medals~=aJ.Medals or type(aJ.Available)
-~='\116\097\098\108\101'then return nil end for aM,aN in ipairs(aL)do local aO=aI[aN]if aO and
-type(aO.Cost)=='\110\117\109\098\101\114'and aO.Cost>=0 and aO.Cost<math.huge and aJ.Available[aN]
-and aJ.Medals-aO.Cost>=aK then return aN end end end function aH.skipRequest(aI)
-if not aI or not aI.CurrentCutScene or aI.AbortingCutScene then return nil end
-local aJ=aI.CurrentCutSceneContext if aJ and aJ.DisableSkip then return nil end
-return{name=aI.CurrentCutScene,id=aJ and aJ.RuntimeId,private=aJ and aJ.Private
-==true and aJ.RuntimeId~=nil,session=aI.CurrentCutSceneSessionId}end local aI=
-function(aI)local aJ=assert(aH.role(game.PlaceId,game.GameId),
-'\085\110\115\117\112\112\111\114\116\101\100\032\069\097\114\116\104\032\067\111\114\101\032\112\108\097\099\101')local aK,aL=aI.ui,aI.T local aM=game:GetService(
-'\080\108\097\121\101\114\115').LocalPlayer local aN=game:GetService('\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')local aO=
-game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local aP=true local aQ={}local aR={swing=false,
-upgrades=false,craft=false,skip=false,medals=false}local aS={upgrades=0,craft=0,
-medals=0}local aT={}local aU={}local aV local aW={reserve=1000,limit=10,priority
-="\084\101\097\109\072\101\097\108\116\104\044\076\105\102\101\083\116\101\097\108\044\068\114\105\108\108\080\111\119\101\114\044\082\080\077\079\118\101\114\099\108\111\099\107\044\083\097\099\107\083\116\111\114\097\103\101\044\068\114\105\118\101\083\112\101\101\100",gear=
+then bZ.CanCollide=b_ end bT[bZ]=nil end end local bZ={}local b_,b0,b1 local
+function b2()if b_ and b_.GetAimRay==b1 then b_.GetAimRay=b0 end b_=nil b0=nil
+b1=nil end local function b3()for b4,b5 in pairs(bZ)do if b4.Parent then b4.Size
+=b5.size end b5.box:Destroy()bZ[b4]=nil end end local function b4(b5,b6)local b7
+,b8=nil,b6 local b9=workspace:FindFirstChild('\078\112\099')for ca,cb in ipairs(b9 and b9
+:GetChildren()or{})do local cc=bI(cb)local cd=cb:FindFirstChildOfClass(
+'\072\117\109\097\110\111\105\100')local ce=cb:FindFirstChild('\072\101\097\100')if(cc=='\109\111\098\115'or cc=='\109\105\109\105\099\115')and cd
+and cd.Health>0 and ce and ce:IsA('\066\097\115\101\080\097\114\116')then local cf=(ce.Position-b5.
+Position).Magnitude if cf<b8 then b8=cf b7=ce end end end return b7,b8 end local
+function b5()for b6 in pairs(aV)do aV[b6]=false aS[b6].paint(false)end bW()bX()
+bY()b2()b3()bz=0 if bO and bO.Parent then bO.WalkSpeed=bP end bO=nil end a_(aN.
+Heartbeat,function()if not aQ then return end local b6,b7,b8=aI.actor()if bO and
+(bO~=b8 or not aV.speed)then if bO.Parent then bO.WalkSpeed=bP end bO=nil end if
+b8 and aV.speed then if bO~=b8 then bO=b8 bP=b8.WalkSpeed end b8.WalkSpeed=aU.
+speed end if not b6 or not aV.noclip then bY()else for b9,ca in ipairs(b6:
+GetDescendants())do if ca:IsA('\066\097\115\101\080\097\114\116')then if bT[ca]==nil then bT[ca]=ca.
+CanCollide end ca.CanCollide=false end end end if not b7 or not aV.fly then bX()
+else if bQ~=b7 then bX()bQ=b7 bR=a0('\065\116\116\097\099\104\109\101\110\116',{},b7)bS=a0('\076\105\110\101\097\114\086\101\108\111\099\105\116\121',{
+Attachment0=bR,MaxForce=1e7,RelativeTo=Enum.ActuatorRelativeTo.World},b7)end
+local b9=b8.MoveDirection local ca=workspace.CurrentCamera if b9.Magnitude>0.1
+and ca then b9=Vector3.new(b9.X,ca.CFrame.LookVector.Y*b9.Magnitude,b9.Z)end
+local cb=bz if not aM:GetFocusedTextBox()then if aM:IsKeyDown(Enum.KeyCode.Space
+)then cb+=1 end if aM:IsKeyDown(Enum.KeyCode.LeftControl)then cb-=1 end end bS.
+VectorVelocity=(b9+Vector3.new(0,cb,0))*aU.flySpeed end end)local b6,b7,b8=0,0,0
+task.spawn(function()while aQ do local b9,ca=pcall(function()local b9,ca,cb=aI.
+actor()if not ca then bW()b2()b3()bN()return end for cc,cd in pairs(bF)do cd.
+BackgroundColor3=aV[cc]and Color3.fromRGB(30,85,100)or Color3.fromRGB(20,27,39)
+end if not aV.hitbox then b3()else local cc={}local cd=b4(ca,aU.gunRange)if cd
+then cc[cd]=true local ce=bZ[cd]if not ce then ce={size=cd.Size,box=a0(
+'\066\111\120\072\097\110\100\108\101\065\100\111\114\110\109\101\110\116',{Adornee=cd,AlwaysOnTop=true,ZIndex=1,Transparency=0.93,
+Color3=Color3.fromRGB(110,190,255)},bx)}bZ[cd]=ce end cd.Size=Vector3.new(aU.
+hitboxSize,aU.hitboxSize,aU.hitboxSize)ce.box.Size=cd.Size end for ce,cf in
+pairs(bZ)do if not cc[ce]then if ce.Parent then ce.Size=cf.size end cf.box:
+Destroy()bZ[ce]=nil end end end local cc=false for cd,ce in pairs(aX)do if ce.
+enabled then cc=true end end if cc and os.clock()-b6>30 then b6=os.clock()bK()
+end if cc and os.clock()-b7>0.3 then b7=os.clock()local cd={}for ce,cf in
+ipairs(game:GetService('\080\108\097\121\101\114\115'):GetPlayers())do if cf~=aL and cf.Character
+then bH[cf.Character]='\112\108\097\121\101\114\115'end end for ce,cf in pairs(bH)do if not ce.Parent
+or not ce:IsDescendantOf(workspace)then bH[ce]=nil else cf=bI(ce)or cf bH[ce]=cf
+if aX[cf].enabled then local cg=bG(ce)local ch=true local ci=ce:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cj=ci and ci.Health or ce:GetAttribute(
+'\070\117\101\108\076\101\101\099\104\072\101\097\108\116\104')if aU.hideDead and cf~='\112\108\097\121\101\114\115'and type(cj)=='\110\117\109\098\101\114'and cj<=
+0 then ch=false end if aU.hideAttached and(cf=='\105\116\101\109\115'or cf=='\115\099\114\097\112')and(ce:
+GetAttribute('\087\101\108\100\101\100')==true or ce:GetAttribute('\068\114\105\108\108\087\101\108\100\067\111\108\108\105\115\105\111\110\083\117\112\112\114\101\115\115\101\100')
+==true)then ch=false end if cf=='\111\114\101\115'then local ck=tostring(ce:GetAttribute(
+'\083\101\115\115\105\111\110\079\114\101\084\121\112\101')or ce.Name):lower()ch=false for cl in aU.oreFilter:gmatch(
+'\091\094\044\093\043')do if ck:find(cl:match('\094\037\115\042\040\046\045\041\037\115\042\036'):lower(),1,true)then ch=true end
+end end if cg and ch then local ck=(cg.Position-ca.Position).Magnitude if ck<=aU
+.maxDistance then cd[#cd+1]={o=ce,kind=cf,anchor=cg,distance=ck}end end end end
+end table.sort(cd,function(ce,cf)local cg,ch=bk(ce.kind),bk(cf.kind)if cg~=ch
+then return cg<ch end return ce.distance<cf.distance end)local ce={}for cf=1,
+math.min(#cd,aU.maxESP)do local cg=cd[cf]local ch=cg.o ce[ch]=true if bL[ch]and
+bL[ch].style~=aU.style then bM(ch)end local ci=bL[ch]if not ci then ci={style=aU
+.style}bL[ch]=ci ci.billboard=a0('\066\105\108\108\098\111\097\114\100\071\117\105',{Adornee=cg.anchor,AlwaysOnTop=
+true,Size=UDim2.fromOffset(220,48),StudsOffset=Vector3.new(0,3,0)},bx)ci.text=
+a0('\084\101\120\116\076\097\098\101\108',{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,TextSize=12,
+RichText=true,TextStrokeTransparency=0.3,Font=Enum.Font.GothamBold,TextWrapped=
+true},ci.billboard)if aU.style=='\066\111\120'then ci.visual=a0('\066\111\120\072\097\110\100\108\101\065\100\111\114\110\109\101\110\116',{
+Adornee=cg.anchor,AlwaysOnTop=true,ZIndex=5,Transparency=0.65},bx)else ci.visual
+=a0('\072\105\103\104\108\105\103\104\116',{Adornee=ch,DepthMode=Enum.HighlightDepthMode.AlwaysOnTop,
+FillTransparency=0.85},bx)end end local cj=a1(aX[cg.kind].color)local ck=ch:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cl=ck and ck.Health or ch:GetAttribute(
+'\070\117\101\108\076\101\101\099\104\072\101\097\108\116\104')local cm=false local cn=tostring(ch:GetAttribute('\082\101\097\108\078\097\109\101')or
+ch.Name)ci.billboard.Adornee=cg.anchor if cg.kind=='\111\114\101\115'then local co=tostring(
+ch:GetAttribute('\083\101\115\115\105\111\110\079\114\101\084\121\112\101')or ch:GetAttribute('\082\101\097\108\078\097\109\101')or ch.Name)local
+cp={Coal='\067\097\114\118\u{e3}\111',Iron='\070\101\114\114\111',Gold='\079\117\114\111',Diamond='\068\105\097\109\097\110\116\101',Emerald=
+'\069\115\109\101\114\097\108\100\097',Ruby='\082\117\098\105'}for cq,cr in pairs(cp)do if co:lower():find(cq:lower(),1
+,true)then cn=aK(cr,cq)break end end cm=aO:HasTag(ch,'\087\111\114\109')or ch:
+FindFirstChild('\087\111\114\109',true)~=nil if cm then cn=cn..aK('\032\105\110\102\101\115\116\097\100\111','\032\105\110\102\101\115\116\101\100')
+end elseif cg.kind=='\099\104\117\114\099\104'then cn=aK('\073\103\114\101\106\097','\067\104\117\114\099\104')elseif cg.kind==
+'\109\105\109\105\099\115'then cn=aK('\091\033\093\032\077\u{ed}\109\105\099\111','\091\033\093\032\077\105\109\105\099')end cn=cn:gsub('\038','\038\097\109\112\059'):
+gsub('\060','\038\108\116\059'):gsub('\062','\038\103\116\059')ci.billboard.Size=UDim2.fromOffset(260,aU.
+textSize*4)if not ci.worm then ci.worm=a0('\070\114\097\109\101',{Size=UDim2.fromOffset(22,22),
+Position=UDim2.fromOffset(-22,0),BackgroundTransparency=1,Visible=false},ci.
+billboard)for co=0,4 do local cp=a0('\070\114\097\109\101',{Size=UDim2.fromOffset(7,7),Position
+=UDim2.fromOffset(co*4,8+math.sin(co)*4),BackgroundColor3=Color3.fromRGB(225,145
+,190),BorderSizePixel=0},ci.worm)a0('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(1,0)},cp)
+end ci.mimic=a0('\070\114\097\109\101',{Size=UDim2.fromOffset(22,18),Position=UDim2.fromOffset(
+-24,0),BackgroundColor3=Color3.fromRGB(125,65,45),Visible=false},ci.billboard)
+a0('\085\073\083\116\114\111\107\101',{Color=Color3.fromRGB(255,185,75),Thickness=1.5},ci.mimic)a0(
+'\070\114\097\109\101',{Size=UDim2.fromOffset(20,7),Position=UDim2.fromOffset(1,6),
+BackgroundColor3=Color3.fromRGB(30,15,20),BorderSizePixel=0},ci.mimic)for co=0,3
+do a0('\070\114\097\109\101',{Size=UDim2.fromOffset(3,4),Position=UDim2.fromOffset(2+co*5,6),
+BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=0},ci.mimic)end end ci.worm.
+Visible=cm ci.mimic.Visible=cg.kind=='\109\105\109\105\099\115'ci.text.TextSize=aU.textSize ci.
+text.Text=string.format('\037\115\032\u{b7}\032\060\102\111\110\116\032\099\111\108\111\114\061\034\035\037\115\034\062\037\100\032\115\116\117\100\115\060\047\102\111\110\116\062\037\115',cn,aU.
+distanceColor,cg.distance,cl and string.format('\n\072\080\032\037\046\048\102',cl)or'')ci.text.
+TextColor3=cj if aU.style=='\066\111\120'then ci.visual.Color3=cj ci.visual.Adornee=cg.
+anchor if ch:IsA('\077\111\100\101\108')then local co,cp=ch:GetBoundingBox()ci.visual.Size=cp
+ci.visual.CFrame=cg.anchor.CFrame:ToObjectSpace(co)else ci.visual.Size=ch.Size
+end else ci.visual.FillColor=cj ci.visual.OutlineColor=cj end end local cf={}for
+cg in pairs(bL)do if not ce[cg]then cf[#cf+1]=cg end end for cg,ch in ipairs(cf)
+do bM(ch)end elseif not cc then bN()end local cd=aI.ctrl('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')local
+ce=cd and cd.ActiveTool local cf=ce and type(ce.Shoot)=='\102\117\110\099\116\105\111\110'and ce.Tool
+and(ce.Tool.Name:find('\082\105\102\108\101',1,true)or ce.Tool.Name:find('\082\101\118\111\108\118\101\114',1,true)or
+ce.Tool.Name:find('\083\104\111\116\103\117\110',1,true))if aV.silentAim and cf then local cg=aI.
+ctrl('\067\097\109\101\114\097\067\111\110\116\114\111\108\108\101\114')if cg and type(cg.GetAimRay)=='\102\117\110\099\116\105\111\110'and b_~=cg then
+b2()b_=cg b0=cg.GetAimRay local ch=b0 b1=function(ci,...)local cj=ch(ci,...)
+local ck,cl=aI.actor()local cm=aI.ctrl('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')local cn=cm and cm.
+ActiveTool if not aQ or not aV.silentAim or not cl or not cn or type(cn.Shoot)~=
+'\102\117\110\099\116\105\111\110'or not cj then return cj end local co=b4(cl,aU.gunRange)if co and(co.
+Position-cj.Origin).Magnitude>0.01 then return Ray.new(cj.Origin,(co.Position-cj
+.Origin).Unit)end return cj end cg.GetAimRay=b1 end else b2()end local cg=aI.
+ctrl('\085\073\067\111\110\116\114\111\108\108\101\114')local ch=not workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101')and not aM:
+GetFocusedTextBox()and not(cg and cg.ActiveFrame and cg.ActiveFrame.Visible)if
+aV.autoMove and ch and not cb.SeatPart and not aV.fly then local ci=b4(ca,150)if
+ci then local cj=Vector3.new(ca.Position.X-ci.Position.X,0,ca.Position.Z-ci.
+Position.Z)if cj.Magnitude<0.01 then cj=Vector3.new(0,0,1)end local ck=ci.
+Position+cj.Unit*aU.combatDistance if math.abs((ca.Position-ci.Position).
+Magnitude-aU.combatDistance)>1.5 then cb:MoveTo(Vector3.new(ck.X,ca.Position.Y,
+ck.Z))end end end if aV.autoFire and cf and ch and b4(ca,aU.gunRange)then ce:
+Shoot()end local ci=aV.aura or aV.oreAura or aV.autoMove if bU and(bU~=ce or not
+ci)then bW()end local cj=aI.ctrl('\085\073\067\111\110\116\114\111\108\108\101\114')if ci and ce and ce.Tool and
+type(ce.Swing)=='\102\117\110\099\116\105\111\110'and not workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101')and not aM
+:GetFocusedTextBox()and not(cj and cj.ActiveFrame and cj.ActiveFrame.Visible)
+then local ck=ce.Tool.Name:find('\080\105\099\107\097\120\101',1,true)~=nil if aV.aura or aV.autoMove
+or aV.oreAura and ck then if type(ce.Range)=='\110\117\109\098\101\114'then if bU~=ce then bU=ce
+bV=ce.Range end ce.Range=aV.autoMove and math.max(aU.reach,aU.combatDistance+2)
+or aU.reach end local cl,cm=nil,aV.autoMove and math.max(aU.reach,aU.
+combatDistance+2)or aU.reach local cn=workspace:FindFirstChild('\078\112\099')if aV.aura
+or aV.autoMove then for co,cp in ipairs(cn and cn:GetChildren()or{})do local cq=
+bI(cp)local cr=bG(cp)local cs=cp:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local ct=cs
+and cs.Health or cp:GetAttribute('\070\117\101\108\076\101\101\099\104\072\101\097\108\116\104')or 0 local cu=cp:
+GetAttribute('\083\101\115\115\105\111\110\070\117\101\108\076\101\101\099\104\073\100')~=nil local cv=not cu or(aL:GetAttribute(
+'\073\110\068\117\110\103\101\111\110')~=true and cp:GetAttribute('\070\117\101\108\076\101\101\099\104\086\117\108\110\101\114\097\098\108\101')==true)if cv and(cq
+=='\109\111\098\115'or cq=='\109\105\109\105\099\115')and cr and ct>0 then local cw=(ca.Position-cr.Position).
+Magnitude if cw<cm then cl=cr cm=cw end end end end if cl and aU.position~='\079\102\102'
+and not aV.fly and not aV.autoMove and not cb.SeatPart and os.clock()-b8>0.4
+then b8=os.clock()local co=aU.position=='\065\098\111\118\101'and Vector3.new(0,aU.offset,0)or-
+cl.CFrame.LookVector*aU.offset b9:PivotTo(CFrame.lookAt(cl.Position+co,cl.
+Position,aU.position=='\065\098\111\118\101'and cl.CFrame.RightVector or Vector3.yAxis))end if
+cl or aV.oreAura and ck then ce:Swing()end end end end)if not b9 then aI.say(aK(
+'\067\111\110\116\114\111\108\101\115\032\097\118\097\110\u{e7}\097\100\111\115\058\032','\065\100\118\097\110\099\101\100\032\099\111\110\116\114\111\108\115\058\032')..tostring(ca))end task.wait(
+0.15)end end)return{stop=b5,cleanup=function()aQ=false b5()for b9,ca in ipairs(
+aR)do ca:Disconnect()end bN()by:Destroy()end}end local function aH(aI,aJ)local
+aK,aL=aI.ui,aI.T local aM=game:GetService('\080\108\097\121\101\114\115').LocalPlayer local aN=game:
+GetService('\067\111\108\108\101\099\116\105\111\110\083\101\114\118\105\099\101')local aO=game:GetService('\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')
+local aP=true local aQ=0 local aR={}local aS=false local aT=false local aU=400
+local aV=250 local aW=setmetatable({},{__mode='\107'})local aX=aI.section('\070\097\114\109')
+local aY=aK.label(aX,'\084\101\120\116\076\097\098\101\108',aL(
+'\076\111\103\u{ed}\115\116\105\099\097\058\032\112\097\114\097\100\097\046\032\085\115\097\032\105\116\101\110\115\032\115\111\108\116\111\115\032\105\100\101\110\116\105\102\105\099\097\100\111\115\059\032\112\111\114\116\097\105\115\032\098\108\111\113\117\101\097\100\111\115\032\105\110\116\101\114\114\111\109\112\101\109\032\097\032\099\111\108\101\116\097\046'
+,
+"\076\111\103\105\115\116\105\099\115\058\032\115\116\111\112\112\101\100\046\032\085\115\101\115\032\105\100\101\110\116\105\102\105\101\100\032\108\111\111\115\101\032\105\116\101\109\115\059\032\108\111\099\107\101\100\032\112\111\114\116\097\108\115\032\115\116\111\112\032\099\111\108\108\101\099\116\105\111\110\046"
+),65,40)local function aZ(a_,a0)if aP then aY.Text=aL(a_,a0)end end local
+function a_(a0,a1)aR[#aR+1]=a0:Connect(a1)end aK.label(aX,'\084\101\120\116\076\097\098\101\108',aL(
+'\086\101\110\100\101\032\112\101\108\111\032\118\097\108\111\114\032\101\120\105\098\105\100\111\032\100\111\032\105\116\101\109\032\u{2265}\032\108\105\109\105\116\101\046\032\065\098\097\105\120\111\044\032\101\110\118\105\097\032\097\112\101\110\097\115\032\105\116\101\110\115\032\100\097\032\099\097\116\101\103\111\114\105\097\032\083\099\114\097\112\032\112\097\114\097\032\114\101\099\105\099\108\097\103\101\109\046\032\070\105\113\117\101\032\115\111\098\114\101\032\097\032\098\114\111\099\097\032\112\101\114\116\111\032\100\101\032\117\109\097\032\101\115\116\097\u{e7}\u{e3}\111\046'
+,
+'\083\101\108\108\115\032\119\104\101\110\032\100\105\115\112\108\097\121\101\100\032\105\116\101\109\032\118\097\108\117\101\032\u{2265}\032\116\104\114\101\115\104\111\108\100\046\032\066\101\108\111\119\032\105\116\044\032\115\101\110\100\115\032\111\110\108\121\032\083\099\114\097\112\045\099\097\116\101\103\111\114\121\032\105\116\101\109\115\032\102\111\114\032\114\101\099\121\099\108\105\110\103\046\032\083\116\097\121\032\111\110\032\116\104\101\032\100\114\105\108\108\032\110\101\097\114\032\097\032\115\116\097\116\105\111\110\046'
+),85,41)local a0=aK.label(aX,'\084\101\120\116\066\111\120','\052\048\048',40,42)a_(a0.FocusLost,function()
+local a1=tonumber(a0.Text)if a1 and a1==a1 and a1<math.huge then aU=math.clamp(
+math.floor(a1),0,1000000)end a0.Text=tostring(aU)end)local a1,a2=aK.checkbox(aX,
+aL('\065\117\116\111\032\118\101\110\100\097\032\047\032\115\117\099\097\116\097\032\110\097\032\098\114\111\099\097','\065\117\116\111\032\115\101\108\108\032\047\032\115\099\114\097\112\032\111\110\032\100\114\105\108\108'),43)local a3=aK.
+button(aX,aL('\067\111\108\101\116\097\114\032\108\111\111\116\032\115\111\108\116\111\032\100\101\115\116\097\032\068\117\110\103\101\111\110\032\101\032\112\097\114\097\114',
+"\067\111\108\108\101\099\116\032\116\104\105\115\032\068\117\110\103\101\111\110\039\115\032\108\111\111\115\101\032\108\111\111\116\032\097\110\100\032\115\116\111\112"),45)local a4=aK.button(aX,aL(
+'\080\097\114\097\114\032\108\111\103\u{ed}\115\116\105\099\097','\083\116\111\112\032\108\111\103\105\115\116\105\099\115'),46)local function a5()aQ+=1 aS=false aT
+=false a2(false)end a_(a4.Activated,a5)a_(a1.Activated,function()aS=not aS a2(aS
+)aZ(aS and
+'\065\117\116\111\032\118\101\110\100\097\032\097\116\105\118\097\058\032\097\103\117\097\114\100\097\110\100\111\032\105\116\101\110\115\032\110\097\032\098\114\111\099\097\032\101\032\101\115\116\097\u{e7}\u{e3}\111\032\112\114\u{f3}\120\105\109\097\046'
+or'\065\117\116\111\032\118\101\110\100\097\032\112\097\114\097\100\097\046',aS and
+"\065\117\116\111\032\115\101\108\108\032\097\099\116\105\118\101\058\032\119\097\105\116\105\110\103\032\102\111\114\032\100\114\105\108\108\032\105\116\101\109\115\032\097\110\100\032\097\032\110\101\097\114\098\121\032\115\116\097\116\105\111\110\046"or
+'\065\117\116\111\032\115\101\108\108\032\115\116\111\112\112\101\100\046')end)local function a6(a7)return a7 and(a7:IsA('\066\097\115\101\080\097\114\116')
+and a7 or a7:IsA('\077\111\100\101\108')and(a7.PrimaryPart or a7:FindFirstChildWhichIsA(
+'\066\097\115\101\080\097\114\116',true)))or nil end local function a7(a8)local a9=aO:FindFirstChild(
+'\083\104\097\114\101\100')local ba=a9 and a9:FindFirstChild(a8)return ba and require(ba)end local
+function a8(a9)return aP and aQ==a9 and aJ.actor()~=nil end local function a9(ba
+,bb,bc)local bd=os.clock()+bc repeat if not a8(ba)then return false end if bb()
+then return true end task.wait(0.1)until os.clock()>=bd return false end local
+function ba(bb,bc)local bd=workspace:FindFirstChild('\068\114\105\108\108')if not bd or not bb
+then return false end local be=RaycastParams.new()be.FilterType=Enum.
+RaycastFilterType.Exclude be.FilterDescendantsInstances={bc}local bf=workspace:
+Raycast(bb.Position,Vector3.new(0,-15,0),be)return bf and bf.Instance:
+IsDescendantOf(bd)or false end local function bb(bc,bd)local be,bf=nil,aV for bg
+,bh in ipairs(aN:GetTagged(bc))do if bh:IsA('\066\097\115\101\080\097\114\116')and bh:IsDescendantOf(
+workspace)and not bh:GetFullName():find('\067\117\116\083\099\101\110\101',1,true)then local bi=(bh.
+Position-bd.Position).Magnitude if bi<bf then be=bh bf=bi end end end return be
+end local function bc(bd)local be,bf,bg=aJ.actor()if not bf or aM:GetAttribute(
+'\073\110\068\117\110\103\101\111\110')==true or workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101')then return end local
+bh=workspace:FindFirstChild('\068\114\105\108\108')if not bh or not(ba(bf,be)or bg.SeatPart and
+bg.SeatPart:IsDescendantOf(bh))then return end local bi=workspace:
+FindFirstChild('\073\116\101\109\115')local bj=a7('\073\116\101\109\068\097\116\097\098\097\115\101')local bk=a7('\083\101\108\108\086\097\108\117\101')if not
+bi or not bj or not bk then return end for bl,bm in ipairs(bi:GetChildren())do
+local bn=a6(bm)if bn and not aW[bm]and(ba(bn,bm)or bm:GetAttribute(
+'\068\114\105\108\108\087\101\108\100\067\111\108\108\105\115\105\111\110\083\117\112\112\114\101\115\115\101\100')==true)and not aN:HasTag(bm,'\083\104\111\112\073\116\101\109')and not bm
+:GetAttribute('\065\100\118\101\110\116\117\114\101\081\117\101\115\116\080\114\111\116\101\099\116\101\100')and not bm:GetAttribute('\068\101\097\116\104\067\104\101\115\116')and
+not bm:GetAttribute('\067\114\097\102\116\101\100\080\108\097\099\101\097\098\108\101')then local bo=bm:GetAttribute('\086\097\108\117\101')if
+type(bo)=='\110\117\109\098\101\114'then bo=math.round(bk.ScaleByCharges(bo,bm:GetAttribute(
+'\070\114\111\109\084\111\111\108\095\073\116\101\109\067\104\097\114\103\101\115')or bj.GetAttribute(bm,'\073\116\101\109\067\104\097\114\103\101\115'),bm:GetAttribute(
+'\070\114\111\109\084\111\111\108\095\077\097\120\073\116\101\109\067\104\097\114\103\101\115')or bj.GetAttribute(bm,'\077\097\120\073\116\101\109\067\104\097\114\103\101\115')))local bp=bo>=
+aU and'\083\101\108\108\080\097\114\116'or bj.GetAttribute(bm,'\067\097\116\101\103\111\114\121')=='\083\099\114\097\112'and'\083\099\114\097\112\067\111\108\108\101\099\116\111\114'or
+nil local bq=bp and bb(bp,bf)if bq then aW[bm]=true if bm:GetAttribute('\087\101\108\100\101\100')
+==true then local br=aJ.await(aJ.service('\068\114\097\103\083\101\114\118\105\099\101'):Weld(bm))if br~=
+'\100\101\116\097\099\104\101\100'or not a8(bd)or not aS then return end end local br=aJ.await(aJ.
+service('\068\114\097\103\083\101\114\118\105\099\101'):Request(bm))if not a8(bd)or not aS then if br then pcall(
+function()aJ.service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)end return end if br==true
+and bm.Parent and bq.Parent then bm:PivotTo(bq.CFrame*CFrame.new(0,bq.Size.Y*0.5
++1,0))task.wait(0.3)pcall(function()aJ.service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)
+local bs=a9(bd,function()return not bm:IsDescendantOf(workspace)end,3)aZ(bs and
+'\073\116\101\109\032\112\114\111\099\101\115\115\097\100\111\032\112\101\108\097\032\101\115\116\097\u{e7}\u{e3}\111\046'or
+'\069\115\116\097\u{e7}\u{e3}\111\032\110\u{e3}\111\032\099\111\110\102\105\114\109\111\117\032\111\032\112\114\111\099\101\115\115\097\109\101\110\116\111\059\032\105\116\101\109\032\110\u{e3}\111\032\115\101\114\u{e1}\032\114\101\112\101\116\105\100\111\032\110\101\115\116\097\032\115\101\115\115\u{e3}\111\046'
+,bs and'\073\116\101\109\032\112\114\111\099\101\115\115\101\100\032\098\121\032\115\116\097\116\105\111\110\046'or
+"\083\116\097\116\105\111\110\032\100\105\100\032\110\111\116\032\099\111\110\102\105\114\109\032\112\114\111\099\101\115\115\105\110\103\059\032\105\116\101\109\032\119\105\108\108\032\110\111\116\032\098\101\032\114\101\116\114\105\101\100\032\116\104\105\115\032\115\101\115\115\105\111\110\046")
+end return end end end end end local function bd(be)local bf=be.Parent if bf and
+bf:IsA('\065\116\116\097\099\104\109\101\110\116')then return bf.WorldCFrame end local bg=a6(bf)return bg and
+bg.CFrame end local function be(bf,bg,bh)assert(bg and bg.Parent and bg.Enabled
+and type(fireproximityprompt)=='\102\117\110\099\116\105\111\110',aL(
+'\080\111\114\116\097\108\032\105\110\100\105\115\112\111\110\u{ed}\118\101\108\047\098\108\111\113\117\101\097\100\111\046','\080\111\114\116\097\108\032\117\110\097\118\097\105\108\097\098\108\101\047\108\111\099\107\101\100\046'))local bi=aJ.
+actor()local bj=bd(bg)assert(bi and bj,'\080\111\114\116\097\108\032\112\111\115\105\116\105\111\110\032\117\110\097\118\097\105\108\097\098\108\101')bi:PivotTo(
+bj*CFrame.new(0,2,3))task.wait(0.4)assert(a8(bf),'\083\116\111\112\112\101\100')fireproximityprompt(
+bg)assert(a9(bf,function()return(aM:GetAttribute('\073\110\068\117\110\103\101\111\110')==true)==bh end,8),
+aL('\079\032\106\111\103\111\032\110\u{e3}\111\032\099\111\110\102\105\114\109\111\117\032\097\032\112\097\115\115\097\103\101\109\032\112\101\108\111\032\112\111\114\116\097\108\046',
+'\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\099\111\110\102\105\114\109\032\112\111\114\116\097\108\032\116\114\097\110\115\105\116\105\111\110\046'))end a_(a3.Activated,function()if
+aT then return end aQ+=1 local bf=aQ aT=true aS=false a2(false)aJ.pauseCombat()
+task.spawn(function()local bg,bh=pcall(function()assert(aM:GetAttribute(
+'\073\110\068\117\110\103\101\111\110')==true,aL('\069\110\116\114\101\032\112\114\105\109\101\105\114\111\032\110\097\032\068\117\110\103\101\111\110\046','\069\110\116\101\114\032\116\104\101\032\068\117\110\103\101\111\110\032\102\105\114\115\116\046'))
+local bg=aJ.ctrl('\068\117\110\103\101\111\110\085\073\067\111\110\116\114\111\108\108\101\114')local bh=bg and bg._BoundDungeon assert(
+bh and bh.Parent,'\068\117\110\103\101\111\110\032\117\110\097\118\097\105\108\097\098\108\101')local bi=assert(a7('\068\117\110\103\101\111\110\068\111\111\114\083\116\097\116\101'))
+local bj,bk for bl,bm in ipairs(aN:GetTagged('\068\117\110\103\101\111\110\068\111\111\114'))do if bi.GetRoot(bm)
+==bh then bj=bm:FindFirstChild('\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116',true)bk=bm:FindFirstChild(
+'\068\117\110\103\101\111\110\069\120\105\116\080\114\111\109\112\116',true)if bj and bk then break end end end assert(bj and bk
+and bk.Enabled,aL(
+'\083\097\u{ed}\100\097\032\098\108\111\113\117\101\097\100\097\058\032\100\101\114\114\111\116\101\032\097\032\111\110\100\097\032\097\110\116\101\115\032\100\101\032\116\114\097\110\115\112\111\114\116\097\114\032\105\116\101\110\115\046',
+'\069\120\105\116\032\108\111\099\107\101\100\058\032\100\101\102\101\097\116\032\116\104\101\032\119\097\118\101\032\098\101\102\111\114\101\032\116\114\097\110\115\112\111\114\116\105\110\103\032\105\116\101\109\115\046'))local bl=aJ.ctrl(
+'\084\111\111\108\067\111\110\116\114\111\108\108\101\114')local bm=bl and bl.ActiveTool assert(bm and bm.IsSack and type(
+bm.CanStoreTarget)=='\102\117\110\099\116\105\111\110',aL('\069\113\117\105\112\101\032\111\032\115\097\099\111\032\118\097\122\105\111\046','\069\113\117\105\112\032\116\104\101\032\101\109\112\116\121\032\115\097\099\107\046'
+))assert((bm.Size or 0)==0,aL('\069\115\118\097\122\105\101\032\111\032\115\097\099\111\032\097\110\116\101\115\032\100\101\115\116\097\032\099\111\108\101\116\097\046',
+'\069\109\112\116\121\032\116\104\101\032\115\097\099\107\032\098\101\102\111\114\101\032\116\104\105\115\032\099\111\108\108\101\099\116\105\111\110\046'))local bn=assert(a7('\083\097\099\107\067\111\110\102\105\103'))local
+bo=aM:GetAttribute('\065\099\116\105\118\101\068\117\110\103\101\111\110\076\111\111\116\072\105\103\104\108\105\103\104\116\082\111\111\116\073\100')or bh:GetAttribute(
+'\068\117\110\103\101\111\110\076\111\111\116\072\105\103\104\108\105\103\104\116\082\111\111\116\073\100')assert(type(bo)=='\115\116\114\105\110\103'and bo~='',
+'\068\117\110\103\101\111\110\032\108\111\111\116\032\073\068\032\117\110\097\118\097\105\108\097\098\108\101')local bp={}local bq={}local br=0 local function bs
+()be(bf,bk,false)local bt=workspace:FindFirstChild('\068\114\105\108\108')local bu=bt and(bt:
+FindFirstChild('\066\111\100\121')or bt.PrimaryPart)assert(bu and bu:IsA('\066\097\115\101\080\097\114\116'),
+'\068\114\105\108\108\032\110\111\116\032\108\111\097\100\101\100')local bv=aJ.actor()bv:PivotTo(bu.CFrame*CFrame.new(0,bu.Size.
+Y*0.5+4,0))task.wait(0.5)assert(a8(bf)and bl.ActiveTool==bm,
+'\083\097\099\107\032\099\104\097\110\103\101\100\032\047\032\115\116\111\112\112\101\100')bm.Execute:Fire({'\068\114\111\112\065\108\108'})assert(a9(bf,function()
+return(bm.Size or 0)==0 end,5),'\068\101\112\111\115\105\116\032\110\111\116\032\099\111\110\102\105\114\109\101\100')be(bf,bj,true)end while
+a8(bf)do assert(bl.ActiveTool==bm and bh.Parent,
+'\083\097\099\107\032\099\104\097\110\103\101\100\032\047\032\100\117\110\103\101\111\110\032\117\110\108\111\097\100\101\100')local bt=workspace:FindFirstChild('\073\116\101\109\115')
+local bu for bv,bw in ipairs(bt and bt:GetChildren()or{})do if not bp[bw]and bw:
+GetAttribute('\068\117\110\103\101\111\110\076\111\111\116\072\105\103\104\108\105\103\104\116\082\111\111\116\073\100')==bo and bm:CanStoreTarget(bw)and a6(
+bw)then bu=bw break end end if not bu then local bv for bw,bx in ipairs(bh:
+GetDescendants())do if bx:IsA('\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116')and bx.Enabled and not bq[bx]and
+bx:GetFullName():find('\067\104\101\115\116\078\111\100\101',1,true)then bv=bx break end end if not bv then
+break end bq[bv]=true local bw=bd(bv)assert(bw and type(fireproximityprompt)==
+'\102\117\110\099\116\105\111\110','\067\104\101\115\116\032\112\114\111\109\112\116\032\117\110\097\118\097\105\108\097\098\108\101')local bx=aJ.actor()bx:PivotTo(bw*CFrame.
+new(0,3,3))task.wait(0.3)assert(a8(bf),'\083\116\111\112\112\101\100')fireproximityprompt(bv)a9(bf,
+function()return not bv.Parent or not bv.Enabled end,3)task.wait(0.5)continue
+end bp[bu]=true local bv=aJ.actor()bv:PivotTo(a6(bu).CFrame*CFrame.new(0,3,3))
+task.wait(0.3)assert(a8(bf)and bl.ActiveTool==bm,'\083\116\111\112\112\101\100')local bw=bm.Size or 0
+bm.Execute:Fire({'\080\105\099\107\117\112',bu})assert(a9(bf,function()return(bm.Size or 0)>bw end
+,3),aL('\067\111\108\101\116\097\032\110\u{e3}\111\032\099\111\110\102\105\114\109\097\100\097\046\032\080\097\114\097\100\111\032\112\097\114\097\032\101\118\105\116\097\114\032\112\101\114\100\101\114\032\105\116\101\110\115\046',
+'\080\105\099\107\117\112\032\110\111\116\032\099\111\110\102\105\114\109\101\100\046\032\083\116\111\112\112\101\100\032\116\111\032\097\118\111\105\100\032\108\111\115\105\110\103\032\105\116\101\109\115\046'))br+=1 if(bm.Size or 0)>=
+bn.Capacity then bs()end end assert(a8(bf),'\083\116\111\112\112\101\100')if(bm.Size or 0)>0 then bs(
+)end aZ('\083\101\109\032\109\097\105\115\032\108\111\111\116\032\101\108\101\103\u{ed}\118\101\108\032\099\097\114\114\101\103\097\100\111\046\032\067\111\108\101\116\097\100\111\115\058\032'..br..
+'\046\032\065\115\115\117\109\097\032\111\032\099\111\110\116\114\111\108\101\059\032\114\101\097\116\105\118\101\032\097\112\u{f3}\115\032\111\032\099\104\101\102\101\046',
+'\078\111\032\109\111\114\101\032\101\108\105\103\105\098\108\101\032\108\111\097\100\101\100\032\108\111\111\116\046\032\067\111\108\108\101\099\116\101\100\058\032'..br..
+'\046\032\084\097\107\101\032\099\111\110\116\114\111\108\059\032\114\101\115\116\097\114\116\032\097\102\116\101\114\032\116\104\101\032\098\111\115\115\046')end)if aP and aQ==bf then aT=false if
+not bg then aZ('\076\111\103\u{ed}\115\116\105\099\097\032\105\110\116\101\114\114\111\109\112\105\100\097\058\032'..tostring(bh),
+'\076\111\103\105\115\116\105\099\115\032\115\116\111\112\112\101\100\058\032'..tostring(bh))end end end)end)local bf=5000 local bg=100
+aK.label(aX,'\084\101\120\116\076\097\098\101\108',aL(
+'\082\111\116\097\032\100\101\032\098\097\u{fa}\115\058\032\118\105\115\105\116\097\032\098\097\u{fa}\115\032\101\032\088\032\099\097\114\114\101\103\097\100\111\115\032\102\111\114\097\032\100\097\115\032\068\117\110\103\101\111\110\115\046\032\085\115\097\032\111\115\032\112\114\111\109\112\116\115\032\100\111\032\106\111\103\111\044\032\097\116\u{e9}\032\111\032\108\105\109\105\116\101\032\100\101\032\100\105\115\116\u{e2}\110\099\105\097\044\032\101\032\118\111\108\116\097\032\u{e0}\032\098\114\111\099\097\046\032\078\u{e3}\111\032\103\097\114\097\110\116\101\032\067\111\114\101\115\032\112\111\114\032\098\097\u{fa}\046'
+,
+"\067\104\101\115\116\032\114\111\117\116\101\058\032\118\105\115\105\116\115\032\108\111\097\100\101\100\032\099\104\101\115\116\115\032\097\110\100\032\088\032\115\112\111\116\115\032\111\117\116\115\105\100\101\032\068\117\110\103\101\111\110\115\046\032\085\115\101\115\032\103\097\109\101\032\112\114\111\109\112\116\115\032\119\105\116\104\105\110\032\116\104\101\032\100\105\115\116\097\110\099\101\032\108\105\109\105\116\044\032\116\104\101\110\032\114\101\116\117\114\110\115\032\116\111\032\116\104\101\032\100\114\105\108\108\046\032\067\111\114\101\115\032\112\101\114\032\099\104\101\115\116\032\097\114\101\032\110\111\116\032\103\117\097\114\097\110\116\101\101\100\046"
+),85,50)local bh=aK.label(aX,'\084\101\120\116\066\111\120',tostring(bf),40,51)a_(bh.FocusLost,
+function()local bi=tonumber(bh.Text)if bi and bi==bi then bf=math.clamp(bi,100,
+50000)end bh.Text=tostring(bf)end)local bi=aK.button(aX,aL(
+'\073\110\105\099\105\097\114\032\114\111\116\097\032\100\101\032\098\097\u{fa}\115\032\099\097\114\114\101\103\097\100\111\115\032\047\032\067\111\114\101\115','\083\116\097\114\116\032\108\111\097\100\101\100\032\099\104\101\115\116\032\047\032\067\111\114\101\032\114\111\117\116\101'
+),52)a_(bi.Activated,function()if aT then return end aQ+=1 local bj=aQ aT=true
+aS=false a2(false)aJ.pauseCombat()task.spawn(function()local bk,bl=pcall(
+function()assert(aM:GetAttribute('\073\110\068\117\110\103\101\111\110')~=true,'\076\101\097\118\101\032\116\104\101\032\068\117\110\103\101\111\110\032\102\105\114\115\116')
+assert(type(fireproximityprompt)=='\102\117\110\099\116\105\111\110','\080\114\111\109\112\116\032\065\080\073\032\117\110\097\118\097\105\108\097\098\108\101')local bk,
+bl=aJ.actor()local bm=bl.Position local bn=bl.CFrame.LookVector local bo=assert(
+a7('\068\117\110\103\101\111\110\068\111\111\114\083\116\097\116\101'))local bp={}local bq=0 local function br(bs)local bt=os.
+clock()+math.min(180,(bl.Position-bs).Magnitude/bg+10)repeat assert(a8(bj)and aM
+:GetAttribute('\073\110\068\117\110\103\101\111\110')~=true and not workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101'),
+'\082\111\117\116\101\032\105\110\116\101\114\114\117\112\116\101\100')local bu,bv,bw=aJ.actor()assert(not bw.SeatPart,
+'\076\101\097\118\101\032\116\104\101\032\100\114\105\118\101\114\032\115\101\097\116\032\102\105\114\115\116')local bx=bs-bv.Position if bx.Magnitude<4 then
+return end assert(os.clock()<bt,'\077\111\118\101\109\101\110\116\032\116\105\109\101\100\032\111\117\116')bu:PivotTo(CFrame.new(bv.
+Position+bx.Unit*math.min(bx.Magnitude,bg*0.05)))task.wait(0.05)until false end
+while a8(bj)and bq<100 do local bs,bt,bu=nil,nil,math.huge for bv,bw in ipairs(
+workspace:GetDescendants())do if bw:IsA('\080\114\111\120\105\109\105\116\121\080\114\111\109\112\116')and bw.Enabled and not
+bp[bw]then local bx=bw:GetFullName()local by=bd(bw)local bz=bx:find('\067\104\101\115\116\078\111\100\101',
+1,true)or bx:find('\068\105\103\083\112\111\116',1,true)if bz and by and not bx:find('\067\117\116\083\099\101\110\101',1,
+true)and not bx:find('\068\117\110\103\101\111\110',1,true)and not bo.GetRoot(bw)then local bA=by.
+Position-bm local bB=bA:Dot(bn)if bB>=-30 and bA.Magnitude<=bf and bB<bu then bs
+=bw bt=by bu=bB end end end end if not bs then break end bp[bs]=true br(bt.
+Position+Vector3.new(0,3,0))if bs.Parent and bs.Enabled and a8(bj)then
+fireproximityprompt(bs)bq+=1 aZ('\082\111\116\097\032\100\101\032\098\097\u{fa}\115\058\032'..bq..
+'\032\105\110\116\101\114\097\u{e7}\u{f5}\101\115\032\115\111\108\105\099\105\116\097\100\097\115\046','\067\104\101\115\116\032\114\111\117\116\101\058\032'..bq..
+'\032\105\110\116\101\114\097\099\116\105\111\110\115\032\114\101\113\117\101\115\116\101\100\046')a9(bj,function()return not bs.Parent or not bs.
+Enabled end,3)end end assert(a8(bj),'\083\116\111\112\112\101\100')local bs=workspace:FindFirstChild(
+'\068\114\105\108\108')local bt=bs and(bs:FindFirstChild('\066\111\100\121')or bs.PrimaryPart)assert(bt and
+bt:IsA('\066\097\115\101\080\097\114\116'),'\068\114\105\108\108\032\110\111\116\032\108\111\097\100\101\100\032\102\111\114\032\114\101\116\117\114\110')br(bt.Position+Vector3.new(0,bt
+.Size.Y*0.5+4,0))aZ(
+'\082\111\116\097\032\099\111\110\099\108\117\u{ed}\100\097\059\032\114\101\116\111\114\110\111\032\u{e0}\032\098\114\111\099\097\046\032\073\110\116\101\114\097\u{e7}\u{f5}\101\115\058\032'..bq,
+'\082\111\117\116\101\032\099\111\109\112\108\101\116\101\059\032\114\101\116\117\114\110\101\100\032\116\111\032\100\114\105\108\108\046\032\073\110\116\101\114\097\099\116\105\111\110\115\058\032'..bq)end)if aP and aQ==bj
+then aT=false if not bk then aZ('\082\111\116\097\032\105\110\116\101\114\114\111\109\112\105\100\097\058\032'..tostring(bl),
+'\082\111\117\116\101\032\115\116\111\112\112\101\100\058\032'..tostring(bl))end end end)end)task.spawn(function()while aP do
+if aS and not aT then local bj=aQ local bk,bl=pcall(bc,bj)if not bk then a5()aZ(
+'\086\101\110\100\097\032\105\110\116\101\114\114\111\109\112\105\100\097\058\032'..tostring(bl),'\083\101\108\108\105\110\103\032\115\116\111\112\112\101\100\058\032'..tostring(bl))end end
+task.wait(2)end end)return{stop=a5,cleanup=function()aP=false a5()for bj,bk in
+ipairs(aR)do bk:Disconnect()end end}end local aI={}function aI.role(aJ,aK)if aK
+~=9796898051 then return nil end return({[101906032112547]='\108\111\098\098\121',[
+74507545904779]='\114\117\110'})[aJ]end function aI.names(aJ)local aK={}for aL in
+tostring(aJ):gmatch('\091\094\044\093\043')do aL=aL:match('\094\037\115\042\040\046\045\041\037\115\042\036')if aL~=''then aK[#aK+1
+]=aL end end return aK end function aI.offer(aJ,aK,aL,aM)if type(aK)~='\110\117\109\098\101\114'or
+aK~=aK then return nil end for aN,aO in ipairs(aM)do for aP,aQ in ipairs(type(aJ
+)=='\116\097\098\108\101'and aJ or{})do if aQ.UpgradeName==aO and aQ.Type=='\067\111\105\110\115'and type(aQ.
+Cost)=='\110\117\109\098\101\114'and aQ.Cost>=0 and aQ.Cost<math.huge and aK-aQ.Cost>=aL then
+return aQ end end end end function aI.selection(aJ,aK,aL)local aM={}local aN=
+math.clamp(math.floor(tonumber(aK)or 0),0,100)for aO,aP in ipairs(aL)do for aQ,
+aR in ipairs(type(aJ)=='\116\097\098\108\101'and aJ or{})do if aR.Name==aP and aR.Id~=nil and
+not aM[aR.Id]then local aS=math.min(aN,math.max(0,math.floor(tonumber(aR.Count)
+or 0)))if aS>0 then aM[aR.Id]=aS aN-=aS end end end end return aM end function
+aI.medalOffer(aJ,aK,aL,aM)if type(aK)~='\116\097\098\108\101'or type(aK.Medals)~='\110\117\109\098\101\114'or aK.
+Medals~=aK.Medals or type(aK.Available)~='\116\097\098\108\101'then return nil end for aN,aO in
+ipairs(aM)do local aP=aJ[aO]if aP and type(aP.Cost)=='\110\117\109\098\101\114'and aP.Cost>=0 and
+aP.Cost<math.huge and aK.Available[aO]and aK.Medals-aP.Cost>=aL then return aO
+end end end function aI.skipRequest(aJ)if not aJ or not aJ.CurrentCutScene or aJ
+.AbortingCutScene then return nil end local aK=aJ.CurrentCutSceneContext if aK
+and aK.DisableSkip then return nil end return{name=aJ.CurrentCutScene,id=aK and
+aK.RuntimeId,private=aK and aK.Private==true and aK.RuntimeId~=nil,session=aJ.
+CurrentCutSceneSessionId}end local aJ=function(aJ)local aK=assert(aI.role(game.
+PlaceId,game.GameId),'\085\110\115\117\112\112\111\114\116\101\100\032\069\097\114\116\104\032\067\111\114\101\032\112\108\097\099\101')local aL,aM=aJ.ui,aJ.T local
+aN=game:GetService('\080\108\097\121\101\114\115').LocalPlayer local aO=game:GetService(
+'\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')local aP=game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local aQ=true local
+aR={}local aS={swing=false,upgrades=false,craft=false,skip=false,medals=false}
+local aT={upgrades=0,craft=0,medals=0}local aU={}local aV={}local aW,aX local aY
+={reserve=1000,limit=10,priority=
+"\084\101\097\109\072\101\097\108\116\104\044\076\105\102\101\083\116\101\097\108\044\068\114\105\108\108\080\111\119\101\114\044\082\080\077\079\118\101\114\099\108\111\099\107\044\083\097\099\107\083\116\111\114\097\103\101\044\068\114\105\118\101\083\112\101\101\100",gear=
 '\080\105\099\107\097\120\101\095\071\111\108\100',craftLimit=3,medalReserve=100,medalLimit=10,medalPriority=
-'\084\117\114\114\101\116\068\097\109\097\103\101\044\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\068\097\109\097\103\101\044\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\065\109\109\111'}local aX=
-'\065\110\111\110\072\117\098\095\069\097\114\116\104\067\111\114\101\095'..aM.UserId..'\095'..aJ..'\046\106\115\111\110'if type(readfile)=='\102\117\110\099\116\105\111\110'
-then pcall(function()local aY=aO:JSONDecode(readfile(aX))for aZ,a_ in pairs(aW)
-do if type(aY[aZ])==type(a_)then aW[aZ]=aY[aZ]end end end)end aW.reserve=math.
-clamp(tonumber(aW.reserve)or 1000,0,1e9)aW.limit=math.clamp(tonumber(aW.limit)or
-10,1,100)aW.medalReserve=math.clamp(tonumber(aW.medalReserve)or 100,0,1e9)aW.
-medalLimit=math.clamp(tonumber(aW.medalLimit)or 10,1,100)aW.craftLimit=math.
-clamp(tonumber(aW.craftLimit)or 3,1,100)local function aY()if type(writefile)==
-'\102\117\110\099\116\105\111\110'then pcall(writefile,aX,aO:JSONEncode(aW))end end local function aZ(a_
-,a0)aQ[#aQ+1]=a_:Connect(a0)end local a_=aI.section('\070\097\114\109')local a0=aK.label(a_,
-'\084\101\120\116\076\097\098\101\108',aL('\067\097\114\114\101\103\097\110\100\111\032\101\115\116\097\100\111\u{2026}','\076\111\097\100\105\110\103\032\115\116\097\116\101\u{2026}'),76,1)local
-a1=aK.label(a_,'\084\101\120\116\076\097\098\101\108','',72,2)local function a2(a3,a4)if aP then a1.Text=
-aL(a3,a4 or a3)end end local function a3()for a4 in pairs(aR)do aR[a4]=false if
-aU[a4]then aU[a4](false)end end if aV then aV.stop()end end aI.attach(function()
-aP=false a3()if aV then aV.cleanup()end for a4,a5 in ipairs(aQ)do a5:Disconnect(
-)end end)aI.quick(a3)local function a4(a5,a6,a7,a8,a9)local ba=aK.button(a5,aL(
-a6,a7),a8)aZ(ba.Activated,function()if aT[ba]then return end aT[ba]=true task.
-spawn(function()local bb,bc=pcall(a9)aT[ba]=nil if not bb then a2(aL('\070\097\108\104\097\058\032',
-'\070\097\105\108\101\100\058\032')..tostring(bc))end end)end)return ba end local function a5(a6,a7,a8,
-a9,ba,bb)aK.label(a6,'\084\101\120\116\076\097\098\101\108',aL(a8,a9),32,ba)local bc=aK.label(a6,'\084\101\120\116\066\111\120',
-tostring(aW[a7]),42,ba+1)aZ(bc.FocusLost,function()if bb then local bd=tonumber(
-bc.Text)if bd and bd==bd and bd<math.huge then aW[a7]=math.clamp(math.floor(bd),
-bb[1],bb[2])end else aW[a7]=bc.Text:sub(1,600)end bc.Text=tostring(aW[a7])aY()
-end)end local function a6(a7,a8,a9,ba,bb)local bc,bd=aK.checkbox(a7,aL(a9,ba),bb
-)aU[a8]=bd aZ(bc.Activated,function()aR[a8]=not aR[a8]bd(aR[a8])end)end local a7
-local function a8(a9,ba)if not a7 then local bb=aN:FindFirstChild('\080\097\099\107\097\103\101\115')
-local bc=bb and bb:FindFirstChild('\075\110\105\116')if not bc then return nil end a7=
-require(bc)end local bb,bc=pcall(a9=='\099\111\110\116\114\111\108\108\101\114'and a7.GetController or a7.
-GetService,ba)return bb and bc or nil end local function a9(ba)return a8(
-'\099\111\110\116\114\111\108\108\101\114',ba)end local function ba(bb)return assert(a8('\115\101\114\118\105\099\101',bb),bb..
-'\032\117\110\097\118\097\105\108\097\098\108\101')end local function bb(bc)if type(bc)=='\116\097\098\108\101'and type(bc.await)==
-'\102\117\110\099\116\105\111\110'then local bd=table.pack(bc:timeout(8):await())if not bd[1]then error(
-tostring(bd[2]))end return table.unpack(bd,2,bd.n)end return bc end local
-function bc()local bd=aM.Character local be=bd and bd:FindFirstChildOfClass(
-'\072\117\109\097\110\111\105\100')local bf=bd and bd:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if bf and be and
-be.Health>0 then return bd,bf,be end end local function bd()if aJ=='\108\111\098\098\121'then
-local be=workspace:FindFirstChild('\076\111\098\098\121')local bf=be and be:FindFirstChild(
-'\079\117\116\101\114\083\116\114\117\099\116\117\114\101\115')return bf and bf:FindFirstChild('\067\104\117\114\099\104')end return workspace:
-FindFirstChild('\067\104\117\114\099\104')end local function be()local bf=bd()local bg=bf and bf:
-FindFirstChild('\083\116\114\117\099\116\117\114\101')local bh=bg and bg:FindFirstChild('\082\105\110\103')local bi=bh
-and bh:FindFirstChild('\083\097\118\101\071\101\097\114')return bi and bi:IsA('\066\097\115\101\080\097\114\116')and bi or nil
-end local bf,bg a4(a_,'\073\114\032\097\116\u{e9}\032\097\032\105\103\114\101\106\097\032\099\097\114\114\101\103\097\100\097','\071\111\032\116\111\032\108\111\097\100\101\100\032\099\104\117\114\099\104',10,
-function()local bh,bi=bc()local bj=be()assert(bh and bj,aL(
-'\073\103\114\101\106\097\047\112\101\114\115\111\110\097\103\101\109\032\105\110\100\105\115\112\111\110\u{ed}\118\101\108\046','\067\104\117\114\099\104\047\099\104\097\114\097\099\116\101\114\032\117\110\097\118\097\105\108\097\098\108\101\046'))bf=bi.
-CFrame bg=bh bh:PivotTo(bj.CFrame*CFrame.new(0,3,5))a2(
+'\084\117\114\114\101\116\068\097\109\097\103\101\044\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\068\097\109\097\103\101\044\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\065\109\109\111'}local aZ=
+'\065\110\111\110\072\117\098\095\069\097\114\116\104\067\111\114\101\095'..aN.UserId..'\095'..aK..'\046\106\115\111\110'if type(readfile)=='\102\117\110\099\116\105\111\110'
+then pcall(function()local a_=aP:JSONDecode(readfile(aZ))for a0,a1 in pairs(aY)
+do if type(a_[a0])==type(a1)then aY[a0]=a_[a0]end end end)end aY.reserve=math.
+clamp(tonumber(aY.reserve)or 1000,0,1e9)aY.limit=math.clamp(tonumber(aY.limit)or
+10,1,100)aY.medalReserve=math.clamp(tonumber(aY.medalReserve)or 100,0,1e9)aY.
+medalLimit=math.clamp(tonumber(aY.medalLimit)or 10,1,100)aY.craftLimit=math.
+clamp(tonumber(aY.craftLimit)or 3,1,100)local function a_()if type(writefile)==
+'\102\117\110\099\116\105\111\110'then pcall(writefile,aZ,aP:JSONEncode(aY))end end local function a0(a1
+,a2)aR[#aR+1]=a1:Connect(a2)end local a1=aJ.section('\070\097\114\109')local a2=aL.label(a1,
+'\084\101\120\116\076\097\098\101\108',aM('\067\097\114\114\101\103\097\110\100\111\032\101\115\116\097\100\111\u{2026}','\076\111\097\100\105\110\103\032\115\116\097\116\101\u{2026}'),76,1)local
+a3=aL.label(a1,'\084\101\120\116\076\097\098\101\108','',72,2)local function a4(a5,a6)if aQ then a3.Text=
+aM(a5,a6 or a5)end end local function a5()for a6 in pairs(aS)do aS[a6]=false if
+aV[a6]then aV[a6](false)end end if aW then aW.stop()end if aX then aX.stop()end
+end aJ.attach(function()aQ=false a5()if aW then aW.cleanup()end if aX then aX.
+cleanup()end for a6,a7 in ipairs(aR)do a7:Disconnect()end end)aJ.quick(a5)local
+function a6(a7,a8,a9,ba,bb)local bc=aL.button(a7,aM(a8,a9),ba)a0(bc.Activated,
+function()if aU[bc]then return end aU[bc]=true task.spawn(function()local bd,be=
+pcall(bb)aU[bc]=nil if not bd then a4(aM('\070\097\108\104\097\058\032','\070\097\105\108\101\100\058\032')..tostring(be))end
+end)end)return bc end local function a7(a8,a9,ba,bb,bc,bd)aL.label(a8,
+'\084\101\120\116\076\097\098\101\108',aM(ba,bb),32,bc)local be=aL.label(a8,'\084\101\120\116\066\111\120',tostring(aY[a9]),42,
+bc+1)a0(be.FocusLost,function()if bd then local bf=tonumber(be.Text)if bf and bf
+==bf and bf<math.huge then aY[a9]=math.clamp(math.floor(bf),bd[1],bd[2])end else
+aY[a9]=be.Text:sub(1,600)end be.Text=tostring(aY[a9])a_()end)end local function
+a8(a9,ba,bb,bc,bd)local be,bf=aL.checkbox(a9,aM(bb,bc),bd)aV[ba]=bf a0(be.
+Activated,function()aS[ba]=not aS[ba]bf(aS[ba])end)end local a9 local function
+ba(bb,bc)if not a9 then local bd=aO:FindFirstChild('\080\097\099\107\097\103\101\115')local be=bd and bd
+:FindFirstChild('\075\110\105\116')if not be then return nil end a9=require(be)end local bd,
+be=pcall(bb=='\099\111\110\116\114\111\108\108\101\114'and a9.GetController or a9.GetService,bc)return bd and
+be or nil end local function bb(bc)return ba('\099\111\110\116\114\111\108\108\101\114',bc)end local function
+bc(bd)return assert(ba('\115\101\114\118\105\099\101',bd),bd..'\032\117\110\097\118\097\105\108\097\098\108\101')end local function bd(be
+)if type(be)=='\116\097\098\108\101'and type(be.await)=='\102\117\110\099\116\105\111\110'then local bf=table.pack(be:
+timeout(8):await())if not bf[1]then error(tostring(bf[2]))end return table.
+unpack(bf,2,bf.n)end return be end local function be()local bf=aN.Character
+local bg=bf and bf:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local bh=bf and bf:
+FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if bh and bg and bg.Health>0 then return bf,bh
+,bg end end local function bf()if aK=='\108\111\098\098\121'then local bg=workspace:
+FindFirstChild('\076\111\098\098\121')local bh=bg and bg:FindFirstChild('\079\117\116\101\114\083\116\114\117\099\116\117\114\101\115')
+return bh and bh:FindFirstChild('\067\104\117\114\099\104')end return workspace:FindFirstChild(
+'\067\104\117\114\099\104')end local function bg()local bh=bf()local bi=bh and bh:FindFirstChild(
+'\083\116\114\117\099\116\117\114\101')local bj=bi and bi:FindFirstChild('\082\105\110\103')local bk=bj and bj:
+FindFirstChild('\083\097\118\101\071\101\097\114')return bk and bk:IsA('\066\097\115\101\080\097\114\116')and bk or nil end
+local bh,bi local function bj()local bk=bg()if bk then bh=bk.CFrame bi=workspace
+:GetAttribute('\073\110\102\105\110\105\116\101\068\101\112\116\104\079\102\102\115\101\116\077\101\116\101\114\115')end end bj()local bk,bl a6(a1,
+'\073\114\032\097\116\u{e9}\032\097\032\105\103\114\101\106\097\032\099\097\114\114\101\103\097\100\097','\071\111\032\116\111\032\108\111\097\100\101\100\032\099\104\117\114\099\104',10,function()local bm,bn=
+be()assert(bm,aM('\080\101\114\115\111\110\097\103\101\109\032\105\110\100\105\115\112\111\110\u{ed}\118\101\108\046','\067\104\097\114\097\099\116\101\114\032\117\110\097\118\097\105\108\097\098\108\101\046'))bj()
+local bo=bg()if not bo and bh and bi==workspace:GetAttribute(
+'\073\110\102\105\110\105\116\101\068\101\112\116\104\079\102\102\115\101\116\077\101\116\101\114\115')then local bp=bn.CFrame bm:PivotTo(bh*CFrame.new(0,3
+,5))pcall(function()aN:RequestStreamAroundAsync(bh.Position,5)end)bo=bg()if not
+bo then bm:PivotTo(bp)end end assert(bo,aM(
+'\073\103\114\101\106\097\032\097\105\110\100\097\032\110\u{e3}\111\032\099\097\114\114\101\103\097\100\097\046\032\065\032\112\111\115\105\u{e7}\u{e3}\111\032\108\101\109\098\114\097\100\097\032\110\u{e3}\111\032\099\111\110\102\105\114\109\097\032\117\109\032\097\108\116\097\114\032\100\105\115\112\111\110\u{ed}\118\101\108\046'
+,
+"\067\104\117\114\099\104\032\110\111\116\032\108\111\097\100\101\100\046\032\065\032\114\101\109\101\109\098\101\114\101\100\032\112\111\115\105\116\105\111\110\032\100\111\101\115\032\110\111\116\032\099\111\110\102\105\114\109\032\097\110\032\097\118\097\105\108\097\098\108\101\032\097\108\116\097\114\046"
+))bk=bn.CFrame bl=bm bm:PivotTo(bo.CFrame*CFrame.new(0,3,5))a4(
 '\068\101\115\108\111\099\097\109\101\110\116\111\032\115\111\108\105\099\105\116\097\100\111\046\032\067\111\110\102\105\114\097\032\115\117\097\032\112\111\115\105\u{e7}\u{e3}\111\046',
-'\077\111\118\101\109\101\110\116\032\114\101\113\117\101\115\116\101\100\046\032\067\104\101\099\107\032\121\111\117\114\032\112\111\115\105\116\105\111\110\046')end)a4(a_,
+'\077\111\118\101\109\101\110\116\032\114\101\113\117\101\115\116\101\100\046\032\067\104\101\099\107\032\121\111\117\114\032\112\111\115\105\116\105\111\110\046')end)a6(a1,
 '\086\111\108\116\097\114\032\u{e0}\032\112\111\115\105\u{e7}\u{e3}\111\032\097\110\116\101\114\105\111\114','\082\101\116\117\114\110\032\116\111\032\112\114\101\118\105\111\117\115\032\112\111\115\105\116\105\111\110',11,
-function()local bh=bc()assert(bh and bh==bg and bf,
-'\078\111\032\112\114\101\118\105\111\117\115\032\112\111\115\105\116\105\111\110\032\102\111\114\032\116\104\105\115\032\099\104\097\114\097\099\116\101\114')bh:PivotTo(bf)end)a4(a_,
-'\080\097\114\097\114\032\116\111\100\097\115\032\097\115\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115','\083\116\111\112\032\097\108\108\032\097\117\116\111\109\097\116\105\111\110',12,function()a3()a2(
-'\065\117\116\111\109\097\u{e7}\u{f5}\101\115\032\112\097\114\097\100\097\115\046','\065\117\116\111\109\097\116\105\111\110\032\115\116\111\112\112\101\100\046')end)if aJ=='\108\111\098\098\121'then aK.
-label(a_,'\084\101\120\116\076\097\098\101\108',aL(
+function()local bm=be()assert(bm and bm==bl and bk,
+'\078\111\032\112\114\101\118\105\111\117\115\032\112\111\115\105\116\105\111\110\032\102\111\114\032\116\104\105\115\032\099\104\097\114\097\099\116\101\114')bm:PivotTo(bk)end)a6(a1,
+'\080\097\114\097\114\032\116\111\100\097\115\032\097\115\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115','\083\116\111\112\032\097\108\108\032\097\117\116\111\109\097\116\105\111\110',12,function()a5()a4(
+'\065\117\116\111\109\097\u{e7}\u{f5}\101\115\032\112\097\114\097\100\097\115\046','\065\117\116\111\109\097\116\105\111\110\032\115\116\111\112\112\101\100\046')end)if aK=='\108\111\098\098\121'then aL.
+label(a1,'\084\101\120\116\076\097\098\101\108',aM(
 '\076\111\098\098\121\058\032\101\113\117\105\112\097\109\101\110\116\111\115\046\032\065\115\032\102\117\110\u{e7}\u{f5}\101\115\032\100\101\032\101\120\112\101\100\105\u{e7}\u{e3}\111\032\097\112\097\114\101\099\101\109\032\110\097\032\112\097\114\116\105\100\097\046'
-,"\076\111\098\098\121\058\032\101\113\117\105\112\109\101\110\116\046\032\069\120\112\101\100\105\116\105\111\110\032\102\101\097\116\117\114\101\115\032\097\112\112\101\097\114\032\105\110\032\116\104\101\032\103\097\109\101\032\112\108\097\099\101\046"),54,15)a5(
-a_,'\103\101\097\114','\078\111\109\101\032\101\120\097\116\111\032\100\111\032\101\113\117\105\112\097\109\101\110\116\111\032\100\111\032\108\111\098\098\121','\069\120\097\099\116\032\108\111\098\098\121\032\101\113\117\105\112\109\101\110\116\032\110\097\109\101',20)
-a4(a_,'\069\113\117\105\112\097\114\032\111\032\105\116\101\109\032\105\110\102\111\114\109\097\100\111','\069\113\117\105\112\032\101\110\116\101\114\101\100\032\105\116\101\109',23,function()local bh=aH.
-names(aW.gear)[1]assert(bh,'\069\110\116\101\114\032\097\110\032\105\116\101\109\032\110\097\109\101')local bi=bb(ba(
-'\076\111\098\098\121\066\097\099\107\112\097\099\107\083\101\114\118\105\099\101'):SetEquipped(bh))a2(bi and aL('\069\113\117\105\112\097\109\101\110\116\111\032\097\099\101\105\116\111\046',
-'\069\113\117\105\112\109\101\110\116\032\097\099\099\101\112\116\101\100\046')or aL('\079\032\106\111\103\111\032\110\u{e3}\111\032\097\099\101\105\116\111\117\032\111\032\105\116\101\109\046',
-'\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\097\099\099\101\112\116\032\116\104\105\115\032\105\116\101\109\046'))end)else a6(a_,'\115\119\105\110\103',
+,"\076\111\098\098\121\058\032\101\113\117\105\112\109\101\110\116\046\032\069\120\112\101\100\105\116\105\111\110\032\102\101\097\116\117\114\101\115\032\097\112\112\101\097\114\032\105\110\032\116\104\101\032\103\097\109\101\032\112\108\097\099\101\046"),54,15)a7(
+a1,'\103\101\097\114','\078\111\109\101\032\101\120\097\116\111\032\100\111\032\101\113\117\105\112\097\109\101\110\116\111\032\100\111\032\108\111\098\098\121','\069\120\097\099\116\032\108\111\098\098\121\032\101\113\117\105\112\109\101\110\116\032\110\097\109\101',20)
+a6(a1,'\069\113\117\105\112\097\114\032\111\032\105\116\101\109\032\105\110\102\111\114\109\097\100\111','\069\113\117\105\112\032\101\110\116\101\114\101\100\032\105\116\101\109',23,function()local bm=aI.
+names(aY.gear)[1]assert(bm,'\069\110\116\101\114\032\097\110\032\105\116\101\109\032\110\097\109\101')local bn=bd(bc(
+'\076\111\098\098\121\066\097\099\107\112\097\099\107\083\101\114\118\105\099\101'):SetEquipped(bm))a4(bn and aM('\069\113\117\105\112\097\109\101\110\116\111\032\097\099\101\105\116\111\046',
+'\069\113\117\105\112\109\101\110\116\032\097\099\099\101\112\116\101\100\046')or aM('\079\032\106\111\103\111\032\110\u{e3}\111\032\097\099\101\105\116\111\117\032\111\032\105\116\101\109\046',
+'\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\097\099\099\101\112\116\032\116\104\105\115\032\105\116\101\109\046'))end)else a8(a1,'\115\119\105\110\103',
 '\065\117\116\111\032\112\105\099\097\114\101\116\097\032\101\113\117\105\112\097\100\097\032\040\097\108\099\097\110\099\101\032\110\111\114\109\097\108\041','\065\117\116\111\032\101\113\117\105\112\112\101\100\032\112\105\099\107\097\120\101\032\040\110\111\114\109\097\108\032\114\097\110\103\101\041'
-,20)aK.label(a_,'\084\101\120\116\076\097\098\101\108',aL(
+,20)aL.label(a1,'\084\101\120\116\076\097\098\101\108',aM(
 "\069\113\117\105\112\101\032\097\032\112\105\099\097\114\101\116\097\032\101\032\097\112\114\111\120\105\109\101\045\115\101\032\100\111\032\097\108\118\111\046\032\082\101\115\112\101\105\116\097\032\111\032\099\111\111\108\100\111\119\110\032\110\097\116\105\118\111\046",
 "\069\113\117\105\112\032\121\111\117\114\032\112\105\099\107\097\120\101\032\097\110\100\032\097\112\112\114\111\097\099\104\032\116\104\101\032\116\097\114\103\101\116\046\032\085\115\101\115\032\116\104\101\032\110\097\116\105\118\101\032\099\111\111\108\100\111\119\110\046"),48,21
-)local bh=aI.section('\077\101\108\104\111\114\105\097\115')aK.label(bh,'\084\101\120\116\076\097\098\101\108',aL(
+)local bm=aJ.section('\077\101\108\104\111\114\105\097\115')aL.label(bm,'\084\101\120\116\076\097\098\101\108',aM(
 '\079\114\103\097\110\105\122\101\032\097\032\108\105\115\116\097\032\099\111\109\032\u{2191}\047\u{2193}\032\097\098\097\105\120\111\046\032\068\101\115\109\097\114\113\117\101\032\111\032\113\117\101\032\110\u{e3}\111\032\100\101\115\101\106\097\032\099\111\109\112\114\097\114\046'
 ,
 '\082\101\111\114\100\101\114\032\119\105\116\104\032\u{2191}\047\u{2193}\032\098\101\108\111\119\046\032\085\110\099\104\101\099\107\032\117\112\103\114\097\100\101\115\032\121\111\117\032\100\111\032\110\111\116\032\119\097\110\116\032\116\111\032\098\117\121\046'
-),50,1)a5(bh,'\114\101\115\101\114\118\101','\082\101\115\101\114\118\097\032\109\u{ed}\110\105\109\097\032\100\101\032\109\111\101\100\097\115','\077\105\110\105\109\117\109\032\099\111\105\110\032\114\101\115\101\114\118\101',4,
-{0,1e9})a5(bh,'\108\105\109\105\116','\076\105\109\105\116\101\032\100\101\032\116\101\110\116\097\116\105\118\097\115\032\112\111\114\032\115\101\115\115\u{e3}\111',
-'\065\116\116\101\109\112\116\032\108\105\109\105\116\032\112\101\114\032\115\101\115\115\105\111\110',7,{1,100})a6(bh,'\117\112\103\114\097\100\101\115',
-'\065\117\116\111\032\109\101\108\104\111\114\105\097\115\032\099\111\109\032\109\111\101\100\097\115','\065\117\116\111\032\099\111\105\110\032\117\112\103\114\097\100\101\115',10)a5(bh,'\099\114\097\102\116\076\105\109\105\116',
+),50,1)a7(bm,'\114\101\115\101\114\118\101','\082\101\115\101\114\118\097\032\109\u{ed}\110\105\109\097\032\100\101\032\109\111\101\100\097\115','\077\105\110\105\109\117\109\032\099\111\105\110\032\114\101\115\101\114\118\101',4,
+{0,1e9})a7(bm,'\108\105\109\105\116','\076\105\109\105\116\101\032\100\101\032\116\101\110\116\097\116\105\118\097\115\032\112\111\114\032\115\101\115\115\u{e3}\111',
+'\065\116\116\101\109\112\116\032\108\105\109\105\116\032\112\101\114\032\115\101\115\115\105\111\110',7,{1,100})a8(bm,'\117\112\103\114\097\100\101\115',
+'\065\117\116\111\032\109\101\108\104\111\114\105\097\115\032\099\111\109\032\109\111\101\100\097\115','\065\117\116\111\032\099\111\105\110\032\117\112\103\114\097\100\101\115',10)a7(bm,'\099\114\097\102\116\076\105\109\105\116',
 '\076\105\109\105\116\101\032\100\101\032\102\097\098\114\105\099\097\u{e7}\u{e3}\111\032\112\111\114\032\115\101\115\115\u{e3}\111',
-'\067\114\097\102\116\032\097\116\116\101\109\112\116\032\108\105\109\105\116\032\112\101\114\032\115\101\115\115\105\111\110',12,{1,100})a6(bh,'\099\114\097\102\116',
+'\067\114\097\102\116\032\097\116\116\101\109\112\116\032\108\105\109\105\116\032\112\101\114\032\115\101\115\115\105\111\110',12,{1,100})a8(bm,'\099\114\097\102\116',
 '\065\117\116\111\032\102\097\098\114\105\099\097\114\032\105\116\101\109\032\115\101\108\101\099\105\111\110\097\100\111\032\110\111\032\106\111\103\111','\065\117\116\111\032\099\114\097\102\116\032\105\116\101\109\032\115\101\108\101\099\116\101\100\032\105\110\032\103\097\109\101',15)
-aK.label(bh,'\084\101\120\116\076\097\098\101\108',aL(
+aL.label(bm,'\084\101\120\116\076\097\098\101\108',aM(
 '\067\114\097\102\116\105\110\103\058\032\097\098\114\097\032\097\032\098\097\110\099\097\100\097\032\101\032\101\115\099\111\108\104\097\032\111\032\105\116\101\109\032\110\111\032\106\111\103\111\046\032\082\111\098\117\120\032\102\105\099\097\032\101\120\099\108\117\u{ed}\100\111\046\032\065\115\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115\032\099\111\109\101\u{e7}\097\109\032\100\101\115\108\105\103\097\100\097\115\046'
 ,
 "\067\114\097\102\116\105\110\103\058\032\111\112\101\110\032\116\104\101\032\098\101\110\099\104\032\097\110\100\032\115\101\108\101\099\116\032\097\110\032\105\116\101\109\032\105\110\032\103\097\109\101\046\032\082\111\098\117\120\032\105\115\032\101\120\099\108\117\100\101\100\046\032\065\117\116\111\109\097\116\105\111\110\032\115\116\097\114\116\115\032\100\105\115\097\098\108\101\100\046"
-),72,16)local bi=aI.section('\073\103\114\101\106\097')a5(bi,'\103\101\097\114',
+),72,16)local bn=aJ.section('\073\103\114\101\106\097')a7(bn,'\103\101\097\114',
 '\080\114\105\111\114\105\100\097\100\101\032\100\101\032\105\116\101\110\115\032\097\032\115\097\108\118\097\114\032\040\110\111\109\101\115\032\101\120\097\116\111\115\041','\071\101\097\114\032\115\097\118\101\032\112\114\105\111\114\105\116\121\032\040\101\120\097\099\116\032\110\097\109\101\115\041'
-,1)local bj=aK.label(bi,'\084\101\120\116\076\097\098\101\108',aL(
+,1)local bo=aL.label(bn,'\084\101\120\116\076\097\098\101\108',aM(
 "\083\101\108\101\099\105\111\110\101\032\111\115\032\105\116\101\110\115\032\101\032\114\101\118\105\115\101\032\097\110\116\101\115\032\100\101\032\115\097\108\118\097\114\046\032\083\097\108\118\097\114\032\114\101\116\111\114\110\097\032\097\111\032\108\111\098\098\121\046",
 "\083\101\108\101\099\116\032\097\110\100\032\114\101\118\105\101\119\032\103\101\097\114\032\098\101\102\111\114\101\032\115\097\118\105\110\103\046\032\083\097\118\105\110\103\032\114\101\116\117\114\110\115\032\116\111\032\116\104\101\032\108\111\098\098\121\046"),90,5)
-local bk=nil a4(bi,'\065\098\114\105\114\032\097\108\116\097\114\032\101\032\099\097\114\114\101\103\097\114\032\105\116\101\110\115','\079\112\101\110\032\097\108\116\097\114\032\097\110\100\032\108\111\097\100\032\103\101\097\114',7,
-function()local bl,bm=bc()local bn=be()assert(bm and bn and(bm.Position-bn.
-Position).Magnitude<=20,aL('\065\112\114\111\120\105\109\101\045\115\101\032\100\111\032\097\108\116\097\114\032\112\114\105\109\101\105\114\111\046',
-'\065\112\112\114\111\097\099\104\032\116\104\101\032\097\108\116\097\114\032\102\105\114\115\116\046'))local bo=assert(a9('\085\073\067\111\110\116\114\111\108\108\101\114'),'\085\073\032\117\110\097\118\097\105\108\097\098\108\101'
-)bo:ToggleFrame('\083\097\118\101\071\101\097\114',true)bk=nil bj.Text=aL(
-'\065\103\117\097\114\100\101\032\097\032\108\105\115\116\097\032\110\097\116\105\118\097\059\032\100\101\112\111\105\115\032\112\114\101\112\097\114\101\032\097\032\115\101\108\101\u{e7}\u{e3}\111\046',
-'\087\097\105\116\032\102\111\114\032\116\104\101\032\110\097\116\105\118\101\032\108\105\115\116\044\032\116\104\101\110\032\112\114\101\112\097\114\101\032\116\104\101\032\115\101\108\101\099\116\105\111\110\046')end)a4(bi,
+local bp=nil local bq={}local br={}local function bs()for bt,bu in ipairs(br)do
+bu:Disconnect()end table.clear(br)for bt,bu in ipairs(bq)do bu:Destroy()end
+table.clear(bq)end aJ.attach(function()aQ=false a5()bs()if aW then aW.cleanup()
+end if aX then aX.cleanup()end for bt,bu in ipairs(aR)do bu:Disconnect()end end)
+a6(bn,'\067\097\114\114\101\103\097\114\032\105\110\118\101\110\116\u{e1}\114\105\111\032\101\032\101\115\099\111\108\104\101\114\032\105\116\101\110\115',
+'\076\111\097\100\032\105\110\118\101\110\116\111\114\121\032\097\110\100\032\115\101\108\101\099\116\032\105\116\101\109\115',10,function()local bt=assert(bb(
+'\083\097\118\101\071\101\097\114\067\111\110\116\114\111\108\108\101\114'),'\083\097\118\101\032\085\073\032\117\110\097\118\097\105\108\097\098\108\101')assert(bt.Loaded and bt.Frame.
+Visible and not bt.Pending and not bt.DeathMode,aM('\065\098\114\097\032\112\114\105\109\101\105\114\111\032\111\032\097\108\116\097\114\046',
+'\079\112\101\110\032\116\104\101\032\097\108\116\097\114\032\102\105\114\115\116\046'))local bu=bd(bc('\080\108\097\121\101\114\083\101\114\118\105\099\101'):GetSaveGearChoices())
+assert(aQ and type(bu)=='\116\097\098\108\101'and bt.Loaded and bt.Frame.Visible and not bt.
+Pending and not bt.DeathMode,'\065\108\116\097\114\032\099\108\111\115\101\100')bs()bt.Selection={}bt.Limit=math.
+max(0,math.floor(tonumber(bu.Limit)or 0))bp=bt local bv={}local function bw()
+local bx=0 for by,bz in pairs(bt.Selection)do bx+=bz end bo.Text=string.format(
+aM("\083\101\108\101\099\105\111\110\097\100\111\115\058\032\037\100\047\037\100\046\032\067\111\110\102\105\114\097\032\097\032\108\105\115\116\097\032\101\032\117\115\101\032\083\065\076\086\065\082\032\112\097\114\097\032\118\111\108\116\097\114\032\097\111\032\108\111\098\098\121\046",
+"\083\101\108\101\099\116\101\100\058\032\037\100\047\037\100\046\032\082\101\118\105\101\119\032\116\104\101\032\108\105\115\116\032\097\110\100\032\117\115\101\032\083\065\086\069\032\116\111\032\114\101\116\117\114\110\032\116\111\032\116\104\101\032\108\111\098\098\121\046"),bx,bt
+.Limit)bt:UpdateTotal()for by,bz in ipairs(bv)do bz()end end for bx,by in
+ipairs(bu.Items or{})do if by.Id~=nil and by.Count and by.Count>0 then local bz=
+Instance.new('\070\114\097\109\101')bz.Size=UDim2.new(1,-8,0,64)bz.BackgroundTransparency=0.2
+bz.BackgroundColor3=Color3.fromRGB(23,31,44)bz.LayoutOrder=100+bx bz.Parent=bn
+bq[#bq+1]=bz local bA=Instance.new('\085\073\083\116\114\111\107\101')bA.Color=Color3.fromRGB(77,110,140
+)bA.Transparency=0.35 bA.Parent=bz local bB,bC=bt:GetItemDisplay(by.Name)local
+bD=Instance.new('\073\109\097\103\101\076\097\098\101\108')bD.Size=UDim2.fromOffset(40,40)bD.Position=UDim2.
+fromOffset(6,10)bD.BackgroundTransparency=1 bD.Image=bB or''bD.Parent=bz local
+bE,bF=aL.checkbox(bz,'',1)bE.Size=UDim2.new(1,-150,0,58)bE.Position=UDim2.
+fromOffset(50,2)local bG=bE:FindFirstChildWhichIsA('\084\101\120\116\076\097\098\101\108')local function bH
+()local bI=bt.Selection[by.Id]or 0 bF(bI>0)if bG then bG.Text=tostring(bC or by.
+Name)..'\032\u{b7}\032'..bI..'\047'..by.Count end end bv[#bv+1]=bH local function bI(bJ)
+if not aQ or bp~=bt or not bt.Loaded or not bt.Frame.Visible or bt.Pending or bt
+.DeathMode then return end local bK=0 for bL,bM in pairs(bt.Selection)do bK+=bM
+end local bL=bt.Selection[by.Id]or 0 if bJ>0 and bK>=bt.Limit then return end bt
+.Selection[by.Id]=math.clamp(bL+bJ,0,by.Count)bw()end br[#br+1]=bE.Activated:
+Connect(function()if not aQ or bp~=bt or bt.Pending or not bt.Frame.Visible then
+return end if(bt.Selection[by.Id]or 0)>0 then bt.Selection[by.Id]=0 bw()else bI(
+1)end end)for bJ,bK in ipairs({-1,1})do local bL=aL.button(bz,bK<0 and'\u{2212}'
+or'\043',2+bJ)bL.Size=UDim2.fromOffset(40,42)bL.Position=UDim2.new(1,-94+(bJ-1)*46,
+0,10)br[#br+1]=bL.Activated:Connect(function()bI(bK)end)end end end bw()end)a6(
+bn,'\065\098\114\105\114\032\097\108\116\097\114\032\101\032\099\097\114\114\101\103\097\114\032\105\116\101\110\115','\079\112\101\110\032\097\108\116\097\114\032\097\110\100\032\108\111\097\100\032\103\101\097\114',7,function()local
+bt,bu=be()local bv=bg()assert(bu and bv and(bu.Position-bv.Position).Magnitude<=
+20,aM('\065\112\114\111\120\105\109\101\045\115\101\032\100\111\032\097\108\116\097\114\032\112\114\105\109\101\105\114\111\046','\065\112\112\114\111\097\099\104\032\116\104\101\032\097\108\116\097\114\032\102\105\114\115\116\046'))local bw=
+assert(bb('\085\073\067\111\110\116\114\111\108\108\101\114'),'\085\073\032\117\110\097\118\097\105\108\097\098\108\101')bw:ToggleFrame('\083\097\118\101\071\101\097\114',true)bp=nil
+bo.Text=aM('\065\103\117\097\114\100\101\032\097\032\108\105\115\116\097\032\110\097\116\105\118\097\059\032\100\101\112\111\105\115\032\112\114\101\112\097\114\101\032\097\032\115\101\108\101\u{e7}\u{e3}\111\046',
+'\087\097\105\116\032\102\111\114\032\116\104\101\032\110\097\116\105\118\101\032\108\105\115\116\044\032\116\104\101\110\032\112\114\101\112\097\114\101\032\116\104\101\032\115\101\108\101\099\116\105\111\110\046')end)a6(bn,
 '\080\114\101\112\097\114\097\114\032\115\101\108\101\u{e7}\u{e3}\111\032\112\111\114\032\112\114\105\111\114\105\100\097\100\101','\080\114\101\112\097\114\101\032\115\101\108\101\099\116\105\111\110\032\098\121\032\112\114\105\111\114\105\116\121',8,
-function()local bl=assert(a9('\083\097\118\101\071\101\097\114\067\111\110\116\114\111\108\108\101\114'),'\083\097\118\101\032\085\073\032\117\110\097\118\097\105\108\097\098\108\101')assert(
-bl.Loaded and bl.Frame.Visible and not bl.Pending and not bl.DeathMode,
-'\079\112\101\110\032\116\104\101\032\108\105\118\101\032\097\108\116\097\114\032\085\073\032\102\105\114\115\116')local bm=bb(ba('\080\108\097\121\101\114\083\101\114\118\105\099\101'):
-GetSaveGearChoices())assert(aP and type(bm)=='\116\097\098\108\101'and bl.Loaded and bl.Frame.
-Visible and not bl.Pending and not bl.DeathMode,
-'\067\104\111\105\099\101\115\032\117\110\097\118\097\105\108\097\098\108\101\032\111\114\032\097\108\116\097\114\032\099\108\111\115\101\100')local bn=aH.selection(bm.Items,bm.Limit,aH
-.names(aW.gear))local bo=0 for bp,bq in pairs(bn)do bo+=bq end assert(bo>0,aL(
+function()local bt=assert(bb('\083\097\118\101\071\101\097\114\067\111\110\116\114\111\108\108\101\114'),'\083\097\118\101\032\085\073\032\117\110\097\118\097\105\108\097\098\108\101')assert(
+bt.Loaded and bt.Frame.Visible and not bt.Pending and not bt.DeathMode,
+'\079\112\101\110\032\116\104\101\032\108\105\118\101\032\097\108\116\097\114\032\085\073\032\102\105\114\115\116')local bu=bd(bc('\080\108\097\121\101\114\083\101\114\118\105\099\101'):
+GetSaveGearChoices())assert(aQ and type(bu)=='\116\097\098\108\101'and bt.Loaded and bt.Frame.
+Visible and not bt.Pending and not bt.DeathMode,
+'\067\104\111\105\099\101\115\032\117\110\097\118\097\105\108\097\098\108\101\032\111\114\032\097\108\116\097\114\032\099\108\111\115\101\100')local bv=aI.selection(bu.Items,bu.Limit,aI
+.names(aY.gear))local bw=0 for bx,by in pairs(bv)do bw+=by end assert(bw>0,aM(
 '\078\101\110\104\117\109\032\105\116\101\109\032\100\105\115\112\111\110\u{ed}\118\101\108\032\099\111\105\110\099\105\100\101\032\099\111\109\032\097\032\108\105\115\116\097\046',
-'\078\111\032\097\118\097\105\108\097\098\108\101\032\103\101\097\114\032\109\097\116\099\104\101\115\032\121\111\117\114\032\108\105\115\116\046'))bl.Selection=bn bl:UpdateTotal()bk=bl bj
-.Text=string.format(aL(
+'\078\111\032\097\118\097\105\108\097\098\108\101\032\103\101\097\114\032\109\097\116\099\104\101\115\032\121\111\117\114\032\108\105\115\116\046'))bt.Selection=bv bt:UpdateTotal()bp=bt bo
+.Text=string.format(aM(
 '\037\100\032\105\116\101\109\040\110\115\041\032\115\101\108\101\099\105\111\110\097\100\111\115\046\032\082\101\118\105\115\101\032\110\097\032\106\097\110\101\108\097\032\100\111\032\106\111\103\111\046\032\079\032\112\114\u{f3}\120\105\109\111\032\098\111\116\u{e3}\111\032\115\097\108\118\097\032\101\032\115\097\105\046'
 ,
 "\037\100\032\105\116\101\109\040\115\041\032\115\101\108\101\099\116\101\100\046\032\082\101\118\105\101\119\032\105\110\032\116\104\101\032\103\097\109\101\032\119\105\110\100\111\119\046\032\084\104\101\032\110\101\120\116\032\098\117\116\116\111\110\032\115\097\118\101\115\032\097\110\100\032\101\120\105\116\115\046"
-),bo)end)a4(bi,'\083\065\076\086\065\082\032\115\101\108\101\u{e7}\u{e3}\111\032\114\101\118\105\115\097\100\097\032\101\032\115\097\105\114',
-'\083\065\086\069\032\114\101\118\105\101\119\101\100\032\115\101\108\101\099\116\105\111\110\032\097\110\100\032\101\120\105\116',9,function()local bl=bk local bm,bn=bc()local
-bo=be()assert(aP and bn and bo and(bn.Position-bo.Position).Magnitude<=20 and bl
-and bl.Loaded and bl.Frame.Visible and not bl.Pending and not bl.DeathMode,
-'\082\101\118\105\101\119\032\103\101\097\114\032\097\116\032\116\104\101\032\097\108\116\097\114\032\119\104\105\108\101\032\097\108\105\118\101\032\102\105\114\115\116')a3()bk=nil bl:Teleport()a2(
+),bw)end)a6(bn,'\083\065\076\086\065\082\032\115\101\108\101\u{e7}\u{e3}\111\032\114\101\118\105\115\097\100\097\032\101\032\115\097\105\114',
+'\083\065\086\069\032\114\101\118\105\101\119\101\100\032\115\101\108\101\099\116\105\111\110\032\097\110\100\032\101\120\105\116',9,function()local bt=bp local bu,bv=be()local
+bw=bg()assert(aQ and bv and bw and(bv.Position-bw.Position).Magnitude<=20 and bt
+and bt.Loaded and bt.Frame.Visible and not bt.Pending and not bt.DeathMode,
+'\082\101\118\105\101\119\032\103\101\097\114\032\097\116\032\116\104\101\032\097\108\116\097\114\032\119\104\105\108\101\032\097\108\105\118\101\032\102\105\114\115\116')a5()bp=nil bt:Teleport()a4(
 '\083\111\108\105\099\105\116\097\u{e7}\u{e3}\111\032\101\110\118\105\097\100\097\046\032\079\032\106\111\103\111\032\099\111\110\102\105\114\109\097\032\101\032\102\097\122\032\111\032\116\101\108\101\112\111\114\116\101\046',
-'\082\101\113\117\101\115\116\032\115\101\110\116\046\032\084\104\101\032\103\097\109\101\032\099\111\110\102\105\114\109\115\032\097\110\100\032\116\101\108\101\112\111\114\116\115\032\121\111\117\046')end)end if aJ=='\114\117\110'and aG
-then aV=aG(aI,{actor=bc,ctrl=a9,say=a2,priority=aW.priority,setPriority=function
-(bh)aW.priority=bh aY()end})end local bh local bi if aJ=='\114\117\110'then a6(a_,'\115\107\105\112',
-'\065\117\116\111\032\118\111\116\097\114\032\112\097\114\097\032\112\117\108\097\114\032\099\117\116\115\099\101\110\101\115','\065\117\116\111\032\118\111\116\101\032\116\111\032\115\107\105\112\032\099\117\116\115\099\101\110\101\115',24)aK.label(a_,
-'\084\101\120\116\076\097\098\101\108',aL(
+'\082\101\113\117\101\115\116\032\115\101\110\116\046\032\084\104\101\032\103\097\109\101\032\099\111\110\102\105\114\109\115\032\097\110\100\032\116\101\108\101\112\111\114\116\115\032\121\111\117\046')end)end if aK=='\114\117\110'and aG
+then aW=aG(aJ,{actor=be,ctrl=bb,say=a4,priority=aY.priority,setPriority=function
+(bm)aY.priority=bm a_()end})end if aK=='\114\117\110'and aH then aX=aH(aJ,{actor=be,ctrl=
+bb,service=bc,await=bd,pauseCombat=function()if aW then aW.stop()end end})end
+local bm local bn if aK=='\114\117\110'then a8(a1,'\115\107\105\112',
+'\065\117\116\111\032\118\111\116\097\114\032\112\097\114\097\032\112\117\108\097\114\032\099\117\116\115\099\101\110\101\115','\065\117\116\111\032\118\111\116\101\032\116\111\032\115\107\105\112\032\099\117\116\115\099\101\110\101\115',24)aL.label(a1,
+'\084\101\120\116\076\097\098\101\108',aM(
 '\079\032\112\114\111\103\114\101\115\115\111\032\100\101\112\101\110\100\101\032\100\097\032\098\114\111\099\097\032\101\032\100\097\115\032\112\097\114\101\100\101\115\046\032\084\101\108\101\112\111\114\116\101\032\101\032\118\111\111\032\110\u{e3}\111\032\099\111\110\116\097\109\032\113\117\105\108\u{f4}\109\101\116\114\111\115\046'
 ,
 "\080\114\111\103\114\101\115\115\032\100\101\112\101\110\100\115\032\111\110\032\116\104\101\032\100\114\105\108\108\032\097\110\100\032\119\097\108\108\115\046\032\084\101\108\101\112\111\114\116\105\110\103\032\097\110\100\032\102\108\121\105\110\103\032\100\111\032\110\111\116\032\099\111\117\110\116\032\107\105\108\111\109\101\116\101\114\115\046"
-),58,25)a4(a_,'\067\111\110\115\117\108\116\097\114\032\082\080\032\097\116\117\097\108\032\100\097\032\112\097\114\116\105\100\097','\067\104\101\099\107\032\099\117\114\114\101\110\116\032\114\117\110\032\082\080',27,function
-()assert(aM:GetAttribute('\082\097\110\107\101\100\082\117\110\065\099\116\105\118\101')==true,aL(
-'\069\115\116\097\032\112\097\114\116\105\100\097\032\110\u{e3}\111\032\u{e9}\032\114\097\110\113\117\101\097\100\097\046','\084\104\105\115\032\114\117\110\032\105\115\032\110\111\116\032\114\097\110\107\101\100\046'))local bj=
-bb(ba('\082\097\110\107\101\100\083\101\114\118\105\099\101'):GetRankChange())assert(type(bj)=='\116\097\098\108\101'and type(bj.
-DeltaRP)=='\110\117\109\098\101\114','\082\080\032\117\110\097\118\097\105\108\097\098\108\101')a2(string.format(aL(
+),58,25)a6(a1,'\067\111\110\115\117\108\116\097\114\032\082\080\032\097\116\117\097\108\032\100\097\032\112\097\114\116\105\100\097','\067\104\101\099\107\032\099\117\114\114\101\110\116\032\114\117\110\032\082\080',27,function
+()assert(aN:GetAttribute('\082\097\110\107\101\100\082\117\110\065\099\116\105\118\101')==true,aM(
+'\069\115\116\097\032\112\097\114\116\105\100\097\032\110\u{e3}\111\032\u{e9}\032\114\097\110\113\117\101\097\100\097\046','\084\104\105\115\032\114\117\110\032\105\115\032\110\111\116\032\114\097\110\107\101\100\046'))local bo=
+bd(bc('\082\097\110\107\101\100\083\101\114\118\105\099\101'):GetRankChange())assert(type(bo)=='\116\097\098\108\101'and type(bo.
+DeltaRP)=='\110\117\109\098\101\114','\082\080\032\117\110\097\118\097\105\108\097\098\108\101')a4(string.format(aM(
 '\082\080\032\112\114\111\106\101\116\097\100\111\032\112\101\108\111\032\106\111\103\111\058\032\037\043\100\046\032\078\u{e3}\111\032\115\097\108\118\097\032\110\101\109\032\115\097\105\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101\046',
-"\071\097\109\101\045\112\114\111\106\101\099\116\101\100\032\082\080\058\032\037\043\100\046\032\068\111\101\115\032\110\111\116\032\097\117\116\111\109\097\116\105\099\097\108\108\121\032\115\097\118\101\032\111\114\032\101\120\105\116\046"),bj.DeltaRP))
-end)local bj=aI.section('\077\101\108\104\111\114\105\097\115')a5(bj,'\109\101\100\097\108\080\114\105\111\114\105\116\121',
+"\071\097\109\101\045\112\114\111\106\101\099\116\101\100\032\082\080\058\032\037\043\100\046\032\068\111\101\115\032\110\111\116\032\097\117\116\111\109\097\116\105\099\097\108\108\121\032\115\097\118\101\032\111\114\032\101\120\105\116\046"),bo.DeltaRP))
+end)local bo=aJ.section('\077\101\108\104\111\114\105\097\115')a7(bo,'\109\101\100\097\108\080\114\105\111\114\105\116\121',
 '\077\101\100\097\108\104\097\115\058\032\112\114\105\111\114\105\100\097\100\101\115\032\040\073\068\115\032\115\101\112\097\114\097\100\111\115\032\112\111\114\032\118\u{ed}\114\103\117\108\097\041',
-'\077\101\100\097\108\115\058\032\112\114\105\111\114\105\116\105\101\115\032\040\099\111\109\109\097\045\115\101\112\097\114\097\116\101\100\032\073\068\115\041',80)a5(bj,'\109\101\100\097\108\082\101\115\101\114\118\101',
-'\082\101\115\101\114\118\097\032\100\101\032\109\101\100\097\108\104\097\115','\077\101\100\097\108\032\114\101\115\101\114\118\101',83,{0,1e9})a5(bj,'\109\101\100\097\108\076\105\109\105\116',
+'\077\101\100\097\108\115\058\032\112\114\105\111\114\105\116\105\101\115\032\040\099\111\109\109\097\045\115\101\112\097\114\097\116\101\100\032\073\068\115\041',80)a7(bo,'\109\101\100\097\108\082\101\115\101\114\118\101',
+'\082\101\115\101\114\118\097\032\100\101\032\109\101\100\097\108\104\097\115','\077\101\100\097\108\032\114\101\115\101\114\118\101',83,{0,1e9})a7(bo,'\109\101\100\097\108\076\105\109\105\116',
 '\076\105\109\105\116\101\032\100\101\032\099\111\109\112\114\097\115\032\100\101\032\109\101\100\097\108\104\097\115\032\112\111\114\032\115\101\115\115\u{e3}\111',
-'\077\101\100\097\108\032\112\117\114\099\104\097\115\101\032\108\105\109\105\116\032\112\101\114\032\115\101\115\115\105\111\110',86,{1,100})a6(bj,'\109\101\100\097\108\115',
-'\065\117\116\111\032\109\101\108\104\111\114\105\097\115\032\100\101\032\076\097\114\114\121\032\099\111\109\032\109\101\100\097\108\104\097\115','\065\117\116\111\032\076\097\114\114\121\032\109\101\100\097\108\032\117\112\103\114\097\100\101\115',89)aK.label(
-bj,'\084\101\120\116\076\097\098\101\108',aL(
+'\077\101\100\097\108\032\112\117\114\099\104\097\115\101\032\108\105\109\105\116\032\112\101\114\032\115\101\115\115\105\111\110',86,{1,100})a8(bo,'\109\101\100\097\108\115',
+'\065\117\116\111\032\109\101\108\104\111\114\105\097\115\032\100\101\032\076\097\114\114\121\032\099\111\109\032\109\101\100\097\108\104\097\115','\065\117\116\111\032\076\097\114\114\121\032\109\101\100\097\108\032\117\112\103\114\097\100\101\115',89)aL.label(
+bo,'\084\101\120\116\076\097\098\101\108',aM(
 '\065\098\114\097\032\076\097\114\114\121\032\112\101\114\116\111\032\100\097\032\101\115\116\097\u{e7}\u{e3}\111\046\032\073\068\115\058\032\084\117\114\114\101\116\068\097\109\097\103\101\044\032\070\108\097\109\101\068\117\114\097\116\105\111\110\044\032\070\114\111\115\116\068\117\114\097\116\105\111\110\044\032\070\108\097\109\101\082\101\099\104\097\114\103\101\083\112\101\101\100\044\032\070\114\111\115\116\082\101\099\104\097\114\103\101\083\112\101\101\100\044\032\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\068\097\109\097\103\101\044\032\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\065\109\109\111\046\032\083\101\109\032\099\111\109\112\114\097\115\032\082\111\098\117\120\046'
 ,
 "\079\112\101\110\032\076\097\114\114\121\032\110\101\097\114\032\116\104\101\032\115\116\097\116\105\111\110\046\032\073\068\115\058\032\084\117\114\114\101\116\068\097\109\097\103\101\044\032\070\108\097\109\101\068\117\114\097\116\105\111\110\044\032\070\114\111\115\116\068\117\114\097\116\105\111\110\044\032\070\108\097\109\101\082\101\099\104\097\114\103\101\083\112\101\101\100\044\032\070\114\111\115\116\082\101\099\104\097\114\103\101\083\112\101\101\100\044\032\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\068\097\109\097\103\101\044\032\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\065\109\109\111\046\032\078\111\032\082\111\098\117\120\032\112\117\114\099\104\097\115\101\115\046"
-),110,90)end local bj,bk=0,0 task.spawn(function()while aP do local bl,bm=pcall(
-function()local bl,bm,bn=bc()if os.clock()>=bk then bk=os.clock()+2 a0.Text=
+),110,90)end local bo,bp=0,0 task.spawn(function()while aQ do local bq,br=pcall(
+function()local bq,br,bs=be()if os.clock()>=bp then bp=os.clock()+2 bj()a2.Text=
 string.format(
-'\037\115\032\u{b7}\032\080\108\097\099\101\032\037\115\n\037\115\058\032\037\115\032\u{b7}\032\037\115\058\032\037\115\n\037\115\058\032\037\100\047\037\100\032\u{b7}\032\067\114\097\102\116\058\032\037\100\047\037\100',aJ==
-'\108\111\098\098\121'and'\076\111\098\098\121'or aL('\069\120\112\101\100\105\u{e7}\u{e3}\111','\069\120\112\101\100\105\116\105\111\110'),game.PlaceId,aL(
-'\086\105\100\097','\072\101\097\108\116\104'),bn and math.floor(bn.Health)or 0,aL('\073\103\114\101\106\097','\067\104\117\114\099\104'),be()and
-aL('\099\097\114\114\101\103\097\100\097','\108\111\097\100\101\100')or aL('\110\u{e3}\111\032\099\097\114\114\101\103\097\100\097','\110\111\116\032\108\111\097\100\101\100'),aL(
-'\084\101\110\116\097\116\105\118\097\115\032\117\112\103\114\097\100\101','\085\112\103\114\097\100\101\032\097\116\116\101\109\112\116\115'),aS.upgrades,aW.limit,aS.craft,aW.
-craftLimit)end if aJ~='\114\117\110'or not bm then return end if aR.skip then local bo=aH
-.skipRequest(a9('\067\117\116\083\099\101\110\101\067\111\110\116\114\111\108\108\101\114'))if not bo then bh=nil elseif not bh or bh.
-name~=bo.name or bh.id~=bo.id or bh.session~=bo.session then bh=bo local bp=ba(
-'\067\117\116\083\099\101\110\101\083\101\114\118\105\099\101')if bo.private then bb(bp:VoteSkipPrivate(bo.id,bo.name))else
-bb(bp:VoteSkip(bo.name,bo.id))end end end if workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101'
-)then return end if aR.swing and not game:GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101'):
-GetFocusedTextBox()then local bo=a9('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')local bp=bo and bo.
-ActiveTool local bq=a9('\085\073\067\111\110\116\114\111\108\108\101\114')if bp and bp.Tool and bp.Tool.Name:find(
-'\080\105\099\107\097\120\101',1,true)and type(bp.Swing)=='\102\117\110\099\116\105\111\110'and not(bq and bq.ActiveFrame and
-bq.ActiveFrame.Visible)then bp:Swing()end end if os.clock()<bj then return end
-bj=os.clock()+3 if aR.upgrades and aS.upgrades<aW.limit then local bo=a9(
-'\068\114\105\108\108\085\112\103\114\097\100\101\067\111\110\116\114\111\108\108\101\114')if bo and not bo.PurchasePending and not bo.CardsLocked
-and not bo.ActiveClassReward and bo.OptionsVersion~=nil then local bp=bo.
-OptionsVersion local bq=bo.RollToken local br=bb(ba('\067\117\114\114\101\110\099\121\083\101\114\118\105\099\101'):
-GetCurrency())if not aP or not aR.upgrades or bp~=bo.OptionsVersion or bq~=bo.
-RollToken or bo.PurchasePending or bo.CardsLocked or bo.ActiveClassReward or not
-bc()then return end local bs=aH.offer(bo.Options,br,aW.reserve,aH.names(aW.
-priority))if bs then aS.upgrades+=1 bo:SetPurchasePending(true)local bt,bu=
-pcall(function()return bb(ba('\068\114\105\108\108\083\101\114\118\105\099\101'):UpgradeDrill(bs.UpgradeName,bp))end
-)if bp==bo.OptionsVersion and bq==bo.RollToken then bo:SetPurchasePending(false)
-end if not bt then error(bu)end if not aP then return end if bu=='\112\114\111\109\112\116\101\100'then
-aR.upgrades=false aU.upgrades(false)a2(
+'\037\115\032\u{b7}\032\080\108\097\099\101\032\037\115\n\037\115\058\032\037\115\032\u{b7}\032\037\115\058\032\037\115\n\037\115\058\032\037\100\047\037\100\032\u{b7}\032\067\114\097\102\116\058\032\037\100\047\037\100',aK==
+'\108\111\098\098\121'and'\076\111\098\098\121'or aM('\069\120\112\101\100\105\u{e7}\u{e3}\111','\069\120\112\101\100\105\116\105\111\110'),game.PlaceId,aM(
+'\086\105\100\097','\072\101\097\108\116\104'),bs and math.floor(bs.Health)or 0,aM('\073\103\114\101\106\097','\067\104\117\114\099\104'),bg()and
+aM('\099\097\114\114\101\103\097\100\097','\108\111\097\100\101\100')or aM('\110\u{e3}\111\032\099\097\114\114\101\103\097\100\097','\110\111\116\032\108\111\097\100\101\100'),aM(
+'\084\101\110\116\097\116\105\118\097\115\032\117\112\103\114\097\100\101','\085\112\103\114\097\100\101\032\097\116\116\101\109\112\116\115'),aT.upgrades,aY.limit,aT.craft,aY.
+craftLimit)end if aK~='\114\117\110'or not br then return end if aS.skip then local bt=aI
+.skipRequest(bb('\067\117\116\083\099\101\110\101\067\111\110\116\114\111\108\108\101\114'))if not bt then bm=nil elseif not bm or bm.
+name~=bt.name or bm.id~=bt.id or bm.session~=bt.session then bm=bt local bu=bc(
+'\067\117\116\083\099\101\110\101\083\101\114\118\105\099\101')if bt.private then bd(bu:VoteSkipPrivate(bt.id,bt.name))else
+bd(bu:VoteSkip(bt.name,bt.id))end end end if workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101'
+)then return end if aS.swing and not game:GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101'):
+GetFocusedTextBox()then local bt=bb('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')local bu=bt and bt.
+ActiveTool local bv=bb('\085\073\067\111\110\116\114\111\108\108\101\114')if bu and bu.Tool and bu.Tool.Name:find(
+'\080\105\099\107\097\120\101',1,true)and type(bu.Swing)=='\102\117\110\099\116\105\111\110'and not(bv and bv.ActiveFrame and
+bv.ActiveFrame.Visible)then bu:Swing()end end if os.clock()<bo then return end
+bo=os.clock()+3 if aS.upgrades and aT.upgrades<aY.limit then local bt=bb(
+'\068\114\105\108\108\085\112\103\114\097\100\101\067\111\110\116\114\111\108\108\101\114')if bt and not bt.PurchasePending and not bt.CardsLocked
+and not bt.ActiveClassReward and bt.OptionsVersion~=nil then local bu=bt.
+OptionsVersion local bv=bt.RollToken local bw=bd(bc('\067\117\114\114\101\110\099\121\083\101\114\118\105\099\101'):
+GetCurrency())if not aQ or not aS.upgrades or bu~=bt.OptionsVersion or bv~=bt.
+RollToken or bt.PurchasePending or bt.CardsLocked or bt.ActiveClassReward or not
+be()then return end local bx=aI.offer(bt.Options,bw,aY.reserve,aI.names(aY.
+priority))if bx then aT.upgrades+=1 bt:SetPurchasePending(true)local by,bz=
+pcall(function()return bd(bc('\068\114\105\108\108\083\101\114\118\105\099\101'):UpgradeDrill(bx.UpgradeName,bu))end
+)if bu==bt.OptionsVersion and bv==bt.RollToken then bt:SetPurchasePending(false)
+end if not by then error(bz)end if not aQ then return end if bz=='\112\114\111\109\112\116\101\100'then
+aS.upgrades=false aV.upgrades(false)a4(
 '\079\032\106\111\103\111\032\114\101\116\111\114\110\111\117\032\117\109\032\102\108\117\120\111\032\100\101\032\099\111\109\112\114\097\059\032\097\117\116\111\109\097\u{e7}\u{e3}\111\032\100\101\115\097\116\105\118\097\100\097\046',
-'\084\104\101\032\103\097\109\101\032\114\101\116\117\114\110\101\100\032\097\032\112\117\114\099\104\097\115\101\032\102\108\111\119\059\032\097\117\116\111\109\097\116\105\111\110\032\100\105\115\097\098\108\101\100\046')else a2(aL(
-'\077\101\108\104\111\114\105\097\032\115\111\108\105\099\105\116\097\100\097\058\032','\085\112\103\114\097\100\101\032\114\101\113\117\101\115\116\101\100\058\032')..bs.UpgradeName)end if type(bo.
-FetchUpgradeOptions)=='\102\117\110\099\116\105\111\110'then bo:FetchUpgradeOptions()end end end end if
-aR.medals and aS.medals<aW.medalLimit then local bo=a9('\076\097\114\114\121\067\111\110\116\114\111\108\108\101\114')if bo
-and bo.Frame and bo.Frame.Visible and not bo.PurchasePending and bo:FindStation(
-)then if not bi then local bp=aN:FindFirstChild('\083\104\097\114\101\100')local bq=bp and bp:
-FindFirstChild('\076\097\114\114\121\067\111\110\102\105\103')if bq then bi=require(bq).Upgrades end end local bp
-=bi and aH.medalOffer(bi,bo.State,aW.medalReserve,aH.names(aW.medalPriority))if
-bp then aS.medals+=1 bo:BuyUpgrade(bp)a2(aL('\077\101\108\104\111\114\105\097\032\099\111\109\032\109\101\100\097\108\104\097\115\032\115\111\108\105\099\105\116\097\100\097\058\032'
-,'\077\101\100\097\108\032\117\112\103\114\097\100\101\032\114\101\113\117\101\115\116\101\100\058\032')..bp)end end end if aR.craft and aS.craft<aW.
-craftLimit then local bo=a9('\067\114\097\102\116\105\110\103\067\111\110\116\114\111\108\108\101\114')if bo and bo.CurrentItem and
-not bo.PendingCraft and bo.Frame and bo.Frame.Visible and not bo:
-CanPurchaseWithRobux(bo.CurrentItem)and bo:CanCraft(bo.CurrentItem)then aS.craft
-+=1 bo:CraftCurrentItem()a2(
+'\084\104\101\032\103\097\109\101\032\114\101\116\117\114\110\101\100\032\097\032\112\117\114\099\104\097\115\101\032\102\108\111\119\059\032\097\117\116\111\109\097\116\105\111\110\032\100\105\115\097\098\108\101\100\046')else a4(aM(
+'\077\101\108\104\111\114\105\097\032\115\111\108\105\099\105\116\097\100\097\058\032','\085\112\103\114\097\100\101\032\114\101\113\117\101\115\116\101\100\058\032')..bx.UpgradeName)end if type(bt.
+FetchUpgradeOptions)=='\102\117\110\099\116\105\111\110'then bt:FetchUpgradeOptions()end end end end if
+aS.medals and aT.medals<aY.medalLimit then local bt=bb('\076\097\114\114\121\067\111\110\116\114\111\108\108\101\114')if bt
+and bt.Frame and bt.Frame.Visible and not bt.PurchasePending and bt:FindStation(
+)then if not bn then local bu=aO:FindFirstChild('\083\104\097\114\101\100')local bv=bu and bu:
+FindFirstChild('\076\097\114\114\121\067\111\110\102\105\103')if bv then bn=require(bv).Upgrades end end local bu
+=bn and aI.medalOffer(bn,bt.State,aY.medalReserve,aI.names(aY.medalPriority))if
+bu then aT.medals+=1 bt:BuyUpgrade(bu)a4(aM('\077\101\108\104\111\114\105\097\032\099\111\109\032\109\101\100\097\108\104\097\115\032\115\111\108\105\099\105\116\097\100\097\058\032'
+,'\077\101\100\097\108\032\117\112\103\114\097\100\101\032\114\101\113\117\101\115\116\101\100\058\032')..bu)end end end if aS.craft and aT.craft<aY.
+craftLimit then local bt=bb('\067\114\097\102\116\105\110\103\067\111\110\116\114\111\108\108\101\114')if bt and bt.CurrentItem and
+not bt.PendingCraft and bt.Frame and bt.Frame.Visible and not bt:
+CanPurchaseWithRobux(bt.CurrentItem)and bt:CanCraft(bt.CurrentItem)then aT.craft
++=1 bt:CraftCurrentItem()a4(
 '\070\097\098\114\105\099\097\u{e7}\u{e3}\111\032\115\111\108\105\099\105\116\097\100\097\032\112\097\114\097\032\111\032\105\116\101\109\032\115\101\108\101\099\105\111\110\097\100\111\046',
-'\067\114\097\102\116\032\114\101\113\117\101\115\116\101\100\032\102\111\114\032\116\104\101\032\115\101\108\101\099\116\101\100\032\105\116\101\109\046')end end end)if not bl then a2(aL(
-'\065\103\117\097\114\100\097\110\100\111\032\047\032\101\114\114\111\058\032','\087\097\105\116\105\110\103\032\047\032\101\114\114\111\114\058\032')..tostring(bm))bj=os.clock()+8 end
-task.wait(0.2)end end)end local aJ,aK,aL=false,nil,false local aM=task.spawn(
-function()aJ,aK=pcall(aI,{ui=O,page=N('\070\097\114\109'),T=function(aM,aN)return b.language
-=='\112\116'and aM or aN end,progress=aE,attach=function(aM)j=aM end,section=N,quick=
-function(aM)k=aM end})aL=true end)local aN=os.clock()+45 while l and not aL and
-os.clock()<aN do task.wait(0.05)end if not aL then pcall(task.cancel,aM)aJ=false
-aK=p('\084\101\109\112\111\032\108\105\109\105\116\101\032\100\101\032\052\053\032\115\101\103\117\110\100\111\115\032\101\120\099\101\100\105\100\111\046\032\u{da}\108\116\105\109\097\032\101\116\097\112\097\058\032',
+'\067\114\097\102\116\032\114\101\113\117\101\115\116\101\100\032\102\111\114\032\116\104\101\032\115\101\108\101\099\116\101\100\032\105\116\101\109\046')end end end)if not bq then a4(aM(
+'\065\103\117\097\114\100\097\110\100\111\032\047\032\101\114\114\111\058\032','\087\097\105\116\105\110\103\032\047\032\101\114\114\111\114\058\032')..tostring(br))bo=os.clock()+8 end
+task.wait(0.2)end end)end local aK,aL,aM=false,nil,false local aN=task.spawn(
+function()aK,aL=pcall(aJ,{ui=O,page=N('\070\097\114\109'),T=function(aN,aO)return b.language
+=='\112\116'and aN or aO end,progress=aE,attach=function(aN)j=aN end,section=N,quick=
+function(aN)k=aN end})aM=true end)local aO=os.clock()+45 while l and not aM and
+os.clock()<aO do task.wait(0.05)end if not aM then pcall(task.cancel,aN)aK=false
+aL=p('\084\101\109\112\111\032\108\105\109\105\116\101\032\100\101\032\052\053\032\115\101\103\117\110\100\111\115\032\101\120\099\101\100\105\100\111\046\032\u{da}\108\116\105\109\097\032\101\116\097\112\097\058\032',
 '\052\053\045\115\101\099\111\110\100\032\116\105\109\101\111\117\116\046\032\076\097\115\116\032\115\116\097\103\101\058\032')..as.Text end if not l then return end if not
-aJ then if j then pcall(j)j=nil end ar.Text=p(
+aK then if j then pcall(j)j=nil end ar.Text=p(
 '\078\u{e3}\111\032\102\111\105\032\112\111\115\115\u{ed}\118\101\108\032\099\097\114\114\101\103\097\114\032\097\115\032\102\117\110\u{e7}\u{f5}\101\115',
 '\067\111\117\108\100\032\110\111\116\032\108\111\097\100\032\116\104\101\032\102\101\097\116\117\114\101\115')as.Text=p(
 '\070\101\099\104\101\032\111\032\112\097\105\110\101\108\032\101\032\116\101\110\116\101\032\110\111\118\097\109\101\110\116\101\046\032\068\101\116\097\108\104\101\115\058\032',
-'\067\108\111\115\101\032\116\104\101\032\112\097\110\101\108\032\097\110\100\032\116\114\121\032\097\103\097\105\110\046\032\068\101\116\097\105\108\115\058\032')..tostring(aK)aw.Text=p(
+'\067\108\111\115\101\032\116\104\101\032\112\097\110\101\108\032\097\110\100\032\116\114\121\032\097\103\097\105\110\046\032\068\101\116\097\105\108\115\058\032')..tostring(aL)aw.Text=p(
 '\067\097\114\114\101\103\097\109\101\110\116\111\032\105\110\116\101\114\114\111\109\112\105\100\111','\076\111\097\100\105\110\103\032\105\110\116\101\114\114\117\112\116\101\100')b.ready()return end local
-function aO(aP,aQ)local aR,aS,aT=false,false,nil local aU=task.spawn(function()
-aS,aT=pcall(aP)aR=true end)local aV=os.clock()+aQ while l and not aR and os.
-clock()<aV do task.wait(0.05)end if not aR then pcall(task.cancel,aU)return
-false,p('\084\101\109\112\111\032\108\105\109\105\116\101\032\101\120\099\101\100\105\100\111','\084\105\109\101\032\108\105\109\105\116\032\101\120\099\101\101\100\101\100')end return aS,aT end aE(
+function aP(aQ,aR)local aS,aT,aU=false,false,nil local aV=task.spawn(function()
+aT,aU=pcall(aQ)aS=true end)local aW=os.clock()+aR while l and not aS and os.
+clock()<aW do task.wait(0.05)end if not aS then pcall(task.cancel,aV)return
+false,p('\084\101\109\112\111\032\108\105\109\105\116\101\032\101\120\099\101\100\105\100\111','\084\105\109\101\032\108\105\109\105\116\032\101\120\099\101\101\100\101\100')end return aT,aU end aE(
 0.92,'\077\111\110\116\097\110\100\111\032\111\115\032\097\106\117\115\116\101\115\032\100\101\032\116\101\108\097\u{2026}','\066\117\105\108\100\105\110\103\032\100\105\115\112\108\097\121\032\115\101\116\116\105\110\103\115\u{2026}')
-local aP local aQ,aR=aO(function()local aQ=N('\065\106\117\115\116\101\115')ab(aQ)local aR=O.button(
-aQ,p('\u{1f1e7}\u{1f1f7}\032\032\073\100\105\111\109\097\058\032\080\111\114\116\117\103\117\u{ea}\115\032\032\u{b7}\032\032\065\108\116\101\114\097\114',
-'\u{1f1fa}\u{1f1f8}\032\032\076\097\110\103\117\097\103\101\058\032\069\110\103\108\105\115\104\032\032\u{b7}\032\032\067\104\097\110\103\101'),870)r(aR.Activated,
+local aQ local aR,aS=aP(function()local aR=N('\065\106\117\115\116\101\115')ab(aR)local aS=O.button(
+aR,p('\u{1f1e7}\u{1f1f7}\032\032\073\100\105\111\109\097\058\032\080\111\114\116\117\103\117\u{ea}\115\032\032\u{b7}\032\032\065\108\116\101\114\097\114',
+'\u{1f1fa}\u{1f1f8}\032\032\076\097\110\103\117\097\103\101\058\032\069\110\103\108\105\115\104\032\032\u{b7}\032\032\067\104\097\110\103\101'),870)r(aS.Activated,
 function()if type(b.chooseLanguage)=='\102\117\110\099\116\105\111\110'then b.chooseLanguage()end end)O.
-label(aQ,'\084\101\120\116\076\097\098\101\108',p(
+label(aR,'\084\101\120\116\076\097\098\101\108',p(
 '\084\114\111\099\097\114\032\111\032\105\100\105\111\109\097\032\114\101\097\098\114\101\032\111\032\112\097\105\110\101\108\032\099\111\109\032\097\115\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115\032\112\097\117\115\097\100\097\115\046',
-'\067\104\097\110\103\105\110\103\032\108\097\110\103\117\097\103\101\032\114\101\111\112\101\110\115\032\116\104\101\032\112\097\110\101\108\032\119\105\116\104\032\097\117\116\111\109\097\116\105\111\110\032\112\097\117\115\101\100\046'),44,871)O.label(aQ
+'\067\104\097\110\103\105\110\103\032\108\097\110\103\117\097\103\101\032\114\101\111\112\101\110\115\032\116\104\101\032\112\097\110\101\108\032\119\105\116\104\032\097\117\116\111\109\097\116\105\111\110\032\112\097\117\115\101\100\046'),44,871)O.label(aR
 ,'\084\101\120\116\076\097\098\101\108',b.language=='\112\116'and
 '\084\111\113\117\101\032\065\058\032\097\098\114\105\114\047\102\101\099\104\097\114\046\032\083\101\103\117\114\101\032\048\044\054\053\115\032\101\032\115\111\108\116\101\058\032\112\097\114\097\114\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115\046\032\065\114\114\097\115\116\101\058\032\109\111\118\101\114\046\032\082\105\103\104\116\067\116\114\108\058\032\112\097\105\110\101\108\046'
 or
 "\084\097\112\032\065\058\032\116\111\103\103\108\101\032\112\097\110\101\108\046\032\072\111\108\100\032\048\046\054\053\115\032\097\110\100\032\114\101\108\101\097\115\101\058\032\115\116\111\112\032\097\117\116\111\109\097\116\105\111\110\046\032\068\114\097\103\058\032\109\111\118\101\046\032\082\105\103\104\116\067\116\114\108\058\032\112\097\110\101\108\046"
-,68,900)local aS=O.label(aQ,'\084\101\120\116\066\111\120','\069\066\065\053\070\070',40,902)aS.ClearTextOnFocus=false
-O.label(aQ,'\084\101\120\116\076\097\098\101\108',b.language=='\112\116'and
+,68,900)local aT=O.label(aR,'\084\101\120\116\066\111\120','\069\066\065\053\070\070',40,902)aT.ClearTextOnFocus=false
+O.label(aR,'\084\101\120\116\076\097\098\101\108',b.language=='\112\116'and
 '\067\111\114\032\100\101\032\100\101\115\116\097\113\117\101\058\032\104\101\120\097\100\101\099\105\109\097\108\032\040\101\120\046\058\032\070\070\067\065\052\050\041'or
-'\065\099\099\101\110\116\032\099\111\108\111\114\058\032\104\101\120\097\100\101\099\105\109\097\108\032\040\101\046\103\046\032\070\070\067\065\052\050\041',30,901)local aT=
-'\065\110\111\110\072\117\098\095\069\097\114\116\104\067\111\114\101\095\084\104\101\109\101\046\106\115\111\110'local aU='\065\109\101\116\104\121\115\116'local aV={Amethyst={'\048\067\048\067\049\048',
+'\065\099\099\101\110\116\032\099\111\108\111\114\058\032\104\101\120\097\100\101\099\105\109\097\108\032\040\101\046\103\046\032\070\070\067\065\052\050\041',30,901)local aU=
+'\065\110\111\110\072\117\098\095\069\097\114\116\104\067\111\114\101\095\084\104\101\109\101\046\106\115\111\110'local aV='\065\109\101\116\104\121\115\116'local aW={Amethyst={'\048\067\048\067\049\048',
 '\050\055\049\056\051\053','\057\054\051\067\068\067','\070\070\070\053\070\070','\067\065\066\052\068\056','\069\066\065\053\070\070','\049\057\048\070\050\051'},Potato={'\050\051\049\070\049\057','\052\049\051\054\050\055'
 ,'\055\052\053\056\051\049','\070\067\070\054\069\050','\068\053\067\051\065\051','\069\066\065\053\070\070','\051\048\050\055\049\068'},Bloodmoon={'\049\055\048\067\049\051','\051\048\049\051\049\070',
 '\054\066\050\054\051\068','\070\070\069\065\070\048','\068\050\065\048\066\048','\070\070\052\053\054\056','\050\051\048\070\049\065'},Midnight={'\049\048\049\051\049\069','\049\068\050\052\051\054',
 '\051\053\052\054\054\053','\069\068\070\051\070\070','\065\052\066\051\067\067','\055\051\057\070\070\070','\049\053\049\066\050\065'},Emerald={'\048\066\049\057\049\054','\049\052\050\069\050\054',
 '\050\066\053\057\052\055','\069\054\070\070\070\051','\057\069\067\054\066\051','\053\054\068\068\065\048','\049\048\050\052\049\069'},Arctic={'\049\049\049\066\050\054','\049\067\050\068\051\068','\051\054\053\049\054\065'
-,'\069\066\070\056\070\070','\065\057\067\055\068\065','\055\057\068\057\070\070','\049\055\050\051\051\049'}}local function aW(aX)return Color3.
-fromRGB(tonumber(aX:sub(1,2),16),tonumber(aX:sub(3,4),16),tonumber(aX:sub(5,6),
-16))end local function aX()if type(writefile)=='\102\117\110\099\116\105\111\110'then task.spawn(
-function()pcall(writefile,aT,e:JSONEncode({preset=aU,hex=aS.Text}))end)end end
-local function aY(aZ)if type(aZ)~='\115\116\114\105\110\103'or not aZ:match('\094\037\120\037\120\037\120\037\120\037\120\037\120\036')then
-return false end o=Color3.fromRGB(tonumber(aZ:sub(1,2),16),tonumber(aZ:sub(3,4),
-16),tonumber(aZ:sub(5,6),16))m.accent=o F.BackgroundColor3=o z.BackgroundColor3=
-o M(J)for a_,a0 in ipairs(P)do a0()end for a_,a0 in pairs(H)do a0.
-ScrollBarImageColor3=o end aS.Text=aZ return true end local function aZ(a_)local
-a0=aV[a_]if not a0 then return end aU=a_ for a1,a2 in ipairs({'\100\097\114\107','\116\105\108\101',
-'\101\100\103\101','\116\101\120\116','\109\117\116\101\100','\097\099\099\101\110\116','\115\105\100\101\098\097\114'})do m[a2]=aW(a0[a1])end o=m.accent for
-a1,a2 in pairs(n)do if a1.Parent then for a3,a4 in pairs(a2)do a1[a3]=m[a4]end
-end end local a1=w:FindFirstChildOfClass('\085\073\071\114\097\100\105\101\110\116')if a1 then a1.Color=
-ColorSequence.new(m.tile,m.dark)end aY(a0[6])end O.label(aQ,'\084\101\120\116\076\097\098\101\108',p(
-'\084\069\077\065\083\032\080\082\079\078\084\079\083','\084\072\069\077\069\032\080\082\069\083\069\084\083'),32,880)for a_,a0 in ipairs({'\065\109\101\116\104\121\115\116','\080\111\116\097\116\111'
-,'\066\108\111\111\100\109\111\111\110','\077\105\100\110\105\103\104\116','\069\109\101\114\097\108\100','\065\114\099\116\105\099'})do local a1=O.button(aQ,a0,880+a_)r(
-a1.Activated,function()aZ(a0)aX()end)end aP=function()if type(readfile)==
-'\102\117\110\099\116\105\111\110'then local a_=readfile(aT)if type(a_)=='\115\116\114\105\110\103'and#a_<=2048 then local
-a0=e:JSONDecode(a_)if l and aS.Parent and type(a0)=='\116\097\098\108\101'then if aV[a0.preset]
-then aZ(a0.preset)end aY(a0.hex)end end end end r(aS.FocusLost,function()local
-a_=aS.Text:gsub('\035',''):upper()if aY(a_)then aX()end end)end,5)if not l then
+,'\069\066\070\056\070\070','\065\057\067\055\068\065','\055\057\068\057\070\070','\049\055\050\051\051\049'}}local function aX(aY)return Color3.
+fromRGB(tonumber(aY:sub(1,2),16),tonumber(aY:sub(3,4),16),tonumber(aY:sub(5,6),
+16))end local function aY()if type(writefile)=='\102\117\110\099\116\105\111\110'then task.spawn(
+function()pcall(writefile,aU,e:JSONEncode({preset=aV,hex=aT.Text}))end)end end
+local function aZ(a_)if type(a_)~='\115\116\114\105\110\103'or not a_:match('\094\037\120\037\120\037\120\037\120\037\120\037\120\036')then
+return false end o=Color3.fromRGB(tonumber(a_:sub(1,2),16),tonumber(a_:sub(3,4),
+16),tonumber(a_:sub(5,6),16))m.accent=o F.BackgroundColor3=o z.BackgroundColor3=
+o M(J)for a0,a1 in ipairs(P)do a1()end for a0,a1 in pairs(H)do a1.
+ScrollBarImageColor3=o end aT.Text=a_ return true end local function a_(a0)local
+a1=aW[a0]if not a1 then return end aV=a0 for a2,a3 in ipairs({'\100\097\114\107','\116\105\108\101',
+'\101\100\103\101','\116\101\120\116','\109\117\116\101\100','\097\099\099\101\110\116','\115\105\100\101\098\097\114'})do m[a3]=aX(a1[a2])end o=m.accent for
+a2,a3 in pairs(n)do if a2.Parent then for a4,a5 in pairs(a3)do a2[a4]=m[a5]end
+end end local a2=w:FindFirstChildOfClass('\085\073\071\114\097\100\105\101\110\116')if a2 then a2.Color=
+ColorSequence.new(m.tile,m.dark)end aZ(a1[6])end O.label(aR,'\084\101\120\116\076\097\098\101\108',p(
+'\084\069\077\065\083\032\080\082\079\078\084\079\083','\084\072\069\077\069\032\080\082\069\083\069\084\083'),32,880)for a0,a1 in ipairs({'\065\109\101\116\104\121\115\116','\080\111\116\097\116\111'
+,'\066\108\111\111\100\109\111\111\110','\077\105\100\110\105\103\104\116','\069\109\101\114\097\108\100','\065\114\099\116\105\099'})do local a2=O.button(aR,a1,880+a0)r(
+a2.Activated,function()a_(a1)aY()end)end aQ=function()if type(readfile)==
+'\102\117\110\099\116\105\111\110'then local a0=readfile(aU)if type(a0)=='\115\116\114\105\110\103'and#a0<=2048 then local
+a1=e:JSONDecode(a0)if l and aT.Parent and type(a1)=='\116\097\098\108\101'then if aW[a1.preset]
+then a_(a1.preset)end aZ(a1.hex)end end end end r(aT.FocusLost,function()local
+a0=aT.Text:gsub('\035',''):upper()if aZ(a0)then aY()end end)end,5)if not l then
 return end aE(0.96,'\065\106\117\115\116\097\110\100\111\032\111\032\112\097\105\110\101\108\032\u{e0}\032\115\117\097\032\116\101\108\097\u{2026}',
-'\070\105\116\116\105\110\103\032\116\104\101\032\112\097\110\101\108\032\116\111\032\121\111\117\114\032\115\099\114\101\101\110\u{2026}')local aS,aT=pcall(X)if not aS then T=
-table.clone(S)pcall(X)end local aU if not aQ or not aS then aU=p(
-'\065\106\117\115\116\101\115\032\118\105\115\117\097\105\115\032\105\110\099\111\109\112\108\101\116\111\115\058\032','\083\111\109\101\032\100\105\115\112\108\097\121\032\115\101\116\116\105\110\103\115\032\102\097\105\108\101\100\058\032')..tostring(aR
-or aT)E.Text=aU warn('\091\065\110\111\110\072\117\098\032'..a..'\093\032'..aU)end aE(1,
+'\070\105\116\116\105\110\103\032\116\104\101\032\112\097\110\101\108\032\116\111\032\121\111\117\114\032\115\099\114\101\101\110\u{2026}')local aT,aU=pcall(X)if not aT then T=
+table.clone(S)pcall(X)end local aV if not aR or not aT then aV=p(
+'\065\106\117\115\116\101\115\032\118\105\115\117\097\105\115\032\105\110\099\111\109\112\108\101\116\111\115\058\032','\083\111\109\101\032\100\105\115\112\108\097\121\032\115\101\116\116\105\110\103\115\032\102\097\105\108\101\100\058\032')..tostring(aS
+or aU)E.Text=aV warn('\091\065\110\111\110\072\117\098\032'..a..'\093\032'..aV)end aE(1,
 '\080\097\105\110\101\108\032\112\114\111\110\116\111\046\032\065\115\032\102\117\110\u{e7}\u{f5}\101\115\032\101\115\116\u{e3}\111\032\112\097\117\115\097\100\097\115\046',
 '\080\097\110\101\108\032\114\101\097\100\121\046\032\070\101\097\116\117\114\101\115\032\097\114\101\032\112\097\117\115\101\100\046')ar.Text=p('\083\101\117\032\112\097\105\110\101\108\032\101\115\116\u{e1}\032\112\114\111\110\116\111',
 '\089\111\117\114\032\112\097\110\101\108\032\105\115\032\114\101\097\100\121')am=true if ao()then ap:Destroy()else task.spawn(function()
 while l and ap.Parent and not ao()do task.wait(0.05)end if l and ap.Parent then
-ap:Destroy()end end)end pcall(b.ready)if aP then task.defer(function()aO(aP,2)
+ap:Destroy()end end)end pcall(b.ready)if aQ then task.defer(function()aP(aQ,2)
 end)end

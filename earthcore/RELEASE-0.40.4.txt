@@ -1,0 +1,45 @@
+ANONHUB 0.40.4 — EARTH CORE
+
+Included:
+- Individual opt-in screen shortcuts for attack, pickaxe, fly, noclip, speed,
+  Auto Move, Auto Fire and flight up/down. Drag each using its own handle.
+  UI-drawn icons and borders replace font-dependent symbols.
+- ESP up to 1000 markers; church category; hide attached drill items and dead
+  enemies; text size and distance HEX color; translated ore names. Infestation
+  is shown only when a visible Worm tag/child exists, not inferred for hidden mobs.
+- Auto Move distance defaults to 22 studs. Native melee attacks are requested;
+  movement is suspended while seated. This does not guarantee avoiding damage.
+- Optional firearm Auto Fire and reversible NPC-head aim-ray override. Native
+  shooting/cooldown remains in use. Optional local nearest-target head resizing
+  has a nearly transparent box and restores size on disable/death/cleanup.
+  Server hit acceptance/headshots are not guaranteed.
+- Church inventory selection with native icons/names, checkboxes and +/- counts;
+  server-provided selection cap. Save uses the native reviewed save-and-exit flow.
+  Last loaded altar is remembered in this session; a rebase invalidates stale
+  coordinates. If streaming cannot restore the altar, navigation returns to the
+  prior position. Server persistence is not claimed until the game confirms it.
+- Drill-item sale/scrap: configurable threshold (400 default), displayed base
+  value scaled by remaining charges. Sell >= threshold; below it only Scrap
+  category items are sent to recycling. Requires player on drill and a loaded
+  station within 250 studs. Native detach/request and physical station placement;
+  processing checks removal, not a fabricated coin/scrap gain. Failed attempts
+  are not repeated that session. Protected quest/death/shop/placeable items skip.
+- Finite current-Dungeon loot: equipped empty Sack, root-matched loose loot,
+  enabled chest prompts, native exits/reentry, DropAll over drill, capacity checks,
+  timeouts and stop. Locked exits halt; does not bypass active-wave locks. Stops
+  when no eligible loaded loot remains; restart after fighting the boss. Drop
+  acknowledgement does not prove every item is physically secured on the drill.
+- Loaded overworld chest/X route along initial heading, configurable horizon
+  100–50000 studs, up to 100 prompt attempts, then return to loaded drill. Excludes
+  Dungeon/boss rooms. Does not promise 500k/1M streaming or guaranteed Core rewards.
+
+Pending: Auto Buy cart with verified quote/confirmation. BuyPartComponent was
+absent from supplied source ZIPs; focused source exporter now selects it plus
+ScrapCollectorComponent, DistanceController and RockWallComponent. No guessed
+quote or purchase schema was published.
+
+Validation: Earth logic, mocked PT/EN UI/cleanup/defaults, transport guards,
+World1/World2 regressions, all Luau compilation and protected instruction/string
+comparison passed. No live Roblox/Delta gameplay validation has been performed.
+Same authenticated loader and existing games retained. Source captures remain
+private outside the Git repository.

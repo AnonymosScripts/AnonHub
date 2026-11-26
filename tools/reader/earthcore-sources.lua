@@ -24,7 +24,7 @@ local label=Instance.new("TextLabel");label.Size=UDim2.new(1,-24,1,-80);label.Po
 local button=Instance.new("TextButton");button.Size=UDim2.new(1,-24,0,42);button.Position=UDim2.new(0,12,1,-54);button.Text="Parar e salvar";button.Font=Enum.Font.GothamBold;button.TextSize=15;button.TextColor3=Color3.new(1,1,1);button.BackgroundColor3=Color3.fromRGB(26,105,75);button.Parent=panel
 local stopped,finished=false,false
 button.Activated:Connect(function() if finished then gui:Destroy() else stopped=true;button.Text="Finalizando…" end end)
-local exact={SaveGearController=true,DrillUpgradeController=true,CarryInventoryController=true,CraftingController=true,
+local exact={BuyPartComponent=true,ScrapCollectorComponent=true,DistanceController=true,RockWallComponent=true,SaveGearController=true,DrillUpgradeController=true,CarryInventoryController=true,CraftingController=true,
     CraftingCatalog=true,CraftingLevels=true,CraftingPrice=true,ItemPickup=true,DungeonEntrance=true,DungeonDoorState=true,
     DrillController=true,ToolController=true,PlayerController=true,LobbyBackpackController=true,TeleportController=true,
     TeleportManagerController=true,ClassController=true,ShopController=true,OreController=true,InventoryController=true,
