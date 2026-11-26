@@ -1,0 +1,59 @@
+EARTH CORE — ESCOPO SOLICITADO / ESTADO EM 0.40.1
+
+IMPLEMENTADO, AGUARDANDO TESTE NO JOGO
+- Roteamento separado lobby/partida pelo loader autenticado.
+- PT/EN, avatar, plano, prazo da key, temas, escala, capa/reflexo/barra/pular.
+- Upgrades: seleção com caixas, ordem ↑/↓, ícones do jogo, reserva e limite.
+- Aura de ataque com arma corpo a corpo equipada e aura de picareta.
+- Alcance local solicitado configurável; confirmação de hit/dano cabe ao servidor.
+- Posição acima/atrás de inimigos próximos, distância configurável.
+- ESP independente: inimigos, jogadores, companheiros reconhecidos, baús,
+  mímicos identificados, itens, sucata, minérios, portas de Dungeon.
+- ESP: contorno/caixa, distância, vida quando replicada, HEX e seleção circular
+  de cores por categoria, filtro de minérios e limite de marcadores próximos.
+- WalkSpeed, noclip com restauração, Fly/controle vertical e atalhos na tela.
+- Crafting do item escolhido na UI nativa, excluindo compra em Robux.
+- Igreja: navegar ao altar carregado, preparar itens por prioridade/limite,
+  revisar e solicitar o salvamento/retorno ao lobby enquanto vivo.
+- Equipar item pelo nome no lobby. Parada geral e cleanup de conexões.
+
+AINDA NÃO IMPLEMENTADO — CONTRATOS/ESTADOS FALTANTES
+- Percurso completo de Dungeon, chefe, baús, descarga, retorno e saída.
+- Coleta/armazenamento automático, descarregar na broca, vender e reabastecer.
+- Compra de munição, kits e equipamento por tier (Gold/Diamond/Void/Phoenix/etc.).
+- Detecção antecipada e esquiva de ataques específicos do Blinker.
+- Auto tesouro/X, moedas/cores ganhos por coleta e compras de classes.
+- Missões de classe e progressão adaptada ao conjunto de requisitos nativos.
+- Auto medalhas/Goblin Ring/Larry e melhorias de torretas.
+- Auto skip cutscene e diferenças entre votos privados/públicos.
+- Auto RP com limite de 50 e saída segura condicionada ao estado de ranking.
+- Auto save de conjuntos completos, reinício e reentrada automática na partida.
+- Perfis de navegação andando/teleporte com caminho, recuperação e limitação
+  de escopo da Dungeon; prioridade ao Fuel Leech sem abandonar a sala.
+- Rota OP Core de baús expostos até 500 mil/1 milhão de metros.
+- Identificação de porta da sala do chefe distinta da porta de entrada.
+- Detecção de Worm ainda oculto no minério e Mimic ainda sem sinal replicado.
+
+LIMITES DE AFIRMAÇÃO
+Não foi validado um percurso autônomo de 100 mil metros.
+Não há multiplicação de dano ou alteração de saldo implementada.
+Valores de dano/alcance/saldo do servidor não são garantidos por alterações locais.
+O ESP não enxerga objetos ainda não replicados e não adivinha inimigos ocultos.
+Automação de compra usa moeda do jogo explicitamente identificada. Robux não
+entra nos fluxos automáticos. Auto RP não significa editar RP.
+
+PRÓXIMA ENTRADA
+O exportador earthcore-sources.lua foi ampliado para Class/Rank/ItemDatabase,
+Chest/Treasure/Loot, Drag/Interact, Fuel/Sell, Larry/Medal, CutScene,
+Enemy/Npc/Blinker/Worm/Mimic, Driving e componentes adicionais de Dungeon.
+É exportação de código no lobby e na partida; não requer outra gravação longa.
+Os argumentos dos remotes e as condições de contexto serão derivados desses
+controladores, não de nomes de funções ou de guias da internet.
+
+PESQUISA CONSULTADA (GUIAS, NÃO CONTRATOS DE CÓDIGO)
+https://drill-to-earths-core.fandom.com/wiki/Classes
+https://drill-to-earths-core.wiki/classes/
+https://drill-to-earths-core.wiki/enemies/
+https://www.rolimons.com/game/101906032112547
+Guias divergem em número de classes e alguns atributos; usar ClassCatalog,
+ClassRequirementProgress e estados da versão capturada como fonte de execução.

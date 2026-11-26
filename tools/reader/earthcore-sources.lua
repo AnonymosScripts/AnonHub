@@ -33,7 +33,9 @@ local function selected(name,path)
     if exact[name] then return true end
     if path:find(".Classes.Tools.",1,true) then return true end
     local lower=name:lower()
-    for _,word in ipairs({"savegear","drill","inventory","backpack","pickup","church","crafting","shop","merchant","toolcontroller","orecontroller","revive","currencycontroller","lobbycontroller","questcontroller"}) do
+    if path:find("ReplicatedStorage.Shared.ItemDatabase",1,true) then return true end
+    for _,word in ipairs({"savegear","drill","inventory","backpack","pickup","church","crafting","shop","merchant","toolcontroller","orecontroller","revive","currencycontroller","lobbycontroller","questcontroller",
+        "class","rank","loot","chest","treasure","drag","interact","fuel","sell","larry","medal","cutscene","blinker","worm","mimic","enemy","npc","driving","deposit","carry","sackconfig","goblin","wave","dungeonqueue","dungeonarena","dungeontreasure"}) do
         if lower:find(word,1,true) then return true end
     end
     return false
