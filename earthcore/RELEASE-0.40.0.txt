@@ -1,0 +1,33 @@
+ANONHUB 0.40.0 — EARTH CORE, FIRST INTEGRATION
+
+Routes: universe 9796898051; lobby 101906032112547; expedition 74507545904779.
+Panda authentication and the existing public loader are preserved.
+Unrecognized places continue to the Universal module.
+
+Lobby: equip a specified owned item; navigate to the loaded church; return to
+the previous position within the same character lifetime.
+Expedition: repeat native equipped-pickaxe swings; coin-only upgrade priorities,
+coin reserve and per-session attempt limit; repeat the selected native crafting
+recipe while its window is open, with an attempt limit; church gear preparation
+using exact item names, item IDs, counts and the server-provided selection limit.
+Gear save requires a reviewed selection, live character, visible altar window,
+and proximity to the loaded altar. It invokes the native save-and-return flow.
+This is not a background insurance or a guarantee against death/item loss.
+No paid death-save or revive purchases are automated.
+
+PT/EN, separate lobby/expedition controls and loading titles; existing responsive
+shell, thumbnail/reflection, skip animation, profile, themes, interface scale,
+floating button and emergency stop retained. Automation starts disabled.
+Holding the floating button stops all three automation options.
+No automatic hub continuation across server transitions in this release.
+Re-run the existing authenticated loader after arriving in another place.
+
+Not implemented: complete autonomous expedition routing, auto loot/sell/fuel,
+autonomous Dungeon clearing, invulnerability, altered damage or paid revives.
+Do not advertise these as available. Server responses remain authoritative.
+
+Validation: Luau compilation; pure selection/budget/role tests; simulated PT/EN
+UI and shutdown tests; native contract inspection; prior World 1/2 regressions;
+compiler instruction and string-table equivalence for obfuscated distribution.
+Not yet validated in the live game or Delta.
+Captured third-party scripts are not shipped; integration code is original.
