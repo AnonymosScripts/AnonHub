@@ -1,7 +1,7 @@
 -- Luau
--- AnonHub protected distribution 0.40.5
--- local BOOT_VERSION="0.40.5"
-local a='\048\046\052\048\046\053'local b=...assert(type(b)=='\116\097\098\108\101'and b.access,
+-- AnonHub protected distribution 0.40.6
+-- local BOOT_VERSION="0.40.6"
+local a='\048\046\052\048\046\054'local b=...assert(type(b)=='\116\097\098\108\101'and b.access,
 '\065\098\114\097\032\112\101\108\111\032\108\111\097\100\101\114\032\097\117\116\101\110\116\105\099\097\100\111')local c=game:GetService('\080\108\097\121\101\114\115')local d=game:
 GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local e=game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local f=game
 :GetService('\084\119\101\101\110\083\101\114\118\105\099\101')local g=c.LocalPlayer local h,i={},{}local j,k local
@@ -727,7 +727,7 @@ nil local bs=br and bd(br,bh)if bs then aY[bo]=true if bo:GetAttribute('\087\101
 service('\068\114\097\103\083\101\114\118\105\099\101'):Request(bo))if not ba(bf)or not aU then if bt then pcall(
 function()aL.service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)end return end if bt==true
 and bo.Parent and bs.Parent then bo:PivotTo(bs.CFrame*CFrame.new(0,bs.Size.Y*0.5
-+1,0))task.wait(0.3)pcall(function()aL.service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)
++1,0))task.wait()pcall(function()aL.service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)
 local bu=bb(bf,function()return not bo:IsDescendantOf(workspace)end,3)a0(bu and
 '\073\116\101\109\032\112\114\111\099\101\115\115\097\100\111\032\112\101\108\097\032\101\115\116\097\u{e7}\u{e3}\111\046'or
 '\069\115\116\097\u{e7}\u{e3}\111\032\110\u{e3}\111\032\099\111\110\102\105\114\109\111\117\032\111\032\112\114\111\099\101\115\115\097\109\101\110\116\111\059\032\105\116\101\109\032\110\u{e3}\111\032\115\101\114\u{e1}\032\114\101\112\101\116\105\100\111\032\110\101\115\116\097\032\115\101\115\115\u{e3}\111\046'
@@ -848,17 +848,18 @@ then aV=false if not bm then a0('\082\111\116\097\032\105\110\116\101\114\114\11
 '\082\111\117\116\101\032\115\116\111\112\112\101\100\058\032'..tostring(bn))end end end)end)task.spawn(function()while aR do
 if aU and not aV then local bl=aS local bm,bn=pcall(be,bl)if not bm then a7()a0(
 '\086\101\110\100\097\032\105\110\116\101\114\114\111\109\112\105\100\097\058\032'..tostring(bn),'\083\101\108\108\105\110\103\032\115\116\111\112\112\101\100\058\032'..tostring(bn))end end
-task.wait(2)end end)return{stop=a7,cleanup=function()aR=false a7()for bl,bm in
-ipairs(aT)do bm:Disconnect()end end}end local function aK(aL,aM,aN,aO)local aP={
-}local aQ,aR,aS=0,0,0 local aT,aU=0,0 for aV,aW in ipairs(aL)do local aX,aY,aZ=
-aW.X+0.25,aW.Z+0.25,aW.Y+0.15 if aX>aM or aY>aN or aZ>aO then return nil,aV end
-if aQ+aX>aM then aQ=0 aR+=aT aT=0 end if aR+aY>aN then aQ=0 aR=0 aS+=aU aT=0 aU=
-0 end if aS+aZ>aO then return nil,aV end aP[aV]=Vector3.new(-aM*0.5+aQ+aX*0.5,-
-aO*0.5+aS+aZ*0.5,-aN*0.5+aR+aY*0.5)aQ+=aX aT=math.max(aT,aY)aU=math.max(aU,aZ)
-end return aP end local function aL(aM,aN)local aO,aP=aM.ui,aM.T local aQ=game:
-GetService('\067\111\108\108\101\099\116\105\111\110\083\101\114\118\105\099\101')local aR=game:GetService('\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')
-local aS=true local aT=false local aU=0 local aV={}local aW={}local aX={}local
-aY={}local aZ={}local a_ local a0=aM.section('\076\111\106\097')aO.label(a0,'\084\101\120\116\076\097\098\101\108',aP(
+task.wait(aU and not aV and 0.05 or 0.5)end end)return{stop=a7,cleanup=function(
+)aR=false a7()for bl,bm in ipairs(aT)do bm:Disconnect()end end}end local
+function aK(aL,aM,aN,aO)local aP={}local aQ,aR,aS=0,0,0 local aT,aU=0,0 for aV,
+aW in ipairs(aL)do local aX,aY,aZ=aW.X+0.25,aW.Z+0.25,aW.Y+0.15 if aX>aM or aY>
+aN or aZ>aO then return nil,aV end if aQ+aX>aM then aQ=0 aR+=aT aT=0 end if aR+
+aY>aN then aQ=0 aR=0 aS+=aU aT=0 aU=0 end if aS+aZ>aO then return nil,aV end aP[
+aV]=Vector3.new(-aM*0.5+aQ+aX*0.5,-aO*0.5+aS+aZ*0.5,-aN*0.5+aR+aY*0.5)aQ+=aX aT=
+math.max(aT,aY)aU=math.max(aU,aZ)end return aP end local function aL(aM,aN)local
+aO,aP=aM.ui,aM.T local aQ=game:GetService('\067\111\108\108\101\099\116\105\111\110\083\101\114\118\105\099\101')local aR=game:
+GetService('\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')local aS=true local aT=false local aU=0 local aV=
+{}local aW={}local aX={}local aY={}local aZ={}local a_ local a0=aM.section(
+'\076\111\106\097')aO.label(a0,'\084\101\120\116\076\097\098\101\108',aP(
 '\069\115\099\111\108\104\097\032\105\116\101\110\115\032\100\097\032\108\111\106\097\032\112\114\u{f3}\120\105\109\097\046\032\067\079\078\070\073\082\077\065\082\032\097\112\101\110\097\115\032\111\114\103\097\110\105\122\097\032\097\032\u{e1}\114\101\097\032\100\101\032\099\111\109\112\114\097\059\032\118\111\099\u{ea}\032\099\111\109\112\114\097\032\110\111\032\099\097\105\120\097\046\032\080\114\101\u{e7}\111\115\032\101\120\105\098\105\100\111\115\032\115\u{e3}\111\032\101\115\116\105\109\097\116\105\118\097\115\032\100\111\115\032\105\116\101\110\115\046'
 ,
 "\083\101\108\101\099\116\032\110\101\097\114\098\121\032\115\104\111\112\032\105\116\101\109\115\046\032\067\079\078\070\073\082\077\032\111\110\108\121\032\115\116\097\103\101\115\032\116\104\101\032\112\117\114\099\104\097\115\101\032\097\114\101\097\059\032\121\111\117\032\098\117\121\032\097\116\032\116\104\101\032\114\101\103\105\115\116\101\114\046\032\068\105\115\112\108\097\121\101\100\032\112\114\105\099\101\115\032\097\114\101\032\105\116\101\109\032\101\115\116\105\109\097\116\101\115\046"

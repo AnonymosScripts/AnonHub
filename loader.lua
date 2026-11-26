@@ -1,5 +1,5 @@
 -- Luau
--- AnonHub protected distribution 0.40.5
+-- AnonHub protected distribution 0.40.6
 local a={}a['\115\117\112\101\114\112\111\119\101\114\047\109\097\105\110\046\108\117\097']=function(...)local b='\048\046\051\057\046\052'local c=game.
 GameId==10770228857 and({[74183246285569]=1,[82739382053686]=2})[game.PlaceId]
 assert(c,'\085\110\115\117\112\112\111\114\116\101\100\032\083\117\112\101\114\112\111\119\101\114\032\119\111\114\108\100')local d=...assert(type(d)=='\116\097\098\108\101'and d.
@@ -5510,7 +5510,7 @@ or bH)aE.Text=bI warn('\091\065\110\111\110\072\117\098\032'..aa..'\093\032'..bI
 '\089\111\117\114\032\112\097\110\101\108\032\105\115\032\114\101\097\100\121')bc=true if bf()then bg:Destroy()else task.spawn(function()
 while al and bg.Parent and not bf()do task.wait(0.05)end if al and bg.Parent
 then bg:Destroy()end end)end pcall(ab.ready)if bD then task.defer(function()bC(
-bD,2)end)end end a['\101\097\114\116\104\099\111\114\101\047\109\097\105\110\046\108\117\097']=function(...)local aa='\048\046\052\048\046\053'local ab=
+bD,2)end)end end a['\101\097\114\116\104\099\111\114\101\047\109\097\105\110\046\108\117\097']=function(...)local aa='\048\046\052\048\046\054'local ab=
 ...assert(type(ab)=='\116\097\098\108\101'and ab.access,'\065\098\114\097\032\112\101\108\111\032\108\111\097\100\101\114\032\097\117\116\101\110\116\105\099\097\100\111')local ac
 =game:GetService('\080\108\097\121\101\114\115')local ad=game:GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local ae=
 game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local af=game:GetService('\084\119\101\101\110\083\101\114\118\105\099\101')local ag=
@@ -6241,7 +6241,7 @@ nil local ck=cj and b6(cj,c)if ck then bQ[cg]=true if cg:GetAttribute('\087\101\
 service('\068\114\097\103\083\101\114\118\105\099\101'):Request(cg))if not b3(b8)or not bM then if cl then pcall(
 function()bD.service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)end return end if cl==true
 and cg.Parent and ck.Parent then cg:PivotTo(ck.CFrame*CFrame.new(0,ck.Size.Y*0.5
-+1,0))task.wait(0.3)pcall(function()bD.service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)
++1,0))task.wait()pcall(function()bD.service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)
 local cm=b4(b8,function()return not cg:IsDescendantOf(workspace)end,3)bT(cm and
 '\073\116\101\109\032\112\114\111\099\101\115\115\097\100\111\032\112\101\108\097\032\101\115\116\097\u{e7}\u{e3}\111\046'or
 '\069\115\116\097\u{e7}\u{e3}\111\032\110\u{e3}\111\032\099\111\110\102\105\114\109\111\117\032\111\032\112\114\111\099\101\115\115\097\109\101\110\116\111\059\032\105\116\101\109\032\110\u{e3}\111\032\115\101\114\u{e1}\032\114\101\112\101\116\105\100\111\032\110\101\115\116\097\032\115\101\115\115\u{e3}\111\046'
@@ -6362,17 +6362,18 @@ then bN=false if not ce then bT('\082\111\116\097\032\105\110\116\101\114\114\11
 '\082\111\117\116\101\032\115\116\111\112\112\101\100\058\032'..tostring(cf))end end end)end)task.spawn(function()while bJ do
 if bM and not bN then local cd=bK local ce,cf=pcall(b7,cd)if not ce then b0()bT(
 '\086\101\110\100\097\032\105\110\116\101\114\114\111\109\112\105\100\097\058\032'..tostring(cf),'\083\101\108\108\105\110\103\032\115\116\111\112\112\101\100\058\032'..tostring(cf))end end
-task.wait(2)end end)return{stop=b0,cleanup=function()bJ=false b0()for cd,ce in
-ipairs(bL)do ce:Disconnect()end end}end local function bC(bD,bE,bF,bG)local bH={
-}local bI,bJ,bK=0,0,0 local bL,bM=0,0 for bN,bO in ipairs(bD)do local bP,bQ,bR=
-bO.X+0.25,bO.Z+0.25,bO.Y+0.15 if bP>bE or bQ>bF or bR>bG then return nil,bN end
-if bI+bP>bE then bI=0 bJ+=bL bL=0 end if bJ+bQ>bF then bI=0 bJ=0 bK+=bM bL=0 bM=
-0 end if bK+bR>bG then return nil,bN end bH[bN]=Vector3.new(-bE*0.5+bI+bP*0.5,-
-bG*0.5+bK+bR*0.5,-bF*0.5+bJ+bQ*0.5)bI+=bP bL=math.max(bL,bQ)bM=math.max(bM,bR)
-end return bH end local function bD(bE,bF)local bG,bH=bE.ui,bE.T local bI=game:
-GetService('\067\111\108\108\101\099\116\105\111\110\083\101\114\118\105\099\101')local bJ=game:GetService('\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')
-local bK=true local bL=false local bM=0 local bN={}local bO={}local bP={}local
-bQ={}local bR={}local bS local bT=bE.section('\076\111\106\097')bG.label(bT,'\084\101\120\116\076\097\098\101\108',bH(
+task.wait(bM and not bN and 0.05 or 0.5)end end)return{stop=b0,cleanup=function(
+)bJ=false b0()for cd,ce in ipairs(bL)do ce:Disconnect()end end}end local
+function bC(bD,bE,bF,bG)local bH={}local bI,bJ,bK=0,0,0 local bL,bM=0,0 for bN,
+bO in ipairs(bD)do local bP,bQ,bR=bO.X+0.25,bO.Z+0.25,bO.Y+0.15 if bP>bE or bQ>
+bF or bR>bG then return nil,bN end if bI+bP>bE then bI=0 bJ+=bL bL=0 end if bJ+
+bQ>bF then bI=0 bJ=0 bK+=bM bL=0 bM=0 end if bK+bR>bG then return nil,bN end bH[
+bN]=Vector3.new(-bE*0.5+bI+bP*0.5,-bG*0.5+bK+bR*0.5,-bF*0.5+bJ+bQ*0.5)bI+=bP bL=
+math.max(bL,bQ)bM=math.max(bM,bR)end return bH end local function bD(bE,bF)local
+bG,bH=bE.ui,bE.T local bI=game:GetService('\067\111\108\108\101\099\116\105\111\110\083\101\114\118\105\099\101')local bJ=game:
+GetService('\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')local bK=true local bL=false local bM=0 local bN=
+{}local bO={}local bP={}local bQ={}local bR={}local bS local bT=bE.section(
+'\076\111\106\097')bG.label(bT,'\084\101\120\116\076\097\098\101\108',bH(
 '\069\115\099\111\108\104\097\032\105\116\101\110\115\032\100\097\032\108\111\106\097\032\112\114\u{f3}\120\105\109\097\046\032\067\079\078\070\073\082\077\065\082\032\097\112\101\110\097\115\032\111\114\103\097\110\105\122\097\032\097\032\u{e1}\114\101\097\032\100\101\032\099\111\109\112\114\097\059\032\118\111\099\u{ea}\032\099\111\109\112\114\097\032\110\111\032\099\097\105\120\097\046\032\080\114\101\u{e7}\111\115\032\101\120\105\098\105\100\111\115\032\115\u{e3}\111\032\101\115\116\105\109\097\116\105\118\097\115\032\100\111\115\032\105\116\101\110\115\046'
 ,
 "\083\101\108\101\099\116\032\110\101\097\114\098\121\032\115\104\111\112\032\105\116\101\109\115\046\032\067\079\078\070\073\082\077\032\111\110\108\121\032\115\116\097\103\101\115\032\116\104\101\032\112\117\114\099\104\097\115\101\032\097\114\101\097\059\032\121\111\117\032\098\117\121\032\097\116\032\116\104\101\032\114\101\103\105\115\116\101\114\046\032\068\105\115\112\108\097\121\101\100\032\112\114\105\099\101\115\032\097\114\101\032\105\116\101\109\032\101\115\116\105\109\097\116\101\115\046"
@@ -6792,10 +6793,10 @@ or bQ)aE.Text=bR warn('\091\065\110\111\110\072\117\098\032'..aa..'\093\032'..bR
 '\089\111\117\114\032\112\097\110\101\108\032\105\115\032\114\101\097\100\121')be=true if bg()then bh:Destroy()else task.spawn(function()
 while al and bh.Parent and not bg()do task.wait(0.05)end if al and bh.Parent
 then bh:Destroy()end end)end pcall(ab.ready)if bM then task.defer(function()bL(
-bM,2)end)end end local aa='\048\046\052\048\046\053'local ab={[9796898051]={name='\069\097\114\116\104\032\067\111\114\101',
-version='\048\046\052\048\046\053',online=true,place=101906032112547,places={[101906032112547]=
+bM,2)end)end end local aa='\048\046\052\048\046\054'local ab={[9796898051]={name='\069\097\114\116\104\032\067\111\114\101',
+version='\048\046\052\048\046\054',online=true,place=101906032112547,places={[101906032112547]=
 true,[74507545904779]=true},path='\101\097\114\116\104\099\111\114\101\047\109\097\105\110\046\108\117\097',cache=
-'\065\110\111\110\072\117\098\095\069\097\114\116\104\067\111\114\101\095\048\052\048\048\053\046\108\117\097',theme='\097\109\101\116\104\121\115\116'},[10772968523]={name=
+'\065\110\111\110\072\117\098\095\069\097\114\116\104\067\111\114\101\095\048\052\048\048\054\046\108\117\097',theme='\097\109\101\116\104\121\115\116'},[10772968523]={name=
 '\073\109\112\111\115\115\105\098\108\101\032\072\105\108\108\032\067\108\105\109\098',version='\048\046\051\056\046\049\051',world='\049',online=true,place=
 100981917200669,path='\104\105\108\108\099\108\105\109\098\047\109\097\105\110\046\108\117\097',cache='\065\110\111\110\072\117\098\095\072\105\108\108\095\048\051\056\049\051\046\108\117\097',theme=
 '\097\109\101\116\104\121\115\116'},[10770228857]={name='\083\116\101\097\108\032\097\032\083\117\112\101\114\112\111\119\101\114',version='\048\046\051\057\046\052',world=

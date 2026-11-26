@@ -1,5 +1,5 @@
 -- Luau
--- AnonHub protected distribution 0.40.5
+-- AnonHub protected distribution 0.40.6
 -- local BOOT_VERSION="0.37.8"
 local a='\048\046\051\055\046\056'local b=...if type(b)~='\116\097\098\108\101'then return end local c=game:
 GetService('\080\108\097\121\101\114\115')local d=game:GetService('\082\117\110\083\101\114\118\105\099\101')local e=game:
