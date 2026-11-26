@@ -1,0 +1,11 @@
+ANONHUB 0.40.3
+ESP limit configurable from 1 to 200 (60 for fresh settings).
+Enabled dungeon/arena/treasure-door categories take priority over nearer objects
+by default. Priority button cycles Dungeons / Enemies / Loot / Distance.
+Existing category checkboxes and maximum distance remain in effect.
+Quick aura, pickaxe and flight arrow buttons start hidden on every load.
+Movement > Show quick buttons reveals the optional bar. Drag its labeled handle
+with mouse or touch to move all four buttons together. Hiding resets vertical
+flight input. Showing the bar does not enable automation.
+PT/EN and authentication preserved. Compile, protection equivalence and local
+logic/UI tests passed. In-game validation remains necessary.
