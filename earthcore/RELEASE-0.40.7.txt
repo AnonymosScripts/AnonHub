@@ -1,0 +1,21 @@
+ANONHUB 0.40.7 - EARTH CORE
+
+Batch drill item sorting: sell at or above the configured threshold; eligible
+scrap below it goes to the scrap collector. Native drag requests remain serial.
+Dungeon loot uses root IDs plus spatial matching, sack delivery and re-entry.
+Movement ownership preserves other toggles during loot, shop and church jobs.
+Shop staging packs identical items in vertical stacks; payment remains manual.
+ESP adds optional rarity colors, item value, treasure and structure markers.
+Combat adds adjustable target range, visibility filtering and medkit activation.
+Local launcher debounce option does not override server cooldown checks.
+Loaded outdoor chest routing has adjustable travel speed and returns to drill.
+Church inventory selection uses the server limit and revalidates before saving.
+Quests show actual daily/class progress and optionally claim completed dailies.
+Full autonomous execution of every quest is not implemented.
+New quest tab has PT/EN descriptions and guarded headings.
+
+Same authenticated loader and protected distribution retained.
+Validation: local Luau compilation, simulated UI/transport/shop checks,
+World 1/2 regression suites and obfuscation instruction/string equivalence.
+Not tested live in Roblox/Delta. Server responses, loaded map boundaries,
+pickup eligibility, healing duration and collision still govern behavior.
