@@ -1,7 +1,7 @@
 -- Luau
--- AnonHub protected distribution 0.40.9
--- local BOOT_VERSION="0.40.9"
-local a='\048\046\052\048\046\057'local b=...assert(type(b)=='\116\097\098\108\101'and b.access,
+-- AnonHub protected distribution 0.40.10
+-- local BOOT_VERSION="0.40.10"
+local a='\048\046\052\048\046\049\048'local b=...assert(type(b)=='\116\097\098\108\101'and b.access,
 '\065\098\114\097\032\112\101\108\111\032\108\111\097\100\101\114\032\097\117\116\101\110\116\105\099\097\100\111')local c=game:GetService('\080\108\097\121\101\114\115')local d=game:
 GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101')local e=game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local f=game
 :GetService('\084\119\101\101\110\083\101\114\118\105\099\101')local g=c.LocalPlayer local h,i={},{}local j,k local
@@ -528,297 +528,292 @@ FindFirstAncestorOfClass('\083\099\114\101\101\110\071\117\105')local bH=a1('\07
 '\065\116\097\113\117\101','\065\116\116\097\099\107'},{'\111\114\101\065\117\114\097','\080\105\099\097\114\101\116\097','\080\105\099\107\097\120\101'},{'\102\108\121','\086\111\097\114','\070\108\121'},{
 '\110\111\099\108\105\112','\078\111\099\108\105\112','\078\111\099\108\105\112'},{'\115\112\101\101\100','\086\101\108\111\099\105\100\097\100\101','\083\112\101\101\100'},{'\097\117\116\111\077\111\118\101',
 '\065\117\116\111\032\077\111\118\101','\065\117\116\111\032\077\111\118\101'},{'\097\117\116\111\070\105\114\101','\065\117\116\111\032\070\105\114\101','\065\117\116\111\032\070\105\114\101'},{'\117\112','\083\117\098\105\114','\085\112'
-},{'\100\111\119\110','\068\101\115\099\101\114','\068\111\119\110'}}local bO={}for bP,bQ in ipairs(bN)do local bR=bQ[1]
-local bS=a1('\070\114\097\109\101',{Size=UDim2.fromOffset(66,76),Position=UDim2.new(0,12+((bP-1
-)%4)*72,1,-90-math.floor((bP-1)/4)*82),BackgroundColor3=Color3.fromRGB(20,27,39)
-,Visible=false},bH)a1('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,10)},bS)a1('\085\073\083\116\114\111\107\101',
-{Color=Color3.fromRGB(105,165,220),Thickness=1.5,Transparency=0.2},bS)local bT,
-bU=aK.checkbox(bc,aL('\065\116\097\108\104\111\032\110\097\032\116\101\108\097\058\032','\083\099\114\101\101\110\032\115\104\111\114\116\099\117\116\058\032')..aL(bQ[2],bQ[3]),80
-+bP)a0(bT.Activated,function()bS.Visible=not bS.Visible bU(bS.Visible)if not bS.
-Visible then bI=0 end end)local bV=a1('\084\101\120\116\066\117\116\116\111\110',{Text='\061',Size=UDim2.new(1,0,
-0,18),BackgroundTransparency=1,TextColor3=Color3.fromRGB(150,180,210),TextSize=
-14},bS)local bW=a1('\084\101\120\116\066\117\116\116\111\110',{Text='',Size=UDim2.new(1,0,1,-18),Position=
-UDim2.fromOffset(0,18),BackgroundTransparency=1},bS)local bX=a1('\070\114\097\109\101',{Size=
-UDim2.fromOffset(26,26),Position=UDim2.new(0.5,-13,0,2),BackgroundTransparency=1
-},bW)local function bY(bZ,b_,b0,b1)a1('\070\114\097\109\101',{Size=UDim2.fromOffset(b0,2),
-Position=UDim2.fromOffset(bZ,b_),Rotation=b1 or 0,BorderSizePixel=0,
-BackgroundColor3=Color3.fromRGB(210,235,255)},bX)end if bR=='\117\112'or bR=='\100\111\119\110'or
-bR=='\102\108\121'then bY(12,5,2,90)bY(4,8,12,-40)bY(12,8,12,40)bY(7,20,12,0)if bR==
-'\100\111\119\110'then bX.Rotation=180 end elseif bR=='\111\114\101\065\117\114\097'then bY(4,12,23,-45)bY(1,5,23
-,15)elseif bR=='\097\117\114\097'then bY(2,12,26,-45)bY(2,12,26,45)else bY(2,12,24,0)bY(2,12
-,24,90)local bZ=a1('\070\114\097\109\101',{Size=UDim2.fromOffset(18,18),Position=UDim2.
-fromOffset(4,4),BackgroundTransparency=1},bX)a1('\085\073\067\111\114\110\101\114',{CornerRadius=UDim.
-new(1,0)},bZ)a1('\085\073\083\116\114\111\107\101',{Thickness=2,Color=Color3.fromRGB(210,235,255)},bZ)
-end a1('\084\101\120\116\076\097\098\101\108',{Text=aL(bQ[2],bQ[3]),Size=UDim2.new(1,-4,0,20),Position=
-UDim2.fromOffset(2,32),BackgroundTransparency=1,TextSize=10,TextColor3=Color3.
-new(1,1,1),TextWrapped=true},bW)a0(bV.InputBegan,function(bZ)if bZ.UserInputType
-==Enum.UserInputType.Touch or bZ.UserInputType==Enum.UserInputType.MouseButton1
-then bJ=bZ bK=bZ.Position bL=bS.AbsolutePosition bM=bS end end)if bR=='\117\112'or bR
-=='\100\111\119\110'then a0(bW.InputBegan,function(bZ)if bZ.UserInputType==Enum.
-UserInputType.Touch or bZ.UserInputType==Enum.UserInputType.MouseButton1 then bI
-=bR=='\117\112'and 1 or-1 end end)a0(bW.InputEnded,function()bI=0 end)else bO[bR]=bS
-a0(bW.Activated,function()aW[bR]=not aW[bR]aT[bR].paint(aW[bR])end)end end a0(aN
-.InputChanged,function(bP)if not bJ or not bM or not bM.Visible then return end
-if bP~=bJ and bP.UserInputType~=Enum.UserInputType.MouseMovement then return end
-local bQ=bP.Position-bK local bR=workspace.CurrentCamera local bS=bR and bR.
-ViewportSize local bT,bU=bL.X+bQ.X,bL.Y+bQ.Y if bS then bT=math.clamp(bT,0,math.
-max(0,bS.X-66))bU=math.clamp(bU,0,math.max(0,bS.Y-76))end bM.Position=UDim2.
-fromOffset(bT,bU)end)a0(aN.InputEnded,function(bP)if bP==bJ then bJ=nil bM=nil
-end bI=0 end)local function bP(bQ)if bQ:IsA('\066\097\115\101\080\097\114\116')then return bQ end return
-bQ:IsA('\077\111\100\101\108')and(bQ.PrimaryPart or bQ:FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')or bQ:
-FindFirstChildWhichIsA('\066\097\115\101\080\097\114\116',true))or nil end local bQ=setmetatable({},{
-__mode='\107'})local function bR(bS)if not(bS:IsA('\077\111\100\101\108')or bS:IsA('\066\097\115\101\080\097\114\116'))
-then return nil end local bT=tostring(bS:GetAttribute('\082\101\097\108\078\097\109\101')or bS.Name)if
-bS.Name=='\068\105\103\083\112\111\116'and bS:IsA('\077\111\100\101\108')then return'\116\114\101\097\115\117\114\101'end if bS:IsA('\077\111\100\101\108')
-and(bS.Parent and bS.Parent.Name=='\070\111\114\116\114\101\115\115\101\115'or bS.Parent==workspace and bB[bS.
-Name])then return'\115\116\114\117\099\116\117\114\101\115'end if bS.Name=='\067\104\117\114\099\104'and bS:IsA('\077\111\100\101\108')then
-return'\099\104\117\114\099\104'end if bS.Parent and bS.Parent.Name=='\078\112\099'then if bS:GetAttribute(
-'\078\112\099\070\097\099\116\105\111\110')=='\070\114\105\101\110\100\108\121\067\111\109\112\097\110\105\111\110'or bT:lower():find('\099\111\109\112\097\110\105\111\110',1,true)or bS:
-GetAttribute('\070\114\105\101\110\100\108\121')==true then return'\099\111\109\112\097\110\105\111\110\115'end if bT:lower():find(
-'\109\105\109\105\099',1,true)or bS:GetAttribute('\077\105\109\105\099\067\104\101\115\116\068\097\109\097\103\101\097\098\108\101')~=nil then return
-'\109\105\109\105\099\115'end return'\109\111\098\115'end if bS:GetAttribute('\082\117\110\116\105\109\101\067\104\101\115\116\077\111\100\101\108')==true then
-return'\099\104\101\115\116\115'end if aP:HasTag(bS,'\079\114\101')or type(bS:GetAttribute('\083\101\115\115\105\111\110\079\114\101\084\121\112\101'
-))=='\115\116\114\105\110\103'then return'\111\114\101\115'end if aP:HasTag(bS,'\068\117\110\103\101\111\110\065\114\101\110\097\068\111\111\114')then return
-'\097\114\101\110\097\115'end if aP:HasTag(bS,'\068\117\110\103\101\111\110\084\114\101\097\115\117\114\101\068\111\111\114')then return'\116\114\101\097\115\117\114\101\068\111\111\114\115'end
-if aP:HasTag(bS,'\068\117\110\103\101\111\110\068\111\111\114')then return'\100\111\111\114\115'end if bS.Parent and bS.Parent.
-Name=='\073\116\101\109\115'then return bT:lower():find('\115\099\114\097\112',1,true)and'\115\099\114\097\112'or'\105\116\101\109\115'end
-end local bS=false local function bT()if bS then return end bS=true task.spawn(
-function()local bU={workspace}local bV=0 while aR and#bU>0 do local bW=table.
-remove(bU)local bX=bR(bW)if bX then bQ[bW]=bX end for bY,bZ in ipairs(bW:
-GetChildren())do bU[#bU+1]=bZ end bV+=1 if bV%120==0 then task.wait()end end bS=
-false end)end a0(workspace.DescendantAdded,function(bU)local bV=bR(bU)if bV then
-bQ[bU]=bV end end)local bU={}local function bV(bW)local bX=bU[bW]if bX then for
-bY,bZ in pairs(bX)do if typeof(bZ)=='\073\110\115\116\097\110\099\101'then bZ:Destroy()end end bU[bW]=
-nil end end local function bW()local bX={}for bY in pairs(bU)do bX[#bX+1]=bY end
-for bY,bZ in ipairs(bX)do bV(bZ)end end local bX,bY,bZ,b_,b0 local b1=
-setmetatable({},{__mode='\107'})local b2,b3 local function b4()if b2 then pcall(
-function()b2.Range=b3 end)b2=nil end end local function b5()if b0 then b0:
-Destroy()b0=nil end if b_ then b_:Destroy()b_=nil end bZ=nil end local function
-b6()for b7,b8 in pairs(b1)do if b7.Parent then b7.CanCollide=b8 end b1[b7]=nil
-end end local b7={}local b8,b9 local ca,cb,cc=0,nil,0 local cd local ce=false
-local cf=0 local function cg()if b8 then b8.Debounce=math.max(tonumber(b8.
-Debounce)or 0,tonumber(b9)or 0)end b8=nil b9=nil end local ch,ci,cj local
-function ck()if ch and ch.GetAimRay==cj then ch.GetAimRay=ci end ch=nil ci=nil
-cj=nil end local function cl()for cm,cn in pairs(b7)do if cm.Parent then cm.Size
-=cn.size end cn.box:Destroy()b7[cm]=nil end end local function cm(cn,co)local cp
-,cq=nil,co local cr=workspace:FindFirstChild('\078\112\099')for cs,ct in ipairs(cr and cr
-:GetChildren()or{})do local cu=bR(ct)local cv=ct:FindFirstChildOfClass(
-'\072\117\109\097\110\111\105\100')local cw=ct:FindFirstChild('\072\101\097\100')if(cu=='\109\111\098\115'or cu=='\109\105\109\105\099\115')and cv
-and cv.Health>0 and cw and cw:IsA('\066\097\115\101\080\097\114\116')then local cx=(cw.Position-cn.
-Position).Magnitude if cx<cq then local cy=true if aV.visibleOnly then local cz=
-RaycastParams.new()cz.FilterType=Enum.RaycastFilterType.Exclude cz.
-FilterDescendantsInstances={aM.Character}local cA=workspace:Raycast(cn.Position,
-cw.Position-cn.Position,cz)cy=not cA or cA.Instance:IsDescendantOf(ct)end if cy
-then cq=cx cp=cw end end end end local cs=aJ.stoneTarget and aJ.stoneTarget()if
-cs and cs.Parent then local ct=cs.Parent:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')if ct
-and ct.Health>0 and(cs.Position-cn.Position).Magnitude<co then local cu=true if
-aV.visibleOnly then local cv=RaycastParams.new()cv.FilterType=Enum.
-RaycastFilterType.Exclude cv.FilterDescendantsInstances={aM.Character}local cw=
-workspace:Raycast(cn.Position,cs.Position-cn.Position,cv)cu=not cw or cw.
-Instance:IsDescendantOf(cs.Parent)end if cu then return cs,(cs.Position-cn.
-Position).Magnitude end end end return cp,cq end local function cn()for co in
-pairs(aW)do aW[co]=false aT[co].paint(false)end b4()b5()b6()ck()cl()cg()cf+=1 ce
-=false cb=nil cd=nil ca=0 bI=0 if bX and bX.Parent then bX.WalkSpeed=bY end bX=
-nil end a0(aO.Heartbeat,function()if not aR then return end local co,cp,cq=aJ.
-actor()if bX and(bX~=cq or not aW.speed)then if bX.Parent then bX.WalkSpeed=bY
-end bX=nil end if cq and aW.speed then if bX~=cq then bX=cq bY=cq.WalkSpeed end
-cq.WalkSpeed=aV.speed end if not co or not aW.noclip then b6()else for cr,cs in
-ipairs(co:GetDescendants())do if cs:IsA('\066\097\115\101\080\097\114\116')then if b1[cs]==nil then b1[
-cs]=cs.CanCollide end cs.CanCollide=false end end end if not cp or not aW.fly or
-aJ.movementBusy and aJ.movementBusy()then b5()else if bZ~=cp then b5()bZ=cp b_=
-a1('\065\116\116\097\099\104\109\101\110\116',{},cp)b0=a1('\076\105\110\101\097\114\086\101\108\111\099\105\116\121',{Attachment0=b_,MaxForce=1e7,
-RelativeTo=Enum.ActuatorRelativeTo.World},cp)end local cr=cq.MoveDirection local
-cs=workspace.CurrentCamera if cr.Magnitude>0.1 and cs then cr=Vector3.new(cr.X,
-cs.CFrame.LookVector.Y*cr.Magnitude,cr.Z)end local ct=bI if not aN:
-GetFocusedTextBox()then if aN:IsKeyDown(Enum.KeyCode.Space)then ct+=1 end if aN:
-IsKeyDown(Enum.KeyCode.LeftControl)then ct-=1 end end b0.VectorVelocity=(cr+
-Vector3.new(0,ct,0))*aV.flySpeed end end)local co,cp,cq=0,0,0 task.spawn(
-function()while aR do local cr,cs=pcall(function()local cr,cs,ct=aJ.actor()if
-not cs then b4()ck()cl()cg()bW()return end for cu,cv in pairs(bO)do cv.
-BackgroundColor3=aW[cu]and Color3.fromRGB(30,85,100)or Color3.fromRGB(20,27,39)
-end if not aW.hitbox then cl()else local cu={}local cv=cm(cs,aV.gunRange)if cv
-then cu[cv]=true local cw=b7[cv]if not cw then cw={size=cv.Size,box=a1(
-'\066\111\120\072\097\110\100\108\101\065\100\111\114\110\109\101\110\116',{Adornee=cv,AlwaysOnTop=true,ZIndex=1,Transparency=0.93,
-Color3=Color3.fromRGB(110,190,255)},bG)}b7[cv]=cw end cv.Size=Vector3.new(aV.
-hitboxSize,aV.hitboxSize,aV.hitboxSize)cw.box.Size=cv.Size end for cw,cx in
-pairs(b7)do if not cu[cw]then if cw.Parent then cw.Size=cx.size end cx.box:
-Destroy()b7[cw]=nil end end end local cu=false for cv,cw in pairs(aY)do if cw.
-enabled then cu=true end end if cu and os.clock()-co>30 then co=os.clock()bT()
-end if cu and os.clock()-cp>0.3 then cp=os.clock()local cv={}for cw,cx in
-ipairs(game:GetService('\080\108\097\121\101\114\115'):GetPlayers())do if cx~=aM and cx.Character
-then bQ[cx.Character]='\112\108\097\121\101\114\115'end end for cw,cx in pairs(bQ)do if not cw.Parent
-or not cw:IsDescendantOf(workspace)then bQ[cw]=nil else cx=bR(cw)or cx bQ[cw]=cx
-if aY[cx].enabled then local cy=bP(cw)local cz=true if aV.hideBases and cx==
-'\115\116\114\117\099\116\117\114\101\115'then cz=false end if aV.hideShop then local cA=cw while cA and cA~=
-workspace do if aP:HasTag(cA,'\083\104\111\112\073\116\101\109')then cz=false break end cA=cA.Parent end
-end if cx=='\115\116\114\117\099\116\117\114\101\115'and aV.hideVisited then local cA=cw.Name:lower()if cy and
-(cy.Position-cs.Position).Magnitude<60 then by[cw]=true end if by[cw]or cA:find(
-'\115\116\097\114\116',1,true)or cA:find('\116\117\116\111\114\105\097\108',1,true)then cz=false end end local cA=cw:
-FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cB=cA and cA.Health or cw:GetAttribute(
-'\070\117\101\108\076\101\101\099\104\072\101\097\108\116\104')if aV.hideDead and aG(cx,cB,cw:GetAttribute('\067\097\116\101\103\111\114\121'),cw:
-GetAttribute('\067\111\114\112\115\101\077\097\120\072\101\097\108\116\104'),cw:GetAttribute('\067\111\114\112\115\101\080\108\097\121\101\114\085\115\101\114\073\100'))then cz=
-false end if aV.hideAttached and(cx=='\105\116\101\109\115'or cx=='\115\099\114\097\112')and(cw:GetAttribute(
-'\087\101\108\100\101\100')==true or cw:GetAttribute('\068\114\105\108\108\087\101\108\100\067\111\108\108\105\115\105\111\110\083\117\112\112\114\101\115\115\101\100')==true)then cz
-=false end if cx=='\111\114\101\115'then local cC=tostring(cw:GetAttribute('\083\101\115\115\105\111\110\079\114\101\084\121\112\101')
-or cw.Name):lower()cz=false for cD in aV.oreFilter:gmatch('\091\094\044\093\043')do if cC:find(
-cD:match('\094\037\115\042\040\046\045\041\037\115\042\036'):lower(),1,true)then cz=true end end end if cy and cz
-then local cC=(cy.Position-cs.Position).Magnitude if cC<=aV.maxDistance then cv[
-#cv+1]={o=cw,kind=cx,anchor=cy,distance=cC}end end end end end table.sort(cv,
-function(cw,cx)local cy,cz=bl(cw.kind),bl(cx.kind)if cy~=cz then return cy<cz
-end return cw.distance<cx.distance end)local cw={}for cx=1,math.min(#cv,aV.
-maxESP)do local cy=cv[cx]local cz=cy.o cw[cz]=true if bU[cz]and bU[cz].style~=aV
-.style then bV(cz)end local cA=bU[cz]if not cA then cA={style=aV.style}bU[cz]=cA
-cA.billboard=a1('\066\105\108\108\098\111\097\114\100\071\117\105',{Adornee=cy.anchor,AlwaysOnTop=true,Size=UDim2.
-fromOffset(220,48),StudsOffset=Vector3.new(0,3,0)},bG)cA.text=a1('\084\101\120\116\076\097\098\101\108',{
-Size=UDim2.fromScale(1,1),BackgroundTransparency=1,TextSize=12,RichText=true,
-TextStrokeTransparency=0.3,Font=Enum.Font.GothamBold,TextWrapped=true},cA.
-billboard)if aV.style=='\066\111\120'then cA.visual=a1('\066\111\120\072\097\110\100\108\101\065\100\111\114\110\109\101\110\116',{Adornee=cy.
-anchor,AlwaysOnTop=true,ZIndex=5,Transparency=0.65},bG)else cA.visual=a1(
-'\072\105\103\104\108\105\103\104\116',{Adornee=cz,DepthMode=Enum.HighlightDepthMode.AlwaysOnTop,
-FillTransparency=0.85},bG)end end local cB=a2(aY[cy.kind].color)local cC=cz:
-FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cD=cC and cC.Health or cz:GetAttribute(
-'\070\117\101\108\076\101\101\099\104\072\101\097\108\116\104')local cE=false local cF=tostring(cz:GetAttribute('\082\101\097\108\078\097\109\101')or
-cz.Name)cA.billboard.Adornee=cy.anchor if cy.kind=='\111\114\101\115'then local cG=tostring(
-cz:GetAttribute('\083\101\115\115\105\111\110\079\114\101\084\121\112\101')or cz:GetAttribute('\082\101\097\108\078\097\109\101')or cz.Name)local
-cH={Coal='\067\097\114\118\u{e3}\111',Iron='\070\101\114\114\111',Gold='\079\117\114\111',Diamond='\068\105\097\109\097\110\116\101',Emerald=
-'\069\115\109\101\114\097\108\100\097',Ruby='\082\117\098\105'}for cI,cJ in pairs(cH)do if cG:lower():find(cI:lower(),1
-,true)then cF=aL(cJ,cI)break end end cE=aP:HasTag(cz,'\087\111\114\109')or cz:
-FindFirstChild('\087\111\114\109',true)~=nil if cE then cF=cF..aL('\032\105\110\102\101\115\116\097\100\111','\032\105\110\102\101\115\116\101\100')
-end elseif cy.kind=='\099\104\117\114\099\104'then cF=aL('\073\103\114\101\106\097','\067\104\117\114\099\104')elseif cy.kind==
-'\116\114\101\097\115\117\114\101'then cF=aL('\084\101\115\111\117\114\111\032\101\110\116\101\114\114\097\100\111','\066\117\114\105\101\100\032\116\114\101\097\115\117\114\101')elseif cy.kind==
-'\100\111\111\114\115'then local cG local cH=cz while cH and cH~=workspace do cG=tonumber(cH:
-GetAttribute('\068\117\110\103\101\111\110\084\105\101\114')or cH:GetAttribute('\071\097\116\101\084\105\101\114')or cH:GetAttribute(
-'\068\105\102\102\105\099\117\108\116\121\084\105\101\114')or cH:GetAttribute('\084\105\101\114'))if not cG then cG=tonumber(cH.Name:
-match('\091\084\116\093\105\101\114\091\095\037\115\093\042\040\037\100\043\041'))end if cG then break end cH=cH.Parent end if not cG
-then for cI,cJ in ipairs(cz:GetDescendants())do if cJ:IsA('\084\101\120\116\076\097\098\101\108')then local
-cK=cJ.Text:gsub('\060\091\094\062\093\043\062',''):lower()cG=tonumber(cK:match(
-'\116\105\101\114\037\115\042\091\058\037\045\093\063\037\115\042\040\037\100\043\041'))if not cG then local cL=cK:match(
-'\116\105\101\114\037\115\042\091\058\037\045\093\063\037\115\042\040\105\043\041\037\102\091\037\065\093')cG=cL and({i=1,ii=2,iii=3})[cL]end if cG then break
-end end end end cF='\071\097\116\101\032\u{b7}\032\084\105\101\114\032'..(cG and tostring(math.floor(cG))or'\063')if
-aV.dungeonScan then cF=cF..'\n'..bA(cz)end elseif cy.kind=='\115\116\114\117\099\116\117\114\101\115'or cy.
-kind=='\097\114\101\110\097\115'or cy.kind=='\116\114\101\097\115\117\114\101\068\111\111\114\115'then cF=bC(cF)elseif cy.kind=='\099\104\101\115\116\115'
-then local cG={CommonChest=aL('\066\097\u{fa}\032\100\101\032\109\097\100\101\105\114\097','\087\111\111\100\101\110\032\099\104\101\115\116'),
+},{'\100\111\119\110','\068\101\115\099\101\114','\068\111\119\110'}}local bO={}local bP={aura='\084\101\097\109\077\101\108\101\101\068\097\109\097\103\101',oreAura=
+'\084\101\097\109\080\105\099\107\097\120\101\068\097\109\097\103\101',fly='\069\110\103\105\110\101\079\118\101\114\100\114\105\118\101',noclip='\068\114\105\108\108\080\111\119\101\114',speed='\068\114\105\118\101\083\112\101\101\100'
+,autoMove='\080\111\119\101\114\068\114\105\118\101',autoFire='\084\101\097\109\071\117\110\068\097\109\097\103\101',up='\080\111\119\101\114\066\117\114\115\116',down=
+'\080\111\119\101\114\066\117\114\115\116'}for bQ,bR in ipairs(bN)do local bS=bR[1]local bT=a1('\070\114\097\109\101',{Size=
+UDim2.fromOffset(66,76),Position=UDim2.new(0,12+((bQ-1)%4)*72,1,-90-math.floor((
+bQ-1)/4)*82),BackgroundColor3=Color3.fromRGB(20,27,39),Visible=false},bH)a1(
+'\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(0,10)},bT)a1('\085\073\083\116\114\111\107\101',{Color=Color3.fromRGB(
+105,165,220),Thickness=1.5,Transparency=0.2},bT)local bU,bV=aK.checkbox(bc,aL(
+'\065\116\097\108\104\111\032\110\097\032\116\101\108\097\058\032','\083\099\114\101\101\110\032\115\104\111\114\116\099\117\116\058\032')..aL(bR[2],bR[3]),80+bQ)a0(bU.Activated,
+function()bT.Visible=not bT.Visible bV(bT.Visible)if not bT.Visible then bI=0
+end end)local bW=a1('\084\101\120\116\066\117\116\116\111\110',{Text='\061',Size=UDim2.new(1,0,0,18),
+BackgroundTransparency=1,TextColor3=Color3.fromRGB(150,180,210),TextSize=14},bT)
+local bX=a1('\084\101\120\116\066\117\116\116\111\110',{Text='',Size=UDim2.new(1,0,1,-18),Position=UDim2.
+fromOffset(0,18),BackgroundTransparency=1},bT)local bY=a8[bP[bS] ]a1(
+'\073\109\097\103\101\076\097\098\101\108',{Size=UDim2.fromOffset(28,28),Position=UDim2.new(0.5,-14,0,1),
+BackgroundTransparency=1,Image=bY and bY.icon or'\114\098\120\097\115\115\101\116\105\100\058\047\047\056\053\057\049\056\050\050\048\050\057\053\053\049\055',
+Rotation=bS=='\100\111\119\110'and 180 or 0},bX)a1('\084\101\120\116\076\097\098\101\108',{Text=aL(bR[2],bR[3]),Size=
+UDim2.new(1,-4,0,20),Position=UDim2.fromOffset(2,32),BackgroundTransparency=1,
+TextSize=10,TextColor3=Color3.new(1,1,1),TextWrapped=true},bX)a0(bW.InputBegan,
+function(bZ)if bZ.UserInputType==Enum.UserInputType.Touch or bZ.UserInputType==
+Enum.UserInputType.MouseButton1 then bJ=bZ bK=bZ.Position bL=bT.AbsolutePosition
+bM=bT end end)if bS=='\117\112'or bS=='\100\111\119\110'then a0(bX.InputBegan,function(bZ)if bZ.
+UserInputType==Enum.UserInputType.Touch or bZ.UserInputType==Enum.UserInputType.
+MouseButton1 then bI=bS=='\117\112'and 1 or-1 end end)a0(bX.InputEnded,function()bI=0
+end)else bO[bS]=bT a0(bX.Activated,function()aW[bS]=not aW[bS]aT[bS].paint(aW[bS
+])end)end end a0(aN.InputChanged,function(bQ)if not bJ or not bM or not bM.
+Visible then return end if bQ~=bJ and bQ.UserInputType~=Enum.UserInputType.
+MouseMovement then return end local bR=bQ.Position-bK local bS=workspace.
+CurrentCamera local bT=bS and bS.ViewportSize local bU,bV=bL.X+bR.X,bL.Y+bR.Y if
+bT then bU=math.clamp(bU,0,math.max(0,bT.X-66))bV=math.clamp(bV,0,math.max(0,bT.
+Y-76))end bM.Position=UDim2.fromOffset(bU,bV)end)a0(aN.InputEnded,function(bQ)if
+bQ==bJ then bJ=nil bM=nil end bI=0 end)local function bQ(bR)if bR:IsA('\066\097\115\101\080\097\114\116'
+)then return bR end return bR:IsA('\077\111\100\101\108')and(bR.PrimaryPart or bR:
+FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')or bR:FindFirstChildWhichIsA('\066\097\115\101\080\097\114\116',true))
+or nil end local bR=setmetatable({},{__mode='\107'})local function bS(bT)if not(bT:
+IsA('\077\111\100\101\108')or bT:IsA('\066\097\115\101\080\097\114\116'))then return nil end local bU=tostring(bT:
+GetAttribute('\082\101\097\108\078\097\109\101')or bT.Name)if bT.Name=='\068\105\103\083\112\111\116'and bT:IsA('\077\111\100\101\108')then
+return'\116\114\101\097\115\117\114\101'end if bT:IsA('\077\111\100\101\108')and(bT.Parent and bT.Parent.Name==
+'\070\111\114\116\114\101\115\115\101\115'or bT.Parent==workspace and bB[bT.Name])then return'\115\116\114\117\099\116\117\114\101\115'end
+if bT.Name=='\067\104\117\114\099\104'and bT:IsA('\077\111\100\101\108')then return'\099\104\117\114\099\104'end if bT.Parent and
+bT.Parent.Name=='\078\112\099'then if bT:GetAttribute('\078\112\099\070\097\099\116\105\111\110')=='\070\114\105\101\110\100\108\121\067\111\109\112\097\110\105\111\110'
+or bU:lower():find('\099\111\109\112\097\110\105\111\110',1,true)or bT:GetAttribute('\070\114\105\101\110\100\108\121')==true then
+return'\099\111\109\112\097\110\105\111\110\115'end if bU:lower():find('\109\105\109\105\099',1,true)or bT:GetAttribute(
+'\077\105\109\105\099\067\104\101\115\116\068\097\109\097\103\101\097\098\108\101')~=nil then return'\109\105\109\105\099\115'end return'\109\111\098\115'end if bT:
+GetAttribute('\082\117\110\116\105\109\101\067\104\101\115\116\077\111\100\101\108')==true then return'\099\104\101\115\116\115'end if aP:HasTag(bT,
+'\079\114\101')or type(bT:GetAttribute('\083\101\115\115\105\111\110\079\114\101\084\121\112\101'))=='\115\116\114\105\110\103'then return'\111\114\101\115'end
+if aP:HasTag(bT,'\068\117\110\103\101\111\110\065\114\101\110\097\068\111\111\114')then return'\097\114\101\110\097\115'end if aP:HasTag(bT,
+'\068\117\110\103\101\111\110\084\114\101\097\115\117\114\101\068\111\111\114')then return'\116\114\101\097\115\117\114\101\068\111\111\114\115'end if aP:HasTag(bT,
+'\068\117\110\103\101\111\110\068\111\111\114')then return'\100\111\111\114\115'end if bT.Parent and bT.Parent.Name=='\073\116\101\109\115'then
+return bU:lower():find('\115\099\114\097\112',1,true)and'\115\099\114\097\112'or'\105\116\101\109\115'end end local bT=false
+local function bU()if bT then return end bT=true task.spawn(function()local bV={
+workspace}local bW=0 while aR and#bV>0 do local bX=table.remove(bV)local bY=bS(
+bX)if bY then bR[bX]=bY end for bZ,b_ in ipairs(bX:GetChildren())do bV[#bV+1]=b_
+end bW+=1 if bW%120==0 then task.wait()end end bT=false end)end a0(workspace.
+DescendantAdded,function(bV)local bW=bS(bV)if bW then bR[bV]=bW end end)local bV
+={}local function bW(bX)local bY=bV[bX]if bY then for bZ,b_ in pairs(bY)do if
+typeof(b_)=='\073\110\115\116\097\110\099\101'then b_:Destroy()end end bV[bX]=nil end end local function
+bX()local bY={}for bZ in pairs(bV)do bY[#bY+1]=bZ end for bZ,b_ in ipairs(bY)do
+bW(b_)end end local bY,bZ,b_,b0,b1 local b2=setmetatable({},{__mode='\107'})local
+b3,b4 local function b5()if b3 then pcall(function()b3.Range=b4 end)b3=nil end
+end local function b6()if b1 then b1:Destroy()b1=nil end if b0 then b0:Destroy()
+b0=nil end b_=nil end local function b7()for b8,b9 in pairs(b2)do if b8.Parent
+then b8.CanCollide=b9 end b2[b8]=nil end end local b8={}local b9,ca local cb,cc,
+cd=0,nil,0 local ce local cf=false local cg=0 local function ch()if b9 then b9.
+Debounce=math.max(tonumber(b9.Debounce)or 0,tonumber(ca)or 0)end b9=nil ca=nil
+end local ci,cj,ck local function cl()if ci and ci.GetAimRay==ck then ci.
+GetAimRay=cj end ci=nil cj=nil ck=nil end local function cm()for cn,co in pairs(
+b8)do if cn.Parent then cn.Size=co.size end co.box:Destroy()b8[cn]=nil end end
+local function cn(co,cp)local cq,cr=nil,cp local cs=workspace:FindFirstChild(
+'\078\112\099')for ct,cu in ipairs(cs and cs:GetChildren()or{})do local cv=bS(cu)local cw
+=cu:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cx=cu:FindFirstChild('\072\101\097\100')if(cv==
+'\109\111\098\115'or cv=='\109\105\109\105\099\115')and cw and cw.Health>0 and cx and cx:IsA('\066\097\115\101\080\097\114\116')then
+local cy=(cx.Position-co.Position).Magnitude if cy<cr then local cz=true if aV.
+visibleOnly then local cA=RaycastParams.new()cA.FilterType=Enum.
+RaycastFilterType.Exclude cA.FilterDescendantsInstances={aM.Character}local cB=
+workspace:Raycast(co.Position,cx.Position-co.Position,cA)cz=not cB or cB.
+Instance:IsDescendantOf(cu)end if cz then cr=cy cq=cx end end end end local ct=
+aJ.stoneTarget and aJ.stoneTarget()if ct and ct.Parent then local cu=ct.Parent:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')if cu and cu.Health>0 and(ct.Position-co.
+Position).Magnitude<cp then local cv=true if aV.visibleOnly then local cw=
+RaycastParams.new()cw.FilterType=Enum.RaycastFilterType.Exclude cw.
+FilterDescendantsInstances={aM.Character}local cx=workspace:Raycast(co.Position,
+ct.Position-co.Position,cw)cv=not cx or cx.Instance:IsDescendantOf(ct.Parent)end
+if cv then return ct,(ct.Position-co.Position).Magnitude end end end return cq,
+cr end local function co()for cp in pairs(aW)do aW[cp]=false aT[cp].paint(false)
+end b5()b6()b7()cl()cm()ch()cg+=1 cf=false cc=nil ce=nil cb=0 bI=0 if bY and bY.
+Parent then bY.WalkSpeed=bZ end bY=nil end a0(aO.Heartbeat,function()if not aR
+then return end local cp,cq,cr=aJ.actor()if bY and(bY~=cr or not aW.speed)then
+if bY.Parent then bY.WalkSpeed=bZ end bY=nil end if cr and aW.speed then if bY~=
+cr then bY=cr bZ=cr.WalkSpeed end cr.WalkSpeed=aV.speed end if not cp or not aW.
+noclip then b7()else for cs,ct in ipairs(cp:GetDescendants())do if ct:IsA(
+'\066\097\115\101\080\097\114\116')then if b2[ct]==nil then b2[ct]=ct.CanCollide end ct.CanCollide=false
+end end end if not cq or not aW.fly or aJ.movementBusy and aJ.movementBusy()then
+b6()else if b_~=cq then b6()b_=cq b0=a1('\065\116\116\097\099\104\109\101\110\116',{},cq)b1=a1(
+'\076\105\110\101\097\114\086\101\108\111\099\105\116\121',{Attachment0=b0,MaxForce=1e7,RelativeTo=Enum.ActuatorRelativeTo
+.World},cq)end local cs=cr.MoveDirection local ct=workspace.CurrentCamera if cs.
+Magnitude>0.1 and ct then cs=Vector3.new(cs.X,ct.CFrame.LookVector.Y*cs.
+Magnitude,cs.Z)end local cu=bI if not aN:GetFocusedTextBox()then if aN:
+IsKeyDown(Enum.KeyCode.Space)then cu+=1 end if aN:IsKeyDown(Enum.KeyCode.
+LeftControl)then cu-=1 end end b1.VectorVelocity=(cs+Vector3.new(0,cu,0))*aV.
+flySpeed end end)local cp,cq,cr=0,0,0 task.spawn(function()while aR do local cs,
+ct=pcall(function()local cs,ct,cu=aJ.actor()if not ct then b5()cl()cm()ch()bX()
+return end for cv,cw in pairs(bO)do cw.BackgroundColor3=aW[cv]and Color3.
+fromRGB(30,85,100)or Color3.fromRGB(20,27,39)end if not aW.hitbox then cm()else
+local cv={}local cw=cn(ct,aV.gunRange)if cw then cv[cw]=true local cx=b8[cw]if
+not cx then cx={size=cw.Size,box=a1('\066\111\120\072\097\110\100\108\101\065\100\111\114\110\109\101\110\116',{Adornee=cw,AlwaysOnTop
+=true,ZIndex=1,Transparency=0.93,Color3=Color3.fromRGB(110,190,255)},bG)}b8[cw]=
+cx end cw.Size=Vector3.new(aV.hitboxSize,aV.hitboxSize,aV.hitboxSize)cx.box.Size
+=cw.Size end for cx,cy in pairs(b8)do if not cv[cx]then if cx.Parent then cx.
+Size=cy.size end cy.box:Destroy()b8[cx]=nil end end end local cv=false for cw,cx
+in pairs(aY)do if cx.enabled then cv=true end end if cv and os.clock()-cp>30
+then cp=os.clock()bU()end if cv and os.clock()-cq>0.3 then cq=os.clock()local cw
+={}for cx,cy in ipairs(game:GetService('\080\108\097\121\101\114\115'):GetPlayers())do if cy~=aM and
+cy.Character then bR[cy.Character]='\112\108\097\121\101\114\115'end end for cx,cy in pairs(bR)do if
+not cx.Parent or not cx:IsDescendantOf(workspace)then bR[cx]=nil else cy=bS(cx)
+or cy bR[cx]=cy if aY[cy].enabled then local cz=bQ(cx)local cA=true if aV.
+hideBases and cy=='\115\116\114\117\099\116\117\114\101\115'then cA=false end if aV.hideShop then local cB=cx
+while cB and cB~=workspace do if aP:HasTag(cB,'\083\104\111\112\073\116\101\109')then cA=false break end
+cB=cB.Parent end end if cy=='\115\116\114\117\099\116\117\114\101\115'and aV.hideVisited then local cB=cx.Name
+:lower()if cz and(cz.Position-ct.Position).Magnitude<60 then by[cx]=true end if
+by[cx]or cB:find('\115\116\097\114\116',1,true)or cB:find('\116\117\116\111\114\105\097\108',1,true)then cA=false end
+end local cB=cx:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cC=cB and cB.Health or cx
+:GetAttribute('\070\117\101\108\076\101\101\099\104\072\101\097\108\116\104')if aV.hideDead and aG(cy,cC,cx:GetAttribute(
+'\067\097\116\101\103\111\114\121'),cx:GetAttribute('\067\111\114\112\115\101\077\097\120\072\101\097\108\116\104'),cx:GetAttribute(
+'\067\111\114\112\115\101\080\108\097\121\101\114\085\115\101\114\073\100'))then cA=false end if aV.hideAttached and(cy=='\105\116\101\109\115'or cy
+=='\115\099\114\097\112')and(cx:GetAttribute('\087\101\108\100\101\100')==true or cx:GetAttribute(
+'\068\114\105\108\108\087\101\108\100\067\111\108\108\105\115\105\111\110\083\117\112\112\114\101\115\115\101\100')==true)then cA=false end if cy=='\111\114\101\115'then local
+cD=tostring(cx:GetAttribute('\083\101\115\115\105\111\110\079\114\101\084\121\112\101')or cx.Name):lower()cA=false for cE
+in aV.oreFilter:gmatch('\091\094\044\093\043')do if cD:find(cE:match('\094\037\115\042\040\046\045\041\037\115\042\036'):lower(),1,
+true)then cA=true end end end if cz and cA then local cD=(cz.Position-ct.
+Position).Magnitude if cD<=aV.maxDistance then cw[#cw+1]={o=cx,kind=cy,anchor=cz
+,distance=cD}end end end end end table.sort(cw,function(cx,cy)local cz,cA=bl(cx.
+kind),bl(cy.kind)if cz~=cA then return cz<cA end return cx.distance<cy.distance
+end)local cx={}for cy=1,math.min(#cw,aV.maxESP)do local cz=cw[cy]local cA=cz.o
+cx[cA]=true if bV[cA]and bV[cA].style~=aV.style then bW(cA)end local cB=bV[cA]if
+not cB then cB={style=aV.style}bV[cA]=cB cB.billboard=a1('\066\105\108\108\098\111\097\114\100\071\117\105',{Adornee
+=cz.anchor,AlwaysOnTop=true,Size=UDim2.fromOffset(220,48),StudsOffset=Vector3.
+new(0,3,0)},bG)cB.text=a1('\084\101\120\116\076\097\098\101\108',{Size=UDim2.fromScale(1,1),
+BackgroundTransparency=1,TextSize=12,RichText=true,TextStrokeTransparency=0.3,
+Font=Enum.Font.GothamBold,TextWrapped=true},cB.billboard)if aV.style=='\066\111\120'then
+cB.visual=a1('\066\111\120\072\097\110\100\108\101\065\100\111\114\110\109\101\110\116',{Adornee=cz.anchor,AlwaysOnTop=true,ZIndex=5,
+Transparency=0.65},bG)else cB.visual=a1('\072\105\103\104\108\105\103\104\116',{Adornee=cA,DepthMode=Enum.
+HighlightDepthMode.AlwaysOnTop,FillTransparency=0.85},bG)end end local cC=a2(aY[
+cz.kind].color)local cD=cA:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cE=cD and cD.
+Health or cA:GetAttribute('\070\117\101\108\076\101\101\099\104\072\101\097\108\116\104')local cF=false local cG=tostring(cA:
+GetAttribute('\082\101\097\108\078\097\109\101')or cA.Name)cB.billboard.Adornee=cz.anchor if cz.kind==
+'\111\114\101\115'then local cH=tostring(cA:GetAttribute('\083\101\115\115\105\111\110\079\114\101\084\121\112\101')or cA:
+GetAttribute('\082\101\097\108\078\097\109\101')or cA.Name)local cI={Coal='\067\097\114\118\u{e3}\111',Iron='\070\101\114\114\111',
+Gold='\079\117\114\111',Diamond='\068\105\097\109\097\110\116\101',Emerald='\069\115\109\101\114\097\108\100\097',Ruby='\082\117\098\105'}for cJ,cK in
+pairs(cI)do if cH:lower():find(cJ:lower(),1,true)then cG=aL(cK,cJ)break end end
+cF=aP:HasTag(cA,'\087\111\114\109')or cA:FindFirstChild('\087\111\114\109',true)~=nil if cF then cG=cG..
+aL('\032\105\110\102\101\115\116\097\100\111','\032\105\110\102\101\115\116\101\100')end elseif cz.kind=='\099\104\117\114\099\104'then cG=aL('\073\103\114\101\106\097',
+'\067\104\117\114\099\104')elseif cz.kind=='\116\114\101\097\115\117\114\101'then cG=aL('\084\101\115\111\117\114\111\032\101\110\116\101\114\114\097\100\111',
+'\066\117\114\105\101\100\032\116\114\101\097\115\117\114\101')elseif cz.kind=='\100\111\111\114\115'then local cH local cI=cA while cI and
+cI~=workspace do cH=tonumber(cI:GetAttribute('\068\117\110\103\101\111\110\084\105\101\114')or cI:GetAttribute(
+'\071\097\116\101\084\105\101\114')or cI:GetAttribute('\068\105\102\102\105\099\117\108\116\121\084\105\101\114')or cI:GetAttribute('\084\105\101\114'))if not
+cH then cH=tonumber(cI.Name:match('\091\084\116\093\105\101\114\091\095\037\115\093\042\040\037\100\043\041'))end if cH then break end
+cI=cI.Parent end if not cH then for cJ,cK in ipairs(cA:GetDescendants())do if cK
+:IsA('\084\101\120\116\076\097\098\101\108')then local cL=cK.Text:gsub('\060\091\094\062\093\043\062',''):lower()cH=tonumber(cL:
+match('\116\105\101\114\037\115\042\091\058\037\045\093\063\037\115\042\040\037\100\043\041'))if not cH then local cM=cL:match(
+'\116\105\101\114\037\115\042\091\058\037\045\093\063\037\115\042\040\105\043\041\037\102\091\037\065\093')cH=cM and({i=1,ii=2,iii=3})[cM]end if cH then break
+end end end end cG='\071\097\116\101\032\u{b7}\032\084\105\101\114\032'..(cH and tostring(math.floor(cH))or'\063')if
+aV.dungeonScan then cG=cG..'\n'..bA(cA)end elseif cz.kind=='\115\116\114\117\099\116\117\114\101\115'or cz.
+kind=='\097\114\101\110\097\115'or cz.kind=='\116\114\101\097\115\117\114\101\068\111\111\114\115'then cG=bC(cG)elseif cz.kind=='\099\104\101\115\116\115'
+then local cH={CommonChest=aL('\066\097\u{fa}\032\100\101\032\109\097\100\101\105\114\097','\087\111\111\100\101\110\032\099\104\101\115\116'),
 TutorialCommonChest=aL('\066\097\u{fa}\032\100\101\032\109\097\100\101\105\114\097','\087\111\111\100\101\110\032\099\104\101\115\116'),GoldChest=aL(
 '\066\097\u{fa}\032\100\101\032\111\117\114\111','\071\111\108\100\032\099\104\101\115\116'),DiamondChest=aL('\066\097\u{fa}\032\100\101\032\100\105\097\109\097\110\116\101',
 '\068\105\097\109\111\110\100\032\099\104\101\115\116'),VoidChest=aL('\066\097\u{fa}\032\100\111\032\118\097\122\105\111','\086\111\105\100\032\099\104\101\115\116'),PhoenixChest=aL(
 '\066\097\u{fa}\032\070\u{ea}\110\105\120','\080\104\111\101\110\105\120\032\099\104\101\115\116'),Mimic_Chest=aL('\091\033\093\032\077\u{ed}\109\105\099\111',
-'\091\033\093\032\077\105\109\105\099')}cF=cG[cF]or bC(cF)elseif cy.kind=='\109\105\109\105\099\115'then cF=aL(
-'\091\033\093\032\077\u{ed}\109\105\099\111','\091\033\093\032\077\105\109\105\099')end cF=cF:gsub('\038','\038\097\109\112\059'):gsub('\060','\038\108\116\059'):gsub(
-'\062','\038\103\116\059')if aV.rarityColors and(cy.kind=='\105\116\101\109\115'or cy.kind=='\115\099\114\097\112'or cy.kind
-=='\111\114\101\115'or cy.kind=='\099\104\101\115\116\115')then local cG=bD[tostring(bF(cz,'\082\097\114\105\116\121'))]if cG
-then cB=a2(cG)end end local cG=aV.showValue and(cy.kind=='\105\116\101\109\115'or cy.kind==
-'\115\099\114\097\112'or cy.kind=='\111\114\101\115')and bF(cz,'\086\097\108\117\101')or nil if not cA.value then cA.
-priceRow=a1('\070\114\097\109\101',{AnchorPoint=Vector2.new(0.5,0),BackgroundTransparency=1},cA
-.billboard)cA.value=a1('\084\101\120\116\076\097\098\101\108',{BackgroundTransparency=1,Font=Enum.Font.
+'\091\033\093\032\077\105\109\105\099')}cG=cH[cG]or bC(cG)elseif cz.kind=='\109\105\109\105\099\115'then cG=aL(
+'\091\033\093\032\077\u{ed}\109\105\099\111','\091\033\093\032\077\105\109\105\099')end cG=cG:gsub('\038','\038\097\109\112\059'):gsub('\060','\038\108\116\059'):gsub(
+'\062','\038\103\116\059')if aV.rarityColors and(cz.kind=='\105\116\101\109\115'or cz.kind=='\115\099\114\097\112'or cz.kind
+=='\111\114\101\115'or cz.kind=='\099\104\101\115\116\115')then local cH=bD[tostring(bF(cA,'\082\097\114\105\116\121'))]if cH
+then cC=a2(cH)end end local cH=aV.showValue and(cz.kind=='\105\116\101\109\115'or cz.kind==
+'\115\099\114\097\112'or cz.kind=='\111\114\101\115')and bF(cA,'\086\097\108\117\101')or nil if not cB.value then cB.
+priceRow=a1('\070\114\097\109\101',{AnchorPoint=Vector2.new(0.5,0),BackgroundTransparency=1},cB
+.billboard)cB.value=a1('\084\101\120\116\076\097\098\101\108',{BackgroundTransparency=1,Font=Enum.Font.
 GothamBold,TextXAlignment=Enum.TextXAlignment.Left,TextColor3=Color3.fromRGB(255
-,215,95),TextStrokeTransparency=0.3},cA.priceRow)cA.coin=a1('\070\114\097\109\101',{
-BackgroundColor3=Color3.fromRGB(255,200,55),BorderSizePixel=0},cA.priceRow)a1(
-'\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(1,0)},cA.coin)a1('\085\073\083\116\114\111\107\101',{Color=Color3.
-fromRGB(170,110,20),Thickness=1},cA.coin)cA.coinText=a1('\084\101\120\116\076\097\098\101\108',{Text='\036',
+,215,95),TextStrokeTransparency=0.3},cB.priceRow)cB.coin=a1('\070\114\097\109\101',{
+BackgroundColor3=Color3.fromRGB(255,200,55),BorderSizePixel=0},cB.priceRow)a1(
+'\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(1,0)},cB.coin)a1('\085\073\083\116\114\111\107\101',{Color=Color3.
+fromRGB(170,110,20),Thickness=1},cB.coin)cB.coinText=a1('\084\101\120\116\076\097\098\101\108',{Text='\036',
 Size=UDim2.fromScale(1,1),BackgroundTransparency=1,TextColor3=Color3.fromRGB(120
-,75,10)},cA.coin)end local cH=type(cG)=='\110\117\109\098\101\114'and cG==cG and cG<math.huge cA.
-value.Visible=cH cA.coin.Visible=cH local cI=aV.textSize+4 local cJ,cK=cF:gsub(
-'\n','')local cL=cI*(1+cK+(cD and 1 or 0))cA.text.TextWrapped=false cA.text.Size
-=UDim2.new(1,0,0,cL)cA.priceRow.Visible=cH if cH then local cM=tostring(math.
-round(cG))local cN=math.max(8,aV.textSize-1)if cA.priceText~=cM or cA.priceSize
-~=cN then cA.priceText=cM cA.priceSize=cN cA.priceWidth=game:GetService(
-'\084\101\120\116\083\101\114\118\105\099\101'):GetTextSize(cM,cN,Enum.Font.GothamBold,Vector2.new(1000,100)).X
-end local cO={X=cA.priceWidth}local cP=cN local cQ=cP+4+cO.X cA.priceRow.Size=
-UDim2.fromOffset(cQ,cI)cA.priceRow.Position=UDim2.new(0.5,0,0,cL)cA.value.Text=
-cM cA.value.TextSize=cN cA.value.Size=UDim2.fromOffset(cO.X,cI)cA.value.Position
-=UDim2.fromOffset(cP+4,0)cA.coin.Size=UDim2.fromOffset(cP,cP)cA.coin.Position=
-UDim2.fromOffset(0,(cI-cP)/2)cA.coinText.TextSize=math.max(7,cN-2)end cA.
-billboard.Size=UDim2.fromOffset(260,cL+(cH and cI or 0))if not cA.worm then cA.
+,75,10)},cB.coin)end local cI=type(cH)=='\110\117\109\098\101\114'and cH==cH and cH<math.huge cB.
+value.Visible=cI cB.coin.Visible=cI local cJ=aV.textSize+4 local cK,cL=cG:gsub(
+'\n','')local cM=cJ*(1+cL+(cE and 1 or 0))cB.text.TextWrapped=false cB.text.Size
+=UDim2.new(1,0,0,cM)cB.priceRow.Visible=cI if cI then local cN=tostring(math.
+round(cH))local cO=math.max(8,aV.textSize-1)if cB.priceText~=cN or cB.priceSize
+~=cO then cB.priceText=cN cB.priceSize=cO cB.priceWidth=game:GetService(
+'\084\101\120\116\083\101\114\118\105\099\101'):GetTextSize(cN,cO,Enum.Font.GothamBold,Vector2.new(1000,100)).X
+end local cP={X=cB.priceWidth}local cQ=cO local cR=cQ+4+cP.X cB.priceRow.Size=
+UDim2.fromOffset(cR,cJ)cB.priceRow.Position=UDim2.new(0.5,0,0,cM)cB.value.Text=
+cN cB.value.TextSize=cO cB.value.Size=UDim2.fromOffset(cP.X,cJ)cB.value.Position
+=UDim2.fromOffset(cQ+4,0)cB.coin.Size=UDim2.fromOffset(cQ,cQ)cB.coin.Position=
+UDim2.fromOffset(0,(cJ-cQ)/2)cB.coinText.TextSize=math.max(7,cO-2)end cB.
+billboard.Size=UDim2.fromOffset(260,cM+(cI and cJ or 0))if not cB.worm then cB.
 worm=a1('\070\114\097\109\101',{Size=UDim2.fromOffset(22,22),Position=UDim2.fromOffset(-22,0),
-BackgroundTransparency=1,Visible=false},cA.billboard)for cM=0,4 do local cN=a1(
-'\070\114\097\109\101',{Size=UDim2.fromOffset(7,7),Position=UDim2.fromOffset(cM*4,8+math.sin(cM
-)*4),BackgroundColor3=Color3.fromRGB(225,145,190),BorderSizePixel=0},cA.worm)a1(
-'\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(1,0)},cN)end cA.mimic=a1('\070\114\097\109\101',{Size=UDim2.
+BackgroundTransparency=1,Visible=false},cB.billboard)for cN=0,4 do local cO=a1(
+'\070\114\097\109\101',{Size=UDim2.fromOffset(7,7),Position=UDim2.fromOffset(cN*4,8+math.sin(cN
+)*4),BackgroundColor3=Color3.fromRGB(225,145,190),BorderSizePixel=0},cB.worm)a1(
+'\085\073\067\111\114\110\101\114',{CornerRadius=UDim.new(1,0)},cO)end cB.mimic=a1('\070\114\097\109\101',{Size=UDim2.
 fromOffset(22,18),Position=UDim2.fromOffset(-24,0),BackgroundColor3=Color3.
-fromRGB(125,65,45),Visible=false},cA.billboard)a1('\085\073\083\116\114\111\107\101',{Color=Color3.
-fromRGB(255,185,75),Thickness=1.5},cA.mimic)a1('\070\114\097\109\101',{Size=UDim2.fromOffset(20
+fromRGB(125,65,45),Visible=false},cB.billboard)a1('\085\073\083\116\114\111\107\101',{Color=Color3.
+fromRGB(255,185,75),Thickness=1.5},cB.mimic)a1('\070\114\097\109\101',{Size=UDim2.fromOffset(20
 ,7),Position=UDim2.fromOffset(1,6),BackgroundColor3=Color3.fromRGB(30,15,20),
-BorderSizePixel=0},cA.mimic)for cM=0,3 do a1('\070\114\097\109\101',{Size=UDim2.fromOffset(3,4)
-,Position=UDim2.fromOffset(2+cM*5,6),BackgroundColor3=Color3.new(1,1,1),
-BorderSizePixel=0},cA.mimic)end end cA.worm.Visible=cE cA.mimic.Visible=cy.kind
-=='\109\105\109\105\099\115'cA.text.TextSize=aV.textSize cA.text.Text=string.format(
-'\037\115\032\u{b7}\032\060\102\111\110\116\032\099\111\108\111\114\061\034\035\037\115\034\062\037\100\032\115\116\117\100\115\060\047\102\111\110\116\062\037\115',cF,aV.distanceColor,cy.distance,
-cD and string.format('\n\072\080\032\037\046\048\102',cD)or'')cA.text.TextColor3=cB if aV.style==
-'\066\111\120'then cA.visual.Color3=cB cA.visual.Adornee=cy.anchor if cz:IsA('\077\111\100\101\108')then
-local cM,cN=cz:GetBoundingBox()cA.visual.Size=cN cA.visual.CFrame=cy.anchor.
-CFrame:ToObjectSpace(cM)else cA.visual.Size=cz.Size end else cA.visual.FillColor
-=cB cA.visual.OutlineColor=cB end end local cx={}for cy in pairs(bU)do if not cw
-[cy]then cx[#cx+1]=cy end end for cy,cz in ipairs(cx)do bV(cz)end elseif not cu
-then bW()end local cv=aJ.ctrl('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')local cw=cv and cv.ActiveTool
-local cx=cw and tostring(cw.ToolName or cw.Tool and cw.Tool.Name or'')or''local
-cy=cw and type(cw.Shoot)=='\102\117\110\099\116\105\111\110'and(cx:lower():find('\114\112\103',1,true)or cx:
-lower():find('\098\108\097\099\107',1,true))if b8 and(b8~=cw or not aW.noLauncherCooldown or
-not cy)then cg()end if aW.noLauncherCooldown and cy then b8=cw b9=math.max(
-tonumber(b9)or 0,tonumber(cw.Debounce)or 0)cw.Debounce=0 end if aW.autoMedkit
+BorderSizePixel=0},cB.mimic)for cN=0,3 do a1('\070\114\097\109\101',{Size=UDim2.fromOffset(3,4)
+,Position=UDim2.fromOffset(2+cN*5,6),BackgroundColor3=Color3.new(1,1,1),
+BorderSizePixel=0},cB.mimic)end end cB.worm.Visible=cF cB.mimic.Visible=cz.kind
+=='\109\105\109\105\099\115'cB.text.TextSize=aV.textSize cB.text.Text=string.format(
+'\037\115\032\u{b7}\032\060\102\111\110\116\032\099\111\108\111\114\061\034\035\037\115\034\062\037\100\032\115\116\117\100\115\060\047\102\111\110\116\062\037\115',cG,aV.distanceColor,cz.distance,
+cE and string.format('\n\072\080\032\037\046\048\102',cE)or'')cB.text.TextColor3=cC if aV.style==
+'\066\111\120'then cB.visual.Color3=cC cB.visual.Adornee=cz.anchor if cA:IsA('\077\111\100\101\108')then
+local cN,cO=cA:GetBoundingBox()cB.visual.Size=cO cB.visual.CFrame=cz.anchor.
+CFrame:ToObjectSpace(cN)else cB.visual.Size=cA.Size end else cB.visual.FillColor
+=cC cB.visual.OutlineColor=cC end end local cy={}for cz in pairs(bV)do if not cx
+[cz]then cy[#cy+1]=cz end end for cz,cA in ipairs(cy)do bW(cA)end elseif not cv
+then bX()end local cw=aJ.ctrl('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')local cx=cw and cw.ActiveTool
+local cy=cx and tostring(cx.ToolName or cx.Tool and cx.Tool.Name or'')or''local
+cz=cx and type(cx.Shoot)=='\102\117\110\099\116\105\111\110'and(cy:lower():find('\114\112\103',1,true)or cy:
+lower():find('\098\108\097\099\107',1,true))if b9 and(b9~=cx or not aW.noLauncherCooldown or
+not cz)then ch()end if aW.noLauncherCooldown and cz then b9=cx ca=math.max(
+tonumber(ca)or 0,tonumber(cx.Debounce)or 0)cx.Debounce=0 end if aW.autoMedkit
 and not(aJ.movementBusy and aJ.movementBusy())and not workspace:GetAttribute(
-'\073\110\067\117\116\083\099\101\110\101')then if cb then local cz=cw and type(cw.Consume)=='\102\117\110\099\116\105\111\110'and cx:
-lower():find('\109\101\100\107\105\116',1,true)if ct.Health>cb.health and os.clock()>=(cb.
-completeAt or 0)or os.clock()-cb.started>15 then if(cz or not cw)and cb.previous
-and aJ.equip then aJ.equip(cb.previous)end cb=nil cc=os.clock()+2 end elseif not
-ce and ct.MaxHealth>0 and ct.Health/ct.MaxHealth*100<=aV.medkitPercent and os.
-clock()>=cc then if ca==0 then ca=os.clock()+(aV.medkitInstant and 0 or 0.75)end
-if os.clock()>=ca then local cz=cx if cw and type(cw.Consume)=='\102\117\110\099\116\105\111\110'and cx:
-lower():find('\109\101\100\107\105\116',1,true)then cb={health=ct.Health,started=os.clock(),
-previous=cd or cz}cd=nil cw:Consume()cb.completeAt=tonumber(cw.NextMedicalUseAt)
-or os.clock()ca=0 else cd=cd or cz cc=os.clock()+5 ce=true local cA=cf task.
-spawn(function()local cB,cC=pcall(function()return aJ.equip and aJ.equip(
-'\077\101\100\107\105\116',true,function()return aR and aW.autoMedkit and cf==cA and ct.Health>0
-end)end)if not aR or cf~=cA then return end ce=false if cB and cC then cc=os.
-clock()+0.5 else cd=nil ca=0 if aW.autoMedkit then aJ.say(aL(
+'\073\110\067\117\116\083\099\101\110\101')then if cc then local cA=cx and type(cx.Consume)=='\102\117\110\099\116\105\111\110'and cy:
+lower():find('\109\101\100\107\105\116',1,true)if cu.Health>cc.health and os.clock()>=(cc.
+completeAt or 0)or os.clock()-cc.started>15 then if(cA or not cx)and cc.previous
+and aJ.equip then aJ.equip(cc.previous)end cc=nil cd=os.clock()+2 end elseif not
+cf and cu.MaxHealth>0 and cu.Health/cu.MaxHealth*100<=aV.medkitPercent and os.
+clock()>=cd then if cb==0 then cb=os.clock()+(aV.medkitInstant and 0 or 0.75)end
+if os.clock()>=cb then local cA=cy if cx and type(cx.Consume)=='\102\117\110\099\116\105\111\110'and cy:
+lower():find('\109\101\100\107\105\116',1,true)then cc={health=cu.Health,started=os.clock(),
+previous=ce or cA}ce=nil cx:Consume()cc.completeAt=tonumber(cx.NextMedicalUseAt)
+or os.clock()cb=0 else ce=ce or cA cd=os.clock()+5 cf=true local cB=cg task.
+spawn(function()local cC,cD=pcall(function()return aJ.equip and aJ.equip(
+'\077\101\100\107\105\116',true,function()return aR and aW.autoMedkit and cg==cB and cu.Health>0
+end)end)if not aR or cg~=cB then return end cf=false if cC and cD then cd=os.
+clock()+0.5 else ce=nil cb=0 if aW.autoMedkit then aJ.say(aL(
 '\065\117\116\111\032\077\101\100\107\105\116\058\032\107\105\116\032\105\110\100\105\115\112\111\110\u{ed}\118\101\108\032\111\117\032\106\111\103\111\032\114\101\099\117\115\111\117\032\101\113\117\105\112\097\114\046\032\067\111\110\102\105\114\097\032\101\115\112\097\u{e7}\111\032\110\097\032\098\097\114\114\097\032\101\032\115\101\032\101\115\116\u{e1}\032\112\105\108\111\116\097\110\100\111\046'
 ,
 "\065\117\116\111\032\077\101\100\107\105\116\058\032\107\105\116\032\117\110\097\118\097\105\108\097\098\108\101\032\111\114\032\103\097\109\101\032\114\101\102\117\115\101\100\032\101\113\117\105\112\046\032\067\104\101\099\107\032\104\111\116\098\097\114\032\115\112\097\099\101\032\097\110\100\032\119\104\101\116\104\101\114\032\121\111\117\032\097\114\101\032\100\114\105\118\105\110\103\046"
-))end end end)end end else ca=0 end end local cz=cy or cw and type(cw.Shoot)==
-'\102\117\110\099\116\105\111\110'and cw.Tool and(cw.Tool.Name:find('\082\105\102\108\101',1,true)or cw.Tool.Name:find(
-'\082\101\118\111\108\118\101\114',1,true)or cw.Tool.Name:find('\083\104\111\116\103\117\110',1,true))if aW.silentAim and cz
-then local cA=aJ.ctrl('\067\097\109\101\114\097\067\111\110\116\114\111\108\108\101\114')if cA and type(cA.GetAimRay)==
-'\102\117\110\099\116\105\111\110'and ch~=cA then ck()ch=cA ci=cA.GetAimRay local cB=ci cj=function(cC,
-...)local cD=cB(cC,...)local cE,cF=aJ.actor()local cG=aJ.ctrl('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')
-local cH=cG and cG.ActiveTool if not aR or not aW.silentAim or not cF or not cH
-or type(cH.Shoot)~='\102\117\110\099\116\105\111\110'or not cD then return cD end local cI=cm(cF,aV.
-gunRange)if cI and(cI.Position-cD.Origin).Magnitude>0.01 then return Ray.new(cD.
-Origin,(cI.Position-cD.Origin).Unit)end return cD end cA.GetAimRay=cj end else
-ck()end local cA=aJ.ctrl('\085\073\067\111\110\116\114\111\108\108\101\114')local cB=not workspace:GetAttribute(
-'\073\110\067\117\116\083\099\101\110\101')and not aN:GetFocusedTextBox()and not(cA and cA.ActiveFrame and cA.
-ActiveFrame.Visible)if aW.autoMove and cB and not(aJ.movementBusy and aJ.
-movementBusy())and not ct.SeatPart and not aW.fly then local cC=cm(cs,150)if cC
-then local cD=Vector3.new(cs.Position.X-cC.Position.X,0,cs.Position.Z-cC.
-Position.Z)if cD.Magnitude<0.01 then cD=Vector3.new(0,0,1)end local cE=cC.
-Position+cD.Unit*aV.combatDistance if math.abs((cs.Position-cC.Position).
-Magnitude-aV.combatDistance)>1.5 then ct:MoveTo(Vector3.new(cE.X,cs.Position.Y,
-cE.Z))end end end if aW.autoFire and cz and cB and cm(cs,aV.gunRange)then cw:
-Shoot()end local cC=aW.aura or aW.oreAura or aW.autoMove if b2 and(b2~=cw or not
-cC)then b4()end local cD=aJ.ctrl('\085\073\067\111\110\116\114\111\108\108\101\114')if cC and cw and cw.Tool and
-type(cw.Swing)=='\102\117\110\099\116\105\111\110'and not workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101')and not aN
-:GetFocusedTextBox()and not(cD and cD.ActiveFrame and cD.ActiveFrame.Visible)
-then local cE=cw.Tool.Name:find('\080\105\099\107\097\120\101',1,true)~=nil if aW.aura or aW.autoMove
-or aW.oreAura and cE then if type(cw.Range)=='\110\117\109\098\101\114'then if b2~=cw then b2=cw
-b3=cw.Range end cw.Range=aW.autoMove and math.max(aV.reach,aV.combatDistance+2)
-or aV.reach end local cF,cG=nil,aW.autoMove and math.max(aV.reach,aV.
-combatDistance+2)or aV.reach local cH=workspace:FindFirstChild('\078\112\099')if aW.aura
-or aW.autoMove then for cI,cJ in ipairs(cH and cH:GetChildren()or{})do local cK=
-bR(cJ)local cL=bP(cJ)local cM=cJ:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cN=cM
-and cM.Health or cJ:GetAttribute('\070\117\101\108\076\101\101\099\104\072\101\097\108\116\104')or 0 local cO=cJ:
-GetAttribute('\083\101\115\115\105\111\110\070\117\101\108\076\101\101\099\104\073\100')~=nil local cP=not cO or(aM:GetAttribute(
-'\073\110\068\117\110\103\101\111\110')~=true and cJ:GetAttribute('\070\117\101\108\076\101\101\099\104\086\117\108\110\101\114\097\098\108\101')==true)if cP and(cK
-=='\109\111\098\115'or cK=='\109\105\109\105\099\115')and cL and cN>0 then local cQ=(cs.Position-cL.Position).
-Magnitude if cQ<cG then cF=cL cG=cQ end end end end local cI=aJ.stoneTarget and
-aJ.stoneTarget()if cI and cI.Parent and(cI.Position-cs.Position).Magnitude<=aV.
-reach then cF=cI end if cF and not(aJ.movementBusy and aJ.movementBusy())and aV.
-position~='\079\102\102'and not aW.fly and not aW.autoMove and not ct.SeatPart and os.
-clock()-cq>0.4 then cq=os.clock()local cJ=aV.position=='\065\098\111\118\101'and Vector3.new(0,
-aV.offset,0)or-cF.CFrame.LookVector*aV.offset cr:PivotTo(CFrame.lookAt(cF.
-Position+cJ,cF.Position,aV.position=='\065\098\111\118\101'and cF.CFrame.RightVector or Vector3
-.yAxis))end if cF or aW.oreAura and cE then cw:Swing()end end end end)if not cr
-then aJ.say(aL('\067\111\110\116\114\111\108\101\115\032\097\118\097\110\u{e7}\097\100\111\115\058\032','\065\100\118\097\110\099\101\100\032\099\111\110\116\114\111\108\115\058\032')..tostring(cs)
-)end task.wait(0.15)end end)return{stop=cn,healing=function()return aW.
-autoMedkit and(cb~=nil or cd~=nil or ca>0)end,cleanup=function()aR=false cn()for
-cr,cs in ipairs(aS)do cs:Disconnect()end bW()bH:Destroy()end}end local function
+))end end end)end end else cb=0 end end local cA=cz or cx and type(cx.Shoot)==
+'\102\117\110\099\116\105\111\110'and cx.Tool and(cx.Tool.Name:find('\082\105\102\108\101',1,true)or cx.Tool.Name:find(
+'\082\101\118\111\108\118\101\114',1,true)or cx.Tool.Name:find('\083\104\111\116\103\117\110',1,true))if aW.silentAim and cA
+then local cB=aJ.ctrl('\067\097\109\101\114\097\067\111\110\116\114\111\108\108\101\114')if cB and type(cB.GetAimRay)==
+'\102\117\110\099\116\105\111\110'and ci~=cB then cl()ci=cB cj=cB.GetAimRay local cC=cj ck=function(cD,
+...)local cE=cC(cD,...)local cF,cG=aJ.actor()local cH=aJ.ctrl('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')
+local cI=cH and cH.ActiveTool if not aR or not aW.silentAim or not cG or not cI
+or type(cI.Shoot)~='\102\117\110\099\116\105\111\110'or not cE then return cE end local cJ=cn(cG,aV.
+gunRange)if cJ and(cJ.Position-cE.Origin).Magnitude>0.01 then return Ray.new(cE.
+Origin,(cJ.Position-cE.Origin).Unit)end return cE end cB.GetAimRay=ck end else
+cl()end local cB=aJ.ctrl('\085\073\067\111\110\116\114\111\108\108\101\114')local cC=not workspace:GetAttribute(
+'\073\110\067\117\116\083\099\101\110\101')and not aN:GetFocusedTextBox()and not(cB and cB.ActiveFrame and cB.
+ActiveFrame.Visible)if aW.autoMove and cC and not(aJ.movementBusy and aJ.
+movementBusy())and not cu.SeatPart and not aW.fly then local cD=cn(ct,150)if cD
+then local cE=Vector3.new(ct.Position.X-cD.Position.X,0,ct.Position.Z-cD.
+Position.Z)if cE.Magnitude<0.01 then cE=Vector3.new(0,0,1)end local cF=cD.
+Position+cE.Unit*aV.combatDistance if math.abs((ct.Position-cD.Position).
+Magnitude-aV.combatDistance)>1.5 then cu:MoveTo(Vector3.new(cF.X,ct.Position.Y,
+cF.Z))end end end if aW.autoFire and cA and cC and cn(ct,aV.gunRange)then cx:
+Shoot()end local cD=aW.aura or aW.oreAura or aW.autoMove if b3 and(b3~=cx or not
+cD)then b5()end local cE=aJ.ctrl('\085\073\067\111\110\116\114\111\108\108\101\114')if cD and cx and cx.Tool and
+type(cx.Swing)=='\102\117\110\099\116\105\111\110'and not workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101')and not aN
+:GetFocusedTextBox()and not(cE and cE.ActiveFrame and cE.ActiveFrame.Visible)
+then local cF=cx.Tool.Name:find('\080\105\099\107\097\120\101',1,true)~=nil if aW.aura or aW.autoMove
+or aW.oreAura and cF then if type(cx.Range)=='\110\117\109\098\101\114'then if b3~=cx then b3=cx
+b4=cx.Range end cx.Range=aW.autoMove and math.max(aV.reach,aV.combatDistance+2)
+or aV.reach end local cG,cH=nil,aW.autoMove and math.max(aV.reach,aV.
+combatDistance+2)or aV.reach local cI=workspace:FindFirstChild('\078\112\099')if aW.aura
+or aW.autoMove then for cJ,cK in ipairs(cI and cI:GetChildren()or{})do local cL=
+bS(cK)local cM=bQ(cK)local cN=cK:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local cO=cN
+and cN.Health or cK:GetAttribute('\070\117\101\108\076\101\101\099\104\072\101\097\108\116\104')or 0 local cP=cK:
+GetAttribute('\083\101\115\115\105\111\110\070\117\101\108\076\101\101\099\104\073\100')~=nil local cQ=not cP or(aM:GetAttribute(
+'\073\110\068\117\110\103\101\111\110')~=true and cK:GetAttribute('\070\117\101\108\076\101\101\099\104\086\117\108\110\101\114\097\098\108\101')==true)if cQ and(cL
+=='\109\111\098\115'or cL=='\109\105\109\105\099\115')and cM and cO>0 then local cR=(ct.Position-cM.Position).
+Magnitude if cR<cH then cG=cM cH=cR end end end end local cJ=aJ.stoneTarget and
+aJ.stoneTarget()if cJ and cJ.Parent and(cJ.Position-ct.Position).Magnitude<=aV.
+reach then cG=cJ end if cG and not(aJ.movementBusy and aJ.movementBusy())and aV.
+position~='\079\102\102'and not aW.fly and not aW.autoMove and not cu.SeatPart and os.
+clock()-cr>0.4 then cr=os.clock()local cK=aV.position=='\065\098\111\118\101'and Vector3.new(0,
+aV.offset,0)or-cG.CFrame.LookVector*aV.offset cs:PivotTo(CFrame.lookAt(cG.
+Position+cK,cG.Position,aV.position=='\065\098\111\118\101'and cG.CFrame.RightVector or Vector3
+.yAxis))end if cG or aW.oreAura and cF then cx:Swing()end end end end)if not cs
+then aJ.say(aL('\067\111\110\116\114\111\108\101\115\032\097\118\097\110\u{e7}\097\100\111\115\058\032','\065\100\118\097\110\099\101\100\032\099\111\110\116\114\111\108\115\058\032')..tostring(ct)
+)end task.wait(0.15)end end)return{stop=co,healing=function()return aW.
+autoMedkit and(cc~=nil or ce~=nil or cb>0)end,cleanup=function()aR=false co()for
+cs,ct in ipairs(aS)do ct:Disconnect()end bX()bH:Destroy()end}end local function
 aI(aJ,aK,aL,aM,aN,aO)if type(aJ)=='\115\116\114\105\110\103'and aJ~=''then return aJ==aK or aJ==aL
 end if aM then return true end return false end local function aJ(aK,aL)local aM
 ,aN=aK.ui,aK.T local aO=game:GetService('\080\108\097\121\101\114\115').LocalPlayer local aP=game:
@@ -1046,14 +1041,16 @@ aS==bo then if aL.release then aL.release()end if not bp then a9()a0(
 end task.wait(aU and not aV and 0.05 or 0.5)end end)return{stop=a9,cleanup=
 function()aR=false a9()for bo,bp in ipairs(aT)do bp:Disconnect()end end}end
 local function aK(aL,aM,aN,aO,aP)local aQ={}local aR={}local aS,aT,aU=0,0,0 for
-aV,aW in ipairs(aL)do local aX,aY,aZ=aW.X+0.12,aW.Z+0.12,aW.Y+0.08 local a_=aP
-and aP[aV]or tostring(aV)if aX>aM or aY>aN or aZ>aO then return nil,aV end local
-a0 for a1,a2 in ipairs(aR)do if a2.group==a_ and aX<=a2.w and aY<=a2.d and a2.
-used+aZ<=aO then a0=a2 break end end if not a0 then if aS+aX>aM then aS=0 aT+=aU
-aU=0 end if aT+aY>aN then return nil,aV end a0={group=a_,x=aS+aX*0.5,z=aT+aY*0.5
-,w=aX,d=aY,used=0}aR[#aR+1]=a0 aS+=aX aU=math.max(aU,aY)end aQ[aV]=Vector3.new(-
-aM*0.5+a0.x,-aO*0.5+a0.used+aZ*0.5,-aN*0.5+a0.z)a0.used+=aZ end return aQ end
-local function aL(aM,aN)local aO,aP=aM.ui,aM.T local aQ=game:GetService(
+aV,aW in ipairs(aL)do local aX,aY,aZ=aW.X+0.2,aW.Z+0.2,aW.Y+0.03 local a_=aP and
+aP[aV]or tostring(aV)if aX>aM or aY>aN or aZ>aO then return nil,aV end local a0
+local a1,a2,a3=aS,aT,aU if a1+aX>aM then a1=0 a2+=a3 a3=0 end if a2+aY>aN then
+for a4,a5 in ipairs(aR)do if a5.group==a_ and math.abs(aX-a5.w)<0.05 and math.
+abs(aY-a5.d)<0.05 and a5.count<3 and a5.used+aZ<=math.min(aO,math.min(aX,aY)*1.5
+)then a0=a5 break end end if not a0 then return nil,aV end end if not a0 then aS
+,aT,aU=a1,a2,a3 a0={group=a_,x=aS+aX*0.5,z=aT+aY*0.5,w=aX,d=aY,used=0,count=0}aR
+[#aR+1]=a0 aS+=aX aU=math.max(aU,aY)end aQ[aV]=Vector3.new(-aM*0.5+a0.x,-aO*0.5+
+a0.used+aZ*0.5,-aN*0.5+a0.z)a0.used+=aZ a0.count+=1 end return aQ end local
+function aL(aM,aN)local aO,aP=aM.ui,aM.T local aQ=game:GetService(
 '\067\111\108\108\101\099\116\105\111\110\083\101\114\118\105\099\101')local aR=game:GetService('\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')local aS=true
 local aT=false local aU=0 local aV={}local aW={}local aX={}local aY={}local aZ={
 }local a_ local a0=aM.section('\076\111\106\097')aO.label(a0,'\084\101\120\116\076\097\098\101\108',aP(
@@ -1119,26 +1116,55 @@ bg.item,cf=bh,size=bi,group=tostring(bg.item:GetAttribute('\073\116\101\109\068\
 .item.Name)}end end assert(#be>0,aP('\083\101\108\101\099\105\111\110\101\032\097\111\032\109\101\110\111\115\032\117\109\032\105\116\101\109\046',
 '\083\101\108\101\099\116\032\097\116\032\108\101\097\115\116\032\111\110\101\032\105\116\101\109\046'))table.sort(be,function(bf,bg)return bf.size.X*bf.
 size.Z>bg.size.X*bg.size.Z end)local bf,bg={},{}for bh,bi in ipairs(be)do bf[#bf
-+1]=bi.size bg[#bg+1]=bi.group end local bh=aK(bf,a_.Size.X-0.4,a_.Size.Z-0.4,a_
++1]=bi.size bg[#bg+1]=bi.group end local bh=aK(bf,a_.Size.X-0.8,a_.Size.Z-0.8,a_
 .Size.Y-0.1,bg)assert(bh,aP(
 '\083\101\108\101\u{e7}\u{e3}\111\032\110\u{e3}\111\032\099\097\098\101\032\110\111\032\113\117\097\100\114\097\100\111\046\032\079\114\103\097\110\105\122\101\032\101\109\032\108\111\116\101\115\032\109\101\110\111\114\101\115\046',
 '\083\101\108\101\099\116\105\111\110\032\100\111\101\115\032\110\111\116\032\102\105\116\032\116\104\101\032\115\113\117\097\114\101\046\032\083\116\097\103\101\032\115\109\097\108\108\101\114\032\098\097\116\099\104\101\115\046'))local bi,bj=aN.
 actor()assert(bj and(bj.Position-a_.Position).Magnitude<=150,
-'\065\112\112\114\111\097\099\104\032\116\104\101\032\115\104\111\112\032\102\105\114\115\116')for bk,bl in ipairs(be)do assert(aS and aU==bd,
-'\083\116\111\112\112\101\100')local bm=aN.actor()local bn=ba(bl.item)assert(bm and bn and a_.Parent,
-'\073\116\101\109\047\099\104\097\114\097\099\116\101\114\032\117\110\097\118\097\105\108\097\098\108\101')bm:PivotTo(bn.CFrame*CFrame.new(0,3,4))task.wait(
-0.2)assert(aS and aU==bd,'\083\116\111\112\112\101\100')local bo=aN.await(aN.service('\068\114\097\103\083\101\114\118\105\099\101'):
-Request(bl.item))if not aS or aU~=bd then if bo then pcall(function()aN.service(
-'\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)end error('\083\116\111\112\112\101\100')end assert(bo==true,aP(
+'\065\112\112\114\111\097\099\104\032\116\104\101\032\115\104\111\112\032\102\105\114\115\116')local bk={a_}local bl=aN.actor()if bl then bk[#bk+1]=
+bl end local bm=workspace:FindFirstChild('\073\116\101\109\115')if bm then bk[#bk+1]=bm end for
+bn,bo in ipairs(aY)do bk[#bk+1]=bo.item end local bn=RaycastParams.new()bn.
+FilterType=Enum.RaycastFilterType.Exclude bn.FilterDescendantsInstances=bk local
+bo=workspace:Raycast(a_.Position+a_.CFrame.UpVector*a_.Size.Y/2,-a_.CFrame.
+UpVector*(a_.Size.Y+8),bn)assert(bo and bo.Normal:Dot(a_.CFrame.UpVector)>0.9,
+aP('\080\105\115\111\032\112\108\097\110\111\032\100\097\032\099\111\109\112\114\097\032\110\u{e3}\111\032\105\100\101\110\116\105\102\105\099\097\100\111\046',
+'\070\108\097\116\032\112\117\114\099\104\097\115\101\045\097\114\101\097\032\102\108\111\111\114\032\110\111\116\032\105\100\101\110\116\105\102\105\101\100\046'))local bp=a_.CFrame:
+PointToObjectSpace(bo.Position).Y assert(math.abs(bp+a_.Size.Y/2)<1,aP(
+'\080\105\115\111\032\102\111\114\097\032\100\097\032\u{e1}\114\101\097\032\100\101\032\099\111\109\112\114\097\059\032\111\114\103\097\110\105\122\097\u{e7}\u{e3}\111\032\105\110\116\101\114\114\111\109\112\105\100\097\046',
+'\070\108\111\111\114\032\111\117\116\115\105\100\101\032\112\117\114\099\104\097\115\101\032\097\114\101\097\059\032\115\116\097\103\105\110\103\032\115\116\111\112\112\101\100\046'))local bq={}for br,bs in ipairs(
+bm and bm:GetChildren()or{})do bq[bs]=true end for br,bs in ipairs(aQ:GetTagged(
+'\083\104\111\112\073\116\101\109'))do bq[bs]=true end for br in pairs(bq)do local bs=ba(br)if bs then
+local bu=a_.CFrame:PointToObjectSpace(bs.Position)assert(not(math.abs(bu.X)<a_.
+Size.X/2 and math.abs(bu.Z)<a_.Size.Z/2 and bu.Y>bp-0.2 and bu.Y<a_.Size.Y/2),
+aP('\069\115\118\097\122\105\101\032\111\032\113\117\097\100\114\097\100\111\032\097\110\116\101\115\032\100\101\032\111\114\103\097\110\105\122\097\114\032\111\117\116\114\111\032\108\111\116\101\046',
+'\069\109\112\116\121\032\116\104\101\032\115\113\117\097\114\101\032\098\101\102\111\114\101\032\115\116\097\103\105\110\103\032\097\110\111\116\104\101\114\032\098\097\116\099\104\046'))end end for br,bs in ipairs(be
+)do assert(aS and aU==bd,'\083\116\111\112\112\101\100')local bu=aN.actor()local bv=ba(bs.item)
+assert(bu and bv and a_.Parent,'\073\116\101\109\047\099\104\097\114\097\099\116\101\114\032\117\110\097\118\097\105\108\097\098\108\101')bu:PivotTo(bv.CFrame
+*CFrame.new(0,3,4))task.wait(0.2)assert(aS and aU==bd,'\083\116\111\112\112\101\100')local bw=aN.
+await(aN.service('\068\114\097\103\083\101\114\118\105\099\101'):Request(bs.item))if not aS or aU~=bd then if bw
+then pcall(function()aN.service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)end error(
+'\083\116\111\112\112\101\100')end assert(bw==true,aP(
 '\079\032\106\111\103\111\032\114\101\099\117\115\111\117\032\109\111\118\101\114\032\117\109\032\105\116\101\109\046\032\079\114\103\097\110\105\122\097\u{e7}\u{e3}\111\032\105\110\116\101\114\114\111\109\112\105\100\097\046',
-'\071\097\109\101\032\114\101\102\117\115\101\100\032\116\111\032\109\111\118\101\032\097\110\032\105\116\101\109\046\032\083\116\097\103\105\110\103\032\115\116\111\112\112\101\100\046'))local bp,bq=pcall(function()
-assert(a_.Parent and bl.item.Parent,'\083\116\111\099\107\032\117\110\108\111\097\100\101\100')bm:PivotTo(a_.CFrame*CFrame
-.new(a_.Size.X*0.5+4,1,0))local bp=a_.CFrame*CFrame.new(bh[bk])local bq=bl.cf:
-ToObjectSpace(bl.item:GetPivot())bl.item:PivotTo(bp*bq)task.wait(0.3)end)pcall(
-function()aN.service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)assert(bp,bq)assert(aS and
-aU==bd,'\083\116\111\112\112\101\100')a6(string.format(aP(
-'\079\114\103\097\110\105\122\097\110\100\111\058\032\037\100\047\037\100\046\032\078\101\110\104\117\109\097\032\099\111\109\112\114\097\032\114\101\097\108\105\122\097\100\097\046',
-'\083\116\097\103\105\110\103\058\032\037\100\047\037\100\046\032\078\111\032\112\117\114\099\104\097\115\101\032\109\097\100\101\046'),bk,#be))end a6(
+'\071\097\109\101\032\114\101\102\117\115\101\100\032\116\111\032\109\111\118\101\032\097\110\032\105\116\101\109\046\032\083\116\097\103\105\110\103\032\115\116\111\112\112\101\100\046'))local bx,by=pcall(function()
+assert(a_.Parent and bs.item.Parent,'\083\116\111\099\107\032\117\110\108\111\097\100\101\100')bu:PivotTo(a_.CFrame*CFrame
+.new(a_.Size.X*0.5+4,1,0))local bx=a_.CFrame*CFrame.new(bh[br]+Vector3.new(0,bp+
+(a_.Size.Y-0.1)/2,0))local by=bs.cf:ToObjectSpace(bs.item:GetPivot())bs.
+destination=bx.Position bs.item:PivotTo(bx*by)for bz,bA in ipairs(bs.item:IsA(
+'\066\097\115\101\080\097\114\116')and{bs.item}or bs.item:GetDescendants())do if bA:IsA('\066\097\115\101\080\097\114\116')then
+bA.AssemblyLinearVelocity=Vector3.zero bA.AssemblyAngularVelocity=Vector3.zero
+end end task.wait(0.4)end)pcall(function()aN.service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false
+)end)assert(bx,by)task.wait(0.8)local bz=bs.item:IsA('\077\111\100\101\108')and bs.item:
+GetBoundingBox()or bs.item.CFrame assert((bz.Position-bs.destination).Magnitude<
+0.6,aP(
+'\073\116\101\109\032\099\097\105\117\032\111\117\032\115\097\105\117\032\100\097\032\112\111\115\105\u{e7}\u{e3}\111\046\032\080\097\114\101\105\032\112\097\114\097\032\110\u{e3}\111\032\100\101\114\114\117\098\097\114\032\111\115\032\100\101\109\097\105\115\046'
+,"\073\116\101\109\032\102\101\108\108\032\111\114\032\115\104\105\102\116\101\100\046\032\083\116\111\112\112\101\100\032\116\111\032\097\118\111\105\100\032\100\105\115\116\117\114\098\105\110\103\032\116\104\101\032\114\101\109\097\105\110\105\110\103\032\105\116\101\109\115\046"))for
+bA=1,br-1 do local bB=be[bA]assert(bB.item.Parent,'\080\108\097\099\101\100\032\105\116\101\109\032\117\110\108\111\097\100\101\100')local
+bC=bB.item:IsA('\077\111\100\101\108')and bB.item:GetBoundingBox()or bB.item.CFrame assert((bC.
+Position-bB.destination).Magnitude<0.6,aP(
+'\065\032\112\105\108\104\097\032\097\110\116\101\114\105\111\114\032\115\101\032\109\111\118\101\117\046\032\079\114\103\097\110\105\122\097\u{e7}\u{e3}\111\032\105\110\116\101\114\114\111\109\112\105\100\097\046',
+'\065\110\032\101\097\114\108\105\101\114\032\115\116\097\099\107\032\109\111\118\101\100\046\032\083\116\097\103\105\110\103\032\115\116\111\112\112\101\100\046'))end assert(aS and aU==bd,'\083\116\111\112\112\101\100')
+a6(string.format(aP('\079\114\103\097\110\105\122\097\110\100\111\058\032\037\100\047\037\100\046\032\078\101\110\104\117\109\097\032\099\111\109\112\114\097\032\114\101\097\108\105\122\097\100\097\046',
+'\083\116\097\103\105\110\103\058\032\037\100\047\037\100\046\032\078\111\032\112\117\114\099\104\097\115\101\032\109\097\100\101\046'),br,#be))end a6(
 '\073\116\101\110\115\032\112\111\115\105\099\105\111\110\097\100\111\115\046\032\067\111\110\102\105\114\097\032\111\032\113\117\097\100\114\097\100\111\032\101\032\111\032\112\114\101\u{e7}\111\032\110\111\032\099\097\105\120\097\059\032\099\108\105\113\117\101\032\067\079\077\080\082\065\082\032\110\111\032\106\111\103\111\046'
 ,"\073\116\101\109\115\032\112\111\115\105\116\105\111\110\101\100\046\032\067\104\101\099\107\032\116\104\101\032\115\113\117\097\114\101\032\097\110\100\032\114\101\103\105\115\116\101\114\032\112\114\105\099\101\059\032\099\108\105\099\107\032\066\085\089\032\105\110\032\103\097\109\101\046")
 end)if aS and aU==bd then if aN.release then aN.release()end aT=false if not be
@@ -1191,513 +1217,529 @@ a0(aY.Activated,function()task.spawn(a3)end)a0(aZ.Activated,function()aS=not aS
 a_(aS)end)task.spawn(function()while aR do if aS then a3()end task.wait(15)end
 end)return{stop=function()aS=false a_(false)end,cleanup=function()aR=false aS=
 false a2()for a4,a5 in ipairs(aT)do a5:Disconnect()end end}end local function aN
-(aO,aP)local aQ,aR=aO.ui,aO.T local aS=game:GetService('\080\108\097\121\101\114\115').LocalPlayer
-local aT=game:GetService('\076\105\103\104\116\105\110\103')local aU=game:GetService('\067\111\108\108\101\099\116\105\111\110\083\101\114\118\105\099\101'
-)local aV=true local aW=0 local aX={}local aY={}local aZ={}local a_=2 local a0=6
-local a1={Coal=true}local a2=1500 local a3=aO.section('\070\097\114\109')local a4=aO.
-section('\065\106\117\115\116\101\115')local a5=aO.section('\067\111\109\098\097\116\101')local a6=aQ.label(a3,'\084\101\120\116\076\097\098\101\108'
-,aR('\077\105\110\101\114\097\u{e7}\u{e3}\111\032\101\032\112\114\111\116\101\u{e7}\u{e3}\111\058\032\112\097\114\097\100\097\115\046',
-'\077\105\110\105\110\103\032\097\110\100\032\112\114\111\116\101\099\116\105\111\110\058\032\115\116\111\112\112\101\100\046'),55,70)local function a7(a8,a9)aX[#aX+1]=a8:
-Connect(a9)end local function a8(a9,ba,bb,bc,bd)aY[ba]=false local be,bf=aQ.
-checkbox(a9,aR(bb,bc),bd)aZ[ba]=bf a7(be.Activated,function()aY[ba]=not aY[ba]
-bf(aY[ba])end)end local function a9(ba,bb,bc,bd,be,bf,bg,bh)aQ.label(ba,
-'\084\101\120\116\076\097\098\101\108',aR(bc,bd),30,be)local bi=aQ.label(ba,'\084\101\120\116\066\111\120',tostring(bb),40,be+1)
-a7(bi.FocusLost,function()local bj=tonumber(bi.Text)if bj and bj==bj and math.
-abs(bj)<math.huge then bb=math.clamp(bj,bf,bg)bh(bb)end bi.Text=tostring(bb)end)
-end a8(a4,'\098\114\105\103\104\116','\070\117\108\108\098\114\105\103\104\116','\070\117\108\108\098\114\105\103\104\116',70)a9(a4,a_,
+(aO,aP,aQ,aR,aS)if aQ==''then aQ=nil end if aR==''then aR=nil end if aO==false
+then return not aQ and not aR and not aP end if not aO then return false end if
+aQ then return aQ==aO:GetAttribute('\068\117\110\103\101\111\110\076\111\111\116\072\105\103\104\108\105\103\104\116\082\111\111\116\073\100')end if aR then
+return aR==aO:GetAttribute('\083\101\115\115\105\111\110\068\117\110\103\101\111\110\073\100')end return aS or aP==aO end local
+function aO(aP,aQ)local aR,aS=aP.ui,aP.T local aT=game:GetService('\080\108\097\121\101\114\115').
+LocalPlayer local aU=game:GetService('\076\105\103\104\116\105\110\103')local aV=game:GetService(
+'\067\111\108\108\101\099\116\105\111\110\083\101\114\118\105\099\101')local aW=true local aX=0 local aY={}local aZ={}local a_={}
+local a0=2 local a1=6 local a2={Coal=true}local a3=1500 local a4=aP.section(
+'\070\097\114\109')local a5=aP.section('\065\106\117\115\116\101\115')local a6=aP.section('\067\111\109\098\097\116\101')local a7=aR.
+label(a4,'\084\101\120\116\076\097\098\101\108',aS('\077\105\110\101\114\097\u{e7}\u{e3}\111\032\101\032\112\114\111\116\101\u{e7}\u{e3}\111\058\032\112\097\114\097\100\097\115\046',
+'\077\105\110\105\110\103\032\097\110\100\032\112\114\111\116\101\099\116\105\111\110\058\032\115\116\111\112\112\101\100\046'),55,70)local function a8(a9,ba)aY[#aY+1]=a9:
+Connect(ba)end local function a9(ba,bb,bc,bd,be)aZ[bb]=false local bf,bg=aR.
+checkbox(ba,aS(bc,bd),be)a_[bb]=bg a8(bf.Activated,function()aZ[bb]=not aZ[bb]
+bg(aZ[bb])end)end local function ba(bb,bc,bd,be,bf,bg,bh,bi)aR.label(bb,
+'\084\101\120\116\076\097\098\101\108',aS(bd,be),30,bf)local bj=aR.label(bb,'\084\101\120\116\066\111\120',tostring(bc),40,bf+1)
+a8(bj.FocusLost,function()local bk=tonumber(bj.Text)if bk and bk==bk and math.
+abs(bk)<math.huge then bc=math.clamp(bk,bg,bh)bi(bc)end bj.Text=tostring(bc)end)
+end a9(a5,'\098\114\105\103\104\116','\070\117\108\108\098\114\105\103\104\116','\070\117\108\108\098\114\105\103\104\116',70)ba(a5,a0,
 '\073\110\116\101\110\115\105\100\097\100\101\032\100\111\032\070\117\108\108\098\114\105\103\104\116\032\040\048\u{2013}\053\041','\070\117\108\108\098\114\105\103\104\116\032\105\110\116\101\110\115\105\116\121\032\040\048\u{2013}\053\041',71,
-0,5,function(ba)a_=ba end)local ba local function bb()if ba then for bc,bd in
-pairs(ba)do aT[bc]=bd end ba=nil end end a8(a3,'\109\105\110\101',
+0,5,function(bb)a0=bb end)local bb local function bc()if bb then for bd,be in
+pairs(bb)do aU[bd]=be end bb=nil end end a9(a4,'\109\105\110\101',
 '\065\117\116\111\032\077\105\110\101\032\u{b7}\032\109\105\110\u{e9}\114\105\111\115\032\115\101\108\101\099\105\111\110\097\100\111\115','\065\117\116\111\032\077\105\110\101\032\u{b7}\032\115\101\108\101\099\116\101\100\032\111\114\101\115',
-71)aQ.label(a3,'\084\101\120\116\076\097\098\101\108',aR(
-'\070\111\114\097\032\100\097\032\068\117\110\103\101\111\110\058\032\118\105\115\105\116\097\032\111\032\109\105\110\u{e9}\114\105\111\044\032\117\115\097\032\097\032\112\105\099\097\114\101\116\097\044\032\116\101\110\116\097\032\114\101\099\111\108\104\101\114\032\111\115\032\102\114\097\103\109\101\110\116\111\115\032\101\032\118\111\108\116\097\032\u{e0}\032\098\114\111\099\097\046\032\080\097\114\101\032\112\097\114\097\032\105\110\116\101\114\114\111\109\112\101\114\046'
+71)aR.label(a4,'\084\101\120\116\076\097\098\101\108',aS(
+'\078\097\032\077\105\110\101\115\104\097\102\116\044\032\109\105\110\101\114\097\032\115\111\109\101\110\116\101\032\110\101\108\097\032\101\032\118\111\108\116\097\032\097\111\032\112\111\110\116\111\032\105\110\105\099\105\097\108\046\032\070\111\114\097\044\032\109\105\110\101\114\097\032\097\112\101\110\097\115\032\110\111\032\101\120\116\101\114\105\111\114\032\101\032\114\101\116\111\114\110\097\032\u{e0}\032\098\114\111\099\097\046'
 ,
-"\079\117\116\115\105\100\101\032\068\117\110\103\101\111\110\115\058\032\118\105\115\105\116\115\032\111\114\101\044\032\117\115\101\115\032\112\105\099\107\097\120\101\044\032\097\116\116\101\109\112\116\115\032\116\111\032\099\111\108\108\101\099\116\032\102\114\097\103\109\101\110\116\115\032\097\110\100\032\114\101\116\117\114\110\115\032\116\111\032\116\104\101\032\100\114\105\108\108\046\032\083\116\111\112\032\116\111\032\105\110\116\101\114\114\117\112\116\046"
-),65,72)local bc={{'\067\111\097\108','\067\097\114\118\u{e3}\111'},{'\073\114\111\110','\070\101\114\114\111'},{'\071\111\108\100','\079\117\114\111'},{
+"\073\110\115\105\100\101\032\077\105\110\101\115\104\097\102\116\044\032\109\105\110\101\115\032\111\110\108\121\032\116\104\101\114\101\032\097\110\100\032\114\101\116\117\114\110\115\032\116\111\032\116\104\101\032\115\116\097\114\116\105\110\103\032\112\111\105\110\116\046\032\079\117\116\115\105\100\101\044\032\109\105\110\101\115\032\111\110\108\121\032\111\117\116\100\111\111\114\032\111\114\101\115\032\097\110\100\032\114\101\116\117\114\110\115\032\116\111\032\116\104\101\032\100\114\105\108\108\046"
+),65,72)local bd={{'\067\111\097\108','\067\097\114\118\u{e3}\111'},{'\073\114\111\110','\070\101\114\114\111'},{'\071\111\108\100','\079\117\114\111'},{
 '\068\105\097\109\111\110\100','\068\105\097\109\097\110\116\101'},{'\069\109\101\114\097\108\100','\069\115\109\101\114\097\108\100\097'},{'\082\117\098\121','\082\117\098\105'},{'\086\111\105\100\067\111\097\108',
-'\067\097\114\118\u{e3}\111\032\100\111\032\118\097\122\105\111'}}for bd,be in ipairs(bc)do local bf,bg=aQ.checkbox(a3,aR(
-be[2],be[1]),73+bd)bg(a1[be[1] ]==true)a7(bf.Activated,function()a1[be[1] ]=not
-a1[be[1] ]bg(a1[be[1] ])end)end a9(a3,a2,
+'\067\097\114\118\u{e3}\111\032\100\111\032\118\097\122\105\111'}}for be,bf in ipairs(bd)do local bg,bh=aR.checkbox(a4,aS(
+bf[2],bf[1]),73+be)bh(a2[bf[1] ]==true)a8(bg.Activated,function()a2[bf[1] ]=not
+a2[bf[1] ]bh(a2[bf[1] ])end)end ba(a4,a3,
 '\065\108\099\097\110\099\101\032\100\097\032\109\105\110\101\114\097\u{e7}\u{e3}\111\032\040\115\116\117\100\115\041','\077\105\110\105\110\103\032\115\101\097\114\099\104\032\114\097\110\103\101\032\040\115\116\117\100\115\041',82,20,
-10000,function(bd)a2=bd end)a8(a3,'\097\114\109\111\114',
+10000,function(be)a3=be end)a9(a4,'\097\114\109\111\114',
 '\065\117\116\111\032\112\114\111\116\101\u{e7}\u{e3}\111\032\100\097\032\099\097\098\105\110\101\032\u{b7}\032\083\104\101\101\116\077\101\116\097\108',
-'\065\117\116\111\032\099\097\098\105\110\032\112\114\111\116\101\099\116\105\111\110\032\u{b7}\032\083\104\101\101\116\077\101\116\097\108',85)local bd=aQ.button(a3,aR('\080\108\097\099\097\115\058\032'
-,'\080\108\097\116\101\115\058\032')..a0,86)a7(bd.Activated,function()a0=a0==4 and 6 or a0==6 and 8 or 4
-bd.Text=aR('\080\108\097\099\097\115\058\032','\080\108\097\116\101\115\058\032')..a0 end)aQ.label(a3,'\084\101\120\116\076\097\098\101\108',aR(
+'\065\117\116\111\032\099\097\098\105\110\032\112\114\111\116\101\099\116\105\111\110\032\u{b7}\032\083\104\101\101\116\077\101\116\097\108',85)local be=aR.button(a4,aS('\080\108\097\099\097\115\058\032'
+,'\080\108\097\116\101\115\058\032')..a1,86)a8(be.Activated,function()a1=a1==4 and 6 or a1==6 and 8 or 4
+be.Text=aS('\080\108\097\099\097\115\058\032','\080\108\097\116\101\115\058\032')..a1 end)aR.label(a4,'\084\101\120\116\076\097\098\101\108',aS(
 '\085\115\097\032\112\108\097\099\097\115\032\115\111\108\116\097\115\032\112\114\u{f3}\120\105\109\097\115\032\100\097\032\098\114\111\099\097\032\101\032\115\111\108\105\099\105\116\097\032\097\110\101\120\097\u{e7}\u{e3}\111\046\032\065\032\099\111\108\105\115\u{e3}\111\032\101\032\097\032\112\114\111\116\101\u{e7}\u{e3}\111\032\100\101\112\101\110\100\101\109\032\100\111\032\106\111\103\111\059\032\110\u{e3}\111\032\099\114\105\097\032\105\110\118\117\108\110\101\114\097\098\105\108\105\100\097\100\101\046'
 ,
 "\085\115\101\115\032\108\111\111\115\101\032\112\108\097\116\101\115\032\110\101\097\114\032\116\104\101\032\100\114\105\108\108\032\097\110\100\032\114\101\113\117\101\115\116\115\032\097\116\116\097\099\104\109\101\110\116\046\032\067\111\108\108\105\115\105\111\110\032\097\110\100\032\112\114\111\116\101\099\116\105\111\110\032\100\101\112\101\110\100\032\111\110\032\116\104\101\032\103\097\109\101\059\032\100\111\101\115\032\110\111\116\032\103\114\097\110\116\032\105\109\109\117\110\105\116\121\046"
-),65,88)a8(a5,'\115\109\097\114\116','\067\111\109\098\097\116\101\032\105\110\116\101\108\105\103\101\110\116\101\032\u{b7}\032\105\110\105\109\105\103\111\115\032\100\101\032\112\101\100\114\097',
-'\083\109\097\114\116\032\099\111\109\098\097\116\032\u{b7}\032\115\116\111\110\101\032\101\110\101\109\105\101\115',70)aQ.label(a5,'\084\101\120\116\076\097\098\101\108',aR(
+),65,88)a9(a6,'\115\109\097\114\116','\067\111\109\098\097\116\101\032\105\110\116\101\108\105\103\101\110\116\101\032\u{b7}\032\105\110\105\109\105\103\111\115\032\100\101\032\112\101\100\114\097',
+'\083\109\097\114\116\032\099\111\109\098\097\116\032\u{b7}\032\115\116\111\110\101\032\101\110\101\109\105\101\115',70)aR.label(a6,'\084\101\120\116\076\097\098\101\108',aS(
 '\080\114\105\111\114\105\122\097\032\105\110\105\109\105\103\111\115\032\100\101\032\112\101\100\114\097\032\112\114\u{f3}\120\105\109\111\115\058\032\101\115\112\097\100\097\032\100\111\032\118\097\122\105\111\044\032\111\117\032\112\105\099\097\114\101\116\097\059\032\100\101\112\111\105\115\032\114\101\115\116\097\117\114\097\032\097\032\097\114\109\097\032\097\110\116\101\114\105\111\114\046'
 ,
 "\080\114\105\111\114\105\116\105\122\101\115\032\110\101\097\114\098\121\032\115\116\111\110\101\032\101\110\101\109\105\101\115\058\032\086\111\105\100\032\083\119\111\114\100\044\032\111\116\104\101\114\119\105\115\101\032\112\105\099\107\097\120\101\059\032\114\101\115\116\111\114\101\115\032\116\104\101\032\112\114\101\118\105\111\117\115\032\119\101\097\112\111\110\032\097\102\116\101\114\119\097\114\100\115\046"
-),60,71)local function be(bf)return bf and(bf:IsA('\066\097\115\101\080\097\114\116')and bf or bf:IsA(
-'\077\111\100\101\108')and(bf.PrimaryPart or bf:FindFirstChildWhichIsA('\066\097\115\101\080\097\114\116',true)))end
-local function bf()local bg=aP.ctrl('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')return bg and bg.ActiveTool
-end local function bg(bh)return aV and aW==bh and aP.actor()~=nil end local
-function bh()local bi=workspace:FindFirstChild('\068\114\105\108\108')return bi,bi and be(bi:
-FindFirstChild('\066\111\100\121')or bi)end local function bi(bj)local bk,bl=bh()local bm=aP
-.actor()if bg(bj)and bl and bm then bm:PivotTo(bl.CFrame*CFrame.new(0,bl.Size.Y/
-2+4,0))end end local function bj()for bk,bl in ipairs({'\080\105\099\107\097\120\101\095\086\111\105\100',
+),60,71)local function bf(bg)return bg and(bg:IsA('\066\097\115\101\080\097\114\116')and bg or bg:IsA(
+'\077\111\100\101\108')and(bg.PrimaryPart or bg:FindFirstChildWhichIsA('\066\097\115\101\080\097\114\116',true)))end
+local function bg()local bh=aQ.ctrl('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')return bh and bh.ActiveTool
+end local function bh(bi)return aW and aX==bi and aQ.actor()~=nil end local
+function bi()local bj=workspace:FindFirstChild('\068\114\105\108\108')return bj,bj and bf(bj:
+FindFirstChild('\066\111\100\121')or bj)end local function bj(bk)local bl,bm=bi()local bn=aQ
+.actor()if bh(bk)and bm and bn then bn:PivotTo(bm.CFrame*CFrame.new(0,bm.Size.Y/
+2+4,0))end end local function bk()for bl,bm in ipairs({'\080\105\099\107\097\120\101\095\086\111\105\100',
 '\080\105\099\107\097\120\101\095\080\104\111\101\110\105\120','\080\105\099\107\097\120\101\095\068\105\097\109\111\110\100','\080\105\099\107\097\120\101\095\071\111\108\100','\080\105\099\107\097\120\101\095\083\116\101\101\108',
-'\080\105\099\107\097\120\101\095\080\114\111\115\112\101\099\116\111\114','\080\105\099\107\097\120\101\095\082\117\115\116\121','\080\105\099\107\097\120\101\095\087\111\111\100\101\110'})do if aP.equip(bl)then
-return true end end return false end local function bk(bl)local bm=tostring(bl:
-GetAttribute('\083\101\115\115\105\111\110\079\114\101\084\121\112\101')or bl:GetAttribute('\082\101\097\108\078\097\109\101')or bl.Name):lower():
-gsub('\091\094\037\097\093','')if bm:find('\118\111\105\100\099\111\097\108',1,true)then return'\086\111\105\100\067\111\097\108'end for bn,bo
-in ipairs(bc)do if bm:find(bo[1]:lower(),1,true)then return bo[1]end end end
-local bl=setmetatable({},{__mode='\107'})local function bm(bn)if aS:GetAttribute(
-'\073\110\068\117\110\103\101\111\110')==true or workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101')then return end local
-bo,bp,bq=aP.actor()if not bp or bq.SeatPart then return end local br,bs=bh()if
-not bs then return end local bu,bv=nil,a2 for bw,bx in ipairs(aU:GetTagged('\079\114\101'
-))do local by=be(bx)local bz=bk(bx)if by and bx:IsDescendantOf(workspace)and a1[
-bz]and(not bl[bx]or os.clock()>bl[bx])then local bA=(by.Position-bp.Position).
-Magnitude if bA<bv then bu=bx bv=bA end end end if not bu then return end local
-bw=bf()local bx=bw and bw.Tool and bw.Tool.Name if not bj()then a6.Text=aR(
-'\065\117\116\111\032\077\105\110\101\058\032\112\105\099\097\114\101\116\097\032\110\u{e3}\111\032\101\110\099\111\110\116\114\097\100\097\032\110\097\032\098\097\114\114\097\046',
-'\065\117\116\111\032\077\105\110\101\058\032\110\111\032\112\105\099\107\097\120\101\032\102\111\117\110\100\032\105\110\032\104\111\116\098\097\114\046')return end task.wait(0.5)if not bg(bn)
-or not aY.mine then return end local by=be(bu)if not by then return end local bz
-=by.Position local bA=bk(bu)local bB=aP.actor()bB:PivotTo(CFrame.lookAt(bz+
-Vector3.new(0,2,5),bz))local bC=os.clock()+25 while bg(bn)and aY.mine and bu:
-IsDescendantOf(workspace)and os.clock()<bC do local bD=bf()if not(bD and bD.Tool
-and bD.Tool.Name:find('\080\105\099\107\097\120\101',1,true)and type(bD.Swing)=='\102\117\110\099\116\105\111\110')then break
-end local bE=bu:GetAttribute('\072\101\097\108\116\104')if type(bE)=='\110\117\109\098\101\114'and bE<=0 then break
-end bD:Swing()task.wait(0.2)end if not bg(bn)or not aY.mine then return end bl[
-bu]=os.clock()+30 task.wait(0.5)local bD=workspace:FindFirstChild('\073\116\101\109\115')local
-bE=0 for bF,bG in ipairs(bD and bD:GetChildren()or{})do local bH=be(bG)if bH and
-bk(bG)==bA and(bH.Position-bz).Magnitude<=20 and bG:GetAttribute('\067\097\116\101\103\111\114\121')~=
-'\067\111\114\112\115\101'and bG:GetAttribute('\067\111\114\112\115\101\077\097\120\072\101\097\108\116\104')==nil and not aU:HasTag(bG,
-'\083\104\111\112\073\116\101\109')then if not bg(bn)or not aY.mine then break end bB:PivotTo(bH.CFrame*
-CFrame.new(0,2,3))if aP.await(aP.service('\067\097\114\114\121\073\110\118\101\110\116\111\114\121\083\101\114\118\105\099\101'):Pickup(bG))==
-true then bE+=1 end end end bi(bn)if bx and bg(bn)then aP.equip(bx)end a6.Text=
-aR('\077\105\110\101\114\097\u{e7}\u{e3}\111\032\099\111\110\099\108\117\u{ed}\100\097\059\032\105\116\101\110\115\032\114\101\099\111\108\104\105\100\111\115\058\032',
-'\077\105\110\105\110\103\032\112\097\115\115\032\102\105\110\105\115\104\101\100\059\032\099\111\108\108\101\099\116\101\100\032\105\116\101\109\115\058\032')..bE end local bn=setmetatable({},{
-__mode='\107'})local bp local function bq(br)if aS:GetAttribute('\073\110\068\117\110\103\101\111\110')==true
-or workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101')then return end local bs,bu=bh()local bv,
-bw,bx=aP.actor()if not bu or not bw or bx.SeatPart then return end if bp~=bs
-then table.clear(bn)bp=bs end local by=0 for bz in pairs(bn)do if bz.Parent and
-bz:GetAttribute('\087\101\108\100\101\100')==true then by+=1 else bn[bz]=nil end end if by>=a0
-then return end local bz=bs:FindFirstChildWhichIsA('\086\101\104\105\099\108\101\083\101\097\116',true)if not bz
-then return end local bA=workspace:FindFirstChild('\073\116\101\109\115')local bB={}for bC,bD
-in ipairs(bA and bA:GetChildren()or{})do local bE=be(bD)if bE and(bD.Name==
-'\083\104\101\101\116\077\101\116\097\108'or bD:GetAttribute('\073\116\101\109\068\097\116\097\098\097\115\101\073\100')=='\083\104\101\101\116\077\101\116\097\108')and not bD:
-GetAttribute('\087\101\108\100\101\100')and not aU:HasTag(bD,'\083\104\111\112\073\116\101\109')and(bE.Position-bu.
-Position).Magnitude<60 then bB[#bB+1]=bD end end if#bB<a0-by then a6.Text=aR(
+'\080\105\099\107\097\120\101\095\080\114\111\115\112\101\099\116\111\114','\080\105\099\107\097\120\101\095\082\117\115\116\121','\080\105\099\107\097\120\101\095\087\111\111\100\101\110'})do if aQ.equip(bm)then
+return true end end return false end local function bl(bm)local bn=tostring(bm:
+GetAttribute('\083\101\115\115\105\111\110\079\114\101\084\121\112\101')or bm:GetAttribute('\082\101\097\108\078\097\109\101')or bm.Name):lower():
+gsub('\091\094\037\097\093','')if bn:find('\118\111\105\100\099\111\097\108',1,true)then return'\086\111\105\100\067\111\097\108'end for bo,bp
+in ipairs(bd)do if bn:find(bp[1]:lower(),1,true)then return bp[1]end end end
+local bm=setmetatable({},{__mode='\107'})local function bn(bo)local bp=game:
+GetService('\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101'):FindFirstChild('\083\104\097\114\101\100')local bq=bp and bp:
+FindFirstChild('\068\117\110\103\101\111\110\068\111\111\114\083\116\097\116\101')return bq and require(bq).GetRoot(bo)or nil
+end local function bo()if aT:GetAttribute('\073\110\068\117\110\103\101\111\110')~=true then return false
+end local bp=aQ.ctrl('\068\117\110\103\101\111\110\085\073\067\111\110\116\114\111\108\108\101\114')local bq=bp and bp._BoundDungeon
+local br=bq and(bn(bq)or bq)if not br or not(br.Name:lower():find('\109\105\110\101\115\104\097\102\116',1,
+true)or aV:HasTag(br,'\077\105\110\101\115\104\097\102\116'))then return nil end return br end local
+function bp(bq,br)local bs=bq:GetAttribute('\068\117\110\103\101\111\110\076\111\111\116\072\105\103\104\108\105\103\104\116\082\111\111\116\073\100')local bu
+=bq:GetAttribute('\083\101\115\115\105\111\110\068\117\110\103\101\111\110\073\100')return aN(br,bn(bq),bs,bu,br and bq:
+IsDescendantOf(br))end local function bq(br)if workspace:GetAttribute(
+'\073\110\067\117\116\083\099\101\110\101')then return end local bs=bo()if bs==nil then a7.Text=aS(
+'\065\117\116\111\032\077\105\110\101\058\032\068\117\110\103\101\111\110\032\097\116\117\097\108\032\110\u{e3}\111\032\105\100\101\110\116\105\102\105\099\097\100\097\032\099\111\109\111\032\077\105\110\101\115\104\097\102\116\046',
+'\065\117\116\111\032\077\105\110\101\058\032\099\117\114\114\101\110\116\032\068\117\110\103\101\111\110\032\110\111\116\032\105\100\101\110\116\105\102\105\101\100\032\097\115\032\077\105\110\101\115\104\097\102\116\046')return end local
+function bu()return bh(br)and aZ.mine and bo()==bs end local bv,bw,bx=aQ.actor()
+if not bw or bx.SeatPart then return end local by=bw.CFrame local bz,bA=bi()if
+bs==false and not bA then return end local bB,bC=nil,a3 for bD,bE in ipairs(aV:
+GetTagged('\079\114\101'))do local bF=bf(bE)local bG=bl(bE)if bF and bE:IsDescendantOf(
+workspace)and bp(bE,bs)and a2[bG]and(not bm[bE]or os.clock()>bm[bE])then local
+bH=(bF.Position-bw.Position).Magnitude if bH<bC then bB=bE bC=bH end end end if
+not bB then return end local bD=bg()local bE=bD and bD.Tool and bD.Tool.Name if
+not bk()then a7.Text=aS('\065\117\116\111\032\077\105\110\101\058\032\112\105\099\097\114\101\116\097\032\110\u{e3}\111\032\101\110\099\111\110\116\114\097\100\097\032\110\097\032\098\097\114\114\097\046',
+'\065\117\116\111\032\077\105\110\101\058\032\110\111\032\112\105\099\107\097\120\101\032\102\111\117\110\100\032\105\110\032\104\111\116\098\097\114\046')return end task.wait(0.5)if not bu()
+then return end local bF=bf(bB)if not bF then return end local bG=bF.Position
+local bH=bl(bB)local bI=aQ.actor()bI:PivotTo(CFrame.lookAt(bG+Vector3.new(0,2,5)
+,bG))local bJ=os.clock()+25 while bu()and bB:IsDescendantOf(workspace)and bp(bB,
+bs)and os.clock()<bJ do local bK=bg()if not(bK and bK.Tool and bK.Tool.Name:
+find('\080\105\099\107\097\120\101',1,true)and type(bK.Swing)=='\102\117\110\099\116\105\111\110')then break end local bL=bB:
+GetAttribute('\072\101\097\108\116\104')if type(bL)=='\110\117\109\098\101\114'and bL<=0 then break end bK:Swing()
+task.wait(0.2)end if not bu()then return end bm[bB]=os.clock()+30 task.wait(0.5)
+local bK=workspace:FindFirstChild('\073\116\101\109\115')local bL=0 for bM,bN in ipairs(bK and
+bK:GetChildren()or{})do local bO=bf(bN)if bO and bp(bN,bs)and bl(bN)==bH and(bO.
+Position-bG).Magnitude<=20 and bN:GetAttribute('\067\097\116\101\103\111\114\121')~='\067\111\114\112\115\101'and bN:
+GetAttribute('\067\111\114\112\115\101\077\097\120\072\101\097\108\116\104')==nil and not aV:HasTag(bN,'\083\104\111\112\073\116\101\109')then if not
+bu()then break end bI:PivotTo(bO.CFrame*CFrame.new(0,2,3))if aQ.await(aQ.
+service('\067\097\114\114\121\073\110\118\101\110\116\111\114\121\083\101\114\118\105\099\101'):Pickup(bN))==true then bL+=1 end end end if bu(
+)then if bs then bI:PivotTo(by)else bj(br)end if bE then aQ.equip(bE)end end a7.
+Text=aS('\077\105\110\101\114\097\u{e7}\u{e3}\111\032\099\111\110\099\108\117\u{ed}\100\097\059\032\105\116\101\110\115\032\114\101\099\111\108\104\105\100\111\115\058\032',
+'\077\105\110\105\110\103\032\112\097\115\115\032\102\105\110\105\115\104\101\100\059\032\099\111\108\108\101\099\116\101\100\032\105\116\101\109\115\058\032')..bL end local br=setmetatable({},{
+__mode='\107'})local bs local function bu(bw)if aT:GetAttribute('\073\110\068\117\110\103\101\111\110')==true
+or workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101')then return end local bx,by=bi()local bz,
+bA,bB=aQ.actor()if not by or not bA or bB.SeatPart then return end if bs~=bx
+then table.clear(br)bs=bx end local bC=0 for bD in pairs(br)do if bD.Parent and
+bD:GetAttribute('\087\101\108\100\101\100')==true then bC+=1 else br[bD]=nil end end if bC>=a1
+then return end local bD=bx:FindFirstChildWhichIsA('\086\101\104\105\099\108\101\083\101\097\116',true)if not bD
+then return end local bE=workspace:FindFirstChild('\073\116\101\109\115')local bF={}for bG,bH
+in ipairs(bE and bE:GetChildren()or{})do local bI=bf(bH)if bI and(bH.Name==
+'\083\104\101\101\116\077\101\116\097\108'or bH:GetAttribute('\073\116\101\109\068\097\116\097\098\097\115\101\073\100')=='\083\104\101\101\116\077\101\116\097\108')and not bH:
+GetAttribute('\087\101\108\100\101\100')and not aV:HasTag(bH,'\083\104\111\112\073\116\101\109')and(bI.Position-by.
+Position).Magnitude<60 then bF[#bF+1]=bH end end if#bF<a1-bC then a7.Text=aS(
 '\080\114\111\116\101\u{e7}\u{e3}\111\058\032\097\103\117\097\114\100\097\110\100\111\032\112\108\097\099\097\115\032\115\111\108\116\097\115\032\112\114\u{f3}\120\105\109\097\115\032\100\097\032\098\114\111\099\097\046',
-'\080\114\111\116\101\099\116\105\111\110\058\032\119\097\105\116\105\110\103\032\102\111\114\032\108\111\111\115\101\032\112\108\097\116\101\115\032\110\101\097\114\032\116\104\101\032\100\114\105\108\108\046')return end for bC=1,a0-by
-do if not bg(br)or not aY.armor then break end local bD=bB[bC]local bE=be(bD)bv:
-PivotTo(bE.CFrame*CFrame.new(0,3,3))local bF=aP.await(aP.service('\068\114\097\103\083\101\114\118\105\099\101'):
-Request(bD))if bF==true then local bG,bH=pcall(function()assert(bg(br)and aY.
-armor,'\083\116\111\112\112\101\100')local bG=by+bC-1 local bH=bG%4 local bI=math.floor(bG/4)local bJ
-,bK if bD:IsA('\077\111\100\101\108')then bJ,bK=bD:GetBoundingBox()else bJ,bK=bD.CFrame,bD.Size
-end local bL=CFrame.new()if bK.Y<=bK.X and bK.Y<=bK.Z then bL=CFrame.Angles(math
-.pi/2,0,0)elseif bK.X<=bK.Z then bL=CFrame.Angles(0,math.pi/2,0)end local bM=
-math.abs(bL.RightVector.Y)*bK.X+math.abs(bL.UpVector.Y)*bK.Y+math.abs(bL.
-LookVector.Y)*bK.Z local bN=bz.CFrame:PointToObjectSpace(bu.CFrame:
-PointToWorldSpace(Vector3.new(0,bu.Size.Y/2,0))).Y local bO=a0>4 and(bI==0 and-1
-or 1)*1.25 or 0 local bP=bH*math.pi/2 local bQ=bz.CFrame*CFrame.Angles(0,bP,0)*
-CFrame.new(bO,bN+bM/2-0.1,-3)bv:PivotTo(bz.CFrame*CFrame.new(0,5,5))bD:PivotTo(
-bQ*bL*bJ:ToObjectSpace(bD:GetPivot()))task.wait(0.35)assert(bg(br)and aY.armor,
-'\083\116\111\112\112\101\100')aP.await(aP.service('\068\114\097\103\083\101\114\118\105\099\101'):Weld(bD))task.wait(0.2)if bD:
-GetAttribute('\087\101\108\100\101\100')==true then bn[bD]=true end end)pcall(function()aP.
-service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)if not bG then error(bH)end end end bi(
-br)local bC=0 for bD in pairs(bn)do if bD.Parent and bD:GetAttribute('\087\101\108\100\101\100')==
-true then bC+=1 end end a6.Text=aR('\080\108\097\099\097\115\032\099\111\109\032\097\110\101\120\097\u{e7}\u{e3}\111\032\099\111\110\102\105\114\109\097\100\097\058\032',
-'\080\108\097\116\101\115\032\119\105\116\104\032\099\111\110\102\105\114\109\101\100\032\097\116\116\097\099\104\109\101\110\116\058\032')..bC..'\032\047\032'..a0 end local br local bs=false
-local bu local function bv()if bs and br and br~=''and aP.actor()then aP.equip(
-br)end br=nil bs=false bu=nil end local function bw()if not aY.smart then bv()
-return end if aP.movementBusy()or aP.healing and aP.healing()or workspace:
-GetAttribute('\073\110\067\117\116\083\099\101\110\101')then return end local bx,by,bz=aP.actor()if not by or
-bz.SeatPart then return end local bA=workspace:FindFirstChild('\078\112\099')local bB,bC=
-nil,24 for bD,bE in ipairs(bA and bA:GetChildren()or{})do local bF=bE:
-FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local bG=be(bE)local bH=tostring(bE:
-GetAttribute('\082\101\097\108\078\097\109\101')or bE.Name):lower()local bI=tostring(bE:GetAttribute(
-'\077\117\116\097\116\105\111\110\115')or''):lower()local bJ=bH:find('\115\116\111\110\101',1,true)or bH:find('\114\111\099\107',1,
-true)or bE:GetAttribute('\077\097\116\101\114\105\097\108')=='\083\116\111\110\101'or bI:find('\115\116\111\110\101',1,true)if bJ and
-bF and bF.Health>0 and bG and bE:GetAttribute('\070\114\105\101\110\100\108\121')~=true and bE:
-GetAttribute('\078\112\099\070\097\099\116\105\111\110')~='\070\114\105\101\110\100\108\121\067\111\109\112\097\110\105\111\110'then local bK=(bG.Position-by.
-Position).Magnitude if bK<bC then bB=bG bC=bK end end end if not bB then bv()
-return end bu=bB local bD=bf()local bE=bD and bD.Tool and bD.Tool.Name or''if
-not br then br=bE end if not bs then if bE~='\083\119\111\114\100\095\086\111\105\100'then if not aP.equip(
-'\083\119\111\114\100\095\086\111\105\100')then bj()end end bs=true return end if bD and(bE=='\083\119\111\114\100\095\086\111\105\100'or bE
-:find('\080\105\099\107\097\120\101',1,true))and type(bD.Swing)=='\102\117\110\099\116\105\111\110'then bx:PivotTo(CFrame.
-lookAt(by.Position,Vector3.new(bB.Position.X,by.Position.Y,bB.Position.Z)))bD:
-Swing()end end local function bx()aW+=1 for by in pairs(aY)do aY[by]=false aZ[by
-](false)end bb()bv()end task.spawn(function()while aV do local by,bz=pcall(
-function()if aY.bright then if not ba then ba={Brightness=aT.Brightness,Ambient=
-aT.Ambient,OutdoorAmbient=aT.OutdoorAmbient,GlobalShadows=aT.GlobalShadows}end
-aT.Brightness=a_ local by=math.clamp(a_/5,0,1)aT.Ambient=Color3.new(by,by,by)aT.
-OutdoorAmbient=aT.Ambient aT.GlobalShadows=false else bb()end bw()end)if not by
-and aV then a6.Text=tostring(bz)end task.wait(0.2)end end)task.spawn(function()
-while aV do if(aY.mine or aY.armor)and not(aP.healing and aP.healing())and aP.
-acquire()then local by=aW local bz,bA=pcall(function()if aY.armor then bq(by)end
-if bg(by)and aY.mine then bm(by)end end)aP.release()if not bz and aV then a6.
-Text=tostring(bA)end end task.wait(2)end end)return{stop=bx,target=function()
-return aY.smart and bu or nil end,cleanup=function()aV=false bx()for by,bz in
-ipairs(aX)do bz:Disconnect()end end}end local aO={}function aO.role(aP,aQ)if aQ
+'\080\114\111\116\101\099\116\105\111\110\058\032\119\097\105\116\105\110\103\032\102\111\114\032\108\111\111\115\101\032\112\108\097\116\101\115\032\110\101\097\114\032\116\104\101\032\100\114\105\108\108\046')return end for bG=1,a1-bC
+do if not bh(bw)or not aZ.armor then break end local bH=bF[bG]local bI=bf(bH)bz:
+PivotTo(bI.CFrame*CFrame.new(0,3,3))local bJ=aQ.await(aQ.service('\068\114\097\103\083\101\114\118\105\099\101'):
+Request(bH))if bJ==true then local bK,bL=pcall(function()assert(bh(bw)and aZ.
+armor,'\083\116\111\112\112\101\100')local bK=bC+bG-1 local bL=bK%4 local bM=math.floor(bK/4)local bN
+,bO if bH:IsA('\077\111\100\101\108')then bN,bO=bH:GetBoundingBox()else bN,bO=bH.CFrame,bH.Size
+end local bP=CFrame.new()if bO.Y<=bO.X and bO.Y<=bO.Z then bP=CFrame.Angles(math
+.pi/2,0,0)elseif bO.X<=bO.Z then bP=CFrame.Angles(0,math.pi/2,0)end local bQ=
+math.abs(bP.RightVector.Y)*bO.X+math.abs(bP.UpVector.Y)*bO.Y+math.abs(bP.
+LookVector.Y)*bO.Z local bR=bD.CFrame:PointToObjectSpace(by.CFrame:
+PointToWorldSpace(Vector3.new(0,by.Size.Y/2,0))).Y local bS=a1>4 and(bM==0 and-1
+or 1)*1.25 or 0 local bT=bL*math.pi/2 local bU=bD.CFrame*CFrame.Angles(0,bT,0)*
+CFrame.new(bS,bR+bQ/2-0.1,-3)bz:PivotTo(bD.CFrame*CFrame.new(0,5,5))bH:PivotTo(
+bU*bP*bN:ToObjectSpace(bH:GetPivot()))task.wait(0.35)assert(bh(bw)and aZ.armor,
+'\083\116\111\112\112\101\100')aQ.await(aQ.service('\068\114\097\103\083\101\114\118\105\099\101'):Weld(bH))task.wait(0.2)if bH:
+GetAttribute('\087\101\108\100\101\100')==true then br[bH]=true end end)pcall(function()aQ.
+service('\068\114\097\103\083\101\114\118\105\099\101'):Cancel(false)end)if not bK then error(bL)end end end bj(
+bw)local bG=0 for bH in pairs(br)do if bH.Parent and bH:GetAttribute('\087\101\108\100\101\100')==
+true then bG+=1 end end a7.Text=aS('\080\108\097\099\097\115\032\099\111\109\032\097\110\101\120\097\u{e7}\u{e3}\111\032\099\111\110\102\105\114\109\097\100\097\058\032',
+'\080\108\097\116\101\115\032\119\105\116\104\032\099\111\110\102\105\114\109\101\100\032\097\116\116\097\099\104\109\101\110\116\058\032')..bG..'\032\047\032'..a1 end local bw local bx=false
+local by local function bz()if bx and bw and bw~=''and aQ.actor()then aQ.equip(
+bw)end bw=nil bx=false by=nil end local function bA()if not aZ.smart then bz()
+return end if aQ.movementBusy()or aQ.healing and aQ.healing()or workspace:
+GetAttribute('\073\110\067\117\116\083\099\101\110\101')then return end local bB,bC,bD=aQ.actor()if not bC or
+bD.SeatPart then return end local bE=workspace:FindFirstChild('\078\112\099')local bF,bG=
+nil,24 for bH,bI in ipairs(bE and bE:GetChildren()or{})do local bJ=bI:
+FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local bK=bf(bI)local bL=tostring(bI:
+GetAttribute('\082\101\097\108\078\097\109\101')or bI.Name):lower()local bM=tostring(bI:GetAttribute(
+'\077\117\116\097\116\105\111\110\115')or''):lower()local bN=bL:find('\115\116\111\110\101',1,true)or bL:find('\114\111\099\107',1,
+true)or bI:GetAttribute('\077\097\116\101\114\105\097\108')=='\083\116\111\110\101'or bM:find('\115\116\111\110\101',1,true)if bN and
+bJ and bJ.Health>0 and bK and bI:GetAttribute('\070\114\105\101\110\100\108\121')~=true and bI:
+GetAttribute('\078\112\099\070\097\099\116\105\111\110')~='\070\114\105\101\110\100\108\121\067\111\109\112\097\110\105\111\110'then local bO=(bK.Position-bC.
+Position).Magnitude if bO<bG then bF=bK bG=bO end end end if not bF then bz()
+return end by=bF local bH=bg()local bI=bH and bH.Tool and bH.Tool.Name or''if
+not bw then bw=bI end if not bx then if bI~='\083\119\111\114\100\095\086\111\105\100'then if not aQ.equip(
+'\083\119\111\114\100\095\086\111\105\100')then bk()end end bx=true return end if bH and(bI=='\083\119\111\114\100\095\086\111\105\100'or bI
+:find('\080\105\099\107\097\120\101',1,true))and type(bH.Swing)=='\102\117\110\099\116\105\111\110'then bB:PivotTo(CFrame.
+lookAt(bC.Position,Vector3.new(bF.Position.X,bC.Position.Y,bF.Position.Z)))bH:
+Swing()end end local function bB()aX+=1 for bC in pairs(aZ)do aZ[bC]=false a_[bC
+](false)end bc()bz()end task.spawn(function()while aW do local bC,bD=pcall(
+function()if aZ.bright then if not bb then bb={Brightness=aU.Brightness,Ambient=
+aU.Ambient,OutdoorAmbient=aU.OutdoorAmbient,GlobalShadows=aU.GlobalShadows}end
+aU.Brightness=a0 local bC=math.clamp(a0/5,0,1)aU.Ambient=Color3.new(bC,bC,bC)aU.
+OutdoorAmbient=aU.Ambient aU.GlobalShadows=false else bc()end bA()end)if not bC
+and aW then a7.Text=tostring(bD)end task.wait(0.2)end end)task.spawn(function()
+while aW do if(aZ.mine or aZ.armor)and not(aQ.healing and aQ.healing())and aQ.
+acquire()then local bC=aX local bD,bE=pcall(function()if aZ.armor then bu(bC)end
+if bh(bC)and aZ.mine then bq(bC)end end)aQ.release()if not bD and aW then a7.
+Text=tostring(bE)end end task.wait(2)end end)return{stop=bB,target=function()
+return aZ.smart and by or nil end,cleanup=function()aW=false bB()for bC,bD in
+ipairs(aY)do bD:Disconnect()end end}end local aP={}function aP.role(aQ,aR)if aR
 ~=9796898051 then return nil end return({[101906032112547]='\108\111\098\098\121',[
-74507545904779]='\114\117\110'})[aP]end function aO.names(aP)local aQ={}for aR in
-tostring(aP):gmatch('\091\094\044\093\043')do aR=aR:match('\094\037\115\042\040\046\045\041\037\115\042\036')if aR~=''then aQ[#aQ+1
-]=aR end end return aQ end function aO.offer(aP,aQ,aR,aS)if type(aQ)~='\110\117\109\098\101\114'or
-aQ~=aQ then return nil end for aT,aU in ipairs(aS)do for aV,aW in ipairs(type(aP
-)=='\116\097\098\108\101'and aP or{})do if aW.UpgradeName==aU and aW.Type=='\067\111\105\110\115'and type(aW.
-Cost)=='\110\117\109\098\101\114'and aW.Cost>=0 and aW.Cost<math.huge and aQ-aW.Cost>=aR then
-return aW end end end end function aO.selection(aP,aQ,aR)local aS={}local aT=
-math.clamp(math.floor(tonumber(aQ)or 0),0,100)for aU,aV in ipairs(aR)do for aW,
-aX in ipairs(type(aP)=='\116\097\098\108\101'and aP or{})do if aX.Name==aV and aX.Id~=nil and
-not aS[aX.Id]then local aY=math.min(aT,math.max(0,math.floor(tonumber(aX.Count)
-or 0)))if aY>0 then aS[aX.Id]=aY aT-=aY end end end end return aS end function
-aO.medalOffer(aP,aQ,aR,aS)if type(aQ)~='\116\097\098\108\101'or type(aQ.Medals)~='\110\117\109\098\101\114'or aQ.
-Medals~=aQ.Medals or type(aQ.Available)~='\116\097\098\108\101'then return nil end for aT,aU in
-ipairs(aS)do local aV=aP[aU]if aV and type(aV.Cost)=='\110\117\109\098\101\114'and aV.Cost>=0 and
-aV.Cost<math.huge and aQ.Available[aU]and aQ.Medals-aV.Cost>=aR then return aU
-end end end function aO.skipRequest(aP)if not aP or not aP.CurrentCutScene or aP
-.AbortingCutScene then return nil end local aQ=aP.CurrentCutSceneContext if aQ
-and aQ.DisableSkip then return nil end return{name=aP.CurrentCutScene,id=aQ and
-aQ.RuntimeId,private=aQ and aQ.Private==true and aQ.RuntimeId~=nil,session=aP.
-CurrentCutSceneSessionId}end local aP=function(aP)local aQ=assert(aO.role(game.
-PlaceId,game.GameId),'\085\110\115\117\112\112\111\114\116\101\100\032\069\097\114\116\104\032\067\111\114\101\032\112\108\097\099\101')local aR,aS=aP.ui,aP.T local
-aT=game:GetService('\080\108\097\121\101\114\115').LocalPlayer local aU=game:GetService(
-'\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')local aV=game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local aW=true local
-aX={}local aY={swing=false,upgrades=false,craft=false,skip=false,medals=false}
-local aZ={upgrades=0,craft=0,medals=0}local a_={}local a0={}local a1,a2,a3,a4,a5
-local a6 local function a7(a8)if a6 then return false end a6=a8 return true end
-local function a8(a9)if a6==a9 then a6=nil end end local a9={reserve=1000,limit=
+74507545904779]='\114\117\110'})[aQ]end function aP.names(aQ)local aR={}for aS in
+tostring(aQ):gmatch('\091\094\044\093\043')do aS=aS:match('\094\037\115\042\040\046\045\041\037\115\042\036')if aS~=''then aR[#aR+1
+]=aS end end return aR end function aP.offer(aQ,aR,aS,aT)if type(aR)~='\110\117\109\098\101\114'or
+aR~=aR then return nil end for aU,aV in ipairs(aT)do for aW,aX in ipairs(type(aQ
+)=='\116\097\098\108\101'and aQ or{})do if aX.UpgradeName==aV and aX.Type=='\067\111\105\110\115'and type(aX.
+Cost)=='\110\117\109\098\101\114'and aX.Cost>=0 and aX.Cost<math.huge and aR-aX.Cost>=aS then
+return aX end end end end function aP.selection(aQ,aR,aS)local aT={}local aU=
+math.clamp(math.floor(tonumber(aR)or 0),0,100)for aV,aW in ipairs(aS)do for aX,
+aY in ipairs(type(aQ)=='\116\097\098\108\101'and aQ or{})do if aY.Name==aW and aY.Id~=nil and
+not aT[aY.Id]then local aZ=math.min(aU,math.max(0,math.floor(tonumber(aY.Count)
+or 0)))if aZ>0 then aT[aY.Id]=aZ aU-=aZ end end end end return aT end function
+aP.medalOffer(aQ,aR,aS,aT)if type(aR)~='\116\097\098\108\101'or type(aR.Medals)~='\110\117\109\098\101\114'or aR.
+Medals~=aR.Medals or type(aR.Available)~='\116\097\098\108\101'then return nil end for aU,aV in
+ipairs(aT)do local aW=aQ[aV]if aW and type(aW.Cost)=='\110\117\109\098\101\114'and aW.Cost>=0 and
+aW.Cost<math.huge and aR.Available[aV]and aR.Medals-aW.Cost>=aS then return aV
+end end end function aP.skipRequest(aQ)if not aQ or not aQ.CurrentCutScene or aQ
+.AbortingCutScene then return nil end local aR=aQ.CurrentCutSceneContext if aR
+and aR.DisableSkip then return nil end return{name=aQ.CurrentCutScene,id=aR and
+aR.RuntimeId,private=aR and aR.Private==true and aR.RuntimeId~=nil,session=aQ.
+CurrentCutSceneSessionId}end local aQ=function(aQ)local aR=assert(aP.role(game.
+PlaceId,game.GameId),'\085\110\115\117\112\112\111\114\116\101\100\032\069\097\114\116\104\032\067\111\114\101\032\112\108\097\099\101')local aS,aT=aQ.ui,aQ.T local
+aU=game:GetService('\080\108\097\121\101\114\115').LocalPlayer local aV=game:GetService(
+'\082\101\112\108\105\099\097\116\101\100\083\116\111\114\097\103\101')local aW=game:GetService('\072\116\116\112\083\101\114\118\105\099\101')local aX=true local
+aY={}local aZ={swing=false,upgrades=false,craft=false,skip=false,medals=false}
+local a_={upgrades=0,craft=0,medals=0}local a0={}local a1={}local a2,a3,a4,a5,a6
+local a7 local function a8(a9)if a7 then return false end a7=a9 return true end
+local function a9(ba)if a7==ba then a7=nil end end local ba={reserve=1000,limit=
 10,priority=
 "\084\101\097\109\072\101\097\108\116\104\044\076\105\102\101\083\116\101\097\108\044\068\114\105\108\108\080\111\119\101\114\044\082\080\077\079\118\101\114\099\108\111\099\107\044\083\097\099\107\083\116\111\114\097\103\101\044\068\114\105\118\101\083\112\101\101\100",gear=
 '\080\105\099\107\097\120\101\095\071\111\108\100',craftLimit=3,medalReserve=100,medalLimit=10,medalPriority=
-'\084\117\114\114\101\116\068\097\109\097\103\101\044\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\068\097\109\097\103\101\044\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\065\109\109\111'}local ba=
-'\065\110\111\110\072\117\098\095\069\097\114\116\104\067\111\114\101\095'..aT.UserId..'\095'..aQ..'\046\106\115\111\110'if type(readfile)=='\102\117\110\099\116\105\111\110'
-then pcall(function()local bb=aV:JSONDecode(readfile(ba))for bc,bd in pairs(a9)
-do if type(bb[bc])==type(bd)then a9[bc]=bb[bc]end end end)end a9.reserve=math.
-clamp(tonumber(a9.reserve)or 1000,0,1e9)a9.limit=math.clamp(tonumber(a9.limit)or
-10,1,100)a9.medalReserve=math.clamp(tonumber(a9.medalReserve)or 100,0,1e9)a9.
-medalLimit=math.clamp(tonumber(a9.medalLimit)or 10,1,100)a9.craftLimit=math.
-clamp(tonumber(a9.craftLimit)or 3,1,100)local function bb()if type(writefile)==
-'\102\117\110\099\116\105\111\110'then pcall(writefile,ba,aV:JSONEncode(a9))end end local function bc(bd
-,be)aX[#aX+1]=bd:Connect(be)end local bd=aP.section('\070\097\114\109')local be=aR.label(bd,
-'\084\101\120\116\076\097\098\101\108',aS('\067\097\114\114\101\103\097\110\100\111\032\101\115\116\097\100\111\u{2026}','\076\111\097\100\105\110\103\032\115\116\097\116\101\u{2026}'),76,1)local
-bf=aR.label(bd,'\084\101\120\116\076\097\098\101\108','',72,2)local function bg(bh,bi)if aW then bf.Text=
-aS(bh,bi or bh)end end local function bh()for bi in pairs(aY)do aY[bi]=false if
-a0[bi]then a0[bi](false)end end if a1 then a1.stop()end if a2 then a2.stop()end
-if a3 then a3.stop()end if a4 then a4.stop()end if a5 then a5.stop()end end aP.
-attach(function()aW=false bh()if a1 then a1.cleanup()end if a2 then a2.cleanup()
-end if a3 then a3.cleanup()end if a4 then a4.cleanup()end if a5 then a5.cleanup(
-)end for bi,bj in ipairs(aX)do bj:Disconnect()end end)aP.quick(bh)local function
-bi(bj,bk,bl,bm,bn)local bp=aR.button(bj,aS(bk,bl),bm)bc(bp.Activated,function()
-if a_[bp]then return end a_[bp]=true task.spawn(function()local bq,br=pcall(bn)
-a_[bp]=nil if not bq then bg(aS('\070\097\108\104\097\058\032','\070\097\105\108\101\100\058\032')..tostring(br))end end)end)
-return bp end local function bj(bk,bl,bm,bn,bp,bq)aR.label(bk,'\084\101\120\116\076\097\098\101\108',aS(bm,
-bn),32,bp)local br=aR.label(bk,'\084\101\120\116\066\111\120',tostring(a9[bl]),42,bp+1)bc(br.
+'\084\117\114\114\101\116\068\097\109\097\103\101\044\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\068\097\109\097\103\101\044\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\065\109\109\111'}local bb=
+'\065\110\111\110\072\117\098\095\069\097\114\116\104\067\111\114\101\095'..aU.UserId..'\095'..aR..'\046\106\115\111\110'if type(readfile)=='\102\117\110\099\116\105\111\110'
+then pcall(function()local bc=aW:JSONDecode(readfile(bb))for bd,be in pairs(ba)
+do if type(bc[bd])==type(be)then ba[bd]=bc[bd]end end end)end ba.reserve=math.
+clamp(tonumber(ba.reserve)or 1000,0,1e9)ba.limit=math.clamp(tonumber(ba.limit)or
+10,1,100)ba.medalReserve=math.clamp(tonumber(ba.medalReserve)or 100,0,1e9)ba.
+medalLimit=math.clamp(tonumber(ba.medalLimit)or 10,1,100)ba.craftLimit=math.
+clamp(tonumber(ba.craftLimit)or 3,1,100)local function bc()if type(writefile)==
+'\102\117\110\099\116\105\111\110'then pcall(writefile,bb,aW:JSONEncode(ba))end end local function bd(be
+,bf)aY[#aY+1]=be:Connect(bf)end local be=aQ.section('\070\097\114\109')local bf=aS.label(be,
+'\084\101\120\116\076\097\098\101\108',aT('\067\097\114\114\101\103\097\110\100\111\032\101\115\116\097\100\111\u{2026}','\076\111\097\100\105\110\103\032\115\116\097\116\101\u{2026}'),76,1)local
+bg=aS.label(be,'\084\101\120\116\076\097\098\101\108','',72,2)local function bh(bi,bj)if aX then bg.Text=
+aT(bi,bj or bi)end end local function bi()for bj in pairs(aZ)do aZ[bj]=false if
+a1[bj]then a1[bj](false)end end if a2 then a2.stop()end if a3 then a3.stop()end
+if a4 then a4.stop()end if a5 then a5.stop()end if a6 then a6.stop()end end aQ.
+attach(function()aX=false bi()if a2 then a2.cleanup()end if a3 then a3.cleanup()
+end if a4 then a4.cleanup()end if a5 then a5.cleanup()end if a6 then a6.cleanup(
+)end for bj,bk in ipairs(aY)do bk:Disconnect()end end)aQ.quick(bi)local function
+bj(bk,bl,bm,bn,bo)local bp=aS.button(bk,aT(bl,bm),bn)bd(bp.Activated,function()
+if a0[bp]then return end a0[bp]=true task.spawn(function()local bq,br=pcall(bo)
+a0[bp]=nil if not bq then bh(aT('\070\097\108\104\097\058\032','\070\097\105\108\101\100\058\032')..tostring(br))end end)end)
+return bp end local function bk(bl,bm,bn,bo,bp,bq)aS.label(bl,'\084\101\120\116\076\097\098\101\108',aT(bn,
+bo),32,bp)local br=aS.label(bl,'\084\101\120\116\066\111\120',tostring(ba[bm]),42,bp+1)bd(br.
 FocusLost,function()if bq then local bs=tonumber(br.Text)if bs and bs==bs and bs
-<math.huge then a9[bl]=math.clamp(math.floor(bs),bq[1],bq[2])end else a9[bl]=br.
-Text:sub(1,600)end br.Text=tostring(a9[bl])bb()end)end local function bk(bl,bm,
-bn,bp,bq)local br,bs=aR.checkbox(bl,aS(bn,bp),bq)a0[bm]=bs bc(br.Activated,
-function()aY[bm]=not aY[bm]bs(aY[bm])end)end local bl local function bm(bn,bp)if
-not bl then local bq=aU:FindFirstChild('\080\097\099\107\097\103\101\115')local br=bq and bq:
-FindFirstChild('\075\110\105\116')if not br then return nil end bl=require(br)end local bq,
-br=pcall(bn=='\099\111\110\116\114\111\108\108\101\114'and bl.GetController or bl.GetService,bp)return bq and
-br or nil end local function bn(bp)return bm('\099\111\110\116\114\111\108\108\101\114',bp)end local function
-bp(bq)return assert(bm('\115\101\114\118\105\099\101',bq),bq..'\032\117\110\097\118\097\105\108\097\098\108\101')end local function bq(br
+<math.huge then ba[bm]=math.clamp(math.floor(bs),bq[1],bq[2])end else ba[bm]=br.
+Text:sub(1,600)end br.Text=tostring(ba[bm])bc()end)end local function bl(bm,bn,
+bo,bp,bq)local br,bs=aS.checkbox(bm,aT(bo,bp),bq)a1[bn]=bs bd(br.Activated,
+function()aZ[bn]=not aZ[bn]bs(aZ[bn])end)end local bm local function bn(bo,bp)if
+not bm then local bq=aV:FindFirstChild('\080\097\099\107\097\103\101\115')local br=bq and bq:
+FindFirstChild('\075\110\105\116')if not br then return nil end bm=require(br)end local bq,
+br=pcall(bo=='\099\111\110\116\114\111\108\108\101\114'and bm.GetController or bm.GetService,bp)return bq and
+br or nil end local function bo(bp)return bn('\099\111\110\116\114\111\108\108\101\114',bp)end local function
+bp(bq)return assert(bn('\115\101\114\118\105\099\101',bq),bq..'\032\117\110\097\118\097\105\108\097\098\108\101')end local function bq(br
 )if type(br)=='\116\097\098\108\101'and type(br.await)=='\102\117\110\099\116\105\111\110'then local bs=table.pack(br:
 timeout(8):await())if not bs[1]then error(tostring(bs[2]))end return table.
-unpack(bs,2,bs.n)end return br end local function br()local bs=aT.Character
-local bu=bs and bs:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local bv=bs and bs:
-FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if bv and bu and bu.Health>0 then return bs,bv
-,bu end end local function bs(bu,bv,bw)local bx,by,bz=br()if not bx then return
-false end local function bA()return aW and(not bw or bw())and aT.Character==bx
-and bz.Health>0 end if not bA()then return false end local bB=bu:lower()local
-function bC(bD)if type(bD)~='\115\116\114\105\110\103'then return false end local function bE(bF)
-local bG={}for bH in bF:lower():gmatch('\037\119\043')do bG[#bG+1]=bH end table.sort(bG)
-return table.concat(bG,'')end return bE(bD)==bE(bB)or bB=='\109\101\100\107\105\116'and bD:lower()
-:find('\109\101\100\107\105\116',1,true)~=nil end local bD=aT:FindFirstChild('\066\097\099\107\112\097\099\107')for bE,bF
-in ipairs(bD and bD:GetChildren()or{})do if bF:IsA('\084\111\111\108')and bC(bF.Name)then bz
-:EquipTool(bF)return true end end local bE=bn('\072\111\116\098\097\114\067\111\110\116\114\111\108\108\101\114')local bF=bE and
-bE.BackpackUI if bE and type(bE.EquipToolAtIndex)=='\102\117\110\099\116\105\111\110'then for bG,bH in
-pairs(bE.Tools or{})do if typeof(bH)=='\073\110\115\116\097\110\099\101'and bC(bH.Name)then bE:
-EquipToolAtIndex(bG)return true end end end if bF and type(bE.EquipToolAtIndex)
-=='\102\117\110\099\116\105\111\110'then for bG,bH in ipairs(bF:GetChildren())do if bH:IsA('\071\117\105\079\098\106\101\099\116')
-and bH.LayoutOrder>=1 and bH.LayoutOrder<=10 then local bI=bC(bH.Name)or bC(bH:
-GetAttribute('\084\111\111\108\078\097\109\101'))for bJ,bK in ipairs(bH:GetDescendants())do if bK:IsA(
-'\084\101\120\116\076\097\098\101\108')and bC(bK.Text)then bI=true end end if bI then bE:EquipToolAtIndex(
-bH.LayoutOrder)return true end end end end if bv and bB=='\109\101\100\107\105\116'then local bG=
-bp('\067\097\114\114\121\073\110\118\101\110\116\111\114\121\083\101\114\118\105\099\101')local bH=bq(bG:GetInventory())if not bA()or type(bH)
-~='\116\097\098\108\101'or type(bH.Entries)~='\116\097\098\108\101'then return false end local bI for bJ,bK in
-pairs(bH.Entries)do if bK.Id and bC(bK.Name)and(tonumber(bK.Count)or 1)>0 then
-bI=bK break end end if not bI then return false end local bJ=bq(bG:Move(bI.Id,
-'\072\111\116\098\097\114'))if not bA()then return false end if typeof(bJ)=='\073\110\115\116\097\110\099\101'and bJ:IsA(
-'\084\111\111\108')and bC(bJ.Name)and bJ:IsDescendantOf(aT)then bz:EquipTool(bJ)return true
-end local bK=os.clock()+2 repeat if not bA()then return false end for bL,bM in
-ipairs(bD and bD:GetChildren()or{})do if bM:IsA('\084\111\111\108')and bC(bM.Name)then bz:
-EquipTool(bM)return true end end for bL,bM in pairs(bE and bE.Tools or{})do if
-typeof(bM)=='\073\110\115\116\097\110\099\101'and bC(bM.Name)then bE:EquipToolAtIndex(bL)return true end
-end task.wait(0.1)until os.clock()>=bK end return false end local function bu()
-if aQ=='\108\111\098\098\121'then local bv=workspace:FindFirstChild('\076\111\098\098\121')local bw=bv and bv:
-FindFirstChild('\079\117\116\101\114\083\116\114\117\099\116\117\114\101\115')return bw and bw:FindFirstChild('\067\104\117\114\099\104')end
-return workspace:FindFirstChild('\067\104\117\114\099\104')end local function bv()local bw=bu()
-local bx=bw and bw:FindFirstChild('\083\116\114\117\099\116\117\114\101')local by=bx and bx:FindFirstChild(
-'\082\105\110\103')local bz=by and by:FindFirstChild('\083\097\118\101\071\101\097\114')return bz and bz:IsA(
-'\066\097\115\101\080\097\114\116')and bz or nil end local bw,bx local function by()local bz=bv()if bz
-then bw=bz.CFrame bx=workspace:GetAttribute('\073\110\102\105\110\105\116\101\068\101\112\116\104\079\102\102\115\101\116\077\101\116\101\114\115')end end
-by()local bz,bA bi(bd,'\073\114\032\097\116\u{e9}\032\097\032\105\103\114\101\106\097\032\099\097\114\114\101\103\097\100\097','\071\111\032\116\111\032\108\111\097\100\101\100\032\099\104\117\114\099\104',10,
-function()local bB,bC=br()assert(bB,aS('\080\101\114\115\111\110\097\103\101\109\032\105\110\100\105\115\112\111\110\u{ed}\118\101\108\046',
-'\067\104\097\114\097\099\116\101\114\032\117\110\097\118\097\105\108\097\098\108\101\046'))by()local bD=bv()if not bD and bw and bx==workspace:
-GetAttribute('\073\110\102\105\110\105\116\101\068\101\112\116\104\079\102\102\115\101\116\077\101\116\101\114\115')then local bE=bC.CFrame bB:PivotTo(bw*
-CFrame.new(0,3,5))pcall(function()aT:RequestStreamAroundAsync(bw.Position,5)end)
-bD=bv()if not bD then bB:PivotTo(bE)end end assert(bD,aS(
+unpack(bs,2,bs.n)end return br end local function br()local bs=aU.Character
+local bu=bs and bs:FindFirstChildOfClass('\072\117\109\097\110\111\105\100')local bw=bs and bs:
+FindFirstChild('\072\117\109\097\110\111\105\100\082\111\111\116\080\097\114\116')if bw and bu and bu.Health>0 then return bs,bw
+,bu end end local function bs(bu,bw,bx)local by,bz,bA=br()if not by then return
+false end local function bB()return aX and(not bx or bx())and aU.Character==by
+and bA.Health>0 end if not bB()then return false end local bC=bu:lower()local
+function bD(bE)if type(bE)~='\115\116\114\105\110\103'then return false end local function bF(bG)
+local bH={}for bI in bG:lower():gmatch('\037\119\043')do bH[#bH+1]=bI end table.sort(bH)
+return table.concat(bH,'')end return bF(bE)==bF(bC)or bC=='\109\101\100\107\105\116'and bE:lower()
+:find('\109\101\100\107\105\116',1,true)~=nil end local bE=aU:FindFirstChild('\066\097\099\107\112\097\099\107')for bF,bG
+in ipairs(bE and bE:GetChildren()or{})do if bG:IsA('\084\111\111\108')and bD(bG.Name)then bA
+:EquipTool(bG)return true end end local bF=bo('\072\111\116\098\097\114\067\111\110\116\114\111\108\108\101\114')local bG=bF and
+bF.BackpackUI if bF and type(bF.EquipToolAtIndex)=='\102\117\110\099\116\105\111\110'then for bH,bI in
+pairs(bF.Tools or{})do if typeof(bI)=='\073\110\115\116\097\110\099\101'and bD(bI.Name)then bF:
+EquipToolAtIndex(bH)return true end end end if bG and type(bF.EquipToolAtIndex)
+=='\102\117\110\099\116\105\111\110'then for bH,bI in ipairs(bG:GetChildren())do if bI:IsA('\071\117\105\079\098\106\101\099\116')
+and bI.LayoutOrder>=1 and bI.LayoutOrder<=10 then local bJ=bD(bI.Name)or bD(bI:
+GetAttribute('\084\111\111\108\078\097\109\101'))for bK,bL in ipairs(bI:GetDescendants())do if bL:IsA(
+'\084\101\120\116\076\097\098\101\108')and bD(bL.Text)then bJ=true end end if bJ then bF:EquipToolAtIndex(
+bI.LayoutOrder)return true end end end end if bw and bC=='\109\101\100\107\105\116'then local bH=
+bp('\067\097\114\114\121\073\110\118\101\110\116\111\114\121\083\101\114\118\105\099\101')local bI=bq(bH:GetInventory())if not bB()or type(bI)
+~='\116\097\098\108\101'or type(bI.Entries)~='\116\097\098\108\101'then return false end local bJ for bK,bL in
+pairs(bI.Entries)do if bL.Id and bD(bL.Name)and(tonumber(bL.Count)or 1)>0 then
+bJ=bL break end end if not bJ then return false end local bK=bq(bH:Move(bJ.Id,
+'\072\111\116\098\097\114'))if not bB()then return false end if typeof(bK)=='\073\110\115\116\097\110\099\101'and bK:IsA(
+'\084\111\111\108')and bD(bK.Name)and bK:IsDescendantOf(aU)then bA:EquipTool(bK)return true
+end local bL=os.clock()+2 repeat if not bB()then return false end for bM,bN in
+ipairs(bE and bE:GetChildren()or{})do if bN:IsA('\084\111\111\108')and bD(bN.Name)then bA:
+EquipTool(bN)return true end end for bM,bN in pairs(bF and bF.Tools or{})do if
+typeof(bN)=='\073\110\115\116\097\110\099\101'and bD(bN.Name)then bF:EquipToolAtIndex(bM)return true end
+end task.wait(0.1)until os.clock()>=bL end return false end local function bu()
+if aR=='\108\111\098\098\121'then local bw=workspace:FindFirstChild('\076\111\098\098\121')local bx=bw and bw:
+FindFirstChild('\079\117\116\101\114\083\116\114\117\099\116\117\114\101\115')return bx and bx:FindFirstChild('\067\104\117\114\099\104')end
+return workspace:FindFirstChild('\067\104\117\114\099\104')end local function bw()local bx=bu()
+local by=bx and bx:FindFirstChild('\083\116\114\117\099\116\117\114\101')local bz=by and by:FindFirstChild(
+'\082\105\110\103')local bA=bz and bz:FindFirstChild('\083\097\118\101\071\101\097\114')return bA and bA:IsA(
+'\066\097\115\101\080\097\114\116')and bA or nil end local bx,by local function bz()local bA=bw()if bA
+then bx=bA.CFrame by=workspace:GetAttribute('\073\110\102\105\110\105\116\101\068\101\112\116\104\079\102\102\115\101\116\077\101\116\101\114\115')end end
+bz()local bA,bB bj(be,'\073\114\032\097\116\u{e9}\032\097\032\105\103\114\101\106\097\032\099\097\114\114\101\103\097\100\097','\071\111\032\116\111\032\108\111\097\100\101\100\032\099\104\117\114\099\104',10,
+function()local bC,bD=br()assert(bC,aT('\080\101\114\115\111\110\097\103\101\109\032\105\110\100\105\115\112\111\110\u{ed}\118\101\108\046',
+'\067\104\097\114\097\099\116\101\114\032\117\110\097\118\097\105\108\097\098\108\101\046'))bz()local bE=bw()if not bE and bx and by==workspace:
+GetAttribute('\073\110\102\105\110\105\116\101\068\101\112\116\104\079\102\102\115\101\116\077\101\116\101\114\115')then local bF=bD.CFrame bC:PivotTo(bx*
+CFrame.new(0,3,5))pcall(function()aU:RequestStreamAroundAsync(bx.Position,5)end)
+bE=bw()if not bE then bC:PivotTo(bF)end end assert(bE,aT(
 '\073\103\114\101\106\097\032\097\105\110\100\097\032\110\u{e3}\111\032\099\097\114\114\101\103\097\100\097\046\032\065\032\112\111\115\105\u{e7}\u{e3}\111\032\108\101\109\098\114\097\100\097\032\110\u{e3}\111\032\099\111\110\102\105\114\109\097\032\117\109\032\097\108\116\097\114\032\100\105\115\112\111\110\u{ed}\118\101\108\046'
 ,
 "\067\104\117\114\099\104\032\110\111\116\032\108\111\097\100\101\100\046\032\065\032\114\101\109\101\109\098\101\114\101\100\032\112\111\115\105\116\105\111\110\032\100\111\101\115\032\110\111\116\032\099\111\110\102\105\114\109\032\097\110\032\097\118\097\105\108\097\098\108\101\032\097\108\116\097\114\046"
-))bz=bC.CFrame bA=bB bB:PivotTo(bD.CFrame*CFrame.new(0,3,5))bg(
+))bA=bD.CFrame bB=bC bC:PivotTo(bE.CFrame*CFrame.new(0,3,5))bh(
 '\068\101\115\108\111\099\097\109\101\110\116\111\032\115\111\108\105\099\105\116\097\100\111\046\032\067\111\110\102\105\114\097\032\115\117\097\032\112\111\115\105\u{e7}\u{e3}\111\046',
-'\077\111\118\101\109\101\110\116\032\114\101\113\117\101\115\116\101\100\046\032\067\104\101\099\107\032\121\111\117\114\032\112\111\115\105\116\105\111\110\046')end)bi(bd,
+'\077\111\118\101\109\101\110\116\032\114\101\113\117\101\115\116\101\100\046\032\067\104\101\099\107\032\121\111\117\114\032\112\111\115\105\116\105\111\110\046')end)bj(be,
 '\086\111\108\116\097\114\032\u{e0}\032\112\111\115\105\u{e7}\u{e3}\111\032\097\110\116\101\114\105\111\114','\082\101\116\117\114\110\032\116\111\032\112\114\101\118\105\111\117\115\032\112\111\115\105\116\105\111\110',11,
-function()local bB=br()assert(bB and bB==bA and bz,
-'\078\111\032\112\114\101\118\105\111\117\115\032\112\111\115\105\116\105\111\110\032\102\111\114\032\116\104\105\115\032\099\104\097\114\097\099\116\101\114')bB:PivotTo(bz)end)bi(bd,
-'\080\097\114\097\114\032\116\111\100\097\115\032\097\115\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115','\083\116\111\112\032\097\108\108\032\097\117\116\111\109\097\116\105\111\110',12,function()bh()bg(
-'\065\117\116\111\109\097\u{e7}\u{f5}\101\115\032\112\097\114\097\100\097\115\046','\065\117\116\111\109\097\116\105\111\110\032\115\116\111\112\112\101\100\046')end)if aQ=='\108\111\098\098\121'then aR.
-label(bd,'\084\101\120\116\076\097\098\101\108',aS(
+function()local bC=br()assert(bC and bC==bB and bA,
+'\078\111\032\112\114\101\118\105\111\117\115\032\112\111\115\105\116\105\111\110\032\102\111\114\032\116\104\105\115\032\099\104\097\114\097\099\116\101\114')bC:PivotTo(bA)end)bj(be,
+'\080\097\114\097\114\032\116\111\100\097\115\032\097\115\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115','\083\116\111\112\032\097\108\108\032\097\117\116\111\109\097\116\105\111\110',12,function()bi()bh(
+'\065\117\116\111\109\097\u{e7}\u{f5}\101\115\032\112\097\114\097\100\097\115\046','\065\117\116\111\109\097\116\105\111\110\032\115\116\111\112\112\101\100\046')end)if aR=='\108\111\098\098\121'then aS.
+label(be,'\084\101\120\116\076\097\098\101\108',aT(
 '\076\111\098\098\121\058\032\101\113\117\105\112\097\109\101\110\116\111\115\046\032\065\115\032\102\117\110\u{e7}\u{f5}\101\115\032\100\101\032\101\120\112\101\100\105\u{e7}\u{e3}\111\032\097\112\097\114\101\099\101\109\032\110\097\032\112\097\114\116\105\100\097\046'
-,"\076\111\098\098\121\058\032\101\113\117\105\112\109\101\110\116\046\032\069\120\112\101\100\105\116\105\111\110\032\102\101\097\116\117\114\101\115\032\097\112\112\101\097\114\032\105\110\032\116\104\101\032\103\097\109\101\032\112\108\097\099\101\046"),54,15)bj(
-bd,'\103\101\097\114','\078\111\109\101\032\101\120\097\116\111\032\100\111\032\101\113\117\105\112\097\109\101\110\116\111\032\100\111\032\108\111\098\098\121','\069\120\097\099\116\032\108\111\098\098\121\032\101\113\117\105\112\109\101\110\116\032\110\097\109\101',20)
-bi(bd,'\069\113\117\105\112\097\114\032\111\032\105\116\101\109\032\105\110\102\111\114\109\097\100\111','\069\113\117\105\112\032\101\110\116\101\114\101\100\032\105\116\101\109',23,function()local bB=aO.
-names(a9.gear)[1]assert(bB,'\069\110\116\101\114\032\097\110\032\105\116\101\109\032\110\097\109\101')local bC=bq(bp(
-'\076\111\098\098\121\066\097\099\107\112\097\099\107\083\101\114\118\105\099\101'):SetEquipped(bB))bg(bC and aS('\069\113\117\105\112\097\109\101\110\116\111\032\097\099\101\105\116\111\046',
-'\069\113\117\105\112\109\101\110\116\032\097\099\099\101\112\116\101\100\046')or aS('\079\032\106\111\103\111\032\110\u{e3}\111\032\097\099\101\105\116\111\117\032\111\032\105\116\101\109\046',
-'\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\097\099\099\101\112\116\032\116\104\105\115\032\105\116\101\109\046'))end)else bk(bd,'\115\119\105\110\103',
+,"\076\111\098\098\121\058\032\101\113\117\105\112\109\101\110\116\046\032\069\120\112\101\100\105\116\105\111\110\032\102\101\097\116\117\114\101\115\032\097\112\112\101\097\114\032\105\110\032\116\104\101\032\103\097\109\101\032\112\108\097\099\101\046"),54,15)bk(
+be,'\103\101\097\114','\078\111\109\101\032\101\120\097\116\111\032\100\111\032\101\113\117\105\112\097\109\101\110\116\111\032\100\111\032\108\111\098\098\121','\069\120\097\099\116\032\108\111\098\098\121\032\101\113\117\105\112\109\101\110\116\032\110\097\109\101',20)
+bj(be,'\069\113\117\105\112\097\114\032\111\032\105\116\101\109\032\105\110\102\111\114\109\097\100\111','\069\113\117\105\112\032\101\110\116\101\114\101\100\032\105\116\101\109',23,function()local bC=aP.
+names(ba.gear)[1]assert(bC,'\069\110\116\101\114\032\097\110\032\105\116\101\109\032\110\097\109\101')local bD=bq(bp(
+'\076\111\098\098\121\066\097\099\107\112\097\099\107\083\101\114\118\105\099\101'):SetEquipped(bC))bh(bD and aT('\069\113\117\105\112\097\109\101\110\116\111\032\097\099\101\105\116\111\046',
+'\069\113\117\105\112\109\101\110\116\032\097\099\099\101\112\116\101\100\046')or aT('\079\032\106\111\103\111\032\110\u{e3}\111\032\097\099\101\105\116\111\117\032\111\032\105\116\101\109\046',
+'\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\097\099\099\101\112\116\032\116\104\105\115\032\105\116\101\109\046'))end)else bl(be,'\115\119\105\110\103',
 '\065\117\116\111\032\112\105\099\097\114\101\116\097\032\101\113\117\105\112\097\100\097\032\040\097\108\099\097\110\099\101\032\110\111\114\109\097\108\041','\065\117\116\111\032\101\113\117\105\112\112\101\100\032\112\105\099\107\097\120\101\032\040\110\111\114\109\097\108\032\114\097\110\103\101\041'
-,20)aR.label(bd,'\084\101\120\116\076\097\098\101\108',aS(
+,20)aS.label(be,'\084\101\120\116\076\097\098\101\108',aT(
 "\069\113\117\105\112\101\032\097\032\112\105\099\097\114\101\116\097\032\101\032\097\112\114\111\120\105\109\101\045\115\101\032\100\111\032\097\108\118\111\046\032\082\101\115\112\101\105\116\097\032\111\032\099\111\111\108\100\111\119\110\032\110\097\116\105\118\111\046",
 "\069\113\117\105\112\032\121\111\117\114\032\112\105\099\107\097\120\101\032\097\110\100\032\097\112\112\114\111\097\099\104\032\116\104\101\032\116\097\114\103\101\116\046\032\085\115\101\115\032\116\104\101\032\110\097\116\105\118\101\032\099\111\111\108\100\111\119\110\046"),48,21
-)local bB=aP.section('\077\101\108\104\111\114\105\097\115')aR.label(bB,'\084\101\120\116\076\097\098\101\108',aS(
+)local bC=aQ.section('\077\101\108\104\111\114\105\097\115')aS.label(bC,'\084\101\120\116\076\097\098\101\108',aT(
 '\079\114\103\097\110\105\122\101\032\097\032\108\105\115\116\097\032\099\111\109\032\u{2191}\047\u{2193}\032\097\098\097\105\120\111\046\032\068\101\115\109\097\114\113\117\101\032\111\032\113\117\101\032\110\u{e3}\111\032\100\101\115\101\106\097\032\099\111\109\112\114\097\114\046'
 ,
 '\082\101\111\114\100\101\114\032\119\105\116\104\032\u{2191}\047\u{2193}\032\098\101\108\111\119\046\032\085\110\099\104\101\099\107\032\117\112\103\114\097\100\101\115\032\121\111\117\032\100\111\032\110\111\116\032\119\097\110\116\032\116\111\032\098\117\121\046'
-),50,1)bj(bB,'\114\101\115\101\114\118\101','\082\101\115\101\114\118\097\032\109\u{ed}\110\105\109\097\032\100\101\032\109\111\101\100\097\115','\077\105\110\105\109\117\109\032\099\111\105\110\032\114\101\115\101\114\118\101',4,
-{0,1e9})bj(bB,'\108\105\109\105\116','\076\105\109\105\116\101\032\100\101\032\116\101\110\116\097\116\105\118\097\115\032\112\111\114\032\115\101\115\115\u{e3}\111',
-'\065\116\116\101\109\112\116\032\108\105\109\105\116\032\112\101\114\032\115\101\115\115\105\111\110',7,{1,100})bk(bB,'\117\112\103\114\097\100\101\115',
-'\065\117\116\111\032\109\101\108\104\111\114\105\097\115\032\099\111\109\032\109\111\101\100\097\115','\065\117\116\111\032\099\111\105\110\032\117\112\103\114\097\100\101\115',10)bj(bB,'\099\114\097\102\116\076\105\109\105\116',
+),50,1)bk(bC,'\114\101\115\101\114\118\101','\082\101\115\101\114\118\097\032\109\u{ed}\110\105\109\097\032\100\101\032\109\111\101\100\097\115','\077\105\110\105\109\117\109\032\099\111\105\110\032\114\101\115\101\114\118\101',4,
+{0,1e9})bk(bC,'\108\105\109\105\116','\076\105\109\105\116\101\032\100\101\032\116\101\110\116\097\116\105\118\097\115\032\112\111\114\032\115\101\115\115\u{e3}\111',
+'\065\116\116\101\109\112\116\032\108\105\109\105\116\032\112\101\114\032\115\101\115\115\105\111\110',7,{1,100})bl(bC,'\117\112\103\114\097\100\101\115',
+'\065\117\116\111\032\109\101\108\104\111\114\105\097\115\032\099\111\109\032\109\111\101\100\097\115','\065\117\116\111\032\099\111\105\110\032\117\112\103\114\097\100\101\115',10)bk(bC,'\099\114\097\102\116\076\105\109\105\116',
 '\076\105\109\105\116\101\032\100\101\032\102\097\098\114\105\099\097\u{e7}\u{e3}\111\032\112\111\114\032\115\101\115\115\u{e3}\111',
-'\067\114\097\102\116\032\097\116\116\101\109\112\116\032\108\105\109\105\116\032\112\101\114\032\115\101\115\115\105\111\110',12,{1,100})bk(bB,'\099\114\097\102\116',
+'\067\114\097\102\116\032\097\116\116\101\109\112\116\032\108\105\109\105\116\032\112\101\114\032\115\101\115\115\105\111\110',12,{1,100})bl(bC,'\099\114\097\102\116',
 '\065\117\116\111\032\102\097\098\114\105\099\097\114\032\105\116\101\109\032\115\101\108\101\099\105\111\110\097\100\111\032\110\111\032\106\111\103\111','\065\117\116\111\032\099\114\097\102\116\032\105\116\101\109\032\115\101\108\101\099\116\101\100\032\105\110\032\103\097\109\101',15)
-aR.label(bB,'\084\101\120\116\076\097\098\101\108',aS(
+aS.label(bC,'\084\101\120\116\076\097\098\101\108',aT(
 '\067\114\097\102\116\105\110\103\058\032\097\098\114\097\032\097\032\098\097\110\099\097\100\097\032\101\032\101\115\099\111\108\104\097\032\111\032\105\116\101\109\032\110\111\032\106\111\103\111\046\032\082\111\098\117\120\032\102\105\099\097\032\101\120\099\108\117\u{ed}\100\111\046\032\065\115\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115\032\099\111\109\101\u{e7}\097\109\032\100\101\115\108\105\103\097\100\097\115\046'
 ,
 "\067\114\097\102\116\105\110\103\058\032\111\112\101\110\032\116\104\101\032\098\101\110\099\104\032\097\110\100\032\115\101\108\101\099\116\032\097\110\032\105\116\101\109\032\105\110\032\103\097\109\101\046\032\082\111\098\117\120\032\105\115\032\101\120\099\108\117\100\101\100\046\032\065\117\116\111\109\097\116\105\111\110\032\115\116\097\114\116\115\032\100\105\115\097\098\108\101\100\046"
-),72,16)local bC=aP.section('\073\103\114\101\106\097')local bD=aR.label(bC,'\084\101\120\116\076\097\098\101\108',aS(
+),72,16)local bD=aQ.section('\073\103\114\101\106\097')local bE=aS.label(bD,'\084\101\120\116\076\097\098\101\108',aT(
 '\067\097\114\114\101\103\117\101\032\115\101\117\032\105\110\118\101\110\116\u{e1}\114\105\111\044\032\109\097\114\113\117\101\032\111\115\032\105\116\101\110\115\032\101\032\099\111\110\102\105\114\109\101\046\032\079\032\108\105\109\105\116\101\032\118\101\109\032\100\111\032\106\111\103\111\059\032\115\097\108\118\097\114\032\114\101\116\111\114\110\097\032\097\111\032\108\111\098\098\121\046'
 ,
 "\076\111\097\100\032\121\111\117\114\032\105\110\118\101\110\116\111\114\121\044\032\115\101\108\101\099\116\032\105\116\101\109\115\032\097\110\100\032\099\111\110\102\105\114\109\046\032\084\104\101\032\103\097\109\101\032\115\117\112\112\108\105\101\115\032\116\104\101\032\108\105\109\105\116\059\032\115\097\118\105\110\103\032\114\101\116\117\114\110\115\032\116\111\032\116\104\101\032\108\111\098\098\121\046"
-),80,1)local bE,bF={},{}local bG local bH=false local function bI()for bJ,bK in
-ipairs(bF)do bK:Disconnect()end table.clear(bF)for bJ,bK in ipairs(bE)do bK:
-Destroy()end table.clear(bE)end aP.attach(function()aW=false bh()bI()if a1 then
-a1.cleanup()end if a2 then a2.cleanup()end if a3 then a3.cleanup()end if a4 then
-a4.cleanup()end if a5 then a5.cleanup()end for bJ,bK in ipairs(aX)do bK:
-Disconnect()end end)bi(bC,'\067\097\114\114\101\103\097\114\032\105\110\118\101\110\116\u{e1}\114\105\111\032\101\032\101\115\099\111\108\104\101\114\032\105\116\101\110\115',
-'\076\111\097\100\032\105\110\118\101\110\116\111\114\121\032\097\110\100\032\115\101\108\101\099\116\032\105\116\101\109\115',3,function()assert(not bH,'\083\097\118\101\032\105\110\032\112\114\111\103\114\101\115\115')
-local bJ=bq(bp('\080\108\097\121\101\114\083\101\114\118\105\099\101'):GetSaveGearChoices())assert(aW and br()and type(
-bJ)=='\116\097\098\108\101'and type(bJ.Items)=='\116\097\098\108\101','\073\110\118\101\110\116\111\114\121\032\117\110\097\118\097\105\108\097\098\108\101')bI()bG={
-selection={},limit=math.max(0,math.floor(tonumber(bJ.Limit)or 0))}local bK=bG
-local bL={}local bM=bn('\083\097\118\101\071\101\097\114\067\111\110\116\114\111\108\108\101\114')local function bN()local bO=0 for bP
-,bQ in pairs(bK.selection)do bO+=bQ end bD.Text=string.format(aS(
+),80,1)local bF,bG={},{}local bH local bI=false local function bJ()for bK,bL in
+ipairs(bG)do bL:Disconnect()end table.clear(bG)for bK,bL in ipairs(bF)do bL:
+Destroy()end table.clear(bF)end aQ.attach(function()aX=false bi()bJ()if a2 then
+a2.cleanup()end if a3 then a3.cleanup()end if a4 then a4.cleanup()end if a5 then
+a5.cleanup()end if a6 then a6.cleanup()end for bK,bL in ipairs(aY)do bL:
+Disconnect()end end)bj(bD,'\067\097\114\114\101\103\097\114\032\105\110\118\101\110\116\u{e1}\114\105\111\032\101\032\101\115\099\111\108\104\101\114\032\105\116\101\110\115',
+'\076\111\097\100\032\105\110\118\101\110\116\111\114\121\032\097\110\100\032\115\101\108\101\099\116\032\105\116\101\109\115',3,function()assert(not bI,'\083\097\118\101\032\105\110\032\112\114\111\103\114\101\115\115')
+local bK=bq(bp('\080\108\097\121\101\114\083\101\114\118\105\099\101'):GetSaveGearChoices())assert(aX and br()and type(
+bK)=='\116\097\098\108\101'and type(bK.Items)=='\116\097\098\108\101','\073\110\118\101\110\116\111\114\121\032\117\110\097\118\097\105\108\097\098\108\101')bJ()bH={
+selection={},limit=math.max(0,math.floor(tonumber(bK.Limit)or 0))}local bL=bH
+local bM={}local bN=bo('\083\097\118\101\071\101\097\114\067\111\110\116\114\111\108\108\101\114')local function bO()local bP=0 for bQ
+,bR in pairs(bL.selection)do bP+=bR end bE.Text=string.format(aT(
 '\083\101\108\101\099\105\111\110\097\100\111\115\058\032\037\100\047\037\100\046\032\067\111\110\102\105\114\109\097\114\032\108\101\118\097\032\u{e0}\032\105\103\114\101\106\097\032\099\097\114\114\101\103\097\100\097\032\101\032\115\097\108\118\097\046',
-"\083\101\108\101\099\116\101\100\058\032\037\100\047\037\100\046\032\067\111\110\102\105\114\109\032\116\114\097\118\101\108\115\032\116\111\032\116\104\101\032\108\111\097\100\101\100\032\099\104\117\114\099\104\032\097\110\100\032\115\097\118\101\115\046"),bO,bK.
-limit)for bP,bQ in ipairs(bL)do bQ()end end for bO,bP in ipairs(bJ.Items)do if
-bP.Id~=nil and type(bP.Count)=='\110\117\109\098\101\114'and bP.Count>0 then local bQ=Instance.
-new('\070\114\097\109\101')bQ.Size=UDim2.new(1,-8,0,68)bQ.BackgroundColor3=Color3.fromRGB(23,31
-,44)bQ.LayoutOrder=100+bO bQ.Parent=bC bE[#bE+1]=bQ local bR=Instance.new(
-'\085\073\083\116\114\111\107\101')bR.Color=Color3.fromRGB(77,110,140)bR.Transparency=0.25 bR.Parent=bQ
-local bS=Instance.new('\085\073\067\111\114\110\101\114')bS.CornerRadius=UDim.new(0,10)bS.Parent=bQ
-local bT,bU if bM and type(bM.GetItemDisplay)=='\102\117\110\099\116\105\111\110'then bT,bU=bM:
-GetItemDisplay(bP.Name)end local bV=Instance.new('\073\109\097\103\101\076\097\098\101\108')bV.Size=UDim2.
-fromOffset(40,40)bV.Position=UDim2.fromOffset(6,12)bV.BackgroundTransparency=1
-bV.Image=bT or''bV.Parent=bQ local bW,bX=aR.checkbox(bQ,'',1)bW.Size=UDim2.new(1
-,-150,0,58)bW.Position=UDim2.fromOffset(50,4)local bY=bW:FindFirstChildWhichIsA(
-'\084\101\120\116\076\097\098\101\108')bL[#bL+1]=function()local bZ=bK.selection[bP.Id]or 0 bX(bZ>0)if bY
-then bY.Text=tostring(bU or bP.Name)..'\032\u{b7}\032'..bZ..'\047'..bP.Count end end
-local function bZ(b_,b0)if bH or bG~=bK or not aW then return end local b1=0 for
-b2,b3 in pairs(bK.selection)do b1+=b3 end local b2=bK.selection[bP.Id]or 0 if b0
-then bK.selection[bP.Id]=0 elseif b_<0 or b1<bK.limit then bK.selection[bP.Id]=
-math.clamp(b2+b_,0,bP.Count)end bN()end bF[#bF+1]=bW.Activated:Connect(function(
-)bZ(1,(bK.selection[bP.Id]or 0)>0)end)for b_,b0 in ipairs({-1,1})do local b1=aR.
-button(bQ,b0<0 and'\u{2212}'or'\043',2+b_)b1.Size=UDim2.fromOffset(40,42)b1.
-Position=UDim2.new(1,-94+(b_-1)*46,0,12)bF[#bF+1]=b1.Activated:Connect(function(
-)bZ(b0)end)end end end bN()end)bi(bC,'\073\114\032\u{e0}\032\105\103\114\101\106\097\032\099\097\114\114\101\103\097\100\097',
-'\071\111\032\116\111\032\108\111\097\100\101\100\032\099\104\117\114\099\104',4,function()assert(not bH and a7('\099\104\117\114\099\104'),
-'\065\110\111\116\104\101\114\032\109\111\118\101\109\101\110\116\032\116\097\115\107\032\105\115\032\097\099\116\105\118\101')local bJ,bK=pcall(function()local bJ=br()local
-bK=bv()assert(bJ and bK,aS('\073\103\114\101\106\097\032\110\u{e3}\111\032\099\097\114\114\101\103\097\100\097\046','\067\104\117\114\099\104\032\110\111\116\032\108\111\097\100\101\100\046'))bJ
-:PivotTo(bK.CFrame*CFrame.new(0,3,5))end)a8('\099\104\117\114\099\104')assert(bJ,bK)end)bi(bC,
+"\083\101\108\101\099\116\101\100\058\032\037\100\047\037\100\046\032\067\111\110\102\105\114\109\032\116\114\097\118\101\108\115\032\116\111\032\116\104\101\032\108\111\097\100\101\100\032\099\104\117\114\099\104\032\097\110\100\032\115\097\118\101\115\046"),bP,bL.
+limit)for bQ,bR in ipairs(bM)do bR()end end for bP,bQ in ipairs(bK.Items)do if
+bQ.Id~=nil and type(bQ.Count)=='\110\117\109\098\101\114'and bQ.Count>0 then local bR=Instance.
+new('\070\114\097\109\101')bR.Size=UDim2.new(1,-8,0,68)bR.BackgroundColor3=Color3.fromRGB(23,31
+,44)bR.LayoutOrder=100+bP bR.Parent=bD bF[#bF+1]=bR local bS=Instance.new(
+'\085\073\083\116\114\111\107\101')bS.Color=Color3.fromRGB(77,110,140)bS.Transparency=0.25 bS.Parent=bR
+local bT=Instance.new('\085\073\067\111\114\110\101\114')bT.CornerRadius=UDim.new(0,10)bT.Parent=bR
+local bU,bV if bN and type(bN.GetItemDisplay)=='\102\117\110\099\116\105\111\110'then bU,bV=bN:
+GetItemDisplay(bQ.Name)end local bW=Instance.new('\073\109\097\103\101\076\097\098\101\108')bW.Size=UDim2.
+fromOffset(40,40)bW.Position=UDim2.fromOffset(6,12)bW.BackgroundTransparency=1
+bW.Image=bU or''bW.Parent=bR local bX,bY=aS.checkbox(bR,'',1)bX.Size=UDim2.new(1
+,-150,0,58)bX.Position=UDim2.fromOffset(50,4)local bZ=bX:FindFirstChildWhichIsA(
+'\084\101\120\116\076\097\098\101\108')bM[#bM+1]=function()local b_=bL.selection[bQ.Id]or 0 bY(b_>0)if bZ
+then bZ.Text=tostring(bV or bQ.Name)..'\032\u{b7}\032'..b_..'\047'..bQ.Count end end
+local function b_(b0,b1)if bI or bH~=bL or not aX then return end local b2=0 for
+b3,b4 in pairs(bL.selection)do b2+=b4 end local b3=bL.selection[bQ.Id]or 0 if b1
+then bL.selection[bQ.Id]=0 elseif b0<0 or b2<bL.limit then bL.selection[bQ.Id]=
+math.clamp(b3+b0,0,bQ.Count)end bO()end bG[#bG+1]=bX.Activated:Connect(function(
+)b_(1,(bL.selection[bQ.Id]or 0)>0)end)for b0,b1 in ipairs({-1,1})do local b2=aS.
+button(bR,b1<0 and'\u{2212}'or'\043',2+b0)b2.Size=UDim2.fromOffset(40,42)b2.
+Position=UDim2.new(1,-94+(b0-1)*46,0,12)bG[#bG+1]=b2.Activated:Connect(function(
+)b_(b1)end)end end end bO()end)bj(bD,'\073\114\032\u{e0}\032\105\103\114\101\106\097\032\099\097\114\114\101\103\097\100\097',
+'\071\111\032\116\111\032\108\111\097\100\101\100\032\099\104\117\114\099\104',4,function()assert(not bI and a8('\099\104\117\114\099\104'),
+'\065\110\111\116\104\101\114\032\109\111\118\101\109\101\110\116\032\116\097\115\107\032\105\115\032\097\099\116\105\118\101')local bK,bL=pcall(function()local bK=br()local
+bL=bw()assert(bK and bL,aT('\073\103\114\101\106\097\032\110\u{e3}\111\032\099\097\114\114\101\103\097\100\097\046','\067\104\117\114\099\104\032\110\111\116\032\108\111\097\100\101\100\046'))bK
+:PivotTo(bL.CFrame*CFrame.new(0,3,5))end)a9('\099\104\117\114\099\104')assert(bK,bL)end)bj(bD,
 '\067\079\078\070\073\082\077\065\082\032\u{b7}\032\105\114\032\u{e0}\032\105\103\114\101\106\097\032\101\032\115\097\108\118\097\114\032\115\101\108\101\u{e7}\u{e3}\111',
-'\067\079\078\070\073\082\077\032\u{b7}\032\103\111\032\116\111\032\099\104\117\114\099\104\032\097\110\100\032\115\097\118\101\032\115\101\108\101\099\116\105\111\110',5,function()assert(bG and not
-bH,aS('\067\097\114\114\101\103\117\101\032\101\032\115\101\108\101\099\105\111\110\101\032\111\115\032\105\116\101\110\115\032\112\114\105\109\101\105\114\111\046','\076\111\097\100\032\097\110\100\032\115\101\108\101\099\116\032\103\101\097\114\032\102\105\114\115\116\046'))
-local bJ={}local bK=0 for bL,bM in pairs(bG.selection)do if bM>0 then bJ[bL]=bM
-bK+=bM end end assert(bK>0 and bK<=bG.limit,'\073\110\118\097\108\105\100\032\115\101\108\101\099\116\105\111\110')assert(a7(
-'\099\104\117\114\099\104'),'\065\110\111\116\104\101\114\032\109\111\118\101\109\101\110\116\032\116\097\115\107\032\105\115\032\097\099\116\105\118\101')bH=true local bL,bM=pcall(function()
-local bL=br()local bM=bv()assert(bL and bM,aS('\073\103\114\101\106\097\032\110\u{e3}\111\032\099\097\114\114\101\103\097\100\097\046',
-'\067\104\117\114\099\104\032\110\111\116\032\108\111\097\100\101\100\046'))bL:PivotTo(bM.CFrame*CFrame.new(0,3,5))task.wait(0.3)local
-bN=bq(bp('\080\108\097\121\101\114\083\101\114\118\105\099\101'):GetSaveGearChoices())assert(aW and type(bN)=='\116\097\098\108\101'
-and bK<=(tonumber(bN.Limit)or 0),'\073\110\118\101\110\116\111\114\121\032\099\104\097\110\103\101\100')local bO={}for bP,bQ in
-ipairs(bN.Items or{})do bO[bQ.Id]=bQ.Count end for bP,bQ in pairs(bJ)do assert(
-type(bO[bP])=='\110\117\109\098\101\114'and bQ<=bO[bP],aS(
+'\067\079\078\070\073\082\077\032\u{b7}\032\103\111\032\116\111\032\099\104\117\114\099\104\032\097\110\100\032\115\097\118\101\032\115\101\108\101\099\116\105\111\110',5,function()assert(bH and not
+bI,aT('\067\097\114\114\101\103\117\101\032\101\032\115\101\108\101\099\105\111\110\101\032\111\115\032\105\116\101\110\115\032\112\114\105\109\101\105\114\111\046','\076\111\097\100\032\097\110\100\032\115\101\108\101\099\116\032\103\101\097\114\032\102\105\114\115\116\046'))
+local bK={}local bL=0 for bM,bN in pairs(bH.selection)do if bN>0 then bK[bM]=bN
+bL+=bN end end assert(bL>0 and bL<=bH.limit,'\073\110\118\097\108\105\100\032\115\101\108\101\099\116\105\111\110')assert(a8(
+'\099\104\117\114\099\104'),'\065\110\111\116\104\101\114\032\109\111\118\101\109\101\110\116\032\116\097\115\107\032\105\115\032\097\099\116\105\118\101')bI=true local bM,bN=pcall(function()
+local bM=br()local bN=bw()assert(bM and bN,aT('\073\103\114\101\106\097\032\110\u{e3}\111\032\099\097\114\114\101\103\097\100\097\046',
+'\067\104\117\114\099\104\032\110\111\116\032\108\111\097\100\101\100\046'))bM:PivotTo(bN.CFrame*CFrame.new(0,3,5))task.wait(0.3)local
+bO=bq(bp('\080\108\097\121\101\114\083\101\114\118\105\099\101'):GetSaveGearChoices())assert(aX and type(bO)=='\116\097\098\108\101'
+and bL<=(tonumber(bO.Limit)or 0),'\073\110\118\101\110\116\111\114\121\032\099\104\097\110\103\101\100')local bP={}for bQ,bR in
+ipairs(bO.Items or{})do bP[bR.Id]=bR.Count end for bQ,bR in pairs(bK)do assert(
+type(bP[bQ])=='\110\117\109\098\101\114'and bR<=bP[bQ],aT(
 '\073\110\118\101\110\116\u{e1}\114\105\111\032\109\117\100\111\117\046\032\082\101\099\097\114\114\101\103\117\101\032\097\032\115\101\108\101\u{e7}\u{e3}\111\046',
-'\073\110\118\101\110\116\111\114\121\032\099\104\097\110\103\101\100\046\032\082\101\108\111\097\100\032\115\101\108\101\099\116\105\111\110\046'))end local bP,bQ=br()assert(bQ and bM.
-Parent and(bQ.Position-bM.Position).Magnitude<=20,
-'\065\112\112\114\111\097\099\104\032\116\104\101\032\097\108\116\097\114\032\119\104\105\108\101\032\097\108\105\118\101')local bR=bq(bp('\080\108\097\121\101\114\083\101\114\118\105\099\101'):SaveGear(bJ))
-assert(bR==true,aS('\079\032\106\111\103\111\032\110\u{e3}\111\032\099\111\110\102\105\114\109\111\117\032\111\032\115\097\108\118\097\109\101\110\116\111\046',
-'\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\099\111\110\102\105\114\109\032\115\097\118\105\110\103\046'))bG=nil bh()bD.Text=aS(
+'\073\110\118\101\110\116\111\114\121\032\099\104\097\110\103\101\100\046\032\082\101\108\111\097\100\032\115\101\108\101\099\116\105\111\110\046'))end local bQ,bR=br()assert(bR and bN.
+Parent and(bR.Position-bN.Position).Magnitude<=20,
+'\065\112\112\114\111\097\099\104\032\116\104\101\032\097\108\116\097\114\032\119\104\105\108\101\032\097\108\105\118\101')local bS=bq(bp('\080\108\097\121\101\114\083\101\114\118\105\099\101'):SaveGear(bK))
+assert(bS==true,aT('\079\032\106\111\103\111\032\110\u{e3}\111\032\099\111\110\102\105\114\109\111\117\032\111\032\115\097\108\118\097\109\101\110\116\111\046',
+'\084\104\101\032\103\097\109\101\032\100\105\100\032\110\111\116\032\099\111\110\102\105\114\109\032\115\097\118\105\110\103\046'))bH=nil bi()bE.Text=aT(
 '\083\097\108\118\097\109\101\110\116\111\032\097\099\101\105\116\111\032\112\101\108\111\032\106\111\103\111\046\032\065\103\117\097\114\100\097\110\100\111\032\114\101\116\111\114\110\111\032\097\111\032\108\111\098\098\121\046',
-'\083\097\118\101\032\097\099\099\101\112\116\101\100\032\098\121\032\116\104\101\032\103\097\109\101\046\032\087\097\105\116\105\110\103\032\102\111\114\032\114\101\116\117\114\110\032\116\111\032\108\111\098\098\121\046')end)bH=false a8(
-'\099\104\117\114\099\104')assert(bL,bM)end)end if aQ=='\114\117\110'and aH then a1=aH(aP,{actor=br,ctrl=bn
-,equip=bs,say=bg,stoneTarget=function()return a5 and a5.target()end,movementBusy
-=function()return a6~=nil end,priority=a9.priority,setPriority=function(bB)a9.
-priority=bB bb()end})end if aQ=='\114\117\110'and aJ then a2=aJ(aP,{actor=br,ctrl=bn,
-equip=bs,service=bp,await=bq,acquire=function()return a7('\116\114\097\110\115\112\111\114\116')end,release
-=function()a8('\116\114\097\110\115\112\111\114\116')end})end if aQ=='\114\117\110'and aL then a3=aL(aP,{actor=br,
-service=bp,await=bq,acquire=function()return a7('\115\104\111\112')end,release=function()a8(
-'\115\104\111\112')end})end if aQ=='\114\117\110'and aM then a4=aM(aP,{ctrl=bn,service=bp,await=bq})
-end if aQ=='\114\117\110'and aN then a5=aN(aP,{actor=br,ctrl=bn,equip=bs,service=bp,await
-=bq,healing=function()return a1 and a1.healing()end,movementBusy=function()
-return a6~=nil end,acquire=function()return a7('\117\116\105\108\105\116\105\101\115')end,release=function(
-)a8('\117\116\105\108\105\116\105\101\115')end})end local bB local bC if aQ=='\114\117\110'then bk(bd,'\115\107\105\112',
-'\065\117\116\111\032\118\111\116\097\114\032\112\097\114\097\032\112\117\108\097\114\032\099\117\116\115\099\101\110\101\115','\065\117\116\111\032\118\111\116\101\032\116\111\032\115\107\105\112\032\099\117\116\115\099\101\110\101\115',24)aR.label(bd,
-'\084\101\120\116\076\097\098\101\108',aS(
+'\083\097\118\101\032\097\099\099\101\112\116\101\100\032\098\121\032\116\104\101\032\103\097\109\101\046\032\087\097\105\116\105\110\103\032\102\111\114\032\114\101\116\117\114\110\032\116\111\032\108\111\098\098\121\046')end)bI=false a9(
+'\099\104\117\114\099\104')assert(bM,bN)end)end if aR=='\114\117\110'and aH then a2=aH(aQ,{actor=br,ctrl=bo
+,equip=bs,say=bh,stoneTarget=function()return a6 and a6.target()end,movementBusy
+=function()return a7~=nil end,priority=ba.priority,setPriority=function(bC)ba.
+priority=bC bc()end})end if aR=='\114\117\110'and aJ then a3=aJ(aQ,{actor=br,ctrl=bo,
+equip=bs,service=bp,await=bq,acquire=function()return a8('\116\114\097\110\115\112\111\114\116')end,release
+=function()a9('\116\114\097\110\115\112\111\114\116')end})end if aR=='\114\117\110'and aL then a4=aL(aQ,{actor=br,
+service=bp,await=bq,acquire=function()return a8('\115\104\111\112')end,release=function()a9(
+'\115\104\111\112')end})end if aR=='\114\117\110'and aM then a5=aM(aQ,{ctrl=bo,service=bp,await=bq})
+end if aR=='\114\117\110'and aO then a6=aO(aQ,{actor=br,ctrl=bo,equip=bs,service=bp,await
+=bq,healing=function()return a2 and a2.healing()end,movementBusy=function()
+return a7~=nil end,acquire=function()return a8('\117\116\105\108\105\116\105\101\115')end,release=function(
+)a9('\117\116\105\108\105\116\105\101\115')end})end local bC local bD if aR=='\114\117\110'then bl(be,'\115\107\105\112',
+'\065\117\116\111\032\118\111\116\097\114\032\112\097\114\097\032\112\117\108\097\114\032\099\117\116\115\099\101\110\101\115','\065\117\116\111\032\118\111\116\101\032\116\111\032\115\107\105\112\032\099\117\116\115\099\101\110\101\115',24)aS.label(be,
+'\084\101\120\116\076\097\098\101\108',aT(
 '\079\032\112\114\111\103\114\101\115\115\111\032\100\101\112\101\110\100\101\032\100\097\032\098\114\111\099\097\032\101\032\100\097\115\032\112\097\114\101\100\101\115\046\032\084\101\108\101\112\111\114\116\101\032\101\032\118\111\111\032\110\u{e3}\111\032\099\111\110\116\097\109\032\113\117\105\108\u{f4}\109\101\116\114\111\115\046'
 ,
 "\080\114\111\103\114\101\115\115\032\100\101\112\101\110\100\115\032\111\110\032\116\104\101\032\100\114\105\108\108\032\097\110\100\032\119\097\108\108\115\046\032\084\101\108\101\112\111\114\116\105\110\103\032\097\110\100\032\102\108\121\105\110\103\032\100\111\032\110\111\116\032\099\111\117\110\116\032\107\105\108\111\109\101\116\101\114\115\046"
-),58,25)bi(bd,'\067\111\110\115\117\108\116\097\114\032\082\080\032\097\116\117\097\108\032\100\097\032\112\097\114\116\105\100\097','\067\104\101\099\107\032\099\117\114\114\101\110\116\032\114\117\110\032\082\080',27,function
-()assert(aT:GetAttribute('\082\097\110\107\101\100\082\117\110\065\099\116\105\118\101')==true,aS(
-'\069\115\116\097\032\112\097\114\116\105\100\097\032\110\u{e3}\111\032\u{e9}\032\114\097\110\113\117\101\097\100\097\046','\084\104\105\115\032\114\117\110\032\105\115\032\110\111\116\032\114\097\110\107\101\100\046'))local bD=
-bq(bp('\082\097\110\107\101\100\083\101\114\118\105\099\101'):GetRankChange())assert(type(bD)=='\116\097\098\108\101'and type(bD.
-DeltaRP)=='\110\117\109\098\101\114','\082\080\032\117\110\097\118\097\105\108\097\098\108\101')bg(string.format(aS(
+),58,25)bj(be,'\067\111\110\115\117\108\116\097\114\032\082\080\032\097\116\117\097\108\032\100\097\032\112\097\114\116\105\100\097','\067\104\101\099\107\032\099\117\114\114\101\110\116\032\114\117\110\032\082\080',27,function
+()assert(aU:GetAttribute('\082\097\110\107\101\100\082\117\110\065\099\116\105\118\101')==true,aT(
+'\069\115\116\097\032\112\097\114\116\105\100\097\032\110\u{e3}\111\032\u{e9}\032\114\097\110\113\117\101\097\100\097\046','\084\104\105\115\032\114\117\110\032\105\115\032\110\111\116\032\114\097\110\107\101\100\046'))local bE=
+bq(bp('\082\097\110\107\101\100\083\101\114\118\105\099\101'):GetRankChange())assert(type(bE)=='\116\097\098\108\101'and type(bE.
+DeltaRP)=='\110\117\109\098\101\114','\082\080\032\117\110\097\118\097\105\108\097\098\108\101')bh(string.format(aT(
 '\082\080\032\112\114\111\106\101\116\097\100\111\032\112\101\108\111\032\106\111\103\111\058\032\037\043\100\046\032\078\u{e3}\111\032\115\097\108\118\097\032\110\101\109\032\115\097\105\032\097\117\116\111\109\097\116\105\099\097\109\101\110\116\101\046',
-"\071\097\109\101\045\112\114\111\106\101\099\116\101\100\032\082\080\058\032\037\043\100\046\032\068\111\101\115\032\110\111\116\032\097\117\116\111\109\097\116\105\099\097\108\108\121\032\115\097\118\101\032\111\114\032\101\120\105\116\046"),bD.DeltaRP))
-end)local bD=aP.section('\077\101\108\104\111\114\105\097\115')bj(bD,'\109\101\100\097\108\080\114\105\111\114\105\116\121',
+"\071\097\109\101\045\112\114\111\106\101\099\116\101\100\032\082\080\058\032\037\043\100\046\032\068\111\101\115\032\110\111\116\032\097\117\116\111\109\097\116\105\099\097\108\108\121\032\115\097\118\101\032\111\114\032\101\120\105\116\046"),bE.DeltaRP))
+end)local bE=aQ.section('\077\101\108\104\111\114\105\097\115')bk(bE,'\109\101\100\097\108\080\114\105\111\114\105\116\121',
 '\077\101\100\097\108\104\097\115\058\032\112\114\105\111\114\105\100\097\100\101\115\032\040\073\068\115\032\115\101\112\097\114\097\100\111\115\032\112\111\114\032\118\u{ed}\114\103\117\108\097\041',
-'\077\101\100\097\108\115\058\032\112\114\105\111\114\105\116\105\101\115\032\040\099\111\109\109\097\045\115\101\112\097\114\097\116\101\100\032\073\068\115\041',80)bj(bD,'\109\101\100\097\108\082\101\115\101\114\118\101',
-'\082\101\115\101\114\118\097\032\100\101\032\109\101\100\097\108\104\097\115','\077\101\100\097\108\032\114\101\115\101\114\118\101',83,{0,1e9})bj(bD,'\109\101\100\097\108\076\105\109\105\116',
+'\077\101\100\097\108\115\058\032\112\114\105\111\114\105\116\105\101\115\032\040\099\111\109\109\097\045\115\101\112\097\114\097\116\101\100\032\073\068\115\041',80)bk(bE,'\109\101\100\097\108\082\101\115\101\114\118\101',
+'\082\101\115\101\114\118\097\032\100\101\032\109\101\100\097\108\104\097\115','\077\101\100\097\108\032\114\101\115\101\114\118\101',83,{0,1e9})bk(bE,'\109\101\100\097\108\076\105\109\105\116',
 '\076\105\109\105\116\101\032\100\101\032\099\111\109\112\114\097\115\032\100\101\032\109\101\100\097\108\104\097\115\032\112\111\114\032\115\101\115\115\u{e3}\111',
-'\077\101\100\097\108\032\112\117\114\099\104\097\115\101\032\108\105\109\105\116\032\112\101\114\032\115\101\115\115\105\111\110',86,{1,100})bk(bD,'\109\101\100\097\108\115',
-'\065\117\116\111\032\109\101\108\104\111\114\105\097\115\032\100\101\032\076\097\114\114\121\032\099\111\109\032\109\101\100\097\108\104\097\115','\065\117\116\111\032\076\097\114\114\121\032\109\101\100\097\108\032\117\112\103\114\097\100\101\115',89)aR.label(
-bD,'\084\101\120\116\076\097\098\101\108',aS(
+'\077\101\100\097\108\032\112\117\114\099\104\097\115\101\032\108\105\109\105\116\032\112\101\114\032\115\101\115\115\105\111\110',86,{1,100})bl(bE,'\109\101\100\097\108\115',
+'\065\117\116\111\032\109\101\108\104\111\114\105\097\115\032\100\101\032\076\097\114\114\121\032\099\111\109\032\109\101\100\097\108\104\097\115','\065\117\116\111\032\076\097\114\114\121\032\109\101\100\097\108\032\117\112\103\114\097\100\101\115',89)aS.label(
+bE,'\084\101\120\116\076\097\098\101\108',aT(
 '\065\098\114\097\032\076\097\114\114\121\032\112\101\114\116\111\032\100\097\032\101\115\116\097\u{e7}\u{e3}\111\046\032\073\068\115\058\032\084\117\114\114\101\116\068\097\109\097\103\101\044\032\070\108\097\109\101\068\117\114\097\116\105\111\110\044\032\070\114\111\115\116\068\117\114\097\116\105\111\110\044\032\070\108\097\109\101\082\101\099\104\097\114\103\101\083\112\101\101\100\044\032\070\114\111\115\116\082\101\099\104\097\114\103\101\083\112\101\101\100\044\032\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\068\097\109\097\103\101\044\032\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\065\109\109\111\046\032\083\101\109\032\099\111\109\112\114\097\115\032\082\111\098\117\120\046'
 ,
 "\079\112\101\110\032\076\097\114\114\121\032\110\101\097\114\032\116\104\101\032\115\116\097\116\105\111\110\046\032\073\068\115\058\032\084\117\114\114\101\116\068\097\109\097\103\101\044\032\070\108\097\109\101\068\117\114\097\116\105\111\110\044\032\070\114\111\115\116\068\117\114\097\116\105\111\110\044\032\070\108\097\109\101\082\101\099\104\097\114\103\101\083\112\101\101\100\044\032\070\114\111\115\116\082\101\099\104\097\114\103\101\083\112\101\101\100\044\032\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\068\097\109\097\103\101\044\032\083\101\116\116\108\101\109\101\110\116\071\117\110\110\101\114\065\109\109\111\046\032\078\111\032\082\111\098\117\120\032\112\117\114\099\104\097\115\101\115\046"
-),110,90)end local bD,bE=0,0 task.spawn(function()while aW do local bF,bG=pcall(
-function()local bF,bG,bH=br()if os.clock()>=bE then bE=os.clock()+2 by()be.Text=
+),110,90)end local bE,bF=0,0 task.spawn(function()while aX do local bG,bH=pcall(
+function()local bG,bH,bI=br()if os.clock()>=bF then bF=os.clock()+2 bz()bf.Text=
 string.format(
-'\037\115\032\u{b7}\032\080\108\097\099\101\032\037\115\n\037\115\058\032\037\115\032\u{b7}\032\037\115\058\032\037\115\n\037\115\058\032\037\100\047\037\100\032\u{b7}\032\067\114\097\102\116\058\032\037\100\047\037\100',aQ==
-'\108\111\098\098\121'and'\076\111\098\098\121'or aS('\069\120\112\101\100\105\u{e7}\u{e3}\111','\069\120\112\101\100\105\116\105\111\110'),game.PlaceId,aS(
-'\086\105\100\097','\072\101\097\108\116\104'),bH and math.floor(bH.Health)or 0,aS('\073\103\114\101\106\097','\067\104\117\114\099\104'),bv()and
-aS('\099\097\114\114\101\103\097\100\097','\108\111\097\100\101\100')or aS('\110\u{e3}\111\032\099\097\114\114\101\103\097\100\097','\110\111\116\032\108\111\097\100\101\100'),aS(
-'\084\101\110\116\097\116\105\118\097\115\032\117\112\103\114\097\100\101','\085\112\103\114\097\100\101\032\097\116\116\101\109\112\116\115'),aZ.upgrades,a9.limit,aZ.craft,a9.
-craftLimit)end if aQ~='\114\117\110'or not bG then return end if aY.skip then local bI=aO
-.skipRequest(bn('\067\117\116\083\099\101\110\101\067\111\110\116\114\111\108\108\101\114'))if not bI then bB=nil elseif not bB or bB.
-name~=bI.name or bB.id~=bI.id or bB.session~=bI.session then bB=bI local bJ=bp(
-'\067\117\116\083\099\101\110\101\083\101\114\118\105\099\101')if bI.private then bq(bJ:VoteSkipPrivate(bI.id,bI.name))else
-bq(bJ:VoteSkip(bI.name,bI.id))end end end if workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101'
-)then return end if aY.swing and not game:GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101'):
-GetFocusedTextBox()then local bI=bn('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')local bJ=bI and bI.
-ActiveTool local bK=bn('\085\073\067\111\110\116\114\111\108\108\101\114')if bJ and bJ.Tool and bJ.Tool.Name:find(
-'\080\105\099\107\097\120\101',1,true)and type(bJ.Swing)=='\102\117\110\099\116\105\111\110'and not(bK and bK.ActiveFrame and
-bK.ActiveFrame.Visible)then bJ:Swing()end end if os.clock()<bD then return end
-bD=os.clock()+3 if aY.upgrades and aZ.upgrades<a9.limit then local bI=bn(
-'\068\114\105\108\108\085\112\103\114\097\100\101\067\111\110\116\114\111\108\108\101\114')if bI and not bI.PurchasePending and not bI.CardsLocked
-and not bI.ActiveClassReward and bI.OptionsVersion~=nil then local bJ=bI.
-OptionsVersion local bK=bI.RollToken local bL=bq(bp('\067\117\114\114\101\110\099\121\083\101\114\118\105\099\101'):
-GetCurrency())if not aW or not aY.upgrades or bJ~=bI.OptionsVersion or bK~=bI.
-RollToken or bI.PurchasePending or bI.CardsLocked or bI.ActiveClassReward or not
-br()then return end local bM=aO.offer(bI.Options,bL,a9.reserve,aO.names(a9.
-priority))if bM then aZ.upgrades+=1 bI:SetPurchasePending(true)local bN,bO=
-pcall(function()return bq(bp('\068\114\105\108\108\083\101\114\118\105\099\101'):UpgradeDrill(bM.UpgradeName,bJ))end
-)if bJ==bI.OptionsVersion and bK==bI.RollToken then bI:SetPurchasePending(false)
-end if not bN then error(bO)end if not aW then return end if bO=='\112\114\111\109\112\116\101\100'then
-aY.upgrades=false a0.upgrades(false)bg(
+'\037\115\032\u{b7}\032\080\108\097\099\101\032\037\115\n\037\115\058\032\037\115\032\u{b7}\032\037\115\058\032\037\115\n\037\115\058\032\037\100\047\037\100\032\u{b7}\032\067\114\097\102\116\058\032\037\100\047\037\100',aR==
+'\108\111\098\098\121'and'\076\111\098\098\121'or aT('\069\120\112\101\100\105\u{e7}\u{e3}\111','\069\120\112\101\100\105\116\105\111\110'),game.PlaceId,aT(
+'\086\105\100\097','\072\101\097\108\116\104'),bI and math.floor(bI.Health)or 0,aT('\073\103\114\101\106\097','\067\104\117\114\099\104'),bw()and
+aT('\099\097\114\114\101\103\097\100\097','\108\111\097\100\101\100')or aT('\110\u{e3}\111\032\099\097\114\114\101\103\097\100\097','\110\111\116\032\108\111\097\100\101\100'),aT(
+'\084\101\110\116\097\116\105\118\097\115\032\117\112\103\114\097\100\101','\085\112\103\114\097\100\101\032\097\116\116\101\109\112\116\115'),a_.upgrades,ba.limit,a_.craft,ba.
+craftLimit)end if aR~='\114\117\110'or not bH then return end if aZ.skip then local bJ=aP
+.skipRequest(bo('\067\117\116\083\099\101\110\101\067\111\110\116\114\111\108\108\101\114'))if not bJ then bC=nil elseif not bC or bC.
+name~=bJ.name or bC.id~=bJ.id or bC.session~=bJ.session then bC=bJ local bK=bp(
+'\067\117\116\083\099\101\110\101\083\101\114\118\105\099\101')if bJ.private then bq(bK:VoteSkipPrivate(bJ.id,bJ.name))else
+bq(bK:VoteSkip(bJ.name,bJ.id))end end end if workspace:GetAttribute('\073\110\067\117\116\083\099\101\110\101'
+)then return end if aZ.swing and not game:GetService('\085\115\101\114\073\110\112\117\116\083\101\114\118\105\099\101'):
+GetFocusedTextBox()then local bJ=bo('\084\111\111\108\067\111\110\116\114\111\108\108\101\114')local bK=bJ and bJ.
+ActiveTool local bL=bo('\085\073\067\111\110\116\114\111\108\108\101\114')if bK and bK.Tool and bK.Tool.Name:find(
+'\080\105\099\107\097\120\101',1,true)and type(bK.Swing)=='\102\117\110\099\116\105\111\110'and not(bL and bL.ActiveFrame and
+bL.ActiveFrame.Visible)then bK:Swing()end end if os.clock()<bE then return end
+bE=os.clock()+3 if aZ.upgrades and a_.upgrades<ba.limit then local bJ=bo(
+'\068\114\105\108\108\085\112\103\114\097\100\101\067\111\110\116\114\111\108\108\101\114')if bJ and not bJ.PurchasePending and not bJ.CardsLocked
+and not bJ.ActiveClassReward and bJ.OptionsVersion~=nil then local bK=bJ.
+OptionsVersion local bL=bJ.RollToken local bM=bq(bp('\067\117\114\114\101\110\099\121\083\101\114\118\105\099\101'):
+GetCurrency())if not aX or not aZ.upgrades or bK~=bJ.OptionsVersion or bL~=bJ.
+RollToken or bJ.PurchasePending or bJ.CardsLocked or bJ.ActiveClassReward or not
+br()then return end local bN=aP.offer(bJ.Options,bM,ba.reserve,aP.names(ba.
+priority))if bN then a_.upgrades+=1 bJ:SetPurchasePending(true)local bO,bP=
+pcall(function()return bq(bp('\068\114\105\108\108\083\101\114\118\105\099\101'):UpgradeDrill(bN.UpgradeName,bK))end
+)if bK==bJ.OptionsVersion and bL==bJ.RollToken then bJ:SetPurchasePending(false)
+end if not bO then error(bP)end if not aX then return end if bP=='\112\114\111\109\112\116\101\100'then
+aZ.upgrades=false a1.upgrades(false)bh(
 '\079\032\106\111\103\111\032\114\101\116\111\114\110\111\117\032\117\109\032\102\108\117\120\111\032\100\101\032\099\111\109\112\114\097\059\032\097\117\116\111\109\097\u{e7}\u{e3}\111\032\100\101\115\097\116\105\118\097\100\097\046',
-'\084\104\101\032\103\097\109\101\032\114\101\116\117\114\110\101\100\032\097\032\112\117\114\099\104\097\115\101\032\102\108\111\119\059\032\097\117\116\111\109\097\116\105\111\110\032\100\105\115\097\098\108\101\100\046')else bg(aS(
-'\077\101\108\104\111\114\105\097\032\115\111\108\105\099\105\116\097\100\097\058\032','\085\112\103\114\097\100\101\032\114\101\113\117\101\115\116\101\100\058\032')..bM.UpgradeName)end if type(bI.
-FetchUpgradeOptions)=='\102\117\110\099\116\105\111\110'then bI:FetchUpgradeOptions()end end end end if
-aY.medals and aZ.medals<a9.medalLimit then local bI=bn('\076\097\114\114\121\067\111\110\116\114\111\108\108\101\114')if bI
-and bI.Frame and bI.Frame.Visible and not bI.PurchasePending and bI:FindStation(
-)then if not bC then local bJ=aU:FindFirstChild('\083\104\097\114\101\100')local bK=bJ and bJ:
-FindFirstChild('\076\097\114\114\121\067\111\110\102\105\103')if bK then bC=require(bK).Upgrades end end local bJ
-=bC and aO.medalOffer(bC,bI.State,a9.medalReserve,aO.names(a9.medalPriority))if
-bJ then aZ.medals+=1 bI:BuyUpgrade(bJ)bg(aS('\077\101\108\104\111\114\105\097\032\099\111\109\032\109\101\100\097\108\104\097\115\032\115\111\108\105\099\105\116\097\100\097\058\032'
-,'\077\101\100\097\108\032\117\112\103\114\097\100\101\032\114\101\113\117\101\115\116\101\100\058\032')..bJ)end end end if aY.craft and aZ.craft<a9.
-craftLimit then local bI=bn('\067\114\097\102\116\105\110\103\067\111\110\116\114\111\108\108\101\114')if bI and bI.CurrentItem and
-not bI.PendingCraft and bI.Frame and bI.Frame.Visible and not bI:
-CanPurchaseWithRobux(bI.CurrentItem)and bI:CanCraft(bI.CurrentItem)then aZ.craft
-+=1 bI:CraftCurrentItem()bg(
+'\084\104\101\032\103\097\109\101\032\114\101\116\117\114\110\101\100\032\097\032\112\117\114\099\104\097\115\101\032\102\108\111\119\059\032\097\117\116\111\109\097\116\105\111\110\032\100\105\115\097\098\108\101\100\046')else bh(aT(
+'\077\101\108\104\111\114\105\097\032\115\111\108\105\099\105\116\097\100\097\058\032','\085\112\103\114\097\100\101\032\114\101\113\117\101\115\116\101\100\058\032')..bN.UpgradeName)end if type(bJ.
+FetchUpgradeOptions)=='\102\117\110\099\116\105\111\110'then bJ:FetchUpgradeOptions()end end end end if
+aZ.medals and a_.medals<ba.medalLimit then local bJ=bo('\076\097\114\114\121\067\111\110\116\114\111\108\108\101\114')if bJ
+and bJ.Frame and bJ.Frame.Visible and not bJ.PurchasePending and bJ:FindStation(
+)then if not bD then local bK=aV:FindFirstChild('\083\104\097\114\101\100')local bL=bK and bK:
+FindFirstChild('\076\097\114\114\121\067\111\110\102\105\103')if bL then bD=require(bL).Upgrades end end local bK
+=bD and aP.medalOffer(bD,bJ.State,ba.medalReserve,aP.names(ba.medalPriority))if
+bK then a_.medals+=1 bJ:BuyUpgrade(bK)bh(aT('\077\101\108\104\111\114\105\097\032\099\111\109\032\109\101\100\097\108\104\097\115\032\115\111\108\105\099\105\116\097\100\097\058\032'
+,'\077\101\100\097\108\032\117\112\103\114\097\100\101\032\114\101\113\117\101\115\116\101\100\058\032')..bK)end end end if aZ.craft and a_.craft<ba.
+craftLimit then local bJ=bo('\067\114\097\102\116\105\110\103\067\111\110\116\114\111\108\108\101\114')if bJ and bJ.CurrentItem and
+not bJ.PendingCraft and bJ.Frame and bJ.Frame.Visible and not bJ:
+CanPurchaseWithRobux(bJ.CurrentItem)and bJ:CanCraft(bJ.CurrentItem)then a_.craft
++=1 bJ:CraftCurrentItem()bh(
 '\070\097\098\114\105\099\097\u{e7}\u{e3}\111\032\115\111\108\105\099\105\116\097\100\097\032\112\097\114\097\032\111\032\105\116\101\109\032\115\101\108\101\099\105\111\110\097\100\111\046',
-'\067\114\097\102\116\032\114\101\113\117\101\115\116\101\100\032\102\111\114\032\116\104\101\032\115\101\108\101\099\116\101\100\032\105\116\101\109\046')end end end)if not bF then bg(aS(
-'\065\103\117\097\114\100\097\110\100\111\032\047\032\101\114\114\111\058\032','\087\097\105\116\105\110\103\032\047\032\101\114\114\111\114\058\032')..tostring(bG))bD=os.clock()+8 end
-task.wait(0.2)end end)end local aQ,aR,aS=false,nil,false local aT=task.spawn(
-function()aQ,aR=pcall(aP,{ui=O,page=N('\070\097\114\109'),T=function(aT,aU)return b.language
-=='\112\116'and aT or aU end,progress=aE,attach=function(aT)j=aT end,section=N,quick=
-function(aT)k=aT end})aS=true end)local aU=os.clock()+45 while l and not aS and
-os.clock()<aU do task.wait(0.05)end if not aS then pcall(task.cancel,aT)aQ=false
-aR=p('\084\101\109\112\111\032\108\105\109\105\116\101\032\100\101\032\052\053\032\115\101\103\117\110\100\111\115\032\101\120\099\101\100\105\100\111\046\032\u{da}\108\116\105\109\097\032\101\116\097\112\097\058\032',
+'\067\114\097\102\116\032\114\101\113\117\101\115\116\101\100\032\102\111\114\032\116\104\101\032\115\101\108\101\099\116\101\100\032\105\116\101\109\046')end end end)if not bG then bh(aT(
+'\065\103\117\097\114\100\097\110\100\111\032\047\032\101\114\114\111\058\032','\087\097\105\116\105\110\103\032\047\032\101\114\114\111\114\058\032')..tostring(bH))bE=os.clock()+8 end
+task.wait(0.2)end end)end local aR,aS,aT=false,nil,false local aU=task.spawn(
+function()aR,aS=pcall(aQ,{ui=O,page=N('\070\097\114\109'),T=function(aU,aV)return b.language
+=='\112\116'and aU or aV end,progress=aE,attach=function(aU)j=aU end,section=N,quick=
+function(aU)k=aU end})aT=true end)local aV=os.clock()+45 while l and not aT and
+os.clock()<aV do task.wait(0.05)end if not aT then pcall(task.cancel,aU)aR=false
+aS=p('\084\101\109\112\111\032\108\105\109\105\116\101\032\100\101\032\052\053\032\115\101\103\117\110\100\111\115\032\101\120\099\101\100\105\100\111\046\032\u{da}\108\116\105\109\097\032\101\116\097\112\097\058\032',
 '\052\053\045\115\101\099\111\110\100\032\116\105\109\101\111\117\116\046\032\076\097\115\116\032\115\116\097\103\101\058\032')..as.Text end if not l then return end if not
-aQ then if j then pcall(j)j=nil end ar.Text=p(
+aR then if j then pcall(j)j=nil end ar.Text=p(
 '\078\u{e3}\111\032\102\111\105\032\112\111\115\115\u{ed}\118\101\108\032\099\097\114\114\101\103\097\114\032\097\115\032\102\117\110\u{e7}\u{f5}\101\115',
 '\067\111\117\108\100\032\110\111\116\032\108\111\097\100\032\116\104\101\032\102\101\097\116\117\114\101\115')as.Text=p(
 '\070\101\099\104\101\032\111\032\112\097\105\110\101\108\032\101\032\116\101\110\116\101\032\110\111\118\097\109\101\110\116\101\046\032\068\101\116\097\108\104\101\115\058\032',
-'\067\108\111\115\101\032\116\104\101\032\112\097\110\101\108\032\097\110\100\032\116\114\121\032\097\103\097\105\110\046\032\068\101\116\097\105\108\115\058\032')..tostring(aR)aw.Text=p(
+'\067\108\111\115\101\032\116\104\101\032\112\097\110\101\108\032\097\110\100\032\116\114\121\032\097\103\097\105\110\046\032\068\101\116\097\105\108\115\058\032')..tostring(aS)aw.Text=p(
 '\067\097\114\114\101\103\097\109\101\110\116\111\032\105\110\116\101\114\114\111\109\112\105\100\111','\076\111\097\100\105\110\103\032\105\110\116\101\114\114\117\112\116\101\100')b.ready()return end local
-function aV(aW,aX)local aY,aZ,a_=false,false,nil local a0=task.spawn(function()
-aZ,a_=pcall(aW)aY=true end)local a1=os.clock()+aX while l and not aY and os.
-clock()<a1 do task.wait(0.05)end if not aY then pcall(task.cancel,a0)return
-false,p('\084\101\109\112\111\032\108\105\109\105\116\101\032\101\120\099\101\100\105\100\111','\084\105\109\101\032\108\105\109\105\116\032\101\120\099\101\101\100\101\100')end return aZ,a_ end aE(
+function aW(aX,aY)local aZ,a_,a0=false,false,nil local a1=task.spawn(function()
+a_,a0=pcall(aX)aZ=true end)local a2=os.clock()+aY while l and not aZ and os.
+clock()<a2 do task.wait(0.05)end if not aZ then pcall(task.cancel,a1)return
+false,p('\084\101\109\112\111\032\108\105\109\105\116\101\032\101\120\099\101\100\105\100\111','\084\105\109\101\032\108\105\109\105\116\032\101\120\099\101\101\100\101\100')end return a_,a0 end aE(
 0.92,'\077\111\110\116\097\110\100\111\032\111\115\032\097\106\117\115\116\101\115\032\100\101\032\116\101\108\097\u{2026}','\066\117\105\108\100\105\110\103\032\100\105\115\112\108\097\121\032\115\101\116\116\105\110\103\115\u{2026}')
-local aW local aX,aY=aV(function()local aX=N('\065\106\117\115\116\101\115')ab(aX)local aY=O.button(
-aX,p('\u{1f1e7}\u{1f1f7}\032\032\073\100\105\111\109\097\058\032\080\111\114\116\117\103\117\u{ea}\115\032\032\u{b7}\032\032\065\108\116\101\114\097\114',
-'\u{1f1fa}\u{1f1f8}\032\032\076\097\110\103\117\097\103\101\058\032\069\110\103\108\105\115\104\032\032\u{b7}\032\032\067\104\097\110\103\101'),870)r(aY.Activated,
+local aX local aY,aZ=aW(function()local aY=N('\065\106\117\115\116\101\115')ab(aY)local aZ=O.button(
+aY,p('\u{1f1e7}\u{1f1f7}\032\032\073\100\105\111\109\097\058\032\080\111\114\116\117\103\117\u{ea}\115\032\032\u{b7}\032\032\065\108\116\101\114\097\114',
+'\u{1f1fa}\u{1f1f8}\032\032\076\097\110\103\117\097\103\101\058\032\069\110\103\108\105\115\104\032\032\u{b7}\032\032\067\104\097\110\103\101'),870)r(aZ.Activated,
 function()if type(b.chooseLanguage)=='\102\117\110\099\116\105\111\110'then b.chooseLanguage()end end)O.
-label(aX,'\084\101\120\116\076\097\098\101\108',p(
+label(aY,'\084\101\120\116\076\097\098\101\108',p(
 '\084\114\111\099\097\114\032\111\032\105\100\105\111\109\097\032\114\101\097\098\114\101\032\111\032\112\097\105\110\101\108\032\099\111\109\032\097\115\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115\032\112\097\117\115\097\100\097\115\046',
-'\067\104\097\110\103\105\110\103\032\108\097\110\103\117\097\103\101\032\114\101\111\112\101\110\115\032\116\104\101\032\112\097\110\101\108\032\119\105\116\104\032\097\117\116\111\109\097\116\105\111\110\032\112\097\117\115\101\100\046'),44,871)O.label(aX
+'\067\104\097\110\103\105\110\103\032\108\097\110\103\117\097\103\101\032\114\101\111\112\101\110\115\032\116\104\101\032\112\097\110\101\108\032\119\105\116\104\032\097\117\116\111\109\097\116\105\111\110\032\112\097\117\115\101\100\046'),44,871)O.label(aY
 ,'\084\101\120\116\076\097\098\101\108',b.language=='\112\116'and
 '\084\111\113\117\101\032\065\058\032\097\098\114\105\114\047\102\101\099\104\097\114\046\032\083\101\103\117\114\101\032\048\044\054\053\115\032\101\032\115\111\108\116\101\058\032\112\097\114\097\114\032\097\117\116\111\109\097\u{e7}\u{f5}\101\115\046\032\065\114\114\097\115\116\101\058\032\109\111\118\101\114\046\032\082\105\103\104\116\067\116\114\108\058\032\112\097\105\110\101\108\046'
 or
 "\084\097\112\032\065\058\032\116\111\103\103\108\101\032\112\097\110\101\108\046\032\072\111\108\100\032\048\046\054\053\115\032\097\110\100\032\114\101\108\101\097\115\101\058\032\115\116\111\112\032\097\117\116\111\109\097\116\105\111\110\046\032\068\114\097\103\058\032\109\111\118\101\046\032\082\105\103\104\116\067\116\114\108\058\032\112\097\110\101\108\046"
-,68,900)local aZ=O.label(aX,'\084\101\120\116\066\111\120','\069\066\065\053\070\070',40,902)aZ.ClearTextOnFocus=false
-O.label(aX,'\084\101\120\116\076\097\098\101\108',b.language=='\112\116'and
+,68,900)local a_=O.label(aY,'\084\101\120\116\066\111\120','\069\066\065\053\070\070',40,902)a_.ClearTextOnFocus=false
+O.label(aY,'\084\101\120\116\076\097\098\101\108',b.language=='\112\116'and
 '\067\111\114\032\100\101\032\100\101\115\116\097\113\117\101\058\032\104\101\120\097\100\101\099\105\109\097\108\032\040\101\120\046\058\032\070\070\067\065\052\050\041'or
-'\065\099\099\101\110\116\032\099\111\108\111\114\058\032\104\101\120\097\100\101\099\105\109\097\108\032\040\101\046\103\046\032\070\070\067\065\052\050\041',30,901)local a_=
-'\065\110\111\110\072\117\098\095\069\097\114\116\104\067\111\114\101\095\084\104\101\109\101\046\106\115\111\110'local a0='\065\109\101\116\104\121\115\116'local a1={Amethyst={'\048\067\048\067\049\048',
+'\065\099\099\101\110\116\032\099\111\108\111\114\058\032\104\101\120\097\100\101\099\105\109\097\108\032\040\101\046\103\046\032\070\070\067\065\052\050\041',30,901)local a0=
+'\065\110\111\110\072\117\098\095\069\097\114\116\104\067\111\114\101\095\084\104\101\109\101\046\106\115\111\110'local a1='\065\109\101\116\104\121\115\116'local a2={Amethyst={'\048\067\048\067\049\048',
 '\050\055\049\056\051\053','\057\054\051\067\068\067','\070\070\070\053\070\070','\067\065\066\052\068\056','\069\066\065\053\070\070','\049\057\048\070\050\051'},Potato={'\050\051\049\070\049\057','\052\049\051\054\050\055'
 ,'\055\052\053\056\051\049','\070\067\070\054\069\050','\068\053\067\051\065\051','\069\066\065\053\070\070','\051\048\050\055\049\068'},Bloodmoon={'\049\055\048\067\049\051','\051\048\049\051\049\070',
 '\054\066\050\054\051\068','\070\070\069\065\070\048','\068\050\065\048\066\048','\070\070\052\053\054\056','\050\051\048\070\049\065'},Midnight={'\049\048\049\051\049\069','\049\068\050\052\051\054',
 '\051\053\052\054\054\053','\069\068\070\051\070\070','\065\052\066\051\067\067','\055\051\057\070\070\070','\049\053\049\066\050\065'},Emerald={'\048\066\049\057\049\054','\049\052\050\069\050\054',
 '\050\066\053\057\052\055','\069\054\070\070\070\051','\057\069\067\054\066\051','\053\054\068\068\065\048','\049\048\050\052\049\069'},Arctic={'\049\049\049\066\050\054','\049\067\050\068\051\068','\051\054\053\049\054\065'
-,'\069\066\070\056\070\070','\065\057\067\055\068\065','\055\057\068\057\070\070','\049\055\050\051\051\049'}}local function a2(a3)return Color3.
-fromRGB(tonumber(a3:sub(1,2),16),tonumber(a3:sub(3,4),16),tonumber(a3:sub(5,6),
-16))end local function a3()if type(writefile)=='\102\117\110\099\116\105\111\110'then task.spawn(
-function()pcall(writefile,a_,e:JSONEncode({preset=a0,hex=aZ.Text}))end)end end
-local function a4(a5)if type(a5)~='\115\116\114\105\110\103'or not a5:match('\094\037\120\037\120\037\120\037\120\037\120\037\120\036')then
-return false end o=Color3.fromRGB(tonumber(a5:sub(1,2),16),tonumber(a5:sub(3,4),
-16),tonumber(a5:sub(5,6),16))m.accent=o F.BackgroundColor3=o z.BackgroundColor3=
-o M(J)for a6,a7 in ipairs(P)do a7()end for a6,a7 in pairs(H)do a7.
-ScrollBarImageColor3=o end aZ.Text=a5 return true end local function a5(a6)local
-a7=a1[a6]if not a7 then return end a0=a6 for a8,a9 in ipairs({'\100\097\114\107','\116\105\108\101',
-'\101\100\103\101','\116\101\120\116','\109\117\116\101\100','\097\099\099\101\110\116','\115\105\100\101\098\097\114'})do m[a9]=a2(a7[a8])end o=m.accent for
-a8,a9 in pairs(n)do if a8.Parent then for ba,bb in pairs(a9)do a8[ba]=m[bb]end
-end end local a8=w:FindFirstChildOfClass('\085\073\071\114\097\100\105\101\110\116')if a8 then a8.Color=
-ColorSequence.new(m.tile,m.dark)end a4(a7[6])end O.label(aX,'\084\101\120\116\076\097\098\101\108',p(
-'\084\069\077\065\083\032\080\082\079\078\084\079\083','\084\072\069\077\069\032\080\082\069\083\069\084\083'),32,880)for a6,a7 in ipairs({'\065\109\101\116\104\121\115\116','\080\111\116\097\116\111'
-,'\066\108\111\111\100\109\111\111\110','\077\105\100\110\105\103\104\116','\069\109\101\114\097\108\100','\065\114\099\116\105\099'})do local a8=O.button(aX,a7,880+a6)r(
-a8.Activated,function()a5(a7)a3()end)end aW=function()if type(readfile)==
-'\102\117\110\099\116\105\111\110'then local a6=readfile(a_)if type(a6)=='\115\116\114\105\110\103'and#a6<=2048 then local
-a7=e:JSONDecode(a6)if l and aZ.Parent and type(a7)=='\116\097\098\108\101'then if a1[a7.preset]
-then a5(a7.preset)end a4(a7.hex)end end end end r(aZ.FocusLost,function()local
-a6=aZ.Text:gsub('\035',''):upper()if a4(a6)then a3()end end)end,5)if not l then
+,'\069\066\070\056\070\070','\065\057\067\055\068\065','\055\057\068\057\070\070','\049\055\050\051\051\049'}}local function a3(a4)return Color3.
+fromRGB(tonumber(a4:sub(1,2),16),tonumber(a4:sub(3,4),16),tonumber(a4:sub(5,6),
+16))end local function a4()if type(writefile)=='\102\117\110\099\116\105\111\110'then task.spawn(
+function()pcall(writefile,a0,e:JSONEncode({preset=a1,hex=a_.Text}))end)end end
+local function a5(a6)if type(a6)~='\115\116\114\105\110\103'or not a6:match('\094\037\120\037\120\037\120\037\120\037\120\037\120\036')then
+return false end o=Color3.fromRGB(tonumber(a6:sub(1,2),16),tonumber(a6:sub(3,4),
+16),tonumber(a6:sub(5,6),16))m.accent=o F.BackgroundColor3=o z.BackgroundColor3=
+o M(J)for a7,a8 in ipairs(P)do a8()end for a7,a8 in pairs(H)do a8.
+ScrollBarImageColor3=o end a_.Text=a6 return true end local function a6(a7)local
+a8=a2[a7]if not a8 then return end a1=a7 for a9,ba in ipairs({'\100\097\114\107','\116\105\108\101',
+'\101\100\103\101','\116\101\120\116','\109\117\116\101\100','\097\099\099\101\110\116','\115\105\100\101\098\097\114'})do m[ba]=a3(a8[a9])end o=m.accent for
+a9,ba in pairs(n)do if a9.Parent then for bb,bc in pairs(ba)do a9[bb]=m[bc]end
+end end local a9=w:FindFirstChildOfClass('\085\073\071\114\097\100\105\101\110\116')if a9 then a9.Color=
+ColorSequence.new(m.tile,m.dark)end a5(a8[6])end O.label(aY,'\084\101\120\116\076\097\098\101\108',p(
+'\084\069\077\065\083\032\080\082\079\078\084\079\083','\084\072\069\077\069\032\080\082\069\083\069\084\083'),32,880)for a7,a8 in ipairs({'\065\109\101\116\104\121\115\116','\080\111\116\097\116\111'
+,'\066\108\111\111\100\109\111\111\110','\077\105\100\110\105\103\104\116','\069\109\101\114\097\108\100','\065\114\099\116\105\099'})do local a9=O.button(aY,a8,880+a7)r(
+a9.Activated,function()a6(a8)a4()end)end aX=function()if type(readfile)==
+'\102\117\110\099\116\105\111\110'then local a7=readfile(a0)if type(a7)=='\115\116\114\105\110\103'and#a7<=2048 then local
+a8=e:JSONDecode(a7)if l and a_.Parent and type(a8)=='\116\097\098\108\101'then if a2[a8.preset]
+then a6(a8.preset)end a5(a8.hex)end end end end r(a_.FocusLost,function()local
+a7=a_.Text:gsub('\035',''):upper()if a5(a7)then a4()end end)end,5)if not l then
 return end aE(0.96,'\065\106\117\115\116\097\110\100\111\032\111\032\112\097\105\110\101\108\032\u{e0}\032\115\117\097\032\116\101\108\097\u{2026}',
-'\070\105\116\116\105\110\103\032\116\104\101\032\112\097\110\101\108\032\116\111\032\121\111\117\114\032\115\099\114\101\101\110\u{2026}')local aZ,a_=pcall(X)if not aZ then T=
-table.clone(S)pcall(X)end local a0 if not aX or not aZ then a0=p(
-'\065\106\117\115\116\101\115\032\118\105\115\117\097\105\115\032\105\110\099\111\109\112\108\101\116\111\115\058\032','\083\111\109\101\032\100\105\115\112\108\097\121\032\115\101\116\116\105\110\103\115\032\102\097\105\108\101\100\058\032')..tostring(aY
-or a_)E.Text=a0 warn('\091\065\110\111\110\072\117\098\032'..a..'\093\032'..a0)end aE(1,
+'\070\105\116\116\105\110\103\032\116\104\101\032\112\097\110\101\108\032\116\111\032\121\111\117\114\032\115\099\114\101\101\110\u{2026}')local a_,a0=pcall(X)if not a_ then T=
+table.clone(S)pcall(X)end local a1 if not aY or not a_ then a1=p(
+'\065\106\117\115\116\101\115\032\118\105\115\117\097\105\115\032\105\110\099\111\109\112\108\101\116\111\115\058\032','\083\111\109\101\032\100\105\115\112\108\097\121\032\115\101\116\116\105\110\103\115\032\102\097\105\108\101\100\058\032')..tostring(aZ
+or a0)E.Text=a1 warn('\091\065\110\111\110\072\117\098\032'..a..'\093\032'..a1)end aE(1,
 '\080\097\105\110\101\108\032\112\114\111\110\116\111\046\032\065\115\032\102\117\110\u{e7}\u{f5}\101\115\032\101\115\116\u{e3}\111\032\112\097\117\115\097\100\097\115\046',
 '\080\097\110\101\108\032\114\101\097\100\121\046\032\070\101\097\116\117\114\101\115\032\097\114\101\032\112\097\117\115\101\100\046')ar.Text=p('\083\101\117\032\112\097\105\110\101\108\032\101\115\116\u{e1}\032\112\114\111\110\116\111',
 '\089\111\117\114\032\112\097\110\101\108\032\105\115\032\114\101\097\100\121')am=true if ao()then ap:Destroy()else task.spawn(function()
 while l and ap.Parent and not ao()do task.wait(0.05)end if l and ap.Parent then
-ap:Destroy()end end)end pcall(b.ready)if aW then task.defer(function()aV(aW,2)
+ap:Destroy()end end)end pcall(b.ready)if aX then task.defer(function()aW(aX,2)
 end)end

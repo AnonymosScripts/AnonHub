@@ -1,70 +1,70 @@
 {
-  "version": "0.40.9",
+  "version": "0.40.10",
   "tool": "darklua 0.19.0",
   "protection": "AST local renaming, dense formatting, decimal string escapes; not encryption",
   "files": [
     {
       "file": "loader.lua",
-      "sourceSha256": "bcea336e43af021c2f4d9dbf88c6f69da8c0274897c1ef3e162f691c48d9226d",
-      "outputSha256": "1996e9af40d635d088eaeade14f6e1ed1665a0b43fde16d5990f76cecd09d5c8",
-      "bytes": 952638,
-      "stringsEncoded": 8254,
+      "sourceSha256": "a9ddeb1ed5ce3e98975c32e2c6db652e75930fbaf7463414efdb188be360a795",
+      "outputSha256": "e214f654cca25e24b0d33af83b1163f1793e8a818ac272a89d239f01193877a1",
+      "bytes": 958565,
+      "stringsEncoded": 8286,
       "compilerEquivalence": true
     },
     {
       "file": "superpower/main.lua",
       "sourceSha256": "1d44ec3d1fbddf96ffadb623b014af632e3419709871a08936f2e2b3ba7e83e2",
-      "outputSha256": "f42cde3027529759421644a8915e06a98502705af297d056c34d2556c8bb5c76",
-      "bytes": 117137,
+      "outputSha256": "96aed0985d4f211e0ad73cce455a11f289e5528b0ea5fdbf46a7d8cec87c8fce",
+      "bytes": 117138,
       "stringsEncoded": 1003,
       "compilerEquivalence": true
     },
     {
       "file": "potato/chapter2.lua",
       "sourceSha256": "b648f97b44a180c00d00bae59b9532482d09c137c5d1dca6bd57e7b15c939f83",
-      "outputSha256": "1a38d49faeae62ae67a2c165ea55c9b37ed3446582e19e77ef03115665476124",
-      "bytes": 447000,
+      "outputSha256": "6a84947860170c80b901ff6174fa135dc10214fd22fb742cf61b2ecb4e5b6005",
+      "bytes": 447001,
       "stringsEncoded": 3790,
       "compilerEquivalence": true
     },
     {
       "file": "universal/main.lua",
       "sourceSha256": "c3b85455696d39f036530c00881d3d0a1bef2ee6044bb1688f742e13dba7c13b",
-      "outputSha256": "f6c7c9e41d557844ff4fc68922d05f26b4431bc1edfb23833f1d97267650256c",
-      "bytes": 72466,
+      "outputSha256": "ec1547a604fa527fbb25ad3a0d6a472821d81fe524d86801e55a0caba29cee94",
+      "bytes": 72467,
       "stringsEncoded": 718,
       "compilerEquivalence": true
     },
     {
       "file": "hillclimb/main.lua",
       "sourceSha256": "f2de0e5f9d3393c8ee8554ae7c3a2e3ad2a5373abea2bf5e5009aad7c7e9b751",
-      "outputSha256": "b62e5868c45457d84e3b534969ba33430f10f1838fdd6ef0ea16d305fef0596b",
-      "bytes": 44777,
+      "outputSha256": "3937c93b2d570079e0da05ded50767e4016018310241fe65e8bb33c1bf99ba5d",
+      "bytes": 44778,
       "stringsEncoded": 356,
       "compilerEquivalence": true
     },
     {
       "file": "earthcore/main.lua",
-      "sourceSha256": "5eb4c28c10b3dbfb85204c825730e58f72441615b1b68fa0f7d95a192643a6fd",
-      "outputSha256": "47c2f9995732d28ce9a9c648fcf679746aedd04154e1338fb02ecd845124126c",
-      "bytes": 215717,
-      "stringsEncoded": 1817,
+      "sourceSha256": "57b3c1bf5ec2f5a49d171266692366d5a46b3f1ea8172f85cdb22dc625a082e5",
+      "outputSha256": "59b5ce03521c4e7e031e0c4d8bb887b5b0d6989aba35480832a2c8565e49fbf3",
+      "bytes": 221599,
+      "stringsEncoded": 1849,
       "compilerEquivalence": true
     },
     {
       "file": "superpower/module.lua",
       "sourceSha256": "b7d8a904281d5904f8b952c9be13465147db5fe0a4464af969a0eb2027aea9f1",
-      "outputSha256": "279fcdea391394db8f55513c25ad78413caf461f8e18418393bf8682a935edca",
-      "bytes": 77754,
+      "outputSha256": "cdbc212ea27117daf483d327f7f083014e6ceb5a911c5ed19961ccb6097a0c72",
+      "bytes": 77755,
       "stringsEncoded": 681,
       "compilerEquivalence": true
     },
     {
       "file": "superpower/test.lua",
-      "sourceSha256": "bcea336e43af021c2f4d9dbf88c6f69da8c0274897c1ef3e162f691c48d9226d",
-      "outputSha256": "1996e9af40d635d088eaeade14f6e1ed1665a0b43fde16d5990f76cecd09d5c8",
-      "bytes": 952638,
-      "stringsEncoded": 8254,
+      "sourceSha256": "a9ddeb1ed5ce3e98975c32e2c6db652e75930fbaf7463414efdb188be360a795",
+      "outputSha256": "e214f654cca25e24b0d33af83b1163f1793e8a818ac272a89d239f01193877a1",
+      "bytes": 958565,
+      "stringsEncoded": 8286,
       "compilerEquivalence": true
     }
   ]

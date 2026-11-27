@@ -1,0 +1,21 @@
+ANONHUB 0.40.10 - STAGING, MINESHAFT AND SHORTCUT IMAGES
+
+Shop staging fills the floor before stacking identical footprints/groups.
+Stacks are limited to three items and a conservative height/footprint ratio.
+Checks real support floor and requires an empty purchase square before starting.
+Adds clearance, clears residual assembly velocity while dragging, waits after
+release and checks both the new placement and previous stacks for displacement.
+Stops on drift instead of continuing to destabilize the batch. No anchoring or
+automatic purchase is performed; fewer items may fit under the stability limits.
+
+Auto Mine supports the active Mineshaft only while inside it. Outdoors it
+excludes Dungeon-owned ores. Filters both ore targets and loose fragments by
+root/ID; ignores ambiguous interior loot. Scope changes interrupt the operation.
+Inside returns to the starting point; outside returns to the loaded drill.
+
+Floating action buttons use image assets from the captured upgrade icon catalog.
+Labels, outlines, independent visibility, drag handles and PT/EN are retained.
+
+Validation: floor-first packing, stack height/count limits, Dungeon scope cases,
+UI/utilities/medkit regressions, Luau compilation and protected build equivalence.
+No live Roblox/Delta physics or mining validation was available.
