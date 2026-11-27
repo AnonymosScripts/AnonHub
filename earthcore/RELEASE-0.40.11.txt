@@ -1,0 +1,21 @@
+ANONHUB 0.40.11 - SACK ROUND TRIP AND TWO CABIN PLATES
+
+Dungeon sack transport refreshes portal references by root/ID, approaches the
+actual prompt, waits for availability and makes up to three bounded attempts.
+Confirms passage through InDungeon state or the native DungeonDoorTransition
+Enter/Exit event. Temporary event listeners are disconnected on every outcome.
+Reacquires the active sack after crossing and checks its replicated item count.
+Waits for the drill, unloads with DropAll and falls back to confirmed individual
+Drop operations. Returns only after count reaches zero, then resumes collection.
+Marks matching loot deposited near the drill to avoid immediately collecting
+those new loose instances again. Progress identifies exit, unload and return.
+Blocked exits are not bypassed; failures preserve remaining sack contents.
+
+Cabin protection now defaults to two SheetMetal plates: opposing left/right
+sides of the driver's seat. Selector cycles 2, 4, 6, 8. Existing attached plates
+are not removed when lowering the requested count. Native weld confirmation
+continues to determine whether placement succeeded.
+
+Validation: portal confirmation/retry/lock/cancellation/listener simulations,
+transport and PT/EN UI checks, plate selector, existing regression checks,
+Luau compilation and protected-output equivalence. Not tested live in Delta.
