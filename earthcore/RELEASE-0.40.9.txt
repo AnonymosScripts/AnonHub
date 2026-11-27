@@ -1,0 +1,22 @@
+ANONHUB 0.40.9 - INVENTORY MEDKIT AND ESP FILTERS
+
+Auto Medkit now checks native HotbarController.Tools and CarryInventoryService
+GetInventory(). A stored medkit is moved to Hotbar via its actual item ID,
+equipped, consumed by the native tool, then the previous weapon is restored.
+No manual equipment is required for this flow; the game must accept the move
+and equipment. Full hotbar, driving restrictions and server healing time still
+apply. No fabricated tool or direct health modification is used.
+Preparation runs asynchronously, guards cancellation before mutation/equipment,
+and pauses smart weapon swaps and new mining/armor jobs while healing.
+
+ESP options: hide ShopItem-tagged items (including tagged ancestors), and hide
+all bases/structures independently of visited-base filtering. PT/EN retained.
+
+Not implemented: extending DrillDefense contact damage to cabin metal plates.
+Captured data describes native drill contact damage; it contains no verified
+client operation for assigning that damage to other objects. No dummy damage
+toggle or local-only damage attribute is exposed.
+
+Validation: medkit inventory/hotbar/backpack and cancellation simulations;
+UI/utility/logistics checks; Luau compilation; protected release instruction
+and string equivalence. Not validated live in Roblox/Delta.
