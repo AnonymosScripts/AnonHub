@@ -1,0 +1,34 @@
+ANONHUB 0.40.8 - EARTH CORE
+
+ESP
+- Compact value row: measured text, proportional coin, centered combined width.
+- Gate tier from replicated attributes/name/UI text; '?' when unavailable.
+- Optional loaded Dungeon chest summary; readable wood/gold/diamond/void/
+  Phoenix/mimic names. Does not reveal server-only or unloaded chest contents.
+- Hide start/tutorial structures and bases visited within 60 studs.
+
+DUNGEON LOGISTICS
+- Default: drag eligible loose items to a grid near the interior exit.
+- Optional: native CarryInventoryService pickup without requiring a sack.
+- Optional: empty sack pickup, exit, deposit at drill, re-enter and continue.
+- Only matching Dungeon IDs or descendants; removed bounding-box-only fallback.
+- Excludes corpses, humanoid models, shop/protected/death-chest/welded items.
+- Unidentified loose items are skipped rather than collecting outdoor items.
+- Inventory capacity, native pickup eligibility and exit locks still apply.
+
+UTILITIES
+- Adjustable Fullbright; restores captured lighting on disable/stop/unload.
+- Auto Mine: ore checkboxes, search range, native pickaxe swings, nearby matching
+  fragment pickup, return to drill. Outside Dungeons; finite timeout per ore.
+- Cabin protection: 4/6/8 loose SheetMetal plates near drill, geometric placement
+  and native attachment request. Counts only Welded confirmations; not immunity.
+- Smart combat: nearby stone-name/material/mutation enemies, prefer available
+  Void Sword, otherwise pickaxe, restore previous weapon afterwards.
+- Movement leases preserve other option states; automatic controls start off.
+
+VALIDATION
+Luau compilation; PT/EN UI, disabled defaults, loot mode cycling, strict Dungeon
+membership checks, lighting restoration, cleanup, World 1/2 regressions, protected
+output compiler instruction/string equivalence. Same authenticated loader.
+No live Roblox/Delta session was available. Item ownership, physics, attachment,
+mining success and actual inventory transfers require in-game verification.
